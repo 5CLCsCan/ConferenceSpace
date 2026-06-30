@@ -54,7 +54,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
         >
           <div className="flex flex-col gap-4">
             <WizardFormField
-              label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_name")}
+              label={t(
+                "runtime.components.wizard.creation.steps.basic-details.label_conference_name",
+              )}
               required
             >
               <WizardInput
@@ -86,7 +88,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               </WizardFormField>
 
               <WizardFormField
-                label={t("runtime.components.wizard.creation.steps.basic-details.label_contact_email")}
+                label={t(
+                  "runtime.components.wizard.creation.steps.basic-details.label_contact_email",
+                )}
                 required
               >
                 <WizardInput
@@ -124,7 +128,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
             </div>
 
             <WizardFormField
-              label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_website")}
+              label={t(
+                "runtime.components.wizard.creation.steps.basic-details.label_conference_website",
+              )}
             >
               <WizardInput
                 type="url"
@@ -170,7 +176,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
             <div className="flex flex-col gap-4">
               {/* Format Selection */}
               <WizardFormField
-                label={t("runtime.components.wizard.creation.steps.basic-details.label_conference_format")}
+                label={t(
+                  "runtime.components.wizard.creation.steps.basic-details.label_conference_format",
+                )}
                 required
               >
                 <div className="flex gap-2" style={{ paddingTop: "4px", paddingBottom: "4px" }}>
@@ -215,7 +223,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               {/* Location - only show if not virtual */}
               {data.locationType !== "virtual" && (
                 <WizardFormField
-                  label={t("runtime.components.wizard.creation.steps.basic-details.label_venue_location")}
+                  label={t(
+                    "runtime.components.wizard.creation.steps.basic-details.label_venue_location",
+                  )}
                   required
                   hint={t(
                     "runtime.components.wizard.creation.steps.basic-details.hint_full_address_of_the_conference_venue",
@@ -260,7 +270,9 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
               {/* Virtual platform - only show if virtual or hybrid */}
               {(data.locationType === "virtual" || data.locationType === "hybrid") && (
                 <WizardFormField
-                  label={t("runtime.components.wizard.creation.steps.basic-details.label_virtual_platform")}
+                  label={t(
+                    "runtime.components.wizard.creation.steps.basic-details.label_virtual_platform",
+                  )}
                   hint={t(
                     "runtime.components.wizard.creation.steps.basic-details.hint_specify_the_virtual_conferencing_platform",
                   )}
@@ -270,8 +282,8 @@ export function BasicDetailsStep({ data, updateData }: BasicDetailsStepProps) {
                     placeholder={t(
                       "runtime.components.wizard.creation.steps.basic-details.placeholder_e_g_zoom_gather_town_hopin",
                     )}
-                    value=""
-                    onChange={() => {}}
+                    value={data.virtualPlatform}
+                    onChange={(e) => updateData({ virtualPlatform: e.target.value })}
                     icon={
                       <span
                         className="material-symbols-outlined"

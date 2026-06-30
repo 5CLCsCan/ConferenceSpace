@@ -28,6 +28,14 @@ def make_request_payload(*, action: str = "lookup", fingerprint: str = "sha256:t
         },
         "evidence": {
             "schema_version": "ai-006-v1",
+            "conference_cfp": {
+                "name": "Conference on Evidence Systems",
+                "acronym": "CES",
+                "description": "A conference about reliable evidence systems.",
+                "domains": ["systems", "ai"],
+                "tracks": ["main", "systems"],
+                "call_for_papers": "We invite papers on evidence-aware systems.",
+            },
             "submission": {
                 "title": "Evidence Aware Systems",
                 "track": "main",
@@ -77,7 +85,7 @@ def make_request_payload(*, action: str = "lookup", fingerprint: str = "sha256:t
                         "last_message_at": "2026-03-31T11:00:00Z",
                         "messages": [
                             {
-                                "author_email": "reviewer1@example.com",
+                                "role": "reviewer",
                                 "content": "The evaluation needs stronger baselines.",
                                 "created_at": "2026-03-31T10:30:00Z",
                             }
@@ -134,12 +142,6 @@ def make_artifact_payload() -> dict:
             "confidence_limits": ["Only one submitted review is available."],
         },
         "suggested_chair_note": "This draft summarizes the evidence without making the decision.",
-        "guardrails": {
-            "advisory_only": True,
-            "no_decision": True,
-            "no_automatic_status_change": True,
-            "human_judgment_required": "Final decision remains with the chair.",
-        },
         "evidence_fingerprint": "sha256:test",
         "generated_at": "2026-03-31T11:05:00Z",
     }
@@ -185,6 +187,23 @@ def test_artifact_and_response_models_use_isolated_defaults() -> None:
 def test_artifact_schema_rejects_verdict_like_language() -> None:
     payload = make_artifact_payload()
     payload["evidence_summary"]["overview"] = "The chair should accept this submission now."
+
+    with pytest.raises(Exception):
+        DecisionCopilotArtifact.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("areas_of_agreement", "Reviewers agree the likely accept outcome is clear."),
+        ("areas_of_disagreement", "One reviewer says accept this paper."),
+        ("unresolved_concerns", "The recommended decision is reject."),
+        ("confidence_limits", "The decision is accept if scores are trusted."),
+    ],
+)
+def test_disagreement_map_rejects_verdict_like_language(field: str, value: str) -> None:
+    payload = make_artifact_payload()
+    payload["disagreement_map"][field] = [value]
 
     with pytest.raises(Exception):
         DecisionCopilotArtifact.model_validate(payload)

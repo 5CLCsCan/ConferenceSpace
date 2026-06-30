@@ -17,7 +17,7 @@ export type SubmissionEligibility = {
   canEditExistingSubmission: boolean
   action: "submit" | "edit" | "view" | "closed"
   publicStatus: "call-for-papers" | "submission-closed" | "upcoming"
-  closedReason: "new-submissions-closed" | null
+  closedReason: "deadline-passed" | "conference-not-open" | null
 }
 
 export function isFinalSubmissionStatus(status?: string | null): boolean {
@@ -62,7 +62,14 @@ export function getSubmissionEligibility({
       ? "call-for-papers"
       : isFullPaperDeadlinePassed
         ? "submission-closed"
-        : "Upcoming"
+        : "upcoming"
+  const closedReason = !canViewExistingSubmission
+    ? isFullPaperDeadlinePassed
+      ? "deadline-passed"
+      : !canStartNewSubmission
+        ? "conference-not-open"
+        : null
+    : null
 
   return {
     isFullPaperDeadlinePassed,
@@ -71,7 +78,6 @@ export function getSubmissionEligibility({
     canEditExistingSubmission,
     action,
     publicStatus,
-    closedReason:
-      !canViewExistingSubmission && !canStartNewSubmission ? "new-submissions-closed" : null,
+    closedReason,
   }
 }

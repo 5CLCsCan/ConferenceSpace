@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.core.auth import Identity
 from app.workflows.submission_autofill.router import router as submission_autofill_router
+from app.workflows.submission_autofill.metadata import extract_submission_metadata
 from app.workflows.submission_autofill.runner import build_inference_payload
 from app.workflows.submission_autofill.schemas import (
     ActorPayload,
@@ -24,23 +25,20 @@ class _FakeRunner:
             "run_id": "run-autofill",
             "status": "ready",
             "fields": {
-                "title": {"value": "Extracted Title", "confidence": "high", "evidence": [], "warnings": []},
-                "abstract": {"value": "Extracted abstract.", "confidence": "high", "evidence": [], "warnings": []},
-                "keywords": {"value": ["ai"], "confidence": "medium", "evidence": [], "warnings": []},
-                "paper_type": {"value": "research", "confidence": "medium", "evidence": [], "warnings": []},
-                "additional_notes": {"value": "", "confidence": "not_found", "evidence": [], "warnings": []},
+                "title": "Extracted Title",
+                "abstract": "Extracted abstract.",
+                "keywords": ["ai"],
+                "paper_type": "research",
+                "additional_notes": "",
             },
             "track_rankings": [
                 {
                     "track_name": "AI",
                     "confidence": 8.5,
                     "rationale": "The manuscript focuses on AI-driven reviewer assignment.",
-                    "evidence": [],
-                    "warnings": [],
                 }
             ],
             "authors": [],
-            "possible_conflicts": [],
             "materials": [
                 {
                     "file_id": request.files[0].file_id,
@@ -129,7 +127,113 @@ def test_submission_autofill_route_requires_auth(monkeypatch) -> None:
     assert response.status_code == 401
 
 
-def test_build_inference_payload_keeps_materials_separate_and_marks_primary() -> None:
+def test_extract_submission_metadata_reads_title_abstract_and_authors_from_excerpt() -> None:
+    text = """
+    Graph-Based Reviewer Assignment for Academic Conferences
+    Alice Nguyen, Bob Tran
+    University of Science, Vietnam
+    alice@example.com, bob@example.com
+
+    Abstract
+    This paper studies graph-based reviewer assignment for academic conferences. It combines topic similarity,
+    workload balancing, and conflict checks to improve assignment quality.
+
+    Keywords: reviewer assignment, graph matching, academic conferences
+    1. Introduction
+    Reviewer assignment remains a difficult operational problem.
+    """
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata == {
+        "title": "Graph-Based Reviewer Assignment for Academic Conferences",
+        "abstract": "This paper studies graph-based reviewer assignment for academic conferences. It combines topic similarity, workload balancing, and conflict checks to improve assignment quality.",
+        "authors": [
+            {"name": "Alice Nguyen", "email": "alice@example.com", "affiliation": "University of Science, Vietnam", "country": ""},
+            {"name": "Bob Tran", "email": "bob@example.com", "affiliation": "University of Science, Vietnam", "country": ""},
+        ],
+        "keywords": ["reviewer assignment", "graph matching", "academic conferences"],
+    }
+
+
+def test_extract_submission_metadata_handles_markitdown_two_column_front_matter() -> None:
+    text = """
+A note on Pearson Correlation Coefficient as a metric
+of similarity in recommender system
+|     |                             | Leily Sheugh  |     |     |     | Sasan H. Alizadeh           |     |     |     |     |
+| --- | --------------------------- | ------------- | --- | --- | --- | --------------------------- | --- | --- | --- | --- |
+|     | Faculty of Computer and IT  |               |     |     |     | Faculty of Computer and IT  |     |     |     |     |
+Islamic Azad University, Qazvin branch  Islamic Azad University, Qazvin branch
+|     |                         |  Qazvin, Iran  |     |     |     |  Qazvin, Iran                |     |     |     |     |
+| --- | ----------------------- | -------------- | --- | --- | --- | ---------------------------- | --- | --- | --- | --- |
+|     | leily.sheugh@gmail.com  |                |     |     |     | Sasan.H.Alizadeh@qiau.ac.ir  |     |     |     |     |
+
+Abstract— Recommender systems help users to find information  The Collaborative Filtering includes item-based, user-based
+that best fits their preferences and needs in an overloaded search  and  model-based  [7].  In  case  of  Item  based  Collaborative
+space. Most recommender systems researches have been focused  Filtering, predicts the similarity among items by adopt pairwise
+on the accuracy improvement of recommendation algorithms.
+| Choosing  | appropriate  | similarity  | measure  is  a  | key  to  the  |     |     |     |     |     |     |
+Keywords—recommender system, Collaborative Filtering,
+similarity measure, Pearson Correlation Coefficient
+|     |     | I.  INTRODUCTION  |     |     |     |     |     |     |     |     |
+"""
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata["title"] == "A note on Pearson Correlation Coefficient as a metric of similarity in recommender system"
+    assert metadata["abstract"].startswith("Recommender systems help users to find information")
+    assert "Keywords" not in metadata["abstract"]
+    assert metadata["keywords"] == ["recommender system", "Collaborative Filtering", "similarity measure", "Pearson Correlation Coefficient"]
+    assert metadata["authors"] == [
+        {
+            "name": "Leily Sheugh",
+            "email": "leily.sheugh@gmail.com",
+            "affiliation": "Faculty of Computer and IT Islamic Azad University, Qazvin branch",
+            "country": "Iran",
+        },
+        {
+            "name": "Sasan H. Alizadeh",
+            "email": "Sasan.H.Alizadeh@qiau.ac.ir",
+            "affiliation": "Faculty of Computer and IT Islamic Azad University, Qazvin branch",
+            "country": "Iran",
+        },
+    ]
+
+
+def test_extract_submission_metadata_keeps_multiline_single_column_title_out_of_authors() -> None:
+    text = """
+Learning Interpretable BEV Based VIO without
+Deep Neural Networks
+Zexi Chen
+Haozhe Du
+Xuecheng Xu
+Rong Xiong
+Yiyi Liao∗
+Yue Wang∗∗
+Zhejiang University
+{chenzexi,hzdu,xuechengxu,rxiong,yiyi.liao,ywang24}@zju.edu.cn
+Abstract: Monocular visual-inertial odometry (VIO) is a critical problem in robotics and autonomous driving.
+
+Keywords: VIO, Interpretable Learning
+
+1 Introduction
+"""
+
+    metadata = extract_submission_metadata(text)
+
+    assert metadata["title"] == "Learning Interpretable BEV Based VIO without Deep Neural Networks"
+    assert [author["name"] for author in metadata["authors"]] == [
+        "Zexi Chen",
+        "Haozhe Du",
+        "Xuecheng Xu",
+        "Rong Xiong",
+        "Yiyi Liao",
+        "Yue Wang",
+    ]
+    assert metadata["keywords"] == ["VIO", "Interpretable Learning"]
+
+
+def test_build_inference_payload_sends_extracted_metadata_and_primary_excerpt() -> None:
     request = SubmissionAutofillRunRequest(
         conference_id=210,
         actor=ActorPayload(user_id=123, email="author@example.com", role="author"),
@@ -177,12 +281,32 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
         ),
     }
 
-    payload = build_inference_payload(request=request, documents=documents, failed_materials=[])
+    payload = build_inference_payload(
+        request=request,
+        documents=documents,
+        failed_materials=[
+            {
+                "file_id": "file-3",
+                "filename": "broken.pdf",
+                "extraction_status": "failed",
+                "warnings": ["Material could not be extracted."],
+            }
+        ],
+    )
 
-    assert payload["primary_material_id"] == "file-1"
-    assert [material["file_id"] for material in payload["materials"]] == ["file-1", "file-2"]
-    assert payload["materials"][0]["role"] == "primary"
-    assert payload["materials"][1]["role"] == "supplementary"
+    assert "primary_material_id" not in payload
+    assert "failed_materials" not in payload
+    assert "materials" not in payload
+    assert payload["primary_material"] == {
+        "filename": "paper.pdf",
+        "excerpt": "Title Abstract This paper studies reviewer assignment.",
+    }
+    assert payload["extracted_metadata"] == {
+        "title": "Title",
+        "abstract": "This paper studies reviewer assignment.",
+        "authors": [],
+        "keywords": [],
+    }
     assert payload["extra_details"] == "This is a student paper."
     assert payload["conference_context"] == {
         "name": "Conference on AI Systems",
@@ -195,19 +319,28 @@ def test_build_inference_payload_keeps_materials_separate_and_marks_primary() ->
     assert payload["available_tracks"] == ["AI", "Systems"]
 
 
-def test_submission_autofill_artifact_schema_is_strict_for_openai_responses() -> None:
+def test_submission_autofill_artifact_schema_is_strict_for_user_visible_output() -> None:
     schema = SubmissionAutofillArtifact.model_json_schema()
     defs = schema["$defs"]
 
     assert schema["additionalProperties"] is False
     assert defs["SubmissionAutofillFields"]["additionalProperties"] is False
-    assert defs["AutofillField"]["additionalProperties"] is False
-    assert defs["AutofillStringListField"]["additionalProperties"] is False
-    assert defs["AutofillEvidence"]["additionalProperties"] is False
     assert defs["AutofillAuthor"]["additionalProperties"] is False
-    assert defs["AutofillConflict"]["additionalProperties"] is False
     assert defs["AutofillTrackRanking"]["additionalProperties"] is False
+    assert "AutofillEvidence" not in defs
+    assert "AutofillConflict" not in defs
+    assert "AutofillField" not in defs
+    assert "AutofillStringListField" not in defs
+    assert "possible_conflicts" not in schema["properties"]
     assert schema["properties"]["track_rankings"]["title"] == "Track Rankings"
+
+    field_properties = schema["$defs"]["SubmissionAutofillFields"]["properties"]
+    assert field_properties["title"]["type"] == "string"
+    assert field_properties["abstract"]["type"] == "string"
+    assert field_properties["keywords"]["type"] == "array"
+    assert field_properties["keywords"]["items"]["type"] == "string"
+    assert set(defs["AutofillTrackRanking"]["properties"]) == {"track_name", "confidence", "rationale"}
+    assert set(defs["AutofillAuthor"]["properties"]) == {"name", "email", "affiliation", "country"}
 
     missing_required: list[tuple[str | None, list[str], list[str]]] = []
     stack: list[object] = [schema, *defs.values()]

@@ -23,7 +23,7 @@ describe("ImportantDatesTab", () => {
     localStorage.setItem("conference_locale", "en")
   })
 
-  it("renders timeline and helper cards without translation reference errors", () => {
+  it("renders timeline without translation reference errors", () => {
     const dates = [
       {
         id: "1",

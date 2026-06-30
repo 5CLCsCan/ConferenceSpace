@@ -73,6 +73,10 @@ func (f *fakeUserStorage) SetEmailVerified(context.Context, string, bool) error 
 	panic("unexpected call to SetEmailVerified")
 }
 
+func (f *fakeUserStorage) GetLinkedSemanticScholarIDs(context.Context, []string) (map[string]bool, error) {
+	panic("unexpected call to GetLinkedSemanticScholarIDs")
+}
+
 type fakeScholarStorage struct {
 	profileByUserID map[int64]*model.ScholarProfile
 	papersByProfile map[int64][]*model.ScholarPaper

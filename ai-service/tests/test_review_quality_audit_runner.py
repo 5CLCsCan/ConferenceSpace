@@ -197,19 +197,31 @@ async def test_runner_keeps_nonfatal_submit_findings_as_warnings() -> None:
 
 
 @pytest.mark.asyncio
-async def test_runner_includes_optional_briefing_context_only_when_available() -> None:
+async def test_runner_sends_full_analysis_without_runtime_policy_metadata() -> None:
     repo = _FakeRepo()
     llm_client = _FakeLLMClient()
     runner = ReviewQualityAuditRunner(repo=repo, llm_client=llm_client)
 
     await runner.resolve(request=_make_request(include_briefing=True))
-    with_briefing_payload = json.loads(llm_client.calls[0]["messages"][1]["content"])
-    assert with_briefing_payload["briefing_context"] is not None
+    payload = json.loads(llm_client.calls[0]["messages"][1]["content"])
+
+    assert "mode" not in payload
+    assert "policy_context" not in payload
+    assert "guardrails" not in payload
+    assert "briefing_context" not in payload
+    assert payload["analysis"] is not None
+    assert payload["analysis"]["briefing"]["claimed_contributions"] == [
+        {"label": "Structured reviewer workflow", "evidence": [], "source": "submission"}
+    ]
+    assert payload["analysis"]["briefing"]["reviewer_attention_points"] == [
+        {"focus": "workflow generalization", "reason": "Core practical claim", "source": "derived"}
+    ]
+    assert "annotations" in payload["analysis"]
 
     llm_client.calls.clear()
     await runner.resolve(request=_make_request(include_briefing=False))
-    without_briefing_payload = json.loads(llm_client.calls[0]["messages"][1]["content"])
-    assert without_briefing_payload["briefing_context"] is None
+    without_analysis_payload = json.loads(llm_client.calls[0]["messages"][1]["content"])
+    assert without_analysis_payload["analysis"] is None
 
 
 @pytest.mark.asyncio

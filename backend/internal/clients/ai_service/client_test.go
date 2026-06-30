@@ -169,7 +169,7 @@ func TestRunSubmissionAutofill(t *testing.T) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":{"value":"Title","confidence":"high","evidence":[],"warnings":[]},"abstract":{"value":"Abstract","confidence":"high","evidence":[],"warnings":[]},"keywords":{"value":["ai"],"confidence":"medium","evidence":[],"warnings":[]},"paper_type":{"value":"research","confidence":"medium","evidence":[],"warnings":[]},"additional_notes":{"value":"","confidence":"not_found","evidence":[],"warnings":[]}},"track_rankings":[{"track_name":"AI","confidence":8.5,"rationale":"The submission targets learning systems.","evidence":[],"warnings":[]}],"authors":[],"possible_conflicts":[],"materials":[],"warnings":[]}`))
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":"Title","abstract":"Abstract","keywords":["ai"],"paper_type":"research","additional_notes":""},"track_rankings":[{"track_name":"AI","confidence":8.5,"rationale":"The submission targets learning systems."}],"authors":[],"materials":[],"warnings":[]}`))
 		}))
 		defer server.Close()
 
@@ -212,14 +212,52 @@ func TestRunSubmissionAutofill(t *testing.T) {
 		assert.Contains(t, gotRequestField, `"tracks":["AI","Systems"]`)
 		assert.Equal(t, map[string]string{"paper.pdf": "paper", "appendix.docx": "appendix"}, gotFiles)
 		assert.Equal(t, "run-autofill", response.RunID)
-		assert.Equal(t, "Title", response.Fields.Title.Value)
+		assert.Equal(t, "Title", response.Fields.Title)
 		require.Len(t, response.TrackRankings, 1)
 		assert.Equal(t, "AI", response.TrackRankings[0].TrackName)
 		assert.Equal(t, 8.5, response.TrackRankings[0].Confidence)
 	})
+
+	t.Run("keeps empty conference context fields for ai-service validation", func(t *testing.T) {
+		var gotRequestField string
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.NoError(t, r.ParseMultipartForm(1<<20))
+			gotRequestField = r.FormValue("request")
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"run_id":"run-autofill","status":"ready","fields":{"title":"Title","abstract":"Abstract","keywords":[],"paper_type":"research","additional_notes":""},"track_rankings":[],"authors":[],"materials":[],"warnings":[]}`))
+		}))
+		defer server.Close()
+
+		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
+		_, err := client.RunSubmissionAutofill(
+			context.Background(),
+			"token-123",
+			&SubmissionAutofillRunRequest{
+				ConferenceID: 42,
+				Actor:        ActorPayload{UserID: 7, Email: "author@example.com", Role: "author"},
+				ConferenceContext: SubmissionAutofillConferenceContext{
+					Name:    "Conference on AI Systems",
+					Acronym: "CAIS",
+					Tracks:  []string{},
+				},
+				Files: []SubmissionAutofillFileMetadata{
+					{FileID: "file-1", OriginalFilename: "paper.pdf", ContentType: "application/pdf", SizeBytes: 5},
+				},
+			},
+			[]SubmissionAutofillFileContent{
+				{FileID: "file-1", Filename: "paper.pdf", Content: []byte("paper")},
+			},
+		)
+
+		require.NoError(t, err)
+		assert.Contains(t, gotRequestField, `"description":""`)
+		assert.Contains(t, gotRequestField, `"domain":[]`)
+		assert.Contains(t, gotRequestField, `"cfp_text":""`)
+		assert.Contains(t, gotRequestField, `"tracks":[]`)
+	})
 }
 
-func TestReviewerBriefingClient(t *testing.T) {
+func TestReviewerInitialAnalysisClient(t *testing.T) {
 	t.Run("lookup posts json payload and decodes response", func(t *testing.T) {
 		var gotAuth string
 		var gotMethod string
@@ -240,23 +278,23 @@ func TestReviewerBriefingClient(t *testing.T) {
 		defer server.Close()
 
 		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
-		response, err := client.LookupReviewerBriefing(
+		response, err := client.LookupReviewerInitialAnalysis(
 			context.Background(),
 			"Bearer token-123",
-			&ReviewerBriefingResolveRequest{
+			&ReviewerInitialAnalysisResolveRequest{
 				Action:                     "lookup",
 				ConferenceID:               42,
 				AssignmentID:               11,
 				SubmissionID:               7,
 				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
 				SubmissionStateFingerprint: "sha256:test",
-				Submission: ReviewerBriefingSubmissionPayload{
+				Submission: ReviewerInitialSubmissionPayload{
 					Title:    "Reliable Systems",
-					Abstract: "A structured reviewer pre-read workflow.",
+					Abstract: "A structured reviewer initial analysis workflow.",
 					Keywords: []string{"review"},
 					Track:    "main",
 				},
-				FileMetadata: ReviewerBriefingFileMetadataPayload{
+				FileMetadata: ReviewerInitialFileMetadataPayload{
 					OriginalFilename: "submission.pdf",
 					ContentType:      "application/pdf",
 					SizeBytes:        4096,
@@ -291,28 +329,28 @@ func TestReviewerBriefingClient(t *testing.T) {
 			require.NoError(t, err)
 
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"guardrails":{"no_recommendation":true,"no_score":true,"bias_notice":"assistive only"}}}`))
+			_, _ = w.Write([]byte(`{"status":"ready","run_id":"run-1","cache":{"hit":false,"submission_state_fingerprint":"sha256:test"},"artifact":{"briefing":{"submission_snapshot":{"title":"Reliable Systems","abstract_summary":"Summary","manuscript_overview":"Overview","keywords":["review"],"track":"main"},"claimed_contributions":[],"notable_elements":[],"reviewer_attention_points":[],"stated_scope_and_limitations":[],"review_readiness_signals":[]},"annotations":{"overall_impression":"Ready for review","sections":[]}}}`))
 		}))
 		defer server.Close()
 
 		client := NewClient(Config{BaseURL: server.URL, TimeoutSeconds: 5})
-		response, err := client.GenerateReviewerBriefing(
+		response, err := client.GenerateReviewerInitialAnalysis(
 			context.Background(),
 			"token-123",
-			&ReviewerBriefingResolveRequest{
+			&ReviewerInitialAnalysisResolveRequest{
 				Action:                     "generate",
 				ConferenceID:               42,
 				AssignmentID:               11,
 				SubmissionID:               7,
 				Actor:                      ActorPayload{UserID: 7, Email: "reviewer@example.com", Role: "reviewer"},
 				SubmissionStateFingerprint: "sha256:test",
-				Submission: ReviewerBriefingSubmissionPayload{
+				Submission: ReviewerInitialSubmissionPayload{
 					Title:    "Reliable Systems",
-					Abstract: "A structured reviewer pre-read workflow.",
+					Abstract: "A structured reviewer initial analysis workflow.",
 					Keywords: []string{"review"},
 					Track:    "main",
 				},
-				FileMetadata: ReviewerBriefingFileMetadataPayload{
+				FileMetadata: ReviewerInitialFileMetadataPayload{
 					OriginalFilename: "submission.pdf",
 					ContentType:      "application/pdf",
 					SizeBytes:        4096,
@@ -329,7 +367,7 @@ func TestReviewerBriefingClient(t *testing.T) {
 		assert.Equal(t, []byte("%PDF-1.4"), gotFileContent)
 		assert.Equal(t, "ready", response.Status)
 		require.NotNil(t, response.Artifact)
-		assert.Equal(t, "Reliable Systems", response.Artifact.SubmissionSnapshot.Title)
+		assert.Equal(t, "Reliable Systems", response.Artifact.Briefing.SubmissionSnapshot.Title)
 	})
 }
 

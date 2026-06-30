@@ -59,12 +59,6 @@ function buildResponse(
       },
       suggested_chair_note:
         "Draft rationale summarizing the evidence package without making the decision.",
-      guardrails: {
-        advisory_only: true,
-        no_decision: true,
-        no_automatic_status_change: true,
-        human_judgment_required: "Final decision remains with the chair.",
-      },
       evidence_fingerprint: "sha256:evidence",
       generated_at: "2026-03-31T10:05:00Z",
     },
@@ -127,7 +121,9 @@ describe("ChairDecisionCopilotPanel", () => {
     expect(screen.getByRole("button", { name: "Expand Decision Advisory" })).toBeInTheDocument()
     expect(screen.queryByText(/evidence overview/i)).not.toBeInTheDocument()
     expect(
-      screen.queryByText("Current evidence highlights consistent concerns around evaluation depth."),
+      screen.queryByText(
+        "Current evidence highlights consistent concerns around evaluation depth.",
+      ),
     ).not.toBeInTheDocument()
     expect(screen.queryByText("Decision workflow")).not.toBeInTheDocument()
     expect(screen.queryByText("Advisory only")).not.toBeInTheDocument()

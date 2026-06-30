@@ -8,12 +8,14 @@ from app.workflows.submission_gating.models.facts import ExtractedDocument, Form
 
 
 _PT_PER_INCH = 72.0
+_FOOTER_MARGIN_PT = 50.0
+_COLUMN_GAP_PT = 18.0
 
 
 class PDFExtractor:
     def extract(self, file_bytes: bytes, filename: str | None = None) -> ExtractedDocument:
         try:
-            import pymupdf  # noqa: PLC0415
+            import pymupdf  # type: ignore[import-not-found] # noqa: PLC0415
         except ModuleNotFoundError as exc:  # pragma: no cover
             raise RuntimeError("pymupdf is required for PDF extraction") from exc
 
@@ -30,9 +32,9 @@ class PDFExtractor:
             page_rects: list[tuple[float, float, float, float]] = []  # (x0, y0, x1, y1) per page
             raw_pages: list[str] = []
 
-            for page in doc:
+            for page_index, page in enumerate(doc):
                 page_rects.append((page.rect.x0, page.rect.y0, page.rect.x1, page.rect.y1))
-                raw_pages.append(page.get_text(sort=True))
+                raw_pages.append(extract_page_text_with_columns(page, page_index, pymupdf))
                 page_dict = page.get_text("dict", flags=pymupdf.TEXT_PRESERVE_WHITESPACE)
                 for block in page_dict.get("blocks", []):
                     all_blocks.append(block)
@@ -80,6 +82,104 @@ class PDFExtractor:
             reference_count=reference_count,
             format_facts=format_facts,
         )
+
+
+def extract_page_text_with_columns(page, page_index: int, pymupdf) -> str:
+    blocks = _text_blocks(page)
+    if not blocks:
+        return ""
+
+    body_blocks = [block for block in blocks if block[3] <= page.rect.height - _FOOTER_MARGIN_PT]
+    if not body_blocks:
+        return ""
+
+    header_blocks, column_blocks = _split_first_page_header(page, page_index, body_blocks)
+    sections: list[str] = []
+    if header_blocks:
+        sections.append(_join_blocks(header_blocks))
+    if column_blocks:
+        sections.extend(_extract_columns(page, column_blocks, pymupdf))
+    return "\n\n".join(section for section in sections if section).strip()
+
+
+def _text_blocks(page) -> list[tuple[float, float, float, float, str]]:
+    blocks: list[tuple[float, float, float, float, str]] = []
+    for block in page.get_text("blocks", sort=True):
+        if len(block) < 5:
+            continue
+        x0, y0, x1, y1, text = block[:5]
+        cleaned = _clean_block_text(text)
+        if cleaned:
+            blocks.append((float(x0), float(y0), float(x1), float(y1), cleaned))
+    return sorted(blocks, key=lambda item: (item[1], item[0]))
+
+
+def _split_first_page_header(
+    page,
+    page_index: int,
+    blocks: list[tuple[float, float, float, float, str]],
+) -> tuple[list[tuple[float, float, float, float, str]], list[tuple[float, float, float, float, str]]]:
+    if page_index != 0:
+        return [], blocks
+
+    page_width = page.rect.width
+    header: list[tuple[float, float, float, float, str]] = []
+    rest: list[tuple[float, float, float, float, str]] = []
+    header_open = True
+    for block in blocks:
+        x0, _y0, x1, _y1, text = block
+        is_wide = (x1 - x0) >= page_width * 0.55
+        if header_open and (is_wide or _looks_like_front_matter(text)):
+            header.append(block)
+            if text.lower().startswith(("abstract", "abstract—", "abstract-")):
+                header_open = False
+            continue
+        rest.append(block)
+    return header, rest
+
+
+def _extract_columns(page, blocks: list[tuple[float, float, float, float, str]], pymupdf) -> list[str]:
+    left_x = min(block[0] for block in blocks)
+    right_x = max(block[2] for block in blocks)
+    mid_x = (left_x + right_x) / 2
+
+    left_blocks = [block for block in blocks if _block_center_x(block) <= mid_x]
+    right_blocks = [block for block in blocks if _block_center_x(block) > mid_x]
+    columns = [_column_rect(left_blocks, pymupdf), _column_rect(right_blocks, pymupdf)]
+
+    output: list[str] = []
+    for rect in [rect for rect in columns if rect is not None]:
+        text = page.get_text("text", clip=rect, sort=True).strip()
+        if text:
+            output.append(text)
+    return output
+
+
+def _column_rect(blocks: list[tuple[float, float, float, float, str]], pymupdf):
+    if not blocks:
+        return None
+    x0 = min(block[0] for block in blocks) - _COLUMN_GAP_PT / 2
+    y0 = min(block[1] for block in blocks)
+    x1 = max(block[2] for block in blocks) + _COLUMN_GAP_PT / 2
+    y1 = max(block[3] for block in blocks)
+    return pymupdf.Rect(x0, y0, x1, y1)
+
+
+def _block_center_x(block: tuple[float, float, float, float, str]) -> float:
+    return (block[0] + block[2]) / 2
+
+
+def _join_blocks(blocks: list[tuple[float, float, float, float, str]]) -> str:
+    return "\n".join(block[4] for block in sorted(blocks, key=lambda item: (item[1], item[0]))).strip()
+
+
+def _clean_block_text(text: str) -> str:
+    return "\n".join(line.strip() for line in str(text or "").splitlines() if line.strip()).strip()
+
+
+def _looks_like_front_matter(text: str) -> bool:
+    lowered = text.lower()
+    return any(marker in lowered for marker in ("abstract", "keywords", "@", "university", "institute", "faculty"))
 
 
 def _first_nonempty_line(text: str) -> str | None:

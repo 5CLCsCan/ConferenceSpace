@@ -52,3 +52,5 @@ responses_probe.py
 error-logs/
 .autopilot.json
 secret/
+
+docs/plans/

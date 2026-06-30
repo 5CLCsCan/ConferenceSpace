@@ -1,29 +1,8 @@
 from __future__ import annotations
 
-import re
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-
-
-DISALLOWED_VERDICT_PATTERNS = [
-    r"\bshould accept\b",
-    r"\bshould reject\b",
-    r"\brecommend(?:s|ed)?\s+(?:accept|reject)\b",
-    r"\b(?:leans?|leaning)\s+(?:accept|reject)\b",
-    r"\bapprove now\b",
-    r"\breject now\b",
-    r"\bacceptance likelihood\b",
-]
-
-
-def _assert_non_verdict_language(value: str) -> str:
-    lowered = value.strip().lower()
-    for pattern in DISALLOWED_VERDICT_PATTERNS:
-        if re.search(pattern, lowered):
-            raise ValueError("verdict-like language is not allowed in decision copilot artifacts")
-    return value
-
+from pydantic import BaseModel, ConfigDict, Field
 
 class ActorPayload(BaseModel):
     user_id: int
@@ -36,6 +15,15 @@ class DecisionCopilotComponentFingerprints(BaseModel):
     reviews: str
     discussion: str
     rebuttal: str
+
+
+class ConferenceCFPInput(BaseModel):
+    name: str = ""
+    acronym: str = ""
+    description: str = ""
+    domains: list[str] = Field(default_factory=list)
+    tracks: list[str] = Field(default_factory=list)
+    call_for_papers: str = ""
 
 
 class SubmissionEvidenceInput(BaseModel):
@@ -83,7 +71,7 @@ class ReviewAnalyticsInput(BaseModel):
 
 
 class DiscussionMessageInput(BaseModel):
-    author_email: str | None = None
+    role: str = "unknown"
     content: str
     created_at: str | None = None
 
@@ -129,6 +117,7 @@ class RebuttalEvidenceInput(BaseModel):
 
 class DecisionCopilotEvidenceInput(BaseModel):
     schema_version: str
+    conference_cfp: ConferenceCFPInput = Field(default_factory=ConferenceCFPInput)
     submission: SubmissionEvidenceInput
     reviews: list[ReviewEvidenceInput] = Field(default_factory=list)
     review_analytics: ReviewAnalyticsInput
@@ -150,27 +139,11 @@ class DecisionCopilotEvidenceSummary(StrictSchemaModel):
     overview: str
     evidence_basis: list[str]
 
-    _validate_overview = field_validator("overview")(_assert_non_verdict_language)
-
-    @field_validator("evidence_basis")
-    @classmethod
-    def _validate_evidence_basis(cls, values: list[str]) -> list[str]:
-        return [_assert_non_verdict_language(value) for value in values]
-
-
 class DecisionCopilotReviewFeedbackSynthesis(StrictSchemaModel):
     summary: str
     strengths: list[str]
     weaknesses: list[str]
     questions: list[str]
-
-    _validate_summary = field_validator("summary")(_assert_non_verdict_language)
-
-    @field_validator("strengths", "weaknesses", "questions")
-    @classmethod
-    def _validate_lists(cls, values: list[str]) -> list[str]:
-        return [_assert_non_verdict_language(value) for value in values]
-
 
 class DecisionCopilotReviewAnalytics(StrictSchemaModel):
     review_distribution: list[CountMetric]
@@ -188,29 +161,15 @@ class DecisionCopilotDiscussionSignals(StrictSchemaModel):
     message_count: int
     last_activity_at: str | None
 
-    _validate_summary = field_validator("summary")(_assert_non_verdict_language)
-
-
 class DecisionCopilotRebuttalSignals(StrictSchemaModel):
     status: Literal["available", "not_applicable"]
     summary: str
-
-    _validate_summary = field_validator("summary")(_assert_non_verdict_language)
-
 
 class DecisionCopilotDisagreementMap(StrictSchemaModel):
     areas_of_agreement: list[str]
     areas_of_disagreement: list[str]
     unresolved_concerns: list[str]
     confidence_limits: list[str]
-
-
-class DecisionCopilotGuardrails(StrictSchemaModel):
-    advisory_only: bool
-    no_decision: bool
-    no_automatic_status_change: bool
-    human_judgment_required: str
-
 
 class DecisionCopilotArtifact(StrictSchemaModel):
     evidence_summary: DecisionCopilotEvidenceSummary
@@ -220,12 +179,6 @@ class DecisionCopilotArtifact(StrictSchemaModel):
     rebuttal_signals: DecisionCopilotRebuttalSignals
     disagreement_map: DecisionCopilotDisagreementMap
     suggested_chair_note: str
-    guardrails: DecisionCopilotGuardrails
-    evidence_fingerprint: str
-    generated_at: str
-
-    _validate_suggested_note = field_validator("suggested_chair_note")(_assert_non_verdict_language)
-
 
 class DecisionCopilotCacheMetadata(BaseModel):
     hit: bool

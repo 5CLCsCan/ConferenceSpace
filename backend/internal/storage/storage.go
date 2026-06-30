@@ -20,6 +20,7 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/reviewer"
 	"github.com/dcao/conferencespace/internal/storage/scholar"
 	"github.com/dcao/conferencespace/internal/storage/submission"
+	usageevent "github.com/dcao/conferencespace/internal/storage/usage_event"
 	"github.com/dcao/conferencespace/internal/storage/user"
 )
 
@@ -39,6 +40,7 @@ type Storage struct {
 	Discussion         discussion.StorageInterface
 	RebuttalPoint      rebuttal.StorageInterface
 	ExternalInvitation externalinvitation.StorageInterface
+	UsageEvent         usageevent.StorageInterface
 }
 
 func NewStorage(db *sql.DB) *Storage {
@@ -58,6 +60,7 @@ func NewStorage(db *sql.DB) *Storage {
 		Discussion:         discussion.New(db),
 		RebuttalPoint:      rebuttal.New(db),
 		ExternalInvitation: externalinvitation.New(db),
+		UsageEvent:         usageevent.New(db),
 	}
 }
 

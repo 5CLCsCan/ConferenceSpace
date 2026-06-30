@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	reviewerStorage "github.com/dcao/conferencespace/internal/storage/reviewer"
 	submissionStorage "github.com/dcao/conferencespace/internal/storage/submission"
 	userStorage "github.com/dcao/conferencespace/internal/storage/user"
+	"golang.org/x/sync/singleflight"
 )
 
 // AutoRefreshInterval is the duration after which COI data is considered stale
@@ -29,6 +31,7 @@ type Service struct {
 	submissionStorage submissionStorage.StorageInterface
 	reviewerStorage   reviewerStorage.StorageInterface
 	userStorage       userStorage.StorageInterface
+	rebuildGroup      singleflight.Group
 }
 
 // New creates a new COI service
@@ -162,8 +165,24 @@ func (s *Service) RefreshDirtyScopes(ctx context.Context, conferenceID int64) (i
 	return processed, nil
 }
 
-// BuildAndStoreRelationships detects and stores COI relationships for a conference
+// BuildAndStoreRelationships detects and stores COI relationships for a conference.
+// Concurrent rebuilds for the same conference are coalesced via singleflight.
 func (s *Service) BuildAndStoreRelationships(ctx context.Context, conferenceID int64) (int, error) {
+	key := strconv.FormatInt(conferenceID, 10)
+	result, err, _ := s.rebuildGroup.Do(key, func() (any, error) {
+		return s.buildAndStoreRelationships(ctx, conferenceID)
+	})
+	if err != nil {
+		return 0, err
+	}
+	count, ok := result.(int)
+	if !ok {
+		return 0, fmt.Errorf("unexpected rebuild result type %T", result)
+	}
+	return count, nil
+}
+
+func (s *Service) buildAndStoreRelationships(ctx context.Context, conferenceID int64) (int, error) {
 	// Get all submissions for the conference
 	submissions, _, err := s.submissionStorage.List(ctx, &submissionStorage.QueryParams{
 		ConferenceID: conferenceID,

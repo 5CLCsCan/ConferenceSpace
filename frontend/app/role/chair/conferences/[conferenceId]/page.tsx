@@ -26,6 +26,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { recordRecentConference } from "@/lib/recent-conferences"
 import { ROUTES } from "@/lib/routes"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 function formatDate(value?: string) {
   if (!value) return "-"
@@ -78,6 +79,11 @@ export default function ChairConferenceDetailPage() {
 
       const data = response.data
       setConferenceData(data)
+      trackUsageEvent("chair_conference_viewed", {
+        role: currentRole === "pc" ? "pc" : "chair",
+        entityType: "conference",
+        entityId: conferenceId,
+      })
       if (currentRole === "chair" || currentRole === "pc") {
         recordRecentConference({
           userKey: user?.email || "guest",
@@ -110,9 +116,28 @@ export default function ChairConferenceDetailPage() {
   }, [conferenceId, currentRole, router, user?.email])
 
   useEffect(() => {
+    if (loading || error) return
+    const eventByTab: Partial<Record<TabId, string>> = {
+      dashboard: "chair_dashboard_viewed",
+      submissions: "chair_submissions_viewed",
+      assignments: "chair_assignments_viewed",
+    }
+    const eventName = eventByTab[activeTab]
+    if (!eventName) return
+    trackUsageEvent(eventName, {
+      role: currentRole === "pc" ? "pc" : "chair",
+      entityType: "conference",
+      entityId: conferenceId,
+    })
+  }, [activeTab, conferenceId, currentRole, error, loading])
+
+  useEffect(() => {
     const normalizedRole = (conference.userRole || "").toLowerCase()
     const canAccessRestrictedTabs =
-      normalizedRole === "chair" || normalizedRole === "co-chair" || normalizedRole === "co_chair"
+      currentRole === "chair" ||
+      normalizedRole === "chair" ||
+      normalizedRole === "co-chair" ||
+      normalizedRole === "co_chair"
 
     if (
       !canAccessRestrictedTabs &&
@@ -123,13 +148,15 @@ export default function ChairConferenceDetailPage() {
     ) {
       setActiveTab("overview")
     }
-  }, [activeTab, conference.userRole])
+  }, [activeTab, conference.userRole, currentRole])
 
   const normalizedConferenceRole = (conference.userRole || "").toLowerCase()
   const canManageConference =
+    currentRole === "chair" ||
     normalizedConferenceRole === "chair" ||
     normalizedConferenceRole === "co-chair" ||
     normalizedConferenceRole === "co_chair"
+  const effectiveUserRole = conference.userRole || (currentRole === "chair" ? "chair" : undefined)
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -198,7 +225,7 @@ export default function ChairConferenceDetailPage() {
           conference={conference}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          userRole={conference.userRole}
+          userRole={effectiveUserRole}
         />
 
         <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-black">

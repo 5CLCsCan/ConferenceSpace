@@ -71,12 +71,6 @@ function buildResponse(
               confidence_limits: ["One review has limited confidence."],
             },
             suggested_chair_note: "This draft summarizes the evidence without making the decision.",
-            guardrails: {
-              advisory_only: true,
-              no_decision: true,
-              no_automatic_status_change: true,
-              human_judgment_required: "Final decision remains with the chair.",
-            },
             evidence_fingerprint: "sha256:evidence",
             generated_at: "2026-03-31T09:45:00Z",
           },

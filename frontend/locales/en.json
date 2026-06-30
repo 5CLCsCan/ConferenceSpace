@@ -67,6 +67,47 @@
       "lastName": "Last name",
       "password": "Password"
     },
+    "importantDates": {
+      "abstractSubmissionDeadlineDescription": "Deadline for abstract submissions",
+      "abstractSubmissionDeadlineFor": "Abstract submission deadline for {acronym}",
+      "abstractSubmissionDeadlineTitle": "Abstract Submission Deadline",
+      "abstractSubmissionTitle": "Abstract Submission",
+      "cameraReadyDeadlineDescription": "Final version of accepted papers due",
+      "cameraReadyDeadlineFor": "Camera-ready version due for {acronym}",
+      "cameraReadyDeadlineTitle": "Camera-Ready Deadline",
+      "cameraReadyTitle": "Camera-Ready",
+      "conferenceBeginsDescription": "{name} begins",
+      "conferenceBeginsTitle": "Conference Begins",
+      "conferenceEndDateDescription": "Main conference event ends",
+      "conferenceEndDateTitle": "Conference End Date",
+      "conferenceEndTitle": "Conference End",
+      "conferenceEndsDescription": "{name} ends",
+      "conferenceEndsTitle": "Conference Ends",
+      "conferenceStartDateDescription": "Main conference event begins",
+      "conferenceStartDateTitle": "Conference Start Date",
+      "conferenceStartTitle": "Conference Start",
+      "discussionPeriodClosesFor": "Discussion period closes for {acronym}",
+      "discussionPeriodClosesTitle": "Discussion Period Closes",
+      "discussionPeriodOpensFor": "Discussion period opens for {acronym}",
+      "discussionPeriodOpensTitle": "Discussion Period Opens",
+      "notificationOfAcceptanceDescription": "Authors are notified of paper acceptance/rejection",
+      "notificationOfAcceptanceTitle": "Notification of Acceptance",
+      "paperSubmissionDeadlineDescription": "Final deadline for paper submissions",
+      "paperSubmissionDeadlineFor": "Full paper submission deadline for {acronym}",
+      "paperSubmissionDeadlineForTimeline": "Full paper submission deadline",
+      "paperSubmissionDeadlineTitle": "Paper Submission Deadline",
+      "paperSubmissionTitle": "Paper Submission",
+      "rebuttalPeriodEndsDescription": "Final deadline for author rebuttals",
+      "rebuttalPeriodEndsTitle": "Rebuttal Period Ends",
+      "rebuttalPeriodOpensFor": "Rebuttal period opens for {acronym}",
+      "rebuttalPeriodOpensTitle": "Rebuttal Period Opens",
+      "rebuttalPeriodStartsDescription": "Authors can begin responding to reviews",
+      "rebuttalPeriodStartsTitle": "Rebuttal Period Starts",
+      "rebuttalSubmissionDeadlineFor": "Rebuttal submission deadline for {acronym}",
+      "rebuttalSubmissionDeadlineTitle": "Rebuttal Submission Deadline",
+      "reviewDeadlineDescription": "Reviews are completed and discussion phase begins",
+      "reviewDeadlineTitle": "Review Deadline"
+    },
     "messages": {
       "languages": {
         "english": "English",
@@ -249,6 +290,7 @@
         },
         "common": {
           "dashboard": "Dashboard",
+          "onboarding": "User Guide",
           "notifications": "Notifications"
         },
         "reviewer": {
@@ -402,6 +444,131 @@
             "role": "Reviewer"
           }
         },
+        "public_guide": {
+          "description": "Choose a role to walk through ConferenceSpace step by step, from the first screen to the final action in each workflow.",
+          "label": "Quick guide",
+          "nav_label": "Guide",
+          "roles": {
+            "author": {
+              "description": "Authors start from conference discovery, choose a relevant CFP, and submit through a multi-step form.",
+              "label": "Author",
+              "steps": {
+                "conferences": {
+                  "bullets": [
+                    "Browse conferences currently open for submissions.",
+                    "Check deadlines, tracks, topics, and submission policy.",
+                    "Start only when the submission window is still open."
+                  ],
+                  "title": "Find the right conference"
+                },
+                "final": {
+                  "bullets": [
+                    "Read reviews before writing a rebuttal.",
+                    "If accepted, check the camera-ready requirements.",
+                    "Watch notifications so response deadlines are not missed."
+                  ],
+                  "title": "Submit rebuttal or camera-ready"
+                },
+                "manage": {
+                  "bullets": [
+                    "Track draft, submitted, under review, and decision states.",
+                    "Edit or withdraw when deadlines still allow it.",
+                    "Open submission detail to read reviews and discussions."
+                  ],
+                  "title": "Manage submitted papers"
+                },
+                "submit": {
+                  "bullets": [
+                    "Enter title, abstract, keywords, and track.",
+                    "Add co-authors and declare conflicts when needed.",
+                    "Upload the PDF required by the conference."
+                  ],
+                  "title": "Create a new submission"
+                }
+              },
+              "title": "Submit papers and track outcomes"
+            },
+            "chair": {
+              "description": "Chairs manage the conference from opening the CFP through reviewer assignment and final decisions.",
+              "label": "Chair",
+              "steps": {
+                "assign": {
+                  "bullets": [
+                    "Invite committee members or reviewers by email.",
+                    "Open submissions/assignments to assign reviewers.",
+                    "Check workload, keyword match, and COI before confirming."
+                  ],
+                  "title": "Invite reviewers and assign papers"
+                },
+                "create": {
+                  "bullets": [
+                    "Enter conference name, acronym, description, and format.",
+                    "Configure topics, tracks, review type, and deadlines.",
+                    "Review policy settings before publishing the CFP."
+                  ],
+                  "title": "Create the conference and CFP"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Review conference, submission, and review counts.",
+                    "Track upcoming deadlines and work needing attention.",
+                    "Reopen active conferences from the dashboard."
+                  ],
+                  "title": "Open the Chair dashboard"
+                },
+                "decision": {
+                  "bullets": [
+                    "Track submitted reviews and overdue reviewers.",
+                    "Open rebuttal if the conference includes author response.",
+                    "Decide after checking reviews, discussion, and COI."
+                  ],
+                  "title": "Track reviews and make decisions"
+                }
+              },
+              "title": "Run the full conference workflow"
+            },
+            "reviewer": {
+              "description": "Reviewers handle invitations, inspect assigned papers, and submit feedback against conference criteria.",
+              "label": "Reviewer",
+              "steps": {
+                "assignment": {
+                  "bullets": [
+                    "Open the assigned paper to inspect metadata and files.",
+                    "Read the review criteria before scoring.",
+                    "Note strengths, weaknesses, and questions for the authors."
+                  ],
+                  "title": "Read the assignment and briefing"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Check new invitations and pending assignments.",
+                    "Prioritize the closest review deadlines.",
+                    "Use the dashboard to return to unfinished reviews."
+                  ],
+                  "title": "Open the Reviewer dashboard"
+                },
+                "invitations": {
+                  "bullets": [
+                    "Read conference details, deadline, and paper summary.",
+                    "Accept when expertise fits and there is no conflict.",
+                    "Decline if unavailable, outside expertise, or conflicted."
+                  ],
+                  "title": "Accept or decline invitations"
+                },
+                "review": {
+                  "bullets": [
+                    "Score each criterion and choose a recommendation.",
+                    "Write clear, evidence-based strengths and weaknesses.",
+                    "After rebuttal, update the review if the conference requires it."
+                  ],
+                  "title": "Submit the review"
+                }
+              },
+              "title": "Review assigned papers"
+            }
+          },
+          "title": "See how ConferenceSpace works"
+        },
         "text_a_single_registered_account_can_operate": "A single registered account can operate as Author, Reviewer, or Chair simultaneously. Switch active role context at any time — permissions and workspaces adjust accordingly.",
         "text_academic_conference_operations_platform": "Academic Conference Operations Platform",
         "text_academic_conference_operations_platform_role_based": "Academic conference operations platform, Role-based, lifecycle-aware.",
@@ -504,6 +671,7 @@
         "user_id": {
           "page": {
             "placeholder_search_publications": "Search publications by title, venue, abstract, or author",
+            "prop_description_email_updated_please_sign_in_again": "Email updated. Please sign in again with your new email.",
             "prop_description_missing_profile_id": "Missing profile id.",
             "prop_description_please_try_again": "Please try again.",
             "prop_description_please_wait_for_profile_sync_to_complete_before_unlinking": "Please wait for profile sync to complete before unlinking.",
@@ -740,8 +908,11 @@
           "prop_title_reviewer": "Reviewer",
           "text_conferencespace": "ConferenceSpace",
           "text_enter_dashboard": "Enter Dashboard",
+          "text_open_user_guide": "Open guide",
           "text_please_select_the_role_you_wish": "Please select the role you wish to operate as today. You can switch roles at any time from your account settings.",
           "text_role_selection": "Role Selection",
+          "text_user_guide_description": "A fast onboarding guide for Chair, Author, and Reviewer workflows with step-by-step actions.",
+          "text_user_guide_title": "New to the platform? Start with the user guide.",
           "text_welcome_back": "Welcome back,"
         },
         "reviewer": {
@@ -966,9 +1137,12 @@
           "important-dates-tab": {
             "text_23_59_aoe": "23:59 AoE",
             "text_aoe_utc_12": "AoE (UTC-12)",
+            "text_completed": "Completed",
+            "text_days": "days",
             "text_check_the_conference_website_or_contact": "Check the conference website or contact the program chairs if you have questions about deadlines.",
             "text_conference_timeline": "Conference Timeline",
             "text_contact_support": "Contact Support",
+            "text_in_progress": "In Progress",
             "text_keep_track_of_important_deadlines_for": "Keep track of important deadlines for your submissions.",
             "text_need_help": "Need Help?",
             "text_next_major_deadline": "Next Major Deadline",
@@ -979,7 +1153,47 @@
             "text_text": "•",
             "text_timezone": "Timezone",
             "text_until": "Until",
-            "text_upcoming": "Upcoming"
+            "text_upcoming": "Upcoming",
+            "phases": {
+              "submission": "Submission Phase",
+              "review": "Review & Decision",
+              "event": "Camera Ready & Conference",
+              "conference": "Conference"
+            },
+            "events": {
+              "abstract-submission-deadline": {
+                "title": "Abstract Submission Deadline",
+                "description": "Deadline for abstract submissions"
+              },
+              "submission-deadline": {
+                "title": "Paper Submission Deadline",
+                "description": "Final deadline for paper submissions"
+              },
+              "camera-ready-deadline": {
+                "title": "Camera-Ready Deadline",
+                "description": "Final version of accepted papers due"
+              },
+              "notification-date": {
+                "title": "Notification of Acceptance",
+                "description": "Authors are notified of paper acceptance/rejection"
+              },
+              "rebuttal-period-start": {
+                "title": "Rebuttal Period Starts",
+                "description": "Authors can begin responding to reviews"
+              },
+              "rebuttal-period-end": {
+                "title": "Rebuttal Period Ends",
+                "description": "Final deadline for author rebuttals"
+              },
+              "conference-start-date": {
+                "title": "Conference Start Date",
+                "description": "Main conference event begins"
+              },
+              "conference-end-date": {
+                "title": "Conference End Date",
+                "description": "Main conference event ends"
+              }
+            }
           },
           "overview-tab": {
             "text_about_the_conference": "About the Conference",
@@ -1206,6 +1420,7 @@
             "prop_description_please_upload_your_research_paper_in": "Please upload your research paper in PDF format. Ensure all personal information is removed for double-blind review.",
             "prop_description_publishing_is_no_longer_available_because": "Publishing is no longer available because the conference submission deadline has passed.",
             "prop_description_review_all_information_before_final_submission": "Review all information before final submission.",
+            "prop_description_submission_editing_is_locked_after_the_deadline": "Submission editing is locked after the deadline.",
             "prop_description_this_conference_is_not_currently_accepting": "This conference is not currently accepting submissions. Please submit during the open phase.",
             "prop_description_your_draft_has_been_saved_you": "Your draft has been saved. You can continue editing anytime.",
             "prop_title_authors_affiliations": "Authors & Affiliations",
@@ -1312,10 +1527,8 @@
             "text_materials": "Materials",
             "text_materials_description": "Manuscript, appendix, notes, or LaTeX source. Evidence only; this does not replace the submission upload.",
             "text_no_authors_suggested": "No authors suggested.",
-            "text_no_conflicts_suggested": "No conflicts suggested.",
             "text_no_track_rankings": "No track rankings were generated.",
             "text_pdf_docx_tex": "PDF, DOCX, or TEX",
-            "text_possible_conflicts": "Possible conflicts",
             "text_regenerate": "Regenerate",
             "text_selected_track": "Selected track",
             "text_suggestions_description": "Review and edit these fields before applying them to the draft.",
@@ -1483,7 +1696,7 @@
             "text_api_only": "API-only",
             "text_auto_detected": "Auto-detected",
             "text_batch_operations": "Batch Operations",
-            "text_confirm_dismiss_and_reviewer_reassignment_coi": "Confirm, dismiss, and reviewer-reassignment COI actions are intentionally disabled because backend mutation endpoints are not available yet.",
+            "text_confirm_dismiss_and_reviewer_reassignment_coi": "This feature is not available yet.",
             "text_confirmed": "Confirmed",
             "text_conflict_reason": "Conflict Reason",
             "text_conflicts": "conflicts",
@@ -2630,11 +2843,10 @@
             "title_notable_elements": "Notable Elements",
             "title_review_readiness_signals": "Review Readiness Signals",
             "title_reviewer_attention_points": "Reviewer Attention Points",
-            "text_paper_annotations": "Paper Annotations",
-            "title_scope_and_limitations": "Scope And Limitations",
-            "text_paper_annotation": "Paper annotation:"
+            "text_initial_analysis_annotations": "Initial Analysis Annotations",
+            "title_scope_and_limitations": "Scope And Limitations"
           },
-          "paper-annotation-panel": {
+          "initial-analysis-annotations-panel": {
             "text_overall_impression": "Overall Impression",
             "text_domain_context_prefix": "Domain context:"
           },
@@ -2811,6 +3023,45 @@
             "text_start_discussion": "Start Discussion",
             "text_visible_to_authors": "Visible to Authors"
           },
+          "config": {
+            "category": {
+              "clarity": "Clarity",
+              "ethics": "Ethics",
+              "general": "General",
+              "meta_review": "Meta-Review",
+              "methodology": "Methodology",
+              "results": "Results"
+            },
+            "role": {
+              "area_chair": "AC",
+              "author": "Author",
+              "reviewer": "Reviewer",
+              "senior_pc": "SPC",
+              "system": "System"
+            },
+            "visibility": {
+              "authors": {
+                "description": "Authors can see this discussion thread",
+                "label": "Visible to Authors",
+                "short_label": "Authors"
+              },
+              "committee": {
+                "description": "Visible to Area Chair, Senior PC, and Program Chairs only",
+                "label": "Committee Only",
+                "short_label": "Committee"
+              },
+              "public": {
+                "description": "Visible to all platform users (open review mode)",
+                "label": "Public Discussion",
+                "short_label": "Public"
+              },
+              "reviewers": {
+                "description": "Visible to all assigned reviewers and committee members",
+                "label": "Reviewers Only",
+                "short_label": "Reviewers"
+              }
+            }
+          },
           "components": {
             "message-item": {
               "text_copy_text": "Copy text",
@@ -2855,6 +3106,50 @@
           }
         },
         "rebuttal": {
+          "config": {
+            "category": {
+              "clarification": "Clarification",
+              "question": "Question",
+              "suggestion": "Suggestion",
+              "weakness": "Weakness"
+            },
+            "phase": {
+              "awaiting": {
+                "author_description": "Please submit your response to reviewer comments",
+                "chair_description": "Waiting for author rebuttal submission",
+                "description": "Authors have not yet submitted their response",
+                "label": "Awaiting Rebuttal",
+                "reviewer_description": "Authors have not yet submitted their response"
+              },
+              "discussion": {
+                "author_description": "Reviewers are discussing your response",
+                "chair_description": "Facilitate discussion between reviewers",
+                "description": "Reviewers are discussing the rebuttal with ACs",
+                "label": "Discussion Phase",
+                "reviewer_description": "Discuss the rebuttal with fellow reviewers and ACs"
+              },
+              "finalized": {
+                "author_description": "Rebuttal period has ended",
+                "chair_description": "Rebuttal period complete - proceed to decision",
+                "description": "Rebuttal period has ended",
+                "label": "Finalized",
+                "reviewer_description": "Rebuttal period has ended"
+              },
+              "submitted": {
+                "author_description": "Your rebuttal has been submitted - await reviewer feedback",
+                "chair_description": "Author rebuttal submitted - monitor reviewer responses",
+                "description": "Authors have responded - please review and update your assessment",
+                "label": "Rebuttal Submitted",
+                "reviewer_description": "Authors have responded - please review and update your assessment"
+              }
+            },
+            "status": {
+              "addressed": "Addressed",
+              "not_addressed": "Not Addressed",
+              "partially_addressed": "Partially Addressed",
+              "pending_review": "Needs Your Review"
+            }
+          },
           "RebuttalPanel": {
             "text_point_by_point_responses": "Point-by-Point Responses"
           },
@@ -2880,6 +3175,7 @@
               "text_addressed": "Addressed",
               "text_author_response": "Author Response",
               "text_cancel": "Cancel",
+              "text_from": "from",
               "text_not_addressed": "Not Addressed",
               "text_partial": "Partial",
               "text_reviewer_response": "Reviewer Response",

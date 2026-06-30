@@ -7,8 +7,6 @@ import { Loader2, Sparkles, Upload, X } from "lucide-react"
 import {
   generateSubmissionAutofill,
   type AutofillAuthor,
-  type AutofillConflict,
-  type AutofillField,
   type AutofillTrackRanking,
   type SubmissionAutofillResponse,
 } from "@/lib/api/submission-autofill"
@@ -341,10 +339,7 @@ export function SubmissionAutofillSheet({
                     label={t(
                       "runtime.components.author.submit.submission-autofill-sheet.text_field_keywords",
                     )}
-                    field={{
-                      ...result.fields.keywords,
-                      value: result.fields.keywords.value.join(", "),
-                    }}
+                    field={result.fields.keywords.join(", ")}
                     onChange={(value) =>
                       updateField(
                         setResult,
@@ -393,15 +388,6 @@ export function SubmissionAutofillSheet({
                     "runtime.components.author.submit.submission-autofill-sheet.text_no_authors_suggested",
                   )}
                 />
-                <SuggestionList
-                  title={t(
-                    "runtime.components.author.submit.submission-autofill-sheet.text_possible_conflicts",
-                  )}
-                  items={result.possible_conflicts.map(formatConflict)}
-                  emptyText={t(
-                    "runtime.components.author.submit.submission-autofill-sheet.text_no_conflicts_suggested",
-                  )}
-                />
               </section>
             )}
           </div>
@@ -429,7 +415,7 @@ function EditableField({
   onChange,
 }: {
   label: string
-  field: AutofillField<string>
+  field: string
   multiline?: boolean
   onChange: (value: string) => void
 }) {
@@ -441,10 +427,9 @@ function EditableField({
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
           {label}
         </span>
-        <ConfidenceBadge confidence={field.confidence} />
       </div>
       <Input
-        value={field.value}
+        value={field}
         onChange={(event) => onChange(event.currentTarget.value)}
         className={cn(
           "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-all focus:border-[#1B3C53] focus:ring-1 focus:ring-[#1B3C53]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100",
@@ -454,15 +439,6 @@ function EditableField({
     </div>
   )
 }
-
-function ConfidenceBadge({ confidence }: { confidence: string }) {
-  return (
-    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-      {confidence.replace("_", " ")}
-    </span>
-  )
-}
-
 function SuggestionList({
   title,
   items,
@@ -579,33 +555,19 @@ function updateField<T extends keyof SubmissionAutofillResponse["fields"]>(
 function formatAuthor(author: AutofillAuthor) {
   return [author.name, author.email, author.affiliation].filter(Boolean).join(" · ")
 }
-
-function formatConflict(conflict: AutofillConflict) {
-  return [conflict.name, conflict.email, conflict.institution, conflict.reason]
-    .filter(Boolean)
-    .join(" · ")
-}
-
 export function emptyAutofillResponse(): SubmissionAutofillResponse {
-  const emptyField = {
-    confidence: "not_found" as const,
-    evidence: [],
-    warnings: [],
-  }
-
   return {
     run_id: "",
     status: "ready",
     fields: {
-      title: { value: "", ...emptyField },
-      abstract: { value: "", ...emptyField },
-      keywords: { value: [], ...emptyField },
-      paper_type: { value: "", ...emptyField },
-      additional_notes: { value: "", ...emptyField },
+      title: "",
+      abstract: "",
+      keywords: [],
+      paper_type: "",
+      additional_notes: "",
     },
     track_rankings: [],
     authors: [],
-    possible_conflicts: [],
     materials: [],
     warnings: [],
   }

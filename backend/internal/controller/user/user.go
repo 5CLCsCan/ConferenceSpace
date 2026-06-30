@@ -537,12 +537,13 @@ func (c *Controller) GetAcademicProfile(ginCtx *gin.Context) (*dto.AcademicProfi
 // @Success      200 {object} dto.AcademicProfileResponse
 // @Failure      400 {object} handler.Response
 // @Failure      401 {object} handler.Response
+// @Failure      403 {object} handler.Response
 // @Failure      404 {object} handler.Response
 // @Router       /users/{email}/academic-profile [get]
 func (c *Controller) GetAcademicProfileByEmail(ginCtx *gin.Context) (*dto.AcademicProfileResponse, error) {
 	ctx := ginCtx.Request.Context()
 
-	_, exists := utils.GetEmail(ginCtx)
+	userEmail, exists := utils.GetEmail(ginCtx)
 	if !exists {
 		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
 	}
@@ -550,6 +551,10 @@ func (c *Controller) GetAcademicProfileByEmail(ginCtx *gin.Context) (*dto.Academ
 	email := ginCtx.Param("email")
 	if email == "" {
 		return nil, handler.NewErrorResponse(http.StatusBadRequest, "email is required")
+	}
+
+	if email != userEmail {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "you can only access your own academic profile")
 	}
 
 	user, err := c.userStorage.GetByEmail(ctx, email)

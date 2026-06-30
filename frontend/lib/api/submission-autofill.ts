@@ -1,48 +1,16 @@
 import { apiFetch } from "@/lib/api/client"
 
-export type AutofillConfidence = "high" | "medium" | "low" | "not_found"
-
-export interface AutofillEvidence {
-  file_id: string
-  source_type?: string
-  quote_or_signal: string
-  location_hint?: string
-}
-
-export interface AutofillField<T> {
-  value: T
-  confidence: AutofillConfidence
-  evidence: AutofillEvidence[]
-  warnings: string[]
-}
-
 export interface AutofillAuthor {
   name: string
   email?: string
   affiliation?: string
   country?: string
-  ordinal?: number
-  confidence: AutofillConfidence
-  evidence: AutofillEvidence[]
-  warnings: string[]
-}
-
-export interface AutofillConflict {
-  name: string
-  email?: string
-  institution?: string
-  reason: string
-  confidence: AutofillConfidence
-  evidence: AutofillEvidence[]
-  warnings: string[]
 }
 
 export interface AutofillTrackRanking {
   track_name: string
   confidence: number
   rationale: string
-  evidence: AutofillEvidence[]
-  warnings: string[]
 }
 
 export interface AutofillMaterial {
@@ -61,16 +29,15 @@ export interface SubmissionAutofillResponse {
   run_id: string
   status: "ready" | "failed"
   fields: {
-    title: AutofillField<string>
-    abstract: AutofillField<string>
-    keywords: AutofillField<string[]>
-    paper_type: AutofillField<"research" | "student" | "other" | "">
-    additional_notes: AutofillField<string>
+    title: string
+    abstract: string
+    keywords: string[]
+    paper_type: "research" | "student" | "other" | "" | string
+    additional_notes: string
   }
   selected_track_name?: string
   track_rankings: AutofillTrackRanking[]
   authors: AutofillAuthor[]
-  possible_conflicts: AutofillConflict[]
   materials: AutofillMaterial[]
   warnings: string[]
   error?: {
@@ -83,57 +50,44 @@ export function normalizeSubmissionAutofillResponse(response: any): SubmissionAu
   return {
     ...response,
     authors: Array.isArray(response.authors) ? response.authors.map(normalizeAuthor) : [],
-    possible_conflicts: Array.isArray(response.possible_conflicts)
-      ? response.possible_conflicts.map(normalizeConflict)
-      : [],
     track_rankings: Array.isArray(response.track_rankings)
       ? response.track_rankings.map(normalizeTrackRanking)
       : [],
     materials: Array.isArray(response.materials) ? response.materials.map(normalizeMaterial) : [],
     warnings: Array.isArray(response.warnings) ? response.warnings : [],
     fields: {
-      title: normalizeField(response.fields.title, ""),
-      abstract: normalizeField(response.fields.abstract, ""),
-      keywords: normalizeField(response.fields.keywords, []),
-      paper_type: normalizeField(response.fields.paper_type, ""),
-      additional_notes: normalizeField(response.fields.additional_notes, ""),
+      title: normalizeString(response.fields?.title),
+      abstract: normalizeString(response.fields?.abstract),
+      keywords: Array.isArray(response.fields?.keywords)
+        ? response.fields.keywords
+            .map((keyword: unknown) => normalizeString(keyword))
+            .filter(Boolean)
+        : [],
+      paper_type: normalizeString(response.fields?.paper_type),
+      additional_notes: normalizeString(response.fields?.additional_notes),
     },
   }
 }
 
-function normalizeField<T>(field: AutofillField<T>, fallbackValue: T): AutofillField<T> {
-  return {
-    value: field?.value ?? fallbackValue,
-    confidence: field?.confidence ?? "not_found",
-    evidence: Array.isArray(field?.evidence) ? field.evidence : [],
-    warnings: Array.isArray(field?.warnings) ? field.warnings : [],
-  }
+function normalizeString(value: unknown): string {
+  return typeof value === "string" ? value : ""
 }
 
 function normalizeAuthor(author: AutofillAuthor): AutofillAuthor {
   return {
-    ...author,
-    evidence: Array.isArray(author.evidence) ? author.evidence : [],
-    warnings: Array.isArray(author.warnings) ? author.warnings : [],
-  }
-}
-
-function normalizeConflict(conflict: AutofillConflict): AutofillConflict {
-  return {
-    ...conflict,
-    evidence: Array.isArray(conflict.evidence) ? conflict.evidence : [],
-    warnings: Array.isArray(conflict.warnings) ? conflict.warnings : [],
+    name: normalizeString(author.name),
+    email: normalizeString(author.email) || undefined,
+    affiliation: normalizeString(author.affiliation) || undefined,
+    country: normalizeString(author.country) || undefined,
   }
 }
 
 function normalizeTrackRanking(ranking: AutofillTrackRanking): AutofillTrackRanking {
   const confidence = Number(ranking.confidence)
   return {
-    ...ranking,
+    track_name: normalizeString(ranking.track_name),
     confidence: Number.isFinite(confidence) ? Math.min(10, Math.max(1, confidence)) : 1,
-    rationale: ranking.rationale || "",
-    evidence: Array.isArray(ranking.evidence) ? ranking.evidence : [],
-    warnings: Array.isArray(ranking.warnings) ? ranking.warnings : [],
+    rationale: normalizeString(ranking.rationale),
   }
 }
 

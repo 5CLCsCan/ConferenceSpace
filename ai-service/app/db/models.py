@@ -244,6 +244,79 @@ class ReviewerBriefingStageRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
+class ReviewerInitialAnalysisRun(Base):
+    __tablename__ = "reviewer_initial_analysis_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('completed', 'failed')", name="ck_reviewer_initial_analysis_runs_status"),
+        Index("idx_reviewer_initial_analysis_runs_scope_created", "conference_id", "assignment_id", "created_at"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    request_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    error_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ReviewerInitialAnalysisArtifactModel(Base):
+    __tablename__ = "reviewer_initial_analysis_artifacts"
+    __table_args__ = (
+        Index(
+            "idx_reviewer_initial_analysis_artifacts_scope_generated",
+            "conference_id",
+            "assignment_id",
+            "submission_id",
+            "actor_id",
+            "generated_at",
+        ),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.reviewer_initial_analysis_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    conference_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    assignment_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    submission_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
+    actor_id: Mapped[str] = mapped_column(Text, nullable=False)
+    submission_state_fingerprint: Mapped[str] = mapped_column(Text, nullable=False)
+    artifact_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class ReviewerInitialAnalysisStageRecord(Base):
+    __tablename__ = "reviewer_initial_analysis_stage_records"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('ok', 'skipped', 'blocked', 'failed')",
+            name="ck_reviewer_initial_analysis_stage_records_status",
+        ),
+        Index("idx_reviewer_initial_analysis_stage_records_run_id", "run_id"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey(f"{SCHEMA}.reviewer_initial_analysis_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stage_name: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(VARCHAR(16), nullable=False)
+    detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
 class ReviewQualityAuditRun(Base):
     __tablename__ = "review_quality_audit_runs"
     __table_args__ = (

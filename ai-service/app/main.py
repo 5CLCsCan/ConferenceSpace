@@ -17,18 +17,13 @@ from app.db import create_engine, create_session_factory
 from app.repositories import (
     DecisionCopilotRepository,
     GatingRunRepository,
-    PaperAnnotationRepository,
     ReviewQualityAuditRepository,
-    ReviewerBriefingRepository,
+    ReviewerInitialAnalysisRepository,
 )
 from app.repositories.runtime_store import RuntimeStore
 from app.services import AgentRuntime, QueryEngineClient, LLMClient, MetricsStore
-from app.workflows.reviewer_pre_read_briefing.runner import (
-    ReviewerPreReadBriefingRunner,
-)
-from app.workflows.reviewer_pre_read_briefing.router import (
-    router as reviewer_briefing_router,
-)
+from app.workflows.reviewer_initial_analysis.runner import ReviewerInitialAnalysisRunner
+from app.workflows.reviewer_initial_analysis.router import router as reviewer_initial_analysis_router
 from app.workflows.review_quality_auditor.runner import ReviewQualityAuditRunner
 from app.workflows.review_quality_auditor.router import (
     router as review_quality_audit_router,
@@ -37,8 +32,6 @@ from app.workflows.chair_decision_copilot.runner import DecisionCopilotRunner
 from app.workflows.chair_decision_copilot.router import (
     router as decision_copilot_router,
 )
-from app.workflows.paper_annotation.runner import PaperAnnotationRunner
-from app.workflows.paper_annotation.router import router as paper_annotation_router
 from app.workflows.research_keywords.runner import ResearchKeywordRunner
 from app.workflows.research_keywords.router import router as research_keyword_router
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
@@ -65,14 +58,12 @@ class AppContainer:
     runtime: AgentRuntime
     submission_gating_repo: GatingRunRepository
     submission_gating_runner: SubmissionGatingRunner
-    reviewer_briefing_repo: ReviewerBriefingRepository
-    reviewer_briefing_runner: ReviewerPreReadBriefingRunner
+    reviewer_initial_analysis_repo: ReviewerInitialAnalysisRepository
+    reviewer_initial_analysis_runner: ReviewerInitialAnalysisRunner
     review_quality_audit_repo: ReviewQualityAuditRepository
     review_quality_audit_runner: ReviewQualityAuditRunner
     decision_copilot_repo: DecisionCopilotRepository
     decision_copilot_runner: DecisionCopilotRunner
-    paper_annotation_repo: PaperAnnotationRepository
-    paper_annotation_runner: PaperAnnotationRunner
     submission_autofill_runner: SubmissionAutofillRunner
     research_keyword_runner: ResearchKeywordRunner
     track_recommendation_runner: TrackRecommendationRunner
@@ -123,15 +114,15 @@ async def lifespan(app: FastAPI):
         timeout_seconds=settings.backend_query_timeout_seconds,
     )
     submission_gating_repo = GatingRunRepository(session_factory)
-    reviewer_briefing_repo = ReviewerBriefingRepository(session_factory)
+    reviewer_initial_analysis_repo = ReviewerInitialAnalysisRepository(session_factory)
     review_quality_audit_repo = ReviewQualityAuditRepository(session_factory)
     decision_copilot_repo = DecisionCopilotRepository(session_factory)
     submission_gating_runner = SubmissionGatingRunner(
         repo=submission_gating_repo,
         llm_client=llm_client,
     )
-    reviewer_briefing_runner = ReviewerPreReadBriefingRunner(
-        repo=reviewer_briefing_repo,
+    reviewer_initial_analysis_runner = ReviewerInitialAnalysisRunner(
+        repo=reviewer_initial_analysis_repo,
         llm_client=llm_client,
     )
     review_quality_audit_runner = ReviewQualityAuditRunner(
@@ -140,11 +131,6 @@ async def lifespan(app: FastAPI):
     )
     decision_copilot_runner = DecisionCopilotRunner(
         repo=decision_copilot_repo,
-        llm_client=llm_client,
-    )
-    paper_annotation_repo = PaperAnnotationRepository(session_factory)
-    paper_annotation_runner = PaperAnnotationRunner(
-        repo=paper_annotation_repo,
         llm_client=llm_client,
     )
     submission_autofill_runner = SubmissionAutofillRunner(llm_client=llm_client)
@@ -172,14 +158,12 @@ async def lifespan(app: FastAPI):
         runtime=runtime,
         submission_gating_repo=submission_gating_repo,
         submission_gating_runner=submission_gating_runner,
-        reviewer_briefing_repo=reviewer_briefing_repo,
-        reviewer_briefing_runner=reviewer_briefing_runner,
+        reviewer_initial_analysis_repo=reviewer_initial_analysis_repo,
+        reviewer_initial_analysis_runner=reviewer_initial_analysis_runner,
         review_quality_audit_repo=review_quality_audit_repo,
         review_quality_audit_runner=review_quality_audit_runner,
         decision_copilot_repo=decision_copilot_repo,
         decision_copilot_runner=decision_copilot_runner,
-        paper_annotation_repo=paper_annotation_repo,
-        paper_annotation_runner=paper_annotation_runner,
         submission_autofill_runner=submission_autofill_runner,
         research_keyword_runner=research_keyword_runner,
         track_recommendation_runner=track_recommendation_runner,
@@ -209,10 +193,9 @@ def create_app() -> FastAPI:
     app.include_router(status_router)
     app.include_router(agent_router)
     app.include_router(submission_gating_router)
-    app.include_router(reviewer_briefing_router)
+    app.include_router(reviewer_initial_analysis_router)
     app.include_router(review_quality_audit_router)
     app.include_router(decision_copilot_router)
-    app.include_router(paper_annotation_router)
     app.include_router(research_keyword_router)
     app.include_router(track_recommendation_router)
     app.include_router(submission_autofill_router)

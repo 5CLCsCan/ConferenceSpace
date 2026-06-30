@@ -1,5 +1,7 @@
 import type { MessageVisibility, ThreadStatus, ThreadCategory } from "../types"
 import { VISIBILITY_CONFIG, CATEGORY_CONFIG, STATUS_STYLES } from "../config"
+import { getCategoryLabel, getVisibilityDescription, getVisibilityShortLabel } from "../i18n"
+import { useTranslation } from "@/lib/i18n/translation-context"
 
 // =============================================================================
 // Visibility Indicator
@@ -11,11 +13,12 @@ interface VisibilityIndicatorProps {
 }
 
 export function VisibilityIndicator({ visibility, compact = false }: VisibilityIndicatorProps) {
+  const { t } = useTranslation()
   const config = VISIBILITY_CONFIG[visibility]
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded ${config.bgColor} ${config.color} border ${config.borderColor} text-[8px] font-bold uppercase tracking-widest`}
-      title={config.description}
+      title={getVisibilityDescription(visibility, t)}
     >
       <span
         className="material-symbols-outlined"
@@ -38,7 +41,7 @@ export function VisibilityIndicator({ visibility, compact = false }: VisibilityI
       >
         {config.icon}
       </span>
-      {compact ? null : config.shortLabel}
+      {compact ? null : getVisibilityShortLabel(visibility, t)}
     </span>
   )
 }
@@ -91,11 +94,13 @@ interface CategoryTagProps {
 }
 
 export function CategoryTag({ category }: CategoryTagProps) {
+  const { t } = useTranslation()
   const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.general
+  const label = getCategoryLabel(category, t)
   return (
     <span
       className={`inline-flex items-center gap-1 ${config.color} text-[9px] font-medium`}
-      title={config.label}
+      title={label}
     >
       <span
         className="material-symbols-outlined"
@@ -118,7 +123,7 @@ export function CategoryTag({ category }: CategoryTagProps) {
       >
         {config.icon}
       </span>
-      {config.label}
+      {label}
     </span>
   )
 }

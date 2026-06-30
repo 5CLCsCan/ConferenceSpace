@@ -165,11 +165,11 @@ vi.mock("../submission-autofill-sheet", () => ({
           onApply(
             {
               fields: {
-                title: field("Generated Title"),
-                abstract: field("Generated abstract"),
-                keywords: field(["AI", "Review"]),
-                paper_type: field("student"),
-                additional_notes: field("Generated notes"),
+                title: "Generated Title",
+                abstract: "Generated abstract",
+                keywords: ["AI", "Review"],
+                paper_type: "student",
+                additional_notes: "Generated notes",
               },
               selected_track_name: "Systems",
               track_rankings: [
@@ -177,15 +177,11 @@ vi.mock("../submission-autofill-sheet", () => ({
                   track_name: "Artificial Intelligence & Machine Learning",
                   confidence: 9.1,
                   rationale: "The manuscript is about AI.",
-                  evidence: [],
-                  warnings: [],
                 },
                 {
                   track_name: "Systems",
                   confidence: 7.4,
                   rationale: "The evaluation includes systems concerns.",
-                  evidence: [],
-                  warnings: [],
                 },
               ],
               authors: [
@@ -194,21 +190,14 @@ vi.mock("../submission-autofill-sheet", () => ({
                   email: "author@example.com",
                   affiliation: "HCMUS",
                   country: "Vietnam",
-                  confidence: "high",
-                  evidence: [],
-                  warnings: [],
                 },
                 {
                   name: "Second Author",
                   email: "second@example.com",
                   affiliation: "HCMUS",
                   country: "Vietnam",
-                  confidence: "medium",
-                  evidence: [],
-                  warnings: [],
                 },
               ],
-              possible_conflicts: [],
               materials: [
                 {
                   file_id: "file-1",
@@ -323,11 +312,6 @@ function makeSubmission(overrides?: Partial<Submission>): Submission {
     ...overrides,
   }
 }
-
-function field<T>(value: T) {
-  return { value, confidence: "high" as const, evidence: [], warnings: [] }
-}
-
 function makePrecheckResult(overrides?: Partial<PrecheckResult>): PrecheckResult {
   return {
     paper_title: "Generated Title",
@@ -576,7 +560,7 @@ describe("PaperSubmissionForm — deadline enforcement (UI-NEG-02)", () => {
 
     expect(toastMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Draft could not be saved",
+        title: "Failed to save draft",
         description:
           "You already have a submission for this conference. Open your existing submission instead of creating a new one.",
         variant: "destructive",

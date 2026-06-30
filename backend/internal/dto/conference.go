@@ -59,6 +59,7 @@ type ConferenceConfiguration struct {
 	EstimatedNumberOfSubmission  *int                   `json:"estimated_number_of_submission,omitempty"`
 	ReviewType                   *string                `json:"review_type,omitempty"`
 	SubmissionType               *string                `json:"submission_type,omitempty"`
+	VirtualPlatform              *string                `json:"virtual_platform,omitempty"`
 	HaveCOI                      *bool                  `json:"have_coi,omitempty"`
 	COIWindowYears               *int                   `json:"coi_window_years,omitempty"` // Years to look back for collaborations (e.g., 4)
 	MaximumPages                 *int                   `json:"maximum_pages,omitempty"`

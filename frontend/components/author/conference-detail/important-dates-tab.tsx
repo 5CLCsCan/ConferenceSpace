@@ -3,6 +3,16 @@
 import { cn } from "@/lib/utils"
 import type { DatesTabProps, ImportantDate } from "./types"
 import { useTranslation } from "@/lib/i18n/translation-context"
+import { getNextMajorDeadline } from "@/lib/conference-timeline"
+import {
+  CONFERENCE_START_DATE_ID,
+  getDateLocale,
+  localizeImportantDate,
+  localizeImportantDates,
+  phaseNameKey,
+  phaseStatusKey,
+  PHASE_EVENT_IDS,
+} from "@/lib/important-date-i18n"
 import { downloadICS } from "@/lib/utils/ics-calendar"
 
 // Consistent icon styling for 16px material symbols
@@ -33,28 +43,65 @@ interface Phase {
   events: ImportantDate[]
 }
 
-const categories = [
-  {
-    id: "submission",
-    name: "Submission Phase",
-    pattern: /submission|abstract|paper/i,
-  },
-  {
-    id: "review",
-    name: "Review & Decision",
-    pattern: /review|notification|rebuttal|acceptance/i,
-  },
-  {
-    id: "event",
-    name: "Camera Ready & Conference",
-    pattern: /camera|registration|conference/i,
-  },
-]
+function buildTimelinePhases(
+  dates: ImportantDate[],
+  dateLocale: string,
+  t: (key: string) => string,
+): Phase[] {
+  const conferenceStart = dates.find((d) => d.id === CONFERENCE_START_DATE_ID)
+  const groupedDates = dates.filter((d) => d.id !== CONFERENCE_START_DATE_ID)
+
+  const phases = Object.keys(PHASE_EVENT_IDS)
+    .map((categoryId) => {
+      const categoryEventIds = new Set(PHASE_EVENT_IDS[categoryId])
+      const events = groupedDates
+        .filter((d) => categoryEventIds.has(d.id))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      const allPast = events.length > 0 && events.every((e) => e.isPast)
+      const inProgress = events.some((e) => !e.isPast) && events.some((e) => e.isPast)
+
+      let status: PhaseStatus = "upcoming"
+      if (allPast) status = "completed"
+      else if (inProgress || events.some((e) => !e.isPast)) status = "in-progress"
+
+      const eventDates = events.map((e) => new Date(e.date))
+      const sortedDates = eventDates.sort((a, b) => a.getTime() - b.getTime())
+      const period =
+        sortedDates.length > 0
+          ? `${sortedDates[0].toLocaleString(dateLocale, { month: "short" })} ${sortedDates[sortedDates.length - 1].getFullYear()}`
+          : ""
+
+      return {
+        id: categoryId,
+        name: t(phaseNameKey(categoryId)),
+        status,
+        period,
+        events,
+      }
+    })
+    .filter((p) => p.events.length > 0)
+
+  if (!conferenceStart) {
+    return phases
+  }
+
+  const startDate = new Date(conferenceStart.date)
+  const startPhase: Phase = {
+    id: "conference-start",
+    name: t(phaseNameKey("conference")),
+    status: conferenceStart.isPast ? "completed" : "in-progress",
+    period: startDate.toLocaleString(dateLocale, { month: "short", year: "numeric" }),
+    events: [conferenceStart],
+  }
+
+  return [startPhase, ...phases]
+}
 
 function DateEventCard({ event, phaseStatus }: { event: ImportantDate; phaseStatus: PhaseStatus }) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
+  const dateLocale = getDateLocale(locale)
   const d = new Date(event.date)
-  const month = d.toLocaleString("en-US", { month: "short" })
+  const month = d.toLocaleString(dateLocale, { month: "short" })
   const day = d.getDate()
   const isPassed = event.isPast
   const isUpcoming = !event.isPast && phaseStatus === "in-progress"
@@ -179,6 +226,7 @@ function TimelinePhase({ phase }: { phase: Phase }) {
   const isCompleted = phase.status === "completed"
   const isInProgress = phase.status === "in-progress"
   const isUpcoming = phase.status === "upcoming"
+  const statusLabel = t(phaseStatusKey(phase.status))
 
   return (
     <div
@@ -219,11 +267,14 @@ function TimelinePhase({ phase }: { phase: Phase }) {
             isUpcoming && "text-slate-400 dark:text-slate-600",
           )}
         >
-          {isCompleted && "Completed"}
-          {isInProgress && "In Progress"}
-          {isUpcoming && "Upcoming"}{" "}
-          {t("runtime.components.author.conference-detail.important-dates-tab.text_text")}{" "}
-          {phase.period}
+          {statusLabel}
+          {phase.period && (
+            <>
+              {" "}
+              {t("runtime.components.author.conference-detail.important-dates-tab.text_text")}{" "}
+              {phase.period}
+            </>
+          )}
         </p>
       </div>
 
@@ -244,7 +295,9 @@ function NextDeadlineCard({
   nextDeadline: ImportantDate
   daysUntil: number
 }) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
+  const dateLocale = getDateLocale(locale)
+  const localizedDeadline = localizeImportantDate(nextDeadline, t)
   return (
     <div className="bg-[#1B3C53] dark:bg-slate-800 text-white rounded-lg p-4 shadow-lg relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none" />
@@ -255,11 +308,14 @@ function NextDeadlineCard({
         )}{" "}
       </h3>
       <div className="text-3xl font-bold mb-0.5">
-        {daysUntil} <span className="text-sm font-normal text-slate-400">days</span>
+        {daysUntil}{" "}
+        <span className="text-sm font-normal text-slate-400">
+          {t("runtime.components.author.conference-detail.important-dates-tab.text_days")}
+        </span>
       </div>
       <p className="text-sm font-normal text-white mb-4">
         {t("runtime.components.author.conference-detail.important-dates-tab.text_until")}{" "}
-        {nextDeadline.title}
+        {localizedDeadline.title}
       </p>
 
       <div className="space-y-2 pt-3 border-t border-white/10">
@@ -268,7 +324,7 @@ function NextDeadlineCard({
             {t("runtime.components.author.conference-detail.important-dates-tab.text_target_date")}
           </span>
           <span className="font-light">
-            {new Date(nextDeadline.date).toLocaleDateString("en-US", {
+            {new Date(nextDeadline.date).toLocaleDateString(dateLocale, {
               month: "short",
               day: "numeric",
               year: "numeric",
@@ -288,68 +344,15 @@ function NextDeadlineCard({
   )
 }
 
-function HelpCard() {
-  const { t } = useTranslation()
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-      <h3 className="font-bold text-[#1B3C53] dark:text-white mb-2 flex items-center gap-2 text-sm tracking-tight">
-        <span className="material-symbols-outlined text-slate-400" style={iconStyle}>
-          help
-        </span>
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_need_help")}{" "}
-      </h3>
-      <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
-        {t(
-          "runtime.components.author.conference-detail.important-dates-tab.text_check_the_conference_website_or_contact",
-        )}{" "}
-      </p>
-      <a
-        className="text-[10px] font-bold text-[#1B3C53] dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 flex items-center gap-0.5 transition-colors"
-        href="#"
-      >
-        {t("runtime.components.author.conference-detail.important-dates-tab.text_contact_support")}{" "}
-        <span className="material-symbols-outlined" style={iconStyle}>
-          arrow_forward
-        </span>
-      </a>
-    </div>
-  )
-}
-
 export function ImportantDatesTab({ dates, conferenceAcronym, conferenceName }: DatesTabProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const now = new Date()
+  const dateLocale = getDateLocale(locale)
+  const localizedDates = localizeImportantDates(dates, t)
 
-  // Group dates by phase
-  const phases: Phase[] = categories
-    .map((cat) => {
-      const events = dates.filter((d) => cat.pattern.test(d.title))
-      const allPast = events.every((e) => e.isPast)
-      const inProgress = events.some((e) => !e.isPast) && events.some((e) => e.isPast)
+  const phases = buildTimelinePhases(localizedDates, dateLocale, t)
 
-      let status: PhaseStatus = "upcoming"
-      if (allPast) status = "completed"
-      else if (inProgress || events.some((e) => !e.isPast)) status = "in-progress"
-
-      // Calculate period
-      const eventDates = events.map((e) => new Date(e.date))
-      const sortedDates = eventDates.sort((a, b) => a.getTime() - b.getTime())
-      const period =
-        sortedDates.length > 0
-          ? `${sortedDates[0].toLocaleString("en-US", { month: "short" })} ${sortedDates[sortedDates.length - 1].getFullYear()}`
-          : ""
-
-      return {
-        id: cat.id,
-        name: cat.name,
-        status,
-        period,
-        events,
-      }
-    })
-    .filter((p) => p.events.length > 0)
-
-  const nextDeadline = dates.find((d) => new Date(d.date) > now)
+  const nextDeadline = getNextMajorDeadline(dates, now)
   const daysUntil = nextDeadline
     ? Math.ceil((new Date(nextDeadline.date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : null
@@ -404,7 +407,6 @@ export function ImportantDatesTab({ dates, conferenceAcronym, conferenceName }: 
           {nextDeadline && daysUntil !== null && (
             <NextDeadlineCard nextDeadline={nextDeadline} daysUntil={daysUntil} />
           )}
-          <HelpCard />
         </div>
       </div>
     </div>

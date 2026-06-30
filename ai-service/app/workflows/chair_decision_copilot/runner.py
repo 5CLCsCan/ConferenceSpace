@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from uuid import uuid4
 
 from pydantic import BaseModel
@@ -137,7 +136,7 @@ class DecisionCopilotRunner:
                 {
                     "role": "user",
                     "content": json.dumps(
-                        request.evidence.model_dump(mode="json"),
+                        self._build_generation_context(request=request),
                         ensure_ascii=True,
                         sort_keys=True,
                         separators=(",", ":"),
@@ -151,9 +150,63 @@ class DecisionCopilotRunner:
         artifact_payload["rebuttal_signals"]["status"] = request.evidence.rebuttal.status
         if request.evidence.rebuttal.status == "not_applicable" and not artifact_payload["rebuttal_signals"].get("summary"):
             artifact_payload["rebuttal_signals"]["summary"] = request.evidence.rebuttal.summary_hint or "Rebuttal is not applicable."
-        artifact_payload["evidence_fingerprint"] = request.evidence_fingerprint
-        artifact_payload["generated_at"] = datetime.now(tz=timezone.utc).isoformat()
         return DecisionCopilotArtifact.model_validate(artifact_payload)
+
+    def _build_generation_context(self, *, request: DecisionCopilotResolveRequest) -> dict:
+        evidence = request.evidence
+        return {
+            "conference_cfp": evidence.conference_cfp.call_for_papers,
+            "submission": {
+                "title": evidence.submission.title,
+                "track": evidence.submission.track,
+                "keywords": evidence.submission.keywords,
+            },
+            "reviews": [
+                {
+                    "recommendation": review.recommendation,
+                    "confidence": review.confidence,
+                    "score": review.score,
+                    "summary": review.summary,
+                    "strengths": review.strengths,
+                    "weaknesses": review.weaknesses,
+                    "questions": review.questions,
+                    "criteria": review.criteria,
+                    "post_rebuttal_score": review.post_rebuttal_score,
+                    "post_rebuttal_recommendation": review.post_rebuttal_recommendation,
+                    "post_rebuttal_comment": review.post_rebuttal_comment,
+                }
+                for review in evidence.reviews
+            ],
+            "discussion": {
+                "threads": [
+                    {
+                        "messages": [
+                            {
+                                "role": message.role,
+                                "content": message.content,
+                            }
+                            for message in thread.messages
+                        ]
+                    }
+                    for thread in evidence.discussion.threads
+                ]
+            },
+            "rebuttal": {
+                "general_response": evidence.rebuttal.general_response,
+                "points": [
+                    {
+                        "category": point.category,
+                        "section": point.section,
+                        "original_comment": point.original_comment,
+                        "author_response": point.author_response,
+                        "status": point.status,
+                        "reviewer_acknowledged": point.reviewer_acknowledged,
+                        "reviewer_note": point.reviewer_note,
+                    }
+                    for point in evidence.rebuttal.points
+                ],
+            },
+        }
 
     async def _save_failed(
         self,

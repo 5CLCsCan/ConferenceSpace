@@ -25,6 +25,17 @@ export function getConferenceStatus(
   })
   const confEnd = conference.conference_end_date ? new Date(conference.conference_end_date) : null
 
+  if (conference.status === "draft")
+    return { label: "Draft", color: "bg-amber-50 text-amber-700 border-amber-200" }
+  if (conference.status === "reviewing")
+    return {
+      label: "Under Review",
+      color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    }
+  if (conference.status === "completed" || (confEnd && now >= confEnd))
+    return { label: "Completed", color: "bg-slate-100 text-slate-600 border-slate-200" }
+  if (conference.status === "archived")
+    return { label: "Archived", color: "bg-slate-100 text-slate-600 border-slate-200" }
   if (eligibility.publicStatus === "call-for-papers")
     return { label: "Active", color: "bg-green-50 text-green-700 border-green-200" }
   if (eligibility.publicStatus === "submission-closed")
@@ -34,9 +45,12 @@ export function getConferenceStatus(
       ),
       color: "bg-slate-100 text-slate-600 border-slate-200",
     }
-  if (confEnd && now >= confEnd)
-    return { label: "Completed", color: "bg-slate-100 text-slate-600 border-slate-200" }
-  return { label: "Registration Open", color: "bg-blue-50 text-blue-700 border-blue-200" }
+  return {
+    label: t(
+      "runtime.components.author.conference-detail.conference-header.prop_label_submission_closed",
+    ),
+    color: "bg-slate-100 text-slate-600 border-slate-200",
+  }
 }
 
 export function stringToColor(str: string): string {

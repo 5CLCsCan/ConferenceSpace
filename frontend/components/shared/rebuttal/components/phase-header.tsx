@@ -1,13 +1,14 @@
 "use client"
 
-import { PHASE_CONFIG, PHASE_DESCRIPTIONS_BY_ROLE } from "../config"
+import { PHASE_CONFIG } from "../config"
+import { getPhaseDescription, getPhaseLabel } from "../i18n"
 import type { PhaseHeaderProps } from "../types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 
 export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProps) {
   const { t } = useTranslation()
   const phase = PHASE_CONFIG[settings.phase]
-  const description = PHASE_DESCRIPTIONS_BY_ROLE[settings.phase][userRole]
+  const description = getPhaseDescription(settings.phase, userRole, t)
 
   return (
     <div className="mb-5">
@@ -35,7 +36,9 @@ export function PhaseHeader({ settings, userRole = "reviewer" }: PhaseHeaderProp
             >
               {phase.icon}
             </span>
-            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">{phase.label}</h2>
+            <h2 className="text-sm font-bold text-[#1B3C53] tracking-tight">
+              {getPhaseLabel(settings.phase, t)}
+            </h2>
           </div>
           <p className="text-xs text-slate-500 leading-relaxed max-w-xl">{description}</p>
         </div>

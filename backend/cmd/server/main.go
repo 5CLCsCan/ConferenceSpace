@@ -70,11 +70,15 @@ func main() {
 	router := setupRouter(appCtx, cfg)
 
 	// Create HTTP server
+	writeTimeout := 15 * time.Second
+	if cfg.AIService.TimeoutSeconds > 15 {
+		writeTimeout = time.Duration(cfg.AIService.TimeoutSeconds) * time.Second
+	}
 	srv := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
 		Handler:      router,
 		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		WriteTimeout: writeTimeout,
 		IdleTimeout:  60 * time.Second,
 	}
 
@@ -273,6 +277,13 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 		}
 
 		// Protected user routes (authentication required)
+		usageEvents := v1.Group("/usage-events")
+		usageEvents.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
+		{
+			usageEvents.POST("", handler.HandleRequest(ctrl.UsageEvent.CreateBatch))
+		}
+
+		// Protected user routes (authentication required)
 		users := v1.Group("/users")
 		users.Use(middleware.AuthMiddleware(cfg.JWT.Secret, cfg.Server.AdminToken))
 		{
@@ -447,10 +458,8 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 			assignments.GET("/:assignment_id/review", handler.HandleRequestWithURI(ctrl.Assignment.GetReview))
 			assignments.POST("/:assignment_id/review-audit", handler.HandleRequest(ctrl.Assignment.RunReviewAudit))
 			assignments.PUT("/:assignment_id/review-audit/dismissals", handler.HandleRequest(ctrl.Assignment.UpdateReviewAuditDismissal))
-			assignments.GET("/:assignment_id/briefing", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerBriefing))
-			assignments.POST("/:assignment_id/briefing/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerBriefing))
-			assignments.GET("/:assignment_id/paper-annotation", handler.HandleRequestWithURI(ctrl.Assignment.GetPaperAnnotation))
-			assignments.POST("/:assignment_id/paper-annotation/generate", handler.HandleRequestWithURI(ctrl.Assignment.GeneratePaperAnnotation))
+			assignments.GET("/:assignment_id/initial-analysis", handler.HandleRequestWithURI(ctrl.Assignment.GetReviewerInitialAnalysis))
+			assignments.POST("/:assignment_id/initial-analysis/generate", handler.HandleRequestWithURI(ctrl.Assignment.GenerateReviewerInitialAnalysis))
 			assignments.PUT("/:assignment_id/rebuttal/acknowledge", requireAssignmentOwner, handler.HandleRequestWithURI(ctrl.Reviewer.AcknowledgeRebuttal))
 			assignments.PUT("/:assignment_id/rebuttal/points/:point_id/acknowledge", requireAssignmentOwner, handler.HandleRequestWithAll(ctrl.Reviewer.AcknowledgePoint))
 

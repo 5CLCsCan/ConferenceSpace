@@ -67,6 +67,47 @@
       "lastName": "Tên",
       "password": "Mật khẩu"
     },
+    "importantDates": {
+      "abstractSubmissionDeadlineDescription": "Hạn nộp tóm tắt",
+      "abstractSubmissionDeadlineFor": "Hạn nộp tóm tắt cho {acronym}",
+      "abstractSubmissionDeadlineTitle": "Hạn nộp tóm tắt",
+      "abstractSubmissionTitle": "Nộp tóm tắt",
+      "cameraReadyDeadlineDescription": "Hạn nộp bản camera-ready của các bài được chấp nhận",
+      "cameraReadyDeadlineFor": "Hạn nộp bản camera-ready cho {acronym}",
+      "cameraReadyDeadlineTitle": "Hạn nộp camera-ready",
+      "cameraReadyTitle": "Camera-ready",
+      "conferenceBeginsDescription": "{name} bắt đầu",
+      "conferenceBeginsTitle": "Hội nghị bắt đầu",
+      "conferenceEndDateDescription": "Sự kiện chính của hội nghị kết thúc",
+      "conferenceEndDateTitle": "Ngày kết thúc hội nghị",
+      "conferenceEndTitle": "Kết thúc hội nghị",
+      "conferenceEndsDescription": "{name} kết thúc",
+      "conferenceEndsTitle": "Hội nghị kết thúc",
+      "conferenceStartDateDescription": "Sự kiện chính của hội nghị bắt đầu",
+      "conferenceStartDateTitle": "Ngày bắt đầu hội nghị",
+      "conferenceStartTitle": "Bắt đầu hội nghị",
+      "discussionPeriodClosesFor": "Giai đoạn thảo luận kết thúc cho {acronym}",
+      "discussionPeriodClosesTitle": "Giai đoạn thảo luận kết thúc",
+      "discussionPeriodOpensFor": "Giai đoạn thảo luận bắt đầu cho {acronym}",
+      "discussionPeriodOpensTitle": "Giai đoạn thảo luận bắt đầu",
+      "notificationOfAcceptanceDescription": "Tác giả được thông báo kết quả chấp nhận hoặc từ chối bài",
+      "notificationOfAcceptanceTitle": "Thông báo kết quả",
+      "paperSubmissionDeadlineDescription": "Hạn cuối nộp bài",
+      "paperSubmissionDeadlineFor": "Hạn nộp toàn văn cho {acronym}",
+      "paperSubmissionDeadlineForTimeline": "Hạn nộp toàn văn",
+      "paperSubmissionDeadlineTitle": "Hạn nộp bài",
+      "paperSubmissionTitle": "Nộp bài",
+      "rebuttalPeriodEndsDescription": "Hạn cuối để tác giả gửi rebuttal",
+      "rebuttalPeriodEndsTitle": "Giai đoạn rebuttal kết thúc",
+      "rebuttalPeriodOpensFor": "Giai đoạn rebuttal bắt đầu cho {acronym}",
+      "rebuttalPeriodOpensTitle": "Giai đoạn rebuttal bắt đầu",
+      "rebuttalPeriodStartsDescription": "Tác giả có thể bắt đầu phản hồi các nhận xét phản biện",
+      "rebuttalPeriodStartsTitle": "Giai đoạn rebuttal bắt đầu",
+      "rebuttalSubmissionDeadlineFor": "Hạn gửi rebuttal cho {acronym}",
+      "rebuttalSubmissionDeadlineTitle": "Hạn gửi rebuttal",
+      "reviewDeadlineDescription": "Hoàn tất phản biện và bắt đầu giai đoạn thảo luận",
+      "reviewDeadlineTitle": "Hạn phản biện"
+    },
     "messages": {
       "languages": {
         "english": "Tiếng Anh",
@@ -82,17 +123,17 @@
             "experiments": "Thực nghiệm",
             "introduction": "Giới thiệu",
             "method": "Phương pháp",
-            "preSubmission": "Trước khi Nộp",
-            "scopeMatch": "Khớp Phạm vi",
+            "preSubmission": "Trước khi nộp",
+            "scopeMatch": "Khớp phạm vi",
             "titleAbstract": "Tiêu đề & Tóm tắt",
-            "writingQuality": "Chất lượng Viết"
+            "writingQuality": "Chất lượng viết"
           },
-          "categoryScores": "Phân tích theo Danh mục",
+          "categoryScores": "Phân tích theo danh mục",
           "confidence": "Độ tin cậy",
           "decision": {
-            "acceptForReview": "Sẵn sàng để Phản biện",
+            "acceptForReview": "Sẵn sàng để phản biện",
             "deskReject": "Từ chối sơ bộ",
-            "manualReview": "Đánh giá thủ công"
+            "manualReview": "Cần xem thủ công"
           },
           "needsAttention": "Cần chú ý",
           "status": {
@@ -106,7 +147,7 @@
             "passed": "Đạt",
             "warnings": "Cảnh báo"
           },
-          "title": "Kiểm tra Chất lượng Bài báo",
+          "title": "Kiểm tra chất lượng bản thảo",
           "whatsFixed": "Những điểm cần sửa",
           "whatsGood": "Những điểm tốt"
         }
@@ -121,41 +162,41 @@
       },
       "review": {
         "analytics": {
-          "accept": "Chấp Nhận",
-          "averageScoresDescription": "Điểm trung bình của tất cả đánh giá (thang điểm 1-10)",
-          "borderline": "Biên Giới",
-          "breakdown": "Phân Tích",
-          "clarity": "Tính Rõ Ràng",
-          "confidenceDistributionDescription": "Phân bố mức độ tin cậy của reviewer",
-          "highConfidence": "Độ Tin Cậy Cao",
-          "lowConfidence": "Độ Tin Cậy Thấp",
-          "mediumConfidence": "Độ Tin Cậy Trung Bình",
-          "methodology": "Phương Pháp Luận",
-          "mixedReviews": "Đánh Giá Hỗn Hợp",
-          "originality": "Tính Độc Đáo",
-          "qualityCriteria": "Tiêu Chí Chất Lượng",
-          "qualityCriteriaAnalysis": "Phân Tích Tiêu Chí Chất Lượng",
-          "qualityMetrics": "Chỉ Số Chất Lượng",
-          "recommendationBreakdown": "Phân Tích Đề Xuất",
-          "reject": "Từ Chối",
-          "review": "đánh giá",
-          "reviewerConfidence": "Độ Tin Cậy Reviewer",
-          "reviewersDisagree": "Reviewer Không Đồng Ý",
-          "reviews": "đánh giá",
-          "significance": "Tính Quan Trọng",
-          "significantDisagreement": "Bất Đồng Đáng Kể",
-          "significantDisagreementDescription": "Các reviewer có ý kiến trái ngược. Cân nhắc thêm đánh giá hoặc meta-review.",
-          "strongAccept": "Chấp Nhận Mạnh",
-          "strongAcceptDescription": "reviewer đề xuất chấp nhận. Bài báo chất lượng cao với sự ủng hộ rộng rãi.",
-          "strongAcceptRecommendation": "Đề Xuất Chấp Nhận Mạnh",
-          "strongConsensus": "Đồng Thuận Mạnh",
-          "strongReject": "Từ Chối Mạnh",
-          "strongRejectDescription": "reviewer đề xuất từ chối. Cân nhắc sửa đổi lớn hoặc từ chối ngay.",
-          "strongRejectRecommendation": "Đề Xuất Từ Chối Mạnh",
+          "accept": "Chấp nhận",
+          "averageScoresDescription": "Điểm trung bình của tất cả phản biện (thang điểm 1-10)",
+          "borderline": "Cân nhắc",
+          "breakdown": "Phân tích",
+          "clarity": "Độ rõ ràng",
+          "confidenceDistributionDescription": "Phân bố mức độ tự tin của phản biện",
+          "highConfidence": "Độ tự tin cao",
+          "lowConfidence": "Độ tự tin thấp",
+          "mediumConfidence": "Độ tự tin trung bình",
+          "methodology": "Phương pháp",
+          "mixedReviews": "Ý kiến trái chiều",
+          "originality": "Tính mới",
+          "qualityCriteria": "Tiêu chí chất lượng",
+          "qualityCriteriaAnalysis": "Phân tích tiêu chí chất lượng",
+          "qualityMetrics": "Chỉ số chất lượng",
+          "recommendationBreakdown": "Phân tích khuyến nghị",
+          "reject": "Từ chối",
+          "review": "phản biện",
+          "reviewerConfidence": "Độ tự tin của phản biện",
+          "reviewersDisagree": "Phản biện chưa đồng thuận",
+          "reviews": "phản biện",
+          "significance": "Mức độ quan trọng",
+          "significantDisagreement": "Bất đồng đáng kể",
+          "significantDisagreementDescription": "Các phản biện có ý kiến trái ngược. Cân nhắc thêm phản biện hoặc meta-review.",
+          "strongAccept": "Chấp nhận mạnh",
+          "strongAcceptDescription": "Phản biện đề xuất chấp nhận. Bản thảo chất lượng cao và nhận được sự ủng hộ rõ ràng.",
+          "strongAcceptRecommendation": "Khuyến nghị chấp nhận mạnh",
+          "strongConsensus": "Đồng thuận mạnh",
+          "strongReject": "Từ chối mạnh",
+          "strongRejectDescription": "Phản biện đề xuất từ chối. Cân nhắc yêu cầu sửa lớn hoặc từ chối.",
+          "strongRejectRecommendation": "Khuyến nghị từ chối mạnh",
           "submitted": "đã nộp",
-          "technicalQuality": "Chất Lượng Kỹ Thuật",
-          "weakAccept": "Chấp Nhận Yếu",
-          "weakReject": "Từ Chối Yếu"
+          "technicalQuality": "Chất lượng kỹ thuật",
+          "weakAccept": "Chấp nhận nhẹ",
+          "weakReject": "Từ chối nhẹ"
         }
       },
       "updateConference": {
@@ -225,7 +266,7 @@
             "actions": "Hành động",
             "deadline": "Hạn chót phản biện",
             "status": "Trạng thái",
-            "title": "Tiêu đề bài báo"
+            "title": "Tiêu đề bài"
           }
         },
         "review": {
@@ -249,6 +290,7 @@
         },
         "common": {
           "dashboard": "Bảng điều khiển",
+          "onboarding": "Hướng dẫn sử dụng",
           "notifications": "Thông báo"
         },
         "reviewer": {
@@ -302,7 +344,7 @@
           "prop_text_structured_peer_review": "Phản biện đồng nghiệp có cấu trúc",
           "text_conferencespace": "CONFERENCESPACE",
           "text_signing_in": "Đang đăng nhập...",
-          "text_submit_research_coordinate_reviews_and_chair": "Gửi nghiên cứu, điều phối đánh giá và chủ trì hội nghị - tất cả trong một hệ thống thống nhất.",
+          "text_submit_research_coordinate_reviews_and_chair": "Nộp nghiên cứu, điều phối phản biện và quản lý hội nghị - tất cả trong một hệ thống thống nhất.",
           "text_the_scholarly_platform_for_academic_conferences": "Nền tảng học thuật cho các hội nghị học thuật."
         }
       },
@@ -335,7 +377,7 @@
           "text_reviews": "Phản biện",
           "text_showing": "Hiển thị",
           "text_status_change": "Thay đổi trạng thái",
-          "text_stay_updated_on_submissions_reviews_deadlines": "Luôn cập nhật về bài nộp, đánh giá, thời hạn và hoạt động thảo luận.",
+          "text_stay_updated_on_submissions_reviews_deadlines": "Theo dõi bài nộp, phản biện, thời hạn và hoạt động thảo luận.",
           "text_submission_received": "Đã nhận bài nộp",
           "text_submissions": "Bài nộp",
           "text_unread": "Chưa đọc",
@@ -401,6 +443,131 @@
             "description": "Chuyên gia được mời để thực hiện phản biện học thuật.",
             "role": "Phản biện"
           }
+        },
+        "public_guide": {
+          "description": "Chọn vai trò để xem từng bước sử dụng ConferenceSpace, từ màn hình đầu tiên đến thao tác cuối cùng trong quy trình.",
+          "label": "Hướng dẫn nhanh",
+          "nav_label": "Hướng dẫn",
+          "roles": {
+            "author": {
+              "description": "Author bắt đầu từ danh sách hội nghị, chọn CFP phù hợp rồi nộp bài qua form nhiều bước.",
+              "label": "Author",
+              "steps": {
+                "conferences": {
+                  "bullets": [
+                    "Xem danh sách hội nghị đang mở.",
+                    "Kiểm tra deadline, track, topic và chính sách nhận bài.",
+                    "Chỉ bắt đầu nộp khi hội nghị còn mở submission."
+                  ],
+                  "title": "Tìm hội nghị phù hợp"
+                },
+                "final": {
+                  "bullets": [
+                    "Đọc review trước khi viết rebuttal.",
+                    "Nếu bài được nhận, kiểm tra yêu cầu camera-ready.",
+                    "Theo dõi thông báo để không bỏ lỡ deadline phản hồi."
+                  ],
+                  "title": "Gửi rebuttal hoặc camera-ready"
+                },
+                "manage": {
+                  "bullets": [
+                    "Theo dõi trạng thái draft, submitted, under review hoặc decision.",
+                    "Sửa hoặc rút bài khi deadline còn cho phép.",
+                    "Mở chi tiết bài nộp để xem review và discussion."
+                  ],
+                  "title": "Quản lý bài đã nộp"
+                },
+                "submit": {
+                  "bullets": [
+                    "Nhập title, abstract, keywords và chọn track.",
+                    "Thêm co-author và khai báo conflict nếu có.",
+                    "Tải file PDF đúng yêu cầu của hội nghị."
+                  ],
+                  "title": "Tạo submission mới"
+                }
+              },
+              "title": "Nộp bài và theo dõi kết quả"
+            },
+            "chair": {
+              "description": "Chair quản lý hội nghị từ lúc mở CFP, phân công reviewer đến khi công bố kết quả.",
+              "label": "Chair",
+              "steps": {
+                "assign": {
+                  "bullets": [
+                    "Mời committee hoặc reviewer bằng email.",
+                    "Mở phần submissions/assignments để phân công reviewer.",
+                    "Kiểm tra workload, keyword match và COI trước khi xác nhận."
+                  ],
+                  "title": "Mời reviewer và phân công bài"
+                },
+                "create": {
+                  "bullets": [
+                    "Nhập tên hội nghị, acronym, mô tả và hình thức tổ chức.",
+                    "Thiết lập topic, track, review type và các mốc deadline.",
+                    "Kiểm tra policy trước khi publish CFP."
+                  ],
+                  "title": "Tạo hội nghị và cấu hình CFP"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Xem nhanh số lượng hội nghị, submission và review.",
+                    "Theo dõi deadline gần nhất và các việc cần xử lý.",
+                    "Mở lại hội nghị đang quản lý từ dashboard."
+                  ],
+                  "title": "Mở dashboard Chair"
+                },
+                "decision": {
+                  "bullets": [
+                    "Theo dõi review đã nộp và reviewer quá hạn.",
+                    "Mở rebuttal nếu hội nghị có vòng phản hồi tác giả.",
+                    "Ra quyết định sau khi kiểm tra review, discussion và COI."
+                  ],
+                  "title": "Theo dõi review và ra quyết định"
+                }
+              },
+              "title": "Điều phối toàn bộ hội nghị"
+            },
+            "reviewer": {
+              "description": "Reviewer xử lý lời mời, xem bài được giao và gửi phản biện theo tiêu chí của hội nghị.",
+              "label": "Reviewer",
+              "steps": {
+                "assignment": {
+                  "bullets": [
+                    "Mở paper được phân công để xem metadata và file.",
+                    "Đọc tiêu chí review trước khi chấm.",
+                    "Ghi chú điểm mạnh, điểm yếu và câu hỏi cần phản hồi."
+                  ],
+                  "title": "Đọc assignment và briefing"
+                },
+                "dashboard": {
+                  "bullets": [
+                    "Kiểm tra lời mời mới và assignment đang chờ.",
+                    "Ưu tiên xử lý các deadline gần nhất.",
+                    "Dùng dashboard để quay lại review chưa hoàn tất."
+                  ],
+                  "title": "Mở dashboard Reviewer"
+                },
+                "invitations": {
+                  "bullets": [
+                    "Đọc thông tin hội nghị, deadline và paper summary.",
+                    "Accept khi đúng chuyên môn và không có conflict.",
+                    "Decline nếu bận, lệch chuyên môn hoặc có COI."
+                  ],
+                  "title": "Nhận hoặc từ chối lời mời"
+                },
+                "review": {
+                  "bullets": [
+                    "Chấm điểm từng tiêu chí và chọn recommendation.",
+                    "Viết strengths/weaknesses rõ ràng, có căn cứ.",
+                    "Sau rebuttal, cập nhật review nếu hội nghị yêu cầu."
+                  ],
+                  "title": "Gửi review"
+                }
+              },
+              "title": "Phản biện bài được phân công"
+            }
+          },
+          "title": "Xem cách ConferenceSpace hoạt động"
         },
         "text_a_single_registered_account_can_operate": "Một tài khoản có thể đồng thời là Tác giả, Phản biện hoặc Chủ trì. Bạn có thể chuyển vai trò bất kỳ lúc nào, và quyền cùng không gian làm việc sẽ tự điều chỉnh.",
         "text_academic_conference_operations_platform": "Nền tảng hoạt động hội nghị học thuật",
@@ -504,6 +671,7 @@
         "user_id": {
           "page": {
             "placeholder_search_publications": "Tìm công trình nghiên cứu theo tiêu đề, nơi công bố, tóm tắt hoặc tác giả",
+            "prop_description_email_updated_please_sign_in_again": "Email đã được cập nhật. Vui lòng đăng nhập lại bằng e-mail mới.",
             "prop_description_missing_profile_id": "Thiếu id hồ sơ.",
             "prop_description_please_try_again": "Vui lòng thử lại.",
             "prop_description_please_wait_for_profile_sync_to_complete_before_unlinking": "Vui lòng đợi đồng bộ hồ sơ hoàn tất trước khi hủy liên kết.",
@@ -582,7 +750,7 @@
           "prop_text_paper_submission_tracking": "Nộp và theo dõi bài báo",
           "prop_text_structured_peer_review": "Phản biện đồng nghiệp có cấu trúc",
           "text_conferencespace": "CONFERENCESPACE",
-          "text_create_your_scholar_account_to_submit": "Tạo tài khoản học giả của bạn để nộp bài báo, phản biện bản thảo và chủ trì hội nghị.",
+          "text_create_your_scholar_account_to_submit": "Tạo tài khoản học giả để nộp bài, phản biện bản thảo và quản lý hội nghị.",
           "text_failed_to_load_invitation": "Không tải được thông tin lời mời.",
           "text_creating_account": "Đang tạo tài khoản...",
           "text_invited_to_join_conference": "{inviter} đã mời bạn tham gia {conference} với vai trò {role}.",
@@ -682,17 +850,17 @@
                 "submissionId": {
                   "page": {
                     "prop_description_initial_submission_was_created": "Đã tạo bài nộp ban đầu",
-                    "prop_description_submission_metadata_was_updated": "Siêu dữ liệu gửi đã được cập nhật",
+                    "prop_description_submission_metadata_was_updated": "Thông tin bài nộp đã được cập nhật",
                     "prop_title_discussion_message_added": "Đã thêm tin nhắn thảo luận",
                     "prop_title_discussion_thread_created": "Chủ đề thảo luận đã được tạo",
-                    "prop_title_draft_review_saved": "Đã lưu bản đánh giá dự thảo",
+                    "prop_title_draft_review_saved": "Đã lưu nháp phản biện",
                     "prop_title_file_uploaded": "Tệp đã tải lên",
-                    "prop_title_review_submitted": "Đã nộp đánh giá",
-                    "prop_title_reviewer_assigned": "Người đánh giá được chỉ định",
+                    "prop_title_review_submitted": "Đã nộp phản biện",
+                    "prop_title_reviewer_assigned": "Đã phân công phản biện",
                     "prop_title_status_updated": "Đã cập nhật trạng thái",
                     "prop_title_submission_created": "Đã tạo bài nộp",
                     "prop_title_submission_updated": "Đã cập nhật bài nộp",
-                    "text_failed_to_load_submission": "Không tải được nội dung gửi:",
+                    "text_failed_to_load_submission": "Không tải được bài nộp:",
                     "text_loading": "Đang tải..."
                   }
                 }
@@ -726,7 +894,7 @@
           }
         },
         "page": {
-          "prop_description_evaluate_assigned_papers_submit_scores_and": "Đánh giá các bài báo được phân công, nộp điểm và cung cấp phản hồi mang tính xây dựng cho tác giả.",
+          "prop_description_evaluate_assigned_papers_submit_scores_and": "Phản biện các bài được phân công, nộp điểm và cung cấp phản hồi mang tính xây dựng cho tác giả.",
           "prop_description_manage_submissions_view_reviews_and_upload": "Quản lý bài nộp, xem kết quả phản biện và tải lên bản camera-ready cho các hội nghị sắp tới.",
           "prop_description_oversee_conference_tracks_manage_committees_and": "Giám sát các track hội nghị, quản lý ban chương trình và lên lịch trình cho sự kiện.",
           "prop_description_read_only_access_to_conference": "Quyền chỉ đọc đối với tất cả dữ liệu hội nghị, phản biện và phân tích.",
@@ -740,15 +908,18 @@
           "prop_title_reviewer": "Phản biện",
           "text_conferencespace": "ConferenceSpace",
           "text_enter_dashboard": "Mở bảng điều khiển",
-          "text_please_select_the_role_you_wish": "Vui lòng chọn vai trò bạn muốn hoạt động như ngày hôm nay. Bạn có thể chuyển đổi vai trò bất kỳ lúc nào từ cài đặt tài khoản của mình.",
+          "text_open_user_guide": "Mở hướng dẫn",
+          "text_please_select_the_role_you_wish": "Vui lòng chọn vai trò bạn muốn dùng hôm nay. Bạn có thể chuyển vai trò bất kỳ lúc nào trong cài đặt tài khoản.",
           "text_role_selection": "Lựa chọn vai trò",
+          "text_user_guide_description": "Hướng dẫn nhanh cho luồng Chair, Author và Reviewer theo từng bước thao tác.",
+          "text_user_guide_title": "Người mới dùng nền tảng? Bắt đầu với hướng dẫn sử dụng.",
           "text_welcome_back": "Chào mừng trở lại,"
         },
         "reviewer": {
           "assignments": {
             "assignmentId": {
               "page": {
-                "text_go_to_conferences": "Đi tới Hội nghị",
+                "text_go_to_conferences": "Đi tới hội nghị",
                 "text_loading": "Đang tải...",
                 "text_open_this_assignment_from_the_conference": ". Hãy mở phân công này từ danh sách bài nộp của hội nghị hoặc thêm tham số",
                 "text_query_parameter": "hợp lệ vào URL.",
@@ -773,7 +944,7 @@
           "text_confirming_your_identity_to_activate_your": "Xác nhận danh tính của bạn để kích hoạt tài khoản của bạn.",
           "text_email_verification": "Xác minh email",
           "text_email_verified": "Đã xác minh email!",
-          "text_go_to_sign_in": "Đi để đăng nhập",
+          "text_go_to_sign_in": "Đi tới đăng nhập",
           "text_new_verification_email_sent_check_your": "Email xác minh mới đã được gửi. Kiểm tra hộp thư đến của bạn.",
           "text_please_wait_a_moment": "Xin vui lòng chờ một lát.",
           "text_request_a_new_link": "Yêu cầu một liên kết mới",
@@ -816,12 +987,12 @@
           "prop_label_rejected": "Đã từ chối",
           "prop_label_revision_requested": "Yêu cầu sửa đổi",
           "prop_label_submitted": "Đã nộp",
-          "prop_label_under_review": "Đang được đánh giá",
-          "text_camera_ready": "Sẵn sàng cho máy ảnh",
+          "prop_label_under_review": "Đang phản biện",
+          "text_camera_ready": "Camera-ready",
           "text_decision_not_accepted": "Quyết định: Không được chấp nhận",
           "text_paper_accepted": "Bài báo được chấp nhận",
           "text_review_in_progress": "Đang phản biện",
-          "text_submit_paper": "Nộp bài báo",
+          "text_submit_paper": "Nộp bài",
           "text_submit_revision": "Gửi bản sửa đổi",
           "text_submitted_on": "Đã gửi vào",
           "text_text": "&quot;",
@@ -830,7 +1001,7 @@
           "text_view_cfp": "Xem CFP",
           "text_view_details": "Xem chi tiết",
           "text_view_feedback": "Xem phản hồi",
-          "text_view_reviews": "Xem đánh giá",
+          "text_view_reviews": "Xem phản biện",
           "text_view_submission": "Xem bài nộp"
         },
         "author-conference-detail": {
@@ -838,12 +1009,12 @@
           "text_loading_conference_details": "Đang tải chi tiết hội nghị..."
         },
         "author-conference-list": {
-          "text_actions": "Hành động",
+          "text_actions": "Thao tác",
           "text_conference": "Hội nghị",
           "text_dates": "Ngày diễn ra",
           "text_deadline": "Hạn nộp",
           "text_next": "Tiếp theo",
-          "text_paper_title": "Tiêu đề bài báo",
+          "text_paper_title": "Tiêu đề bài",
           "text_previous": "Trước",
           "text_review_progress": "Tiến độ phản biện",
           "text_revision_due": "Đến hạn sửa đổi",
@@ -883,7 +1054,7 @@
           "prop_label_rejected": "Đã từ chối",
           "prop_label_review": "Đánh giá",
           "prop_label_submitted": "Đã nộp",
-          "prop_label_under_review": "Đang được đánh giá",
+          "prop_label_under_review": "Đang phản biện",
           "text_all_conferences": "Tất cả hội nghị",
           "text_cancel": "Hủy",
           "text_co_author": "đồng tác giả",
@@ -911,20 +1082,20 @@
           "call-for-papers-tab": {
             "prop_description_docx_format": "định dạng .docx",
             "prop_description_ieee_conference_docx": "Hội nghị IEEE (.docx)",
-            "prop_description_official_style_file": "Tập tin phong cách chính thức",
+            "prop_description_official_style_file": "Tệp style chính thức",
             "prop_label_abstract_deadline": "Thời hạn tóm tắt",
-            "prop_label_conference_dates": "Ngày Diễn Ra Hội Nghị",
+            "prop_label_conference_dates": "Ngày diễn ra hội nghị",
             "prop_label_full_paper_deadline": "Thời hạn toàn văn",
-            "prop_label_notification": "Thông Báo",
+            "prop_label_notification": "Thông báo",
             "prop_text_text_blue_600": "text-blue-600",
             "prop_text_text_red_600": "text-red-600",
             "text_author_resources": "Tài nguyên tác giả",
             "text_call_for_papers": "Lời mời gửi bài",
             "text_days_left": "ngày còn lại",
-            "text_important_dates": "Thời Gian Quan Trọng",
+            "text_important_dates": "Mốc thời gian",
             "text_submission_deadline": "Hạn nộp bài:",
             "title_download_pdf": "Tải PDF",
-            "title_print": "TRONG",
+            "title_print": "In",
             "title_share": "Chia sẻ",
             "title_share_success": "Đã sao chép liên kết!"
           },
@@ -952,23 +1123,26 @@
           "conference-header": {
             "prop_label_call_for_papers": "Lời mời gửi bài",
             "prop_label_committee": "Ban chương trình",
-            "prop_label_important_dates": "Thời Gian Quan Trọng",
+            "prop_label_important_dates": "Mốc thời gian",
             "prop_label_overview": "Tổng quan",
             "prop_label_submission_closed": "Đã đóng nhận bài",
             "text_conferences": "Hội nghị",
             "text_edit_submission": "Chỉnh sửa bài nộp",
             "text_submit_paper": "Nộp bài",
             "text_submissions_closed": "Đã đóng nhận bài",
-            "text_submissions_are_closed_for_this_conference": "Đệ trình được đóng lại cho hội nghị này.",
+            "text_submissions_are_closed_for_this_conference": "Hội nghị này đã đóng nhận bài.",
             "text_this_conference_no_longer_accepts_new_submissions": "Hội nghị này không còn nhận bài nộp mới.",
             "text_view_submission": "Xem bài nộp"
           },
           "important-dates-tab": {
             "text_23_59_aoe": "23:59 AoE",
             "text_aoe_utc_12": "AoE (UTC-12)",
+            "text_completed": "Hoàn thành",
+            "text_days": "ngày",
             "text_check_the_conference_website_or_contact": "Kiểm tra trang web hội nghị hoặc liên hệ với chủ trì chương trình nếu bạn có thắc mắc về thời hạn.",
             "text_conference_timeline": "Dòng thời gian hội nghị",
             "text_contact_support": "Liên hệ hỗ trợ",
+            "text_in_progress": "Đang diễn ra",
             "text_keep_track_of_important_deadlines_for": "Theo dõi các thời hạn quan trọng cho bài nộp của bạn.",
             "text_need_help": "Cần trợ giúp?",
             "text_next_major_deadline": "Hạn chót chính tiếp theo",
@@ -979,7 +1153,47 @@
             "text_text": "",
             "text_timezone": "Múi giờ",
             "text_until": "Cho đến khi",
-            "text_upcoming": "Sắp tới"
+            "text_upcoming": "Sắp tới",
+            "phases": {
+              "submission": "Giai đoạn nộp bài",
+              "review": "Đánh giá & Quyết định",
+              "event": "Camera-ready & Hội nghị",
+              "conference": "Hội nghị"
+            },
+            "events": {
+              "abstract-submission-deadline": {
+                "title": "Hạn nộp tóm tắt",
+                "description": "Thời hạn nộp tóm tắt bài báo"
+              },
+              "submission-deadline": {
+                "title": "Hạn nộp bài",
+                "description": "Hạn chót cuối cùng để nộp bài báo"
+              },
+              "camera-ready-deadline": {
+                "title": "Hạn nộp bản camera-ready",
+                "description": "Phiên bản cuối của các bài được chấp nhận"
+              },
+              "notification-date": {
+                "title": "Thông báo kết quả",
+                "description": "Tác giả được thông báo về việc chấp nhận hoặc từ chối bài báo"
+              },
+              "rebuttal-period-start": {
+                "title": "Bắt đầu giai đoạn phản bác",
+                "description": "Tác giả có thể bắt đầu phản hồi các đánh giá"
+              },
+              "rebuttal-period-end": {
+                "title": "Kết thúc giai đoạn phản bác",
+                "description": "Hạn chót cuối cùng cho phản bác của tác giả"
+              },
+              "conference-start-date": {
+                "title": "Ngày bắt đầu hội nghị",
+                "description": "Sự kiện hội nghị chính bắt đầu"
+              },
+              "conference-end-date": {
+                "title": "Ngày kết thúc hội nghị",
+                "description": "Sự kiện hội nghị chính kết thúc"
+              }
+            }
           },
           "overview-tab": {
             "text_about_the_conference": "Giới thiệu về Hội nghị",
@@ -1008,14 +1222,14 @@
             "prop_label_submitted": "Đã nộp",
             "text_abstract": "Tóm tắt",
             "text_author_s": "(Các) tác giả",
-            "text_camera_ready_version": "Phiên bản sẵn sàng cho máy ảnh",
+            "text_camera_ready_version": "Bản camera-ready",
             "text_conflicts_of_interest": "Xung đột lợi ích",
             "text_cover_letter": "Thư giới thiệu",
             "text_download": "Tải xuống",
             "text_last_updated": "Cập nhật lần cuối:",
             "text_mb": "MB",
             "text_mb_2": "MB",
-            "text_no_camera_ready_version_uploaded_yet": "Chưa có phiên bản sẵn sàng cho máy ảnh nào được tải lên.",
+            "text_no_camera_ready_version_uploaded_yet": "Chưa tải lên bản camera-ready.",
             "text_no_cover_letter_attached": "Không có thư giới thiệu kèm theo.",
             "text_none_declared": "Không khai báo",
             "text_submission_files": "Tệp bài nộp",
@@ -1023,20 +1237,20 @@
             "text_submission_status": "Trạng thái bài nộp",
             "text_withdraw_paper": "Rút bài báo",
             "text_withdraw_submission": "Rút lại bài nộp",
-            "text_withdrawing_your_paper_will_remove_it": "Việc rút bài báo sẽ loại bài khỏi vòng xét duyệt. Hành động này không thể hoàn tác.",
+            "text_withdrawing_your_paper_will_remove_it": "Rút bài sẽ loại bài nộp khỏi vòng xét duyệt. Hành động này không thể hoàn tác.",
             "title_download": "Tải xuống",
             "title_preview": "Xem trước"
           },
           "rebuttal-tab": {
-            "placeholder_write_your_general_response_to_all": "Viết phản hồi chung của bạn cho tất cả người đánh giá…",
+            "placeholder_write_your_general_response_to_all": "Viết phản hồi chung cho tất cả phản biện…",
             "text_character_limit": "-giới hạn ký tự.",
             "text_general_response": "Phản hồi chung",
-            "text_loading_rebuttal": "Đang tải phản bác…",
-            "text_rebuttal_period_is_finalized_no_further": "Thời gian phản bác đã kết thúc. Không thể thay đổi thêm nữa.",
-            "text_rebuttal_period_is_open": "Thời gian phản bác đã mở",
-            "text_rebuttal_submitted": "Đã gửi phản bác",
+            "text_loading_rebuttal": "Đang tải rebuttal…",
+            "text_rebuttal_period_is_finalized_no_further": "Giai đoạn rebuttal đã kết thúc. Không thể thay đổi thêm.",
+            "text_rebuttal_period_is_open": "Giai đoạn rebuttal đang mở",
+            "text_rebuttal_submitted": "Đã gửi rebuttal",
             "text_response_exceeds_the": "Phản hồi vượt quá",
-            "text_the_rebuttal_period_has_not_started": "Giai đoạn phản bác vẫn chưa bắt đầu."
+            "text_the_rebuttal_period_has_not_started": "Giai đoạn rebuttal chưa bắt đầu."
           },
           "submission-header": {
             "prop_label_accepted": "Đã chấp nhận",
@@ -1048,17 +1262,17 @@
             "prop_label_rebuttal": "Phản hồi",
             "prop_label_rejected": "Đã từ chối",
             "prop_label_revision_requested": "Yêu cầu sửa đổi",
-            "prop_label_under_review": "Đang được đánh giá",
+            "prop_label_under_review": "Đang phản biện",
             "prop_label_withdrawn": "Đã rút",
             "text_edit": "Chỉnh sửa",
             "text_my_submissions": "Bài nộp của tôi",
             "text_submission": "Bài nộp số",
-            "text_track": "Theo dõi:"
+            "text_track": "Track:"
           }
         },
         "submit": {
           "authors-step": {
-            "placeholder_e_g_doe": "ví dụ. Nai",
+            "placeholder_e_g_doe": "ví dụ: Nguyễn",
             "placeholder_e_g_john": "ví dụ. John",
             "placeholder_e_g_john_doe_university_edu": "ví dụ. john.doe@university.edu - Bắt đầu nhập để tìm kiếm người dùng hiện tại",
             "placeholder_e_g_stanford_university": "ví dụ. Đại học Stanford",
@@ -1078,12 +1292,12 @@
             "text_designate_a_single_author_responsible_for_all_correspondence_during_review_and_post_acceptance_communications": "— chỉ định một tác giả chịu trách nhiệm toàn bộ trao đổi trong quá trình phản biện và sau khi chấp nhận.",
             "text_do_not_include_any_author_names_affiliations_or_identifying_information_inside_the_submitted_pdf_manuscript": "— không đưa tên tác giả, đơn vị công tác hoặc thông tin nhận diện vào bản PDF nộp.",
             "text_double_blind_review": "Phản biện hai chiều",
-            "text_email_address": "Địa chỉ Email",
+            "text_email_address": "Địa chỉ email",
             "text_ensure_your_name_matches_exactly_across_all_your_previous_publications_and_your_profile_to_maintain_a_unified_author_identity": "— đảm bảo tên của bạn khớp chính xác giữa các công bố trước đây và hồ sơ để duy trì danh tính tác giả thống nhất.",
             "text_first_name": "Tên",
             "text_france": "Pháp",
             "text_full_legal_names_only": "Chỉ dùng họ tên đầy đủ theo pháp lý",
-            "text_germany": "nước Đức",
+            "text_germany": "Đức",
             "text_got_it": "Đã hiểu",
             "text_india": "Ấn Độ",
             "text_japan": "Nhật Bản",
@@ -1120,10 +1334,10 @@
             "prop_label_personal": "Riêng tư",
             "prop_label_recent_co_author_last_24_months": "Đồng tác giả gần đây (24 tháng qua)",
             "text_a_conflict_of_interest_exists_if": "Xung đột lợi ích tồn tại nếu bạn là đồng tác giả với một thành viên PC trong 24 tháng qua, đến từ cùng một tổ chức hoặc có mối quan hệ cá nhân hoặc nghề nghiệp thân thiết (ví dụ: thành viên gia đình, cố vấn/người tư vấn cho Tiến sĩ).",
-            "text_action": "Hoạt động",
+            "text_action": "Thao tác",
             "text_add_conflict": "Thêm xung đột",
             "text_confirm_declaration": "Xác nhận khai báo",
-            "text_conflict_domains": "Tên miền xung đột",
+            "text_conflict_domains": "Tên miền có xung đột",
             "text_email": "E-mail",
             "text_first_name": "Tên",
             "text_i_certify_that_i_have_disclosed": "Tôi xác nhận rằng tôi đã tiết lộ tất cả các xung đột lợi ích tiềm ẩn theo sự hiểu biết tốt nhất của mình theo chính sách hội nghị.",
@@ -1131,13 +1345,13 @@
             "text_institutional_conflicts": "Xung đột thể chế",
             "text_last_name": "Họ",
             "text_name": "Tên",
-            "text_no_individual_conflicts_listed_add_conflicts": "Không có xung đột cá nhân được liệt kê. Thêm xung đột bằng cách sử dụng biểu mẫu ở trên.",
+            "text_no_individual_conflicts_listed_add_conflicts": "Chưa có xung đột cá nhân nào. Thêm xung đột bằng biểu mẫu ở trên.",
             "text_optional": "(Không bắt buộc)",
             "text_policy_definition": "Định nghĩa chính sách",
             "text_reason": "Lý do",
-            "text_reviewers_with_email_addresses_from_these": "Người đánh giá có địa chỉ email từ các miền này sẽ tự động bị đánh dấu là xung đột.",
-            "text_specify_individual_program_committee_members_with": "Chỉ định từng thành viên ban chương trình mà bạn có mâu thuẫn.",
-            "title_domains_of_your_current_affiliation_are": "Tên miền của liên kết hiện tại của bạn sẽ tự động được gắn cờ.",
+            "text_reviewers_with_email_addresses_from_these": "Phản biện có địa chỉ email thuộc các tên miền này sẽ tự động được đánh dấu là có xung đột.",
+            "text_specify_individual_program_committee_members_with": "Khai báo từng thành viên ban chương trình mà bạn có xung đột.",
+            "title_domains_of_your_current_affiliation_are": "Tên miền của đơn vị công tác hiện tại sẽ được tự động đánh dấu.",
             "title_remove": "Xóa"
           },
           "file-upload-step": {
@@ -1159,18 +1373,18 @@
             "text_checking": "Đang kiểm tra...",
             "text_pdf_docx_and_tex_files_are": "Cho phép các tệp PDF, DOCX và TEX",
             "text_ready": "Sẵn sàng",
-            "text_running_quality_check_on_your_paper": "Đang chạy kiểm tra chất lượng bài báo của bạn...",
+            "text_running_quality_check_on_your_paper": "Đang kiểm tra chất lượng bản thảo...",
             "text_supplementary_material": "Tài liệu bổ sung",
-            "text_the_uploaded_manuscript_meets_the_conference": "Bản thảo được tải lên đáp ứng các yêu cầu trình hội nghị.",
+            "text_the_uploaded_manuscript_meets_the_conference": "Bản thảo đã tải lên đáp ứng yêu cầu của hội nghị.",
             "text_this_conference_follows_a_double_blind": "Hội nghị này tuân theo quy trình phản biện hai chiều. Bản thảo của bạn không được chứa tên, liên kết hoặc bất kỳ thông tin nhận dạng nào khác.",
-            "text_upload_source_code_datasets_or_additional": "Tải lên mã nguồn, tập dữ liệu hoặc bằng chứng bổ sung hỗ trợ việc gửi của bạn.",
+            "text_upload_source_code_datasets_or_additional": "Tải lên mã nguồn, bộ dữ liệu hoặc tài liệu bổ sung hỗ trợ bài nộp.",
             "text_uploaded_just_now": "Vừa mới tải lên",
-            "text_zip_code_data": "ZIP, Mã, Dữ liệu",
+            "text_zip_code_data": "ZIP, mã nguồn, dữ liệu",
             "title_delete": "Xóa",
             "title_preview": "Xem trước"
           },
           "paper-details-step": {
-            "text_add_a_more_descriptive_title_and_abstract_to_unlock_track_recommendation": "Bổ sung tiêu đề và tóm tắt chi tiết hơn để mở gợi ý track.",
+            "text_add_a_more_descriptive_title_and_abstract_to_unlock_track_recommendation": "Bổ sung tiêu đề và tóm tắt chi tiết hơn để bật gợi ý track.",
             "placeholder_e_g_optimizing_neural_networks_for": "ví dụ: Tối ưu hóa mạng thần kinh cho thiết bị biên",
             "text_500_words": "/ 500 từ",
             "text_abstract": "Tóm tắt",
@@ -1181,38 +1395,39 @@
             "text_keywords": "Từ khóa",
             "text_paper_information": "Thông tin bài báo",
             "text_paper_details_changed_refresh_the_recommendation_before_using_it": "Thông tin bài báo đã thay đổi. Hãy làm mới gợi ý trước khi dùng.",
-            "text_paper_title": "Tiêu đề bài báo",
+            "text_paper_title": "Tiêu đề bài",
             "text_provide_3_5_keywords_separated_by": "Cung cấp 3-5 từ khóa cách nhau bằng Enter.",
             "text_refresh_recommendation": "Làm mới gợi ý",
-            "text_selected_track": "Đã chọn",
+            "text_selected_track": "Track đã chọn",
             "text_select_a_track": "Chọn một track...",
             "text_select_the_most_relevant_track_for": "Chọn track phù hợp nhất cho nghiên cứu của bạn để đảm bảo phân công phản biện phù hợp.",
             "text_select_track": "Chọn track",
             "text_student_paper": "Bài báo sinh viên",
-            "text_track_recommendation": "Gợi ý Track",
+            "text_track_recommendation": "Gợi ý track",
             "text_use_this_track": "Dùng track này",
             "text_use_your_paper_summary_to_rank_the_conference_tracks_before_you_choose_one_manually": "Dùng phần tóm tắt bài báo để xếp hạng các track trước khi bạn tự chọn.",
             "text_view_all_ranked_tracks": "Xem toàn bộ xếp hạng track"
           },
           "paper-submission-form": {
-            "prop_description_add_all_contributing_authors_use_the": "Thêm tất cả các tác giả đóng góp. Sử dụng tay cầm kéo để sắp xếp chúng theo sự đóng góp của chúng. Đảm bảo một tác giả được đánh dấu là người liên hệ tương ứng.",
+            "prop_description_add_all_contributing_authors_use_the": "Thêm tất cả tác giả đóng góp. Kéo để sắp xếp theo thứ tự đóng góp và đảm bảo một tác giả được đánh dấu là tác giả liên hệ.",
             "prop_description_an_unexpected_error_occurred_please_try": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
-            "prop_description_declare_any_potential_conflicts_of_interest": "Tuyên bố mọi xung đột lợi ích tiềm ẩn với người đánh giá hoặc tổ chức.",
+            "prop_description_declare_any_potential_conflicts_of_interest": "Khai báo mọi xung đột lợi ích tiềm ẩn với phản biện hoặc tổ chức.",
             "prop_description_draft_creation_is_disabled_because_this": "Tính năng tạo bản nháp bị vô hiệu hóa vì hội nghị này không ở trạng thái mở.",
             "prop_description_please_fill_in_all_required_fields": "Vui lòng điền vào tất cả các trường bắt buộc cho tác giả.",
             "prop_description_please_provide_at_least_first_and": "Vui lòng cung cấp ít nhất họ và tên.",
             "prop_description_please_provide_the_core_information_about": "Vui lòng cung cấp thông tin cốt lõi về bài nghiên cứu của bạn.",
             "prop_description_please_upload_a_pdf_docx_or": "Vui lòng tải lên tệp bản thảo PDF, DOCX hoặc TEX.",
-            "prop_description_please_upload_your_research_paper_in": "Vui lòng tải lên bài nghiên cứu của bạn ở định dạng PDF. Đảm bảo tất cả thông tin cá nhân được xóa để phản biện hai chiều.",
-            "prop_description_publishing_is_no_longer_available_because": "Việc xuất bản không còn khả dụng vì thời hạn nộp bài tại hội nghị đã qua.",
-            "prop_description_review_all_information_before_final_submission": "Xem xét tất cả các thông tin trước khi gửi cuối cùng.",
+            "prop_description_please_upload_your_research_paper_in": "Vui lòng tải lên bản thảo ở định dạng PDF. Đảm bảo đã xóa mọi thông tin định danh nếu hội nghị áp dụng phản biện hai chiều.",
+            "prop_description_publishing_is_no_longer_available_because": "Không thể nộp bài vì hạn nộp của hội nghị đã qua.",
+            "prop_description_review_all_information_before_final_submission": "Rà soát toàn bộ thông tin trước khi nộp chính thức.",
+            "prop_description_submission_editing_is_locked_after_the_deadline": "Không thể chỉnh sửa bài nộp sau hạn nộp.",
             "prop_description_this_conference_is_not_currently_accepting": "Hội nghị này hiện không chấp nhận bài nộp. Vui lòng gửi trong giai đoạn mở.",
             "prop_description_your_draft_has_been_saved_you": "Bản nháp của bạn đã được lưu. Bạn có thể tiếp tục chỉnh sửa bất cứ lúc nào.",
             "prop_title_authors_affiliations": "Tác giả & Đơn vị công tác",
             "prop_title_conflicts_of_interest": "Xung đột lợi ích",
             "prop_title_draft_saved_successfully": "Đã lưu bản nháp thành công",
             "prop_title_error_saving_draft": "Lỗi lưu bản nháp",
-            "prop_title_error_submitting_paper": "Lỗi nộp bài báo",
+            "prop_title_error_submitting_paper": "Lỗi nộp bài",
             "prop_title_failed_to_save_draft": "Không lưu được bản nháp",
             "prop_title_file_too_large": "Tệp quá lớn",
             "prop_title_invalid_file_type": "Loại tệp không hợp lệ",
@@ -1225,10 +1440,10 @@
             "prop_title_upload_manuscript": "Tải lên bản thảo",
             "text_back_to_conference": "Quay lại hội nghị",
             "text_continue_editing": "Tiếp tục chỉnh sửa",
-            "text_continue_to_conference": "Tiếp tục đến Hội nghị",
+            "text_continue_to_conference": "Tiếp tục đến hội nghị",
             "text_draft_saved": "Đã lưu bản nháp",
             "text_new_submissions_are_closed": "Đã đóng nhận bài mới",
-            "text_new_submissions_and_publishing_are_no": ". Việc gửi và xuất bản mới không còn được chấp nhận.",
+            "text_new_submissions_and_publishing_are_no": ". Hệ thống không còn nhận bài nộp mới.",
             "text_submission_deadline_has_passed": "Hạn nộp bài đã qua",
             "text_success": "Thành công!",
             "text_the_deadline_was": "Thời hạn là",
@@ -1271,7 +1486,7 @@
             "text_co_author": "Đồng tác giả",
             "text_multiple_conflicts_of_interest_declared": "Đã khai báo {count} xung đột lợi ích.",
             "text_title": "Tiêu đề",
-            "text_track": "Theo dõi",
+            "text_track": "Track",
             "title_passed_validation": "Đã vượt qua xác thực",
             "title_failed_validation": "Kiểm tra không đạt",
             "title_pending_validation": "Đang kiểm tra"
@@ -1285,16 +1500,16 @@
             "text_return": "Trở lại",
             "text_save_draft": "Lưu bản nháp",
             "text_saving": "Đang lưu...",
-            "text_submit_paper": "Nộp bài báo",
+            "text_submit_paper": "Nộp bài",
             "text_submitting": "Đang gửi..."
           },
           "submission-autofill-sheet": {
-            "description": "Tải lên tài liệu bản thảo, tạo gợi ý có thể kiểm tra, rồi áp dụng vào bản nháp này.",
-            "error_extract_failed": "Không thể trích xuất gợi ý bài nộp có thể sử dụng.",
-            "error_generate_failed": "Không thể tạo gợi ý tự điền bài nộp.",
+            "description": "Tải lên tài liệu bản thảo, tạo gợi ý có thể kiểm tra, rồi áp dụng vào bản nháp.",
+            "error_extract_failed": "Không thể trích xuất gợi ý hữu ích từ tài liệu đã tải lên.",
+            "error_generate_failed": "Không thể tạo gợi ý tự điền.",
             "error_material_required": "Vui lòng tải lên ít nhất một tài liệu trước khi tạo gợi ý.",
             "label_remove_file": "Xóa {name}",
-            "placeholder_extra_details": "Ví dụ: Dùng tiêu đề đã cập nhật trong thư giới thiệu. Đây là bài báo sinh viên.",
+            "placeholder_extra_details": "Ví dụ: Dùng tiêu đề đã cập nhật trong thư giới thiệu. Đây là bài sinh viên.",
             "text_apply_to_draft": "Áp dụng vào bản nháp",
             "text_authors": "Tác giả",
             "text_field_abstract": "Tóm tắt",
@@ -1312,14 +1527,12 @@
             "text_materials": "Tài liệu",
             "text_materials_description": "Bản thảo, phụ lục, ghi chú hoặc mã LaTeX. Chỉ dùng làm bằng chứng; không thay thế tệp bài nộp.",
             "text_no_authors_suggested": "Không có tác giả được gợi ý.",
-            "text_no_conflicts_suggested": "Không có xung đột được gợi ý.",
             "text_no_track_rankings": "Không có xếp hạng track nào được tạo.",
             "text_pdf_docx_tex": "PDF, DOCX hoặc TEX",
-            "text_possible_conflicts": "Xung đột có thể có",
             "text_regenerate": "Tạo lại",
             "text_selected_track": "Track đã chọn",
             "text_suggestions_description": "Rà soát và chỉnh sửa các trường này trước khi áp dụng vào bản nháp.",
-            "text_suggestions_title": "Gợi ý nội dung bài nộp",
+            "text_suggestions_title": "Gợi ý nội dung",
             "text_track_rankings": "Xếp hạng độ phù hợp track",
             "text_upload_materials": "Tải tài liệu lên",
             "title": "Tự điền từ bài nộp"
@@ -1337,7 +1550,7 @@
             "prop_title_upload_manuscript": "Tải lên bản thảo",
             "text_complete_all_steps_to_submit_your": "Hoàn thành tất cả các bước để nộp bản thảo của bạn",
             "text_conferencespace": "ConferenceSpace",
-            "text_submit_new_paper": "Nộp bài báo mới"
+            "text_submit_new_paper": "Nộp bài mới"
           }
         }
       },
@@ -1372,7 +1585,7 @@
           "text_sort_by": "Sắp xếp theo:"
         },
         "chair-dashboard": {
-          "prop_title_monitor_submissions_reviews": "Giám sát nội dung gửi và đánh giá",
+          "prop_title_monitor_submissions_reviews": "Giám sát bài nộp và phản biện",
           "text_across_conferences": "Trên {count} hội nghị",
           "text_active_conferences": "Hội nghị đang hoạt động",
           "text_avg_acceptance": "Tỷ lệ chấp nhận TB",
@@ -1381,9 +1594,9 @@
           "text_days_late_one": "Trễ 1 ngày",
           "text_due_in_days": "{count} ngày",
           "text_due_in_days_one": "1 ngày",
-          "text_failed_to_load_dashboard": "Không tải được trang tổng quan:",
+          "text_failed_to_load_dashboard": "Không tải được dashboard:",
           "text_last_updated": "Cập nhật lần cuối:",
-          "text_loading_dashboard": "Đang tải trang tổng quan...",
+          "text_loading_dashboard": "Đang tải dashboard...",
           "text_no_conference_actions_found": "Không tìm thấy hành động hội nghị nào.",
           "text_open_conference": "Mở hội nghị",
           "text_overdue": "Quá hạn",
@@ -1393,7 +1606,7 @@
           "text_submission_count_description_one": "1 bài nộp tại hội nghị này.",
           "text_total_submissions": "Tổng số bài nộp",
           "text_view_all": "Xem tất cả",
-          "title_actions_required": "Hành động cần xử lý"
+          "title_actions_required": "Việc cần xử lý"
         },
         "conference-detail": {
           "chair-actions-panel": {
@@ -1403,7 +1616,7 @@
             "text_archive_conference": "Lưu trữ hội nghị",
             "text_archived_success": "Đã lưu trữ hội nghị",
             "text_auto_assign_reviewers": "Tự động phân công phản biện",
-            "text_chair_actions": "Hành động của chủ trì",
+            "text_chair_actions": "Thao tác của chủ trì",
             "text_created_assignment_suggestions": "Đã tạo {assignments} gợi ý cho {submissions} bài nộp",
             "text_failed_to_run_auto_assignment": "Không thể chạy phân công tự động",
             "text_failed_to_update_conference_status": "Không thể cập nhật trạng thái hội nghị",
@@ -1441,7 +1654,7 @@
             "text_loading_reviewers": "Đang tải phản biện...",
             "text_loading_suggestions": "Đang tải gợi ý...",
             "text_match": "Độ phù hợp:",
-            "text_no_available_reviewers_all_accepted_reviewers": "Không có phản biện nào khả dụng. Tất cả phản biện đã chấp nhận đều đã được đề xuất cho bài báo này.",
+            "text_no_available_reviewers_all_accepted_reviewers": "Không có phản biện nào khả dụng. Tất cả phản biện đã chấp nhận lời mời đều đã được đề xuất cho bài nộp này.",
             "text_no_confirmed_assignments": "Chưa có phân công nào được xác nhận",
             "text_no_pending_suggestions": "Chưa có gợi ý nào đang chờ",
             "text_pending_suggestions": "Gợi ý đang chờ xác nhận",
@@ -1449,7 +1662,7 @@
             "text_remove": "Xóa",
             "text_review_and_manage_reviewer_assignments_for": "Xem xét và quản lý phân công phản biện cho các bài nộp.",
             "text_reviewer_assignments": "Phân công phản biện",
-            "text_run_auto_assignment_from_the_actions": "Chạy tự động phân công từ bảng Hành động để tạo gợi ý phản biện, hoặc tất cả gợi ý đã được xác nhận.",
+            "text_run_auto_assignment_from_the_actions": "Chạy tự động phân công từ bảng Thao tác để tạo gợi ý phản biện, hoặc xác nhận các gợi ý hiện có.",
             "text_select_a_reviewer_to_assign_to": "Chọn phản biện để phân công cho",
             "text_suggested_reviewer": "phản biện được đề xuất",
             "text_the_assignment_has_been_created_you": "Phân công đã được tạo. Bạn nên xem lại phân công này trước khi xác nhận.",
@@ -1477,30 +1690,30 @@
             "text_word_template": "Mẫu Word"
           },
           "conference-coi": {
-            "placeholder_search_reviewer_author": "Tìm kiếm người đánh giá, tác giả...",
-            "text_actions": "Hành động",
+            "placeholder_search_reviewer_author": "Tìm phản biện hoặc tác giả...",
+            "text_actions": "Thao tác",
             "text_all_severities": "Tất cả mức độ",
             "text_api_only": "Chỉ API",
             "text_auto_detected": "Tự động phát hiện",
-            "text_batch_operations": "Hoạt động hàng loạt",
-            "text_confirm_dismiss_and_reviewer_reassignment_coi": "Các hành động COI xác nhận, loại bỏ và phân công lại người đánh giá bị cố ý vô hiệu hóa do chưa có điểm cuối đột biến phụ trợ.",
+            "text_batch_operations": "Thao tác hàng loạt",
+            "text_confirm_dismiss_and_reviewer_reassignment_coi": "Các thao tác xác nhận COI, bỏ qua COI và phân công lại phản biện đang tạm tắt vì backend chưa hỗ trợ endpoint ghi dữ liệu.",
             "text_confirmed": "Đã xác nhận",
             "text_conflict_reason": "Lý do xung đột",
             "text_conflicts": "xung đột",
             "text_conflicts_of_interest_management": "Quản lý xung đột lợi ích",
-            "text_current_coverage": "Bảo hiểm hiện tại",
-            "text_dismissed": "Bị loại bỏ",
+            "text_current_coverage": "Mức bao phủ hiện tại",
+            "text_dismissed": "Đã bỏ qua",
             "text_export_report": "Xuất báo cáo",
             "text_high": "Cao",
             "text_loading_coi_relationships": "Đang tải mối quan hệ COI...",
             "text_low": "Thấp",
-            "text_manual_moderation_actions": "Hành động kiểm duyệt thủ công",
-            "text_manual_moderation_actions_are_currently_disabled": ". Các hành động kiểm duyệt thủ công hiện bị vô hiệu hóa cho đến khi có hợp đồng ghi phụ trợ.",
+            "text_manual_moderation_actions": "Thao tác kiểm duyệt thủ công",
+            "text_manual_moderation_actions_are_currently_disabled": ". Các thao tác kiểm duyệt thủ công đang tạm tắt cho đến khi backend hỗ trợ ghi dữ liệu.",
             "text_medium": "Trung bình",
             "text_next": "Tiếp theo",
             "text_no_coi_relationships_found": "Không tìm thấy mối quan hệ COI nào.",
             "text_of": "trên",
-            "text_orphaned_papers": "Giấy tờ mồ côi",
+            "text_orphaned_papers": "Bài nộp chưa được gắn dữ liệu",
             "text_pending": "Đang chờ",
             "text_pending_review": "Đang chờ xem xét",
             "text_previous": "Trước",
@@ -1510,9 +1723,9 @@
             "text_showing": "Hiển thị",
             "text_source": "Nguồn",
             "text_submission": "Bài nộp",
-            "text_this_view_is_fully_api_backed": "Chế độ xem này được hỗ trợ hoàn toàn bằng API từ",
+            "text_this_view_is_fully_api_backed": "Màn hình này dùng dữ liệu API từ",
             "text_total_conflicts": "Tổng số xung đột",
-            "text_use_the_rebuild_action_to_refresh": "Sử dụng hành động xây dựng lại để làm mới các mối quan hệ bắt nguồn từ biểu đồ mà không thay đổi luồng kiểm duyệt hiện tại.",
+            "text_use_the_rebuild_action_to_refresh": "Dùng thao tác rebuild để làm mới các quan hệ lấy từ graph mà không thay đổi luồng kiểm duyệt hiện tại.",
             "title_confirm_conflict": "Xác nhận xung đột",
             "title_dismiss_as_false_positive": "Loại bỏ vì dương tính giả",
             "title_reassign_reviewer": "Phân công lại phản biện"
@@ -1553,7 +1766,7 @@
             "text_total_members": "Tổng thành viên",
             "text_current_members": "Thành viên hiện tại",
             "text_suggested_reviewers": "Phản biện gợi ý",
-            "text_suggested_reviewers_subtitle": "Phản biện chưa tham gia hội nghị, xếp hạng theo chủ đề phù hợp. Mời để thêm họ.",
+            "text_suggested_reviewers_subtitle": "Các phản biện chưa tham gia hội nghị, được xếp hạng theo mức phù hợp chuyên môn. Mời họ để bổ sung vào hội nghị.",
             "text_matches": "kết quả",
             "text_all": "Tất cả",
             "text_on_platform": "Có tài khoản",
@@ -1564,7 +1777,7 @@
             "text_invite_all": "Mời tất cả",
             "text_invited": "Đã mời",
             "text_refresh": "Làm mới",
-            "text_pubs": "bài báo",
+            "text_pubs": "công bố",
             "text_prior_reviews": "lượt phản biện",
             "text_match": "Phù hợp",
             "text_all_caught_up": "Đã xử lý hết",
@@ -1574,8 +1787,8 @@
             "text_loading_suggestions": "Đang tải gợi ý...",
             "text_generating_suggestions": "Đang tạo gợi ý phản biện",
             "text_generating_suggestions_hint": "Đang tìm học giả phù hợp cho hội nghị. Quá trình này thường mất vài giây.",
-            "text_step_analyzing_topics": "Cân nhắc chủ đề hội nghị",
-            "text_step_scanning_publications": "Duyệt qua các công bố khoa học",
+            "text_step_analyzing_topics": "Phân tích chủ đề hội nghị",
+            "text_step_scanning_publications": "Quét công bố khoa học",
             "text_step_matching_expertise": "Đối chiếu chuyên môn phản biện",
             "text_step_scoring_candidates": "Xếp hạng ứng viên theo mức phù hợp",
             "text_step_finalizing": "Chuẩn bị danh sách gợi ý",
@@ -1590,13 +1803,13 @@
             "text_top_n_invalid": "Nhập từ 1 trở lên",
             "text_pick_count_title": "Chọn số lượng ứng viên muốn lấy",
             "text_pick_count_hint": "Đặt số lượng gợi ý cần tải (mặc định 20), rồi nhấn Bắt đầu.",
-            "text_match_evidence_label": "Trùng chủ đề hội nghị",
-            "text_match_evidence_chip_tooltip": "Trùng một chủ đề hội nghị",
+            "text_match_evidence_label": "Khớp chủ đề hội nghị",
+            "text_match_evidence_chip_tooltip": "Khớp với một chủ đề của hội nghị",
             "text_view_profile": "Xem hồ sơ",
             "text_open_scholar_profile": "Mở hồ sơ Semantic Scholar",
             "text_invitation_link": "Liên kết mời",
             "text_invitation_link_copied": "Đã sao chép!",
-            "text_invitation_link_tooltip": "Gửi liên kết này cho người được mời — họ có thể nhấp vào để tự động tạo tài khoản ConferenceSpace và tham gia hội nghị.",
+            "text_invitation_link_tooltip": "Gửi liên kết này cho người được mời. Họ có thể mở liên kết để tạo tài khoản ConferenceSpace và tham gia hội nghị.",
             "text_invitation_status": "lời mời: {status}",
             "aria_label_view_profile_for": "Xem hồ sơ của {name}",
             "aria_label_open_semantic_scholar_profile_for": "Mở hồ sơ Semantic Scholar của {name}",
@@ -1621,11 +1834,11 @@
             "text_manage_internal_schedule": "Quản lý lịch trình nội bộ",
             "text_mmm_d_yyyy": "MMM D, YYYY",
             "text_next_major_deadline": "Hạn chót chính tiếp theo",
-            "text_no_schedule_dates_configured": "Không có lịch trình ngày nào được định cấu hình.",
+            "text_no_schedule_dates_configured": "Chưa cấu hình mốc thời gian nào.",
             "text_no_upcoming_dates": "Không có ngày sắp tới.",
             "text_passed": "Đạt",
             "text_settings": "Cài đặt",
-            "text_sync_to_calendar": "Đồng bộ hóa với Lịch",
+            "text_sync_to_calendar": "Đồng bộ với lịch",
             "text_target_date": "Ngày mục tiêu",
             "text_text": "",
             "text_timezone": "Múi giờ",
@@ -1652,7 +1865,7 @@
             "prop_label_coi": "Xung đột lợi ích",
             "prop_label_committee": "Ban chương trình",
             "prop_label_dashboard": "Bảng điều khiển",
-            "prop_label_important_dates": "Thời Gian Quan Trọng",
+            "prop_label_important_dates": "Mốc thời gian",
             "prop_label_overview": "Tổng quan",
             "prop_label_rebuttal": "Phản hồi",
             "prop_label_submissions": "Bài gửi",
@@ -1660,7 +1873,7 @@
             "text_settings": "Cài đặt"
           },
           "conference-overview": {
-            "text_about_the_conference": "Giới thiệu về Hội nghị",
+            "text_about_the_conference": "Giới thiệu hội nghị",
             "text_active_tracks": "Track đang hoạt động",
             "text_conference_id": "ID hội nghị",
             "text_conference_tracks": "Track hội nghị",
@@ -1669,7 +1882,7 @@
             "text_loading_overview": "Đang tải tổng quan...",
             "text_no_conference_description_provided": "Chưa có mô tả hội nghị.",
             "text_no_keywords_specified": "Không có từ khóa nào được chỉ định.",
-            "text_no_tracks_configured": "Không có bản nhạc nào được định cấu hình.",
+            "text_no_tracks_configured": "Chưa cấu hình track nào.",
             "text_organizer_contact": "Liên hệ ban tổ chức",
             "text_synonym": "Từ đồng nghĩa",
             "text_venue": "Địa điểm",
@@ -1686,40 +1899,40 @@
             "prop_text_submitted": "Đã nộp",
             "text_are_you_sure_this_cannot_be": "Bạn có chắc không? Điều này không thể hoàn tác được.",
             "text_cancel": "Hủy",
-            "text_confirm_finalize": "Xác nhận Hoàn tất",
+            "text_confirm_finalize": "Xác nhận hoàn tất",
             "text_current_phase": "Giai đoạn hiện tại:",
-            "text_finalize_rebuttal": "Hoàn tất việc bác bỏ",
-            "text_loading_rebuttal_management": "Đang tải quản lý phản bác…",
+            "text_finalize_rebuttal": "Hoàn tất rebuttal",
+            "text_loading_rebuttal_management": "Đang tải quản lý rebuttal…",
             "text_no_submissions_found": "Không tìm thấy bài nộp nào.",
-            "text_open_rebuttal_period": "Thời gian bác bỏ mở",
-            "text_paper_title": "Tiêu đề bài báo",
-            "text_phase_control": "Điều khiển pha",
-            "text_rebuttal_is_off_enable_rebuttal_in": "Phản bác đã tắt. Bật phản bác trong cài đặt để mở thời gian phản bác.",
-            "text_rebuttal_period_is_finalized_no_further": "Thời gian phản bác đã kết thúc. Không thể thay đổi thêm nữa.",
-            "text_rebuttal_phase": "Giai đoạn phản hồi",
-            "text_response": "Phản ứng",
-            "text_reviewers_acked": "phản biện được công nhận",
+            "text_open_rebuttal_period": "Mở giai đoạn rebuttal",
+            "text_paper_title": "Tiêu đề bài",
+            "text_phase_control": "Điều khiển giai đoạn",
+            "text_rebuttal_is_off_enable_rebuttal_in": "Rebuttal đang tắt. Bật rebuttal trong cài đặt để mở giai đoạn phản hồi.",
+            "text_rebuttal_period_is_finalized_no_further": "Giai đoạn rebuttal đã kết thúc. Không thể thay đổi thêm.",
+            "text_rebuttal_phase": "Giai đoạn rebuttal",
+            "text_response": "Phản hồi",
+            "text_reviewers_acked": "phản biện đã xác nhận",
             "text_submissions": "Bài nộp (",
             "text_submitted": "✓ Đã gửi"
           },
           "conference-rebuttal-settings": {
-            "text_allow_authors_to_submit_rebuttals_to": "Cho phép tác giả gửi phản bác đối với nhận xét của người đánh giá",
-            "text_configure_the_rebuttal_period_settings_for": "Định cấu hình cài đặt thời gian bác bỏ cho hội nghị này.",
+            "text_allow_authors_to_submit_rebuttals_to": "Cho phép tác giả gửi rebuttal cho nhận xét của phản biện",
+            "text_configure_the_rebuttal_period_settings_for": "Cấu hình giai đoạn rebuttal cho hội nghị này.",
             "text_deadline": "Hạn nộp",
-            "text_enable_rebuttal_phase": "Kích hoạt giai đoạn bác bỏ",
+            "text_enable_rebuttal_phase": "Bật giai đoạn rebuttal",
             "text_general_response_limit_chars": "Giới hạn phản hồi chung (ký tự)",
             "text_loading_settings": "Đang tải cài đặt…",
             "text_per_point_response_limit_chars": "Giới hạn phản hồi trên mỗi điểm (ký tự)",
-            "text_rebuttal_configuration": "Cấu hình bác bỏ",
+            "text_rebuttal_configuration": "Cấu hình rebuttal",
             "text_settings_saved_successfully": "Đã lưu cài đặt thành công.",
             "text_start_date": "Ngày bắt đầu"
           },
           "conference-submissions": {
             "placeholder_search_by_id_title_or_author": "Tìm kiếm theo ID, tiêu đề hoặc tác giả...",
             "text_accepted": "Đã chấp nhận",
-            "text_actions": "Hành động",
-            "text_all_statuses": "Tất Cả Trạng Thái",
-            "text_all_tracks": "Tất cả bản nhạc",
+            "text_actions": "Thao tác",
+            "text_all_statuses": "Tất cả trạng thái",
+            "text_all_tracks": "Tất cả track",
             "text_assign_reviewers": "Chỉ định phản biện",
             "text_completed": "Hoàn thành",
             "text_draft": "Nháp",
@@ -1728,7 +1941,7 @@
             "text_id": "ID",
             "text_incomplete": "Chưa hoàn thành",
             "text_invited": "Đã mời",
-            "text_loading_submissions": "Đang tải nội dung gửi...",
+            "text_loading_submissions": "Đang tải bài nộp...",
             "text_manage_and_review_conference_submissions_with": "Quản lý và xem xét bài nộp.",
             "text_next": "Tiếp theo",
             "text_notifications": "Thông báo",
@@ -1737,14 +1950,14 @@
             "text_published": "Đã nộp",
             "text_rejected": "Đã từ chối",
             "text_reviewing": "Đang phản biện",
-            "text_reviews": "Đánh giá",
+            "text_reviews": "Phản biện",
             "text_score": "Điểm",
             "text_showing": "Hiển thị",
             "text_sort_by_id": "Sắp xếp theo mã số",
-            "text_sort_by_score": "Sắp xếp theo Điểm",
-            "text_sort_by_title": "Sắp xếp theo Tiêu đề",
+            "text_sort_by_score": "Sắp xếp theo điểm",
+            "text_sort_by_title": "Sắp xếp theo tiêu đề",
             "text_status": "Trạng thái",
-            "text_submissions": "Bài gửi",
+            "text_submissions": "Bài nộp",
             "text_select_decision_accept": "Chọn quyết định: Chấp nhận",
             "text_select_decision_reject": "Chọn quyết định: Từ chối",
             "text_open_detail": "Mở chi tiết bài nộp",
@@ -1757,10 +1970,10 @@
             "prop_title_deep_learning_for_autonomous_navigation_in": "Học sâu để điều hướng tự động trong...",
             "prop_title_generative_adversarial_networks_for_image": "Mạng đối thủ sáng tạo cho hình ảnh...",
             "prop_title_reinforcement_learning_in_robotics_a_survey": "Học tăng cường trong Robotics: Một cuộc khảo sát",
-            "text_action": "Hoạt động",
+            "text_action": "Thao tác",
             "text_decide": "Quyết định",
             "text_id": "ID",
-            "text_pending_decisions": "Quyết định đang chờ xử lý",
+            "text_pending_decisions": "Quyết định đang chờ",
             "text_score": "Điểm",
             "text_status": "Trạng thái",
             "text_title": "Tiêu đề",
@@ -1771,14 +1984,14 @@
           },
           "submission-detail-content": {
             "text_abstract": "Tóm tắt",
-            "text_additional_details_about_this_affiliation_will": "Thông tin chi tiết bổ sung về liên kết này sẽ được hiển thị ở đây.",
-            "text_affiliation_details": "Chi tiết liên kết",
-            "text_author_s": "(Các) tác giả",
+            "text_additional_details_about_this_affiliation_will": "Thông tin chi tiết bổ sung về đơn vị công tác sẽ hiển thị tại đây.",
+            "text_affiliation_details": "Chi tiết đơn vị công tác",
+            "text_author_s": "Tác giả",
             "text_conflicts_of_interest": "Xung đột lợi ích",
             "text_cover_letter": "Thư giới thiệu",
             "text_last_updated": "Cập nhật lần cuối:",
-            "text_submission_files": "Tệp gửi",
-            "text_submission_meta": "Meta gửi",
+            "text_submission_files": "Tệp bài nộp",
+            "text_submission_meta": "Thông tin bài nộp",
             "title_download": "Tải xuống",
             "title_preview": "Xem trước",
             "title_view_profile": "Xem hồ sơ"
@@ -1787,30 +2000,30 @@
             "prop_label_discussion": "Thảo luận",
             "prop_label_history": "Lịch sử",
             "prop_label_overview": "Tổng quan",
-            "prop_label_reviews_feedback": "Đánh giá & Phản hồi",
+            "prop_label_reviews_feedback": "Phản biện & phản hồi",
             "text_conferences": "Hội nghị",
             "text_settings": "Cài đặt",
             "text_submission": "Bài nộp",
             "text_submissions": "Bài nộp",
-            "text_track": "Theo dõi:"
+            "text_track": "Track:"
           },
           "submission-detail": {
             "chair-decision-copilot-panel": {
-              "aria_label_about_decision_advisory": "Giới thiệu về Tư vấn Quyết định",
-              "text_ai_generated_synthesis_of_the_current": "Tổng hợp do AI tạo ra bằng chứng hiện tại. Quyết định cuối cùng vẫn thuộc về chủ tịch.",
-              "text_could_not_generate_recommendation": "Không thể tạo đề xuất",
-              "text_decision_advisory": "Tư vấn quyết định",
+              "aria_label_about_decision_advisory": "Giới thiệu về trợ lý quyết định",
+              "text_ai_generated_synthesis_of_the_current": "AI tổng hợp bằng chứng hiện tại để hỗ trợ ra quyết định. Quyết định cuối cùng vẫn thuộc về chủ trì.",
+              "text_could_not_generate_recommendation": "Không thể tạo khuyến nghị",
+              "text_decision_advisory": "Trợ lý quyết định",
               "text_discussion": "Thảo luận",
               "text_evidence_current": "bằng chứng hiện tại",
               "text_evidence_overview": "Tổng quan về bằng chứng",
-              "text_loading_evidence_package": "Đang tải gói bằng chứng...",
-              "text_no_advisory_generated_yet_generate_one": "Chưa có lời khuyên nào được tạo ra. Tạo một cái để có cái nhìn tổng hợp về bằng chứng hiện tại.",
+              "text_loading_evidence_package": "Đang tải bộ bằng chứng...",
+              "text_no_advisory_generated_yet_generate_one": "Chưa có gợi ý nào. Tạo gợi ý để xem phần tổng hợp bằng chứng hiện tại.",
               "text_rebuttal": "Phản hồi",
-              "text_rebuttal_available": "phản bác có sẵn",
-              "text_review_analytics": "Xem lại phân tích",
-              "text_reviewer_alignment": "Sự sắp xếp của phản biện",
+              "text_rebuttal_available": "có rebuttal",
+              "text_review_analytics": "Phân tích phản biện",
+              "text_reviewer_alignment": "Mức độ đồng thuận của phản biện",
               "text_reviewer_feedback_synthesis": "Tổng hợp phản hồi của phản biện",
-              "text_suggested_chair_note": "Ghế được đề xuất"
+              "text_suggested_chair_note": "Ghi chú gợi ý cho chủ trì"
             },
             "chair-discussion-tab": {
               "text_failed_to_load_discussions": "Không tải được các cuộc thảo luận:",
@@ -1820,11 +2033,11 @@
               "prop_label_all": "Tất cả",
               "prop_label_assignment": "Phân công",
               "prop_label_coi": "Xung đột lợi ích",
-              "prop_label_decision": "Quyết Định",
+              "prop_label_decision": "Quyết định",
               "prop_label_discussion": "Thảo luận",
-              "prop_label_review": "Đánh giá",
+              "prop_label_review": "Phản biện",
               "prop_label_status": "Trạng thái",
-              "prop_label_submission": "Gửi",
+              "prop_label_submission": "Bài nộp",
               "text_activity_log": "Nhật ký hoạt động",
               "text_loading_history_events": "Đang tải sự kiện lịch sử...",
               "text_next": "Tiếp theo",
@@ -1835,7 +2048,7 @@
             "chair-reviews-tab": {
               "placeholder_internal_notes_visible_only_to_chairs": "Ghi chú nội bộ chỉ hiển thị với chủ trì...",
               "prop_description_does_not_meet_standards": "Không đáp ứng tiêu chuẩn",
-              "prop_description_ready_for_publication": "Sẵn sàng để xuất bản",
+              "prop_description_ready_for_publication": "Sẵn sàng chấp nhận",
               "prop_description_significant_changes_required": "Cần có những thay đổi đáng kể",
               "prop_description_small_changes_needed": "Cần có những thay đổi nhỏ",
               "prop_label_accept": "Chấp nhận",
@@ -1855,19 +2068,19 @@
               "prop_text_text_red_600": "text-red-600",
               "prop_text_text_slate_600": "text-slate-600",
               "text_a": "A",
-              "text_all_addressed": "Tất cả đều được giải quyết",
+              "text_all_addressed": "Tất cả đã được giải quyết",
               "text_author_response": "Phản hồi của tác giả",
-              "text_avg_score": "trung bình điểm",
+              "text_avg_score": "điểm trung bình",
               "text_assigned_reviewers": "Phản biện đã phân công",
-              "text_assigned_reviewers_description": "Các phản biện hiện đang được gán cho bài báo này và tiến độ phản biện của họ.",
-              "text_concerns_remain": "Mối quan tâm vẫn còn",
-              "text_failed_to_invite_reviewer_to_this_paper": "Không thể mời phản biện cho bài báo này.",
+              "text_assigned_reviewers_description": "Các phản biện hiện được phân công cho bài nộp này và tiến độ phản biện tương ứng.",
+              "text_concerns_remain": "Vẫn còn điểm cần xử lý",
+              "text_failed_to_invite_reviewer_to_this_paper": "Không thể mời phản biện cho bài nộp này.",
               "text_failed_to_load_assigned_reviewers": "Không thể tải danh sách phản biện đã phân công.",
               "text_failed_to_load_reviewer_options": "Không thể tải danh sách phản biện khả dụng.",
               "text_invite": "Mời",
               "text_invite_reviewer_to_this_paper": "Mời phản biện",
-              "text_invite_reviewer_to_this_paper_description": "Chọn một phản biện đã được chấp nhận để mời cho bài báo này.",
-              "text_invite_success_description": "Phản biện đã được thêm vào bài báo này.",
+              "text_invite_reviewer_to_this_paper_description": "Chọn một phản biện đã chấp nhận lời mời để phân công cho bài nộp này.",
+              "text_invite_success_description": "Phản biện đã được thêm vào bài nộp này.",
               "text_invite_success_title": "Đã mời phản biện",
               "text_invite_warning_description": "Phản biện đã được thêm, nhưng hệ thống phát hiện có khả năng xung đột lợi ích.",
               "text_invite_warning_title": "Phát hiện xung đột tiềm ẩn",
@@ -1876,13 +2089,13 @@
               "text_loading_point_by_point_responses": "Đang tải câu trả lời theo từng điểm…",
               "text_loading_assigned_reviewers": "Đang tải phản biện đã phân công...",
               "text_loading_reviewer_options": "Đang tải danh sách phản biện khả dụng...",
-              "text_no_submitted_reviews_yet": "Chưa có đánh giá nào được gửi.",
-              "text_no_available_reviewers_to_invite": "Không có phản biện khả dụng để mời cho bài báo này.",
-              "text_no_reviewers_assigned_yet": "Chưa có phản biện nào được phân công cho bài báo này.",
-              "text_only_accept_and_reject_can_be": "Chỉ Chấp nhận và Từ chối mới có thể được lưu với phần phụ trợ hiện tại.",
+              "text_no_submitted_reviews_yet": "Chưa có phản biện nào được nộp.",
+              "text_no_available_reviewers_to_invite": "Không có phản biện khả dụng để mời cho bài nộp này.",
+              "text_no_reviewers_assigned_yet": "Chưa có phản biện nào được phân công cho bài nộp này.",
+              "text_only_accept_and_reject_can_be": "Backend hiện chỉ hỗ trợ lưu quyết định Chấp nhận hoặc Từ chối.",
               "text_point_by_point_responses": "Phản hồi từng điểm",
               "text_private_notes": "Ghi chú riêng tư",
-              "text_private_notes_are_not_persisted_yet": "Ghi chú riêng tư vẫn chưa được lưu giữ. Chúng được hiển thị ở đây để giữ nguyên bố cục đã được phê duyệt.",
+              "text_private_notes_are_not_persisted_yet": "Ghi chú riêng chưa được lưu. Phần này chỉ hiển thị để giữ bố cục đã được duyệt.",
               "text_rec": "Khuyến nghị",
               "text_response_to": "Trả lời",
               "text_reviewer_response": "Phản hồi của phản biện",
@@ -1908,12 +2121,12 @@
               "text_confirm_invites_success_title": "Đã xác nhận lời mời",
               "text_confirm_invites_success_description": "Phản biện đã được thông báo và có thể thấy lời mời.",
               "text_confirm_invites_failed_title": "Xác nhận lời mời thất bại",
-              "text_confirm_invites_failed_description": "Không thể xác nhận lời mời cho bài này."
+              "text_confirm_invites_failed_description": "Không thể xác nhận lời mời cho bài nộp này."
             },
             "components": {
               "prop_label_accept": "Chấp nhận",
               "prop_label_accepted": "Đã chấp nhận",
-              "prop_label_borderline": "Biên Giới",
+              "prop_label_borderline": "Cân nhắc",
               "prop_label_completed": "Hoàn thành",
               "prop_label_declined": "Bị từ chối",
               "prop_label_in_progress": "Đang xử lý",
@@ -1923,8 +2136,8 @@
               "prop_label_rejected": "Đã từ chối",
               "prop_label_revision_requested": "Yêu cầu sửa đổi",
               "prop_label_under_review": "Đang phản biện",
-              "prop_label_weak_accept": "Chấp nhận dự phậng",
-              "prop_label_weak_reject": "Không chấp nhận dự phậng",
+              "prop_label_weak_accept": "Chấp nhận nhẹ",
+              "prop_label_weak_reject": "Từ chối nhẹ",
               "prop_label_withdrawn": "Đã rút"
             }
           },
@@ -2026,7 +2239,7 @@
           "text_no_templates_yet_description": "Bắt đầu bằng cách tạo một mẫu mới hoặc sao chép cấu hình từ một hội nghị hiện có.",
           "text_only_you_can_use_it": "Chỉ tài khoản của bạn dùng được",
           "text_pick_source_description": "Chọn một nguồn, rồi chỉ áp dụng những phần bạn muốn tái sử dụng.",
-          "text_rebuttal_and_decision": "Phản hồi & quyết định",
+          "text_rebuttal_and_decision": "Rebuttal & quyết định",
           "text_rebuttal_and_decision_description": "Khoảng thời gian rebuttal và mốc ra quyết định cuối cùng.",
           "text_recommended": "Khuyến nghị",
           "text_review_policy": "Chính sách phản biện",
@@ -2064,7 +2277,7 @@
           "text_topics": "chủ đề",
           "text_topics_and_tracks": "Chủ đề & track",
           "text_topics_and_tracks_description": "Lĩnh vực nghiên cứu, track và phạm vi nội dung.",
-          "text_tracks": "theo dõi",
+          "text_tracks": "track",
           "text_updated": "Cập nhật",
           "text_what_to_apply": "Phần cần áp dụng"
         },
@@ -2075,14 +2288,14 @@
             "text_copy_config": "Sao chép cấu hình"
           },
           "save-view": {
-            "text_only_visible_to_you_used_to": "Chỉ hiển thị với bạn, được sử dụng để ghi nhớ thiết lập này",
+            "text_only_visible_to_you_used_to": "Chỉ hiển thị với bạn và dùng để lưu lại cấu hình này",
             "text_optional": "(Không bắt buộc)",
             "text_template_details": "Chi tiết mẫu"
           },
           "selection-view": {
             "text_schedule": "LỊCH TRÌNH",
             "text_topics": "CHỦ ĐỀ",
-            "text_tracks": "BÀI HÁT"
+            "text_tracks": "TRACK"
           }
         }
       },
@@ -2091,7 +2304,7 @@
           "text_error": "Lỗi",
           "text_input": "đầu vào",
           "text_output": "đầu ra",
-          "text_state": "Tình trạng"
+          "text_state": "Trạng thái"
         },
         "assistant-turn": {
           "text_thoughts": "Suy nghĩ"
@@ -2103,9 +2316,9 @@
           "aria_label_remove_attachment": "Xóa tệp đính kèm",
           "aria_label_send_message": "Gửi tin nhắn",
           "placeholder_ask_the_assistant": "Hỏi trợ lý...",
-          "text_agentic": "đại lý",
-          "text_ask_me_anything_about_the_conference": "Hỏi tôi bất cứ điều gì về hệ thống hội nghị",
-          "text_standard": "Tiêu chuẩn",
+          "text_agentic": "Agent",
+          "text_ask_me_anything_about_the_conference": "Hỏi tôi về hệ thống hội nghị",
+          "text_standard": "Standard",
           "text_start_a_conversation": "Bắt đầu cuộc trò chuyện",
           "text_drop_to_add_file": "Thả để thêm tệp"
         },
@@ -2119,7 +2332,7 @@
           "aria_label_open_assistant": "Mở trợ lý",
           "aria_label_recent_chats": "Mở danh sách cuộc trò chuyện gần đây",
           "aria_label_resize_sidebar": "Thay đổi kích thước thanh bên",
-          "text_conference_agent": "Đại lý hội nghị",
+          "text_conference_agent": "Conference Agent",
           "text_loading_conversation": "Đang tải cuộc trò chuyện...",
           "text_no_conversations_yet": "Chưa có cuộc trò chuyện nào.",
           "text_no_messages_yet": "Chưa có tin nhắn nào",
@@ -2140,8 +2353,8 @@
           "text_view_archive": "Xem lưu trữ"
         },
         "conference-list": {
-          "text_action": "Hoạt động",
-          "text_actions": "Hành động",
+          "text_action": "Thao tác",
+          "text_actions": "Thao tác",
           "text_conference": "Hội nghị",
           "text_d_ago": "ngày trước",
           "text_d_left": "ngày còn lại",
@@ -2161,7 +2374,7 @@
         "empty-state": {
           "prop_description_completed_conferences_will_appear_here_for": "Các hội nghị đã hoàn thành sẽ xuất hiện ở đây để bạn tham khảo.",
           "prop_description_conferences_you_save_as_drafts_will_appear_here": "Những hội nghị bạn lưu dưới dạng bản nháp sẽ xuất hiện tại đây.",
-          "prop_description_create_your_first_conference_to_get": "Tạo hội nghị đầu tiên của bạn để bắt đầu quản lý bài gửi và đánh giá.",
+          "prop_description_create_your_first_conference_to_get": "Tạo hội nghị đầu tiên để bắt đầu quản lý bài nộp và phản biện.",
           "prop_description_there_are_no_public_conferences_available": "Không có hội nghị công cộng có sẵn tại thời điểm này.",
           "prop_title_no_archived_conferences": "Không có hội nghị được lưu trữ",
           "prop_title_no_conferences_to_explore": "Không có hội nghị nào để khám phá",
@@ -2171,13 +2384,13 @@
           "text_try_adjusting_your_search_terms": "Hãy thử điều chỉnh cụm từ tìm kiếm của bạn"
         },
         "event-sections": {
-          "text_accepted_papers": "Bài báo được chấp nhận",
-          "text_action_required": "Yêu cầu hành động",
+          "text_accepted_papers": "Bài được chấp nhận",
+          "text_action_required": "Cần xử lý",
           "text_days_ago": "ngày trước",
           "text_draft_saved": "Đã lưu bản nháp",
           "text_phase": "Giai đoạn:",
           "text_setup_status": "Trạng thái thiết lập",
-          "text_submissions": "Bài gửi"
+          "text_submissions": "Bài nộp"
         },
         "explore-cards": {
           "prop_label_call_for_papers": "Lời mời gửi bài",
@@ -2185,7 +2398,7 @@
           "prop_label_submission_closed": "Đã đóng nhận bài",
           "prop_label_upcoming": "Sắp tới",
           "prop_label_workshop": "Hội thảo",
-          "text_actions": "Hành động",
+          "text_actions": "Thao tác",
           "text_archived": "Đã lưu trữ",
           "text_archived_conferences": "hội nghị lưu trữ",
           "text_conference": "Hội nghị",
@@ -2206,7 +2419,7 @@
       },
       "dashboard-sidebar": {
         "text_account_settings": "Cài đặt tài khoản",
-        "text_active": "Hoạt động",
+        "text_active": "Đang hoạt động",
         "text_all_recent_conferences_archived": "Tất cả hội nghị gần đây đã được ẩn khỏi thanh bên.",
         "text_archive_recent_conference": "Ẩn khỏi hội nghị gần đây",
         "text_archived_recent_conferences": "Đã ẩn",
@@ -2231,7 +2444,7 @@
       },
       "notifications": {
         "empty-state": {
-          "text_no_new_notifications_at_the_moment": "Không có thông báo mới vào lúc này. Kiểm tra lại sau để biết thông tin cập nhật về nội dung gửi và đánh giá của bạn.",
+          "text_no_new_notifications_at_the_moment": "Hiện chưa có thông báo mới. Kiểm tra lại sau để xem cập nhật về bài nộp và phản biện của bạn.",
           "text_you_apos_re_all_caught_up": "Không có thông báo mới"
         },
         "notification-list": {
@@ -2239,7 +2452,7 @@
           "text_load_more": "Xem thêm",
           "text_mark_all_as_read": "Đánh dấu tất cả là đã đọc",
           "text_notifications": "Thông báo",
-          "text_you_apos_ll_see_notifications_about": "Thông báo về bài gửi, bài đánh giá, v.v. sẽ được hiển thị tại đây."
+          "text_you_apos_ll_see_notifications_about": "Thông báo về bài nộp, phản biện và các cập nhật liên quan sẽ hiển thị tại đây."
         }
       },
       "profile": {
@@ -2356,16 +2569,16 @@
         },
         "completed-reviews": {
           "text_a_z": "(A-Z)",
-          "text_action": "Hoạt động",
+          "text_action": "Thao tác",
           "text_clear": "Xóa",
           "text_date": "Ngày",
           "text_done": "Hoàn tất",
           "text_for_ldquo": "cho “",
-          "text_loading_completed_reviews": "Đang tải các bài đánh giá đã hoàn tất...",
+          "text_loading_completed_reviews": "Đang tải các phản biện đã hoàn tất...",
           "text_newest": "(Mới nhất)",
           "text_next": "Tiếp theo",
           "text_oldest": "(Cũ nhất)",
-          "text_paper": "Bài báo",
+          "text_paper": "Bài nộp",
           "text_previous": "Trước",
           "text_rdquo": "&rdquo;",
           "text_showing": "Hiển thị",
@@ -2377,9 +2590,9 @@
         },
         "reviewer-conferences": {
           "placeholder_search_conferences": "Tìm kiếm hội nghị...",
-          "text_action": "Hoạt động",
-          "text_active": "Hoạt động",
-          "text_apply": "Áp Dụng",
+          "text_action": "Thao tác",
+          "text_active": "Đang hoạt động",
+          "text_apply": "Áp dụng",
           "text_archived": "Đã lưu trữ",
           "text_closed": "Đã đóng",
           "text_conference": "Hội nghị",
@@ -2399,8 +2612,8 @@
           "text_no_conferences_available": "Không có hội nghị nào",
           "text_no_conferences_yet": "Bạn chưa có hội nghị nào",
           "text_open": "Mở",
-          "text_papers": "Bài báo",
-          "text_papers_reviewed": "Bài báo đã phản biện",
+          "text_papers": "Bài nộp",
+          "text_papers_reviewed": "Bài đã phản biện",
           "text_pending": "Đang chờ",
           "text_previous": "Trước",
           "text_progress": "Tiến độ",
@@ -2410,7 +2623,7 @@
           "text_seeking_reviewers": "Đang tuyển phản biện",
           "text_showing": "Hiển thị",
           "text_tba": "Sẽ thông báo",
-          "text_track": "Theo dõi",
+          "text_track": "Track",
           "text_track_your_review_assignments_across_conferences": "Theo dõi phân công phản biện của bạn qua các hội nghị và khám phá cơ hội mới.",
           "text_urgent": "Cấp bách",
           "text_virtual": "Trực tuyến",
@@ -2447,7 +2660,7 @@
           "text_decline": "Từ chối",
           "text_declined": "Bị từ chối",
           "text_declined_on": "Đã từ chối:",
-          "text_go_to_dashboard": "Đi tới Trang tổng quan",
+          "text_go_to_dashboard": "Đi tới dashboard",
           "text_invitations": "lời mời",
           "text_invited": "Được mời:",
           "text_next": "Tiếp",
@@ -2455,7 +2668,7 @@
           "text_pending": "Đang chờ",
           "text_previous": "Trước",
           "text_respond_by": "Trả lời bởi:",
-          "text_review_and_respond_to_conference_invitations": "Xem xét và trả lời các lời mời hội nghị yêu cầu kiến ​​thức chuyên môn của bạn.",
+          "text_review_and_respond_to_conference_invitations": "Xem và trả lời các lời mời phản biện phù hợp với chuyên môn của bạn.",
           "text_reviewer_invitations": "Lời mời phản biện",
           "text_showing": "Hiển thị",
           "text_sort_by": "Sắp xếp theo:",
@@ -2468,39 +2681,39 @@
             "prop_label_summary_of_contribution": "Tóm tắt đóng góp",
             "prop_label_weaknesses": "Điểm yếu",
             "text_4_completed": "/4 Đã hoàn thành",
-            "text_review_synthesis": "Tổng hợp đánh giá"
+            "text_review_synthesis": "Tổng hợp phản biện"
           },
           "discussion-tab": {
             "text_failed_to_load_discussions": "Không tải được các cuộc thảo luận:",
             "text_loading_discussions": "Đang tải các cuộc thảo luận..."
           },
           "prop_description_please_fill_in_the_summary_strengths": "Vui lòng điền vào Tóm tắt, Điểm mạnh và Điểm yếu trước khi gửi.",
-          "prop_description_please_select_an_overall_rating_before": "Vui lòng chọn đánh giá tổng thể trước khi gửi.",
+          "prop_description_please_select_an_overall_rating_before": "Vui lòng chọn nhận định tổng thể trước khi gửi.",
           "prop_description_resolve_the_active_blocking_audit_findings": "Xem lại các phát hiện kiểm tra ưu tiên trước khi gửi.",
-          "prop_description_your_review_has_been_submitted_successfully": "Đánh giá của bạn đã được gửi thành công.",
-          "prop_description_your_review_was_submitted_without_a": "Đánh giá của bạn đã được gửi mà không có kiểm tra kiểm toán hoàn chỉnh.",
+          "prop_description_your_review_has_been_submitted_successfully": "Phiếu phản biện của bạn đã được gửi thành công.",
+          "prop_description_your_review_was_submitted_without_a": "Phiếu phản biện của bạn đã được gửi khi chưa hoàn tất kiểm tra chất lượng.",
           "prop_title_draft_saved": "Đã lưu bản nháp",
           "prop_title_failed_to_save_draft": "Không lưu được bản nháp",
-          "prop_title_failed_to_submit_review": "Không thể gửi đánh giá",
+          "prop_title_failed_to_submit_review": "Không thể gửi phản biện",
           "prop_title_failed_to_update_audit_finding": "Không thể cập nhật kết quả kiểm tra",
-          "prop_title_incomplete_review": "Đánh giá chưa đầy đủ",
-          "prop_title_recommendation_required": "Cần có đề xuất",
-          "prop_title_review_submitted": "Đã gửi đánh giá",
+          "prop_title_incomplete_review": "Phiếu phản biện chưa đầy đủ",
+          "prop_title_recommendation_required": "Cần có khuyến nghị",
+          "prop_title_review_submitted": "Đã gửi phản biện",
           "prop_title_submission_blocked": "Phát hiện kiểm tra ưu tiên",
           "rebuttal-tab": {
-            "placeholder_any_additional_comments_after_reading_the": "Mọi ý kiến ​​bổ sung sau khi đọc phần phản bác…",
+            "placeholder_any_additional_comments_after_reading_the": "Ý kiến bổ sung sau khi đọc rebuttal…",
             "text_accept": "Chấp nhận",
-            "text_borderline": "Biên Giới",
+            "text_borderline": "Cân nhắc",
             "text_comment_optional": "Bình luận (tùy chọn)",
-            "text_loading_rebuttal": "Đang tải phản bác…",
+            "text_loading_rebuttal": "Đang tải rebuttal…",
             "text_mark_all_as_read": "Đánh dấu tất cả là đã đọc",
-            "text_post_rebuttal_score": "điểm sau phản bác",
-            "text_rebuttal_period_is_finalized_no_further": "Thời gian phản bác đã kết thúc. Không thể thay đổi thêm nữa.",
-            "text_recommendation": "Sự giới thiệu",
-            "text_reject": "Từ Chối",
+            "text_post_rebuttal_score": "điểm sau rebuttal",
+            "text_rebuttal_period_is_finalized_no_further": "Giai đoạn rebuttal đã kết thúc. Không thể thay đổi thêm.",
+            "text_recommendation": "Khuyến nghị",
+            "text_reject": "Từ chối",
             "text_score_1_10": "Điểm (1–10)",
             "text_score_updated": "Đã cập nhật điểm.",
-            "text_the_author_hasn_apos_t_submitted": "Tác giả vẫn chưa gửi phản bác của họ."
+            "text_the_author_hasn_apos_t_submitted": "Tác giả chưa gửi rebuttal."
           },
           "recommendation-selector": {
             "text_confidence": "Độ tin cậy",
@@ -2513,18 +2726,18 @@
             "text_confidence_high": "Cao",
             "text_confidence_low": "Thấp",
             "text_confidence_medium": "Trung bình",
-            "text_confidence_none": "Không có",
+            "text_confidence_none": "Không tự tin",
             "text_desc_accept": "Đóng góp tốt và nên được đưa vào chương trình.",
             "text_desc_borderline": "Ở ranh giới chấp nhận; chất lượng và tác động còn chưa rõ ràng.",
             "text_desc_reject": "Các điểm yếu đáng kể lớn hơn những đóng góp tiềm năng.",
-            "text_desc_strong_accept": "Bài báo thuộc nhóm rất tốt, có giá trị kỹ thuật cao và tác động rộng.",
+            "text_desc_strong_accept": "Bản thảo thuộc nhóm rất tốt, có giá trị kỹ thuật cao và tác động rộng.",
             "text_desc_strong_reject": "Có lỗi nghiêm trọng hoặc thiếu tính mới; không nên chấp nhận.",
             "text_desc_weak_accept": "Có thể chấp nhận dù còn một số hạn chế, nhìn chung vẫn có giá trị.",
             "text_desc_weak_reject": "Chưa đủ mạnh để chấp nhận ở phiên bản hiện tại.",
-            "text_final_assessment": "Đánh giá cuối cùng",
-            "text_global_rating": "Đánh giá toàn cầu",
+            "text_final_assessment": "Nhận định cuối cùng",
+            "text_global_rating": "Điểm tổng thể",
             "text_level": "Mức độ",
-            "text_overall_rating": "Đánh giá tổng thể",
+            "text_overall_rating": "Nhận định tổng thể",
             "text_pending": "Chưa đủ",
             "text_ready": "Sẵn sàng",
             "text_accept": "Chấp nhận",
@@ -2533,35 +2746,35 @@
             "text_short_accept": "Chấp nhận",
             "text_short_borderline": "Cân nhắc",
             "text_short_reject": "Từ chối",
-            "text_short_strong_accept": "Rất nhận",
-            "text_short_strong_reject": "Rất từ chối",
-            "text_short_weak_accept": "Nhận nhẹ",
+            "text_short_strong_accept": "Nhận mạnh",
+            "text_short_strong_reject": "Từ chối mạnh",
+            "text_short_weak_accept": "Chấp nhận nhẹ",
             "text_short_weak_reject": "Từ chối nhẹ",
             "text_strong_accept": "Chấp nhận mạnh",
             "text_strong_reject": "Từ chối mạnh",
-            "text_weak_accept": "Chấp nhận yếu",
-            "text_weak_reject": "Từ chối yếu",
+            "text_weak_accept": "Chấp nhận nhẹ",
+            "text_weak_reject": "Từ chối nhẹ",
             "text_reviewer_confidence": "Mức độ tự tin của phản biện",
-            "text_select_confidence_level": "Chọn mức độ tin cậy.",
-            "text_select_overall_rating": "Chọn đánh giá tổng thể."
+            "text_select_confidence_level": "Chọn mức độ tự tin.",
+            "text_select_overall_rating": "Chọn nhận định tổng thể."
           },
           "review-audit-panel": {
-            "text_ai_010_checks_whether_your_narrative": "Kiểm tra xem câu chuyện, điểm số, đề xuất và bối cảnh của bạn có kể một câu chuyện đánh giá mạch lạc hay không.",
-            "text_ai_010_review_audit": "Kiểm tra đánh giá",
-            "text_auditing": "Kiểm toán...",
+            "text_ai_010_checks_whether_your_narrative": "Kiểm tra xem nhận xét, điểm số, khuyến nghị và bối cảnh của bạn có nhất quán hay không.",
+            "text_ai_010_review_audit": "Kiểm tra chất lượng phản biện",
+            "text_auditing": "Đang kiểm tra...",
             "text_not_run_yet": "Chưa chạy",
-            "text_save_a_draft_or_run_submit": "Lưu bản nháp hoặc chạy gửi trước để đưa ra các kết quả kiểm tra ngữ nghĩa.",
-            "text_semantic_consistency_and_justification_audit": "Kiểm tra tính nhất quán và biện minh về mặt ngữ nghĩa",
+            "text_save_a_draft_or_run_submit": "Lưu bản nháp hoặc thử gửi để tạo kết quả kiểm tra ngữ nghĩa.",
+            "text_semantic_consistency_and_justification_audit": "Kiểm tra tính nhất quán và lập luận",
             "title_advisory_warnings": "Gợi ý",
             "title_dismissed_warnings": "Phát hiện đã ẩn",
             "title_submit_blockers": "Phát hiện ưu tiên",
-            "text_evaluated": "Đã đánh giá",
+            "text_evaluated": "Đã kiểm tra",
             "text_priority_signals": "Tín hiệu ưu tiên",
             "text_findings_are_reviewer_facing": "Các phát hiện là tín hiệu chất lượng dành cho phản biện. Dùng phần đánh giá và lý do để quyết định nội dung cần chỉnh sửa, nếu có.",
             "text_evidence_engagement": "Mức độ dùng bằng chứng",
             "text_consistency": "Tính nhất quán",
             "text_best_next_improvement": "Cải thiện tiếp theo tốt nhất",
-            "text_evaluation": "Đánh giá",
+            "text_evaluation": "Nhận định",
             "text_rationale": "Lý do:"
           },
           "review-header": {
@@ -2570,23 +2783,23 @@
             "text_deadline": "Thời hạn:",
             "text_discussion": "Thảo luận",
             "text_download_pdf": "Tải PDF",
-            "text_my_reviews": "Đánh giá của tôi",
-            "text_paper": "Bài báo số",
+            "text_my_reviews": "Phản biện của tôi",
+            "text_paper": "Bài nộp số",
             "text_rebuttal": "Phản hồi",
             "text_review_form": "Phiếu phản biện",
-            "text_track": "Theo dõi:",
+            "text_track": "Track:",
             "text_under_review": "Đang phản biện"
           },
           "review-sidebar": {
             "aria_label_submission_manuscript_preview": "Bản xem trước bản thảo bài nộp",
             "prop_title_checking_analysis_status": "Kiểm tra trạng thái phân tích",
-            "prop_title_generation_failed": "Thế hệ không thành công",
+            "prop_title_generation_failed": "Tạo nội dung thất bại",
             "prop_title_no_analysis_yet": "Chưa có phân tích nào",
             "prop_title_report_generated": "Đã tạo báo cáo",
             "prop_title_report_out_of_date": "Báo cáo đã hết hạn",
             "text_abstract": "Tóm tắt",
             "text_ai_assistant": "Trợ lý AI",
-            "text_checking_existing_submission_pre_read": "Kiểm tra trình đọc trước hiện có.",
+            "text_checking_existing_submission_pre_read": "Đang kiểm tra bản pre-read hiện có.",
             "text_failed_to_load_manuscript_preview": "Không thể tải bản xem trước bản thảo",
             "text_fetching_reviewer_visible_manuscript_file_and": "Đang tìm nạp tệp bản thảo mà phản biện có thể nhìn thấy và chuẩn bị ngăn đọc.",
             "text_generate_annotations": "Tạo chú thích",
@@ -2594,16 +2807,16 @@
             "text_generating": "Đang tạo...",
             "text_keywords": "Từ khóa",
             "text_loading_preview": "Đang tải bản xem trước",
-            "text_no_analysis_artifact_is_available_for": "Không có tạo phẩm phân tích nào có sẵn để xem.",
+            "text_no_analysis_artifact_is_available_for": "Chưa có kết quả phân tích để hiển thị.",
             "text_no_contribution_claims_were_extracted": "Không trích xuất được tuyên bố đóng góp nào.",
             "text_no_explicit_scope_boundaries_were_extracted": "Không trích xuất được ranh giới phạm vi rõ ràng.",
             "text_no_notable_elements_were_extracted": "Không trích xuất được yếu tố đáng chú ý nào.",
             "text_no_readiness_signals_were_generated": "Không tạo được tín hiệu sẵn sàng nào.",
             "text_no_reviewer_attention_points_were_extracted": "Không trích xuất được điểm cần phản biện chú ý nào.",
             "text_looking_up_latest_pre_read_artifact": "Đang tìm bản pre-read mới nhất cho bài nộp này.",
-            "text_orientation_snapshot": "Ảnh chụp nhanh định hướng",
-            "text_preview_standby": "Xem trước chế độ chờ",
-            "text_preview_unavailable": "Xem trước không có sẵn",
+            "text_orientation_snapshot": "Tóm tắt định hướng",
+            "text_preview_standby": "Bản xem trước đang chờ",
+            "text_preview_unavailable": "Không thể xem trước",
             "text_read_the_manuscript_and_the_neutral": "Đọc bản thảo và bản tóm tắt trung lập cạnh nhau.",
             "text_regenerate_annotations": "Tạo lại chú thích",
             "text_regenerate_report": "Tạo lại báo cáo",
@@ -2614,27 +2827,26 @@
             "text_signal_present": "Có",
             "text_start_generating": "Bắt đầu tạo",
             "text_status_failed": "Thất bại",
-            "text_status_idle": "Nhàn rỗi",
+            "text_status_idle": "Chưa chạy",
             "text_status_ready": "Sẵn sàng",
             "text_status_stale": "Đã cũ",
             "text_submission_changed_regenerate_analysis": "Bài nộp đã thay đổi. Hãy tạo lại phân tích trước khi dựa vào kết quả.",
-            "text_submission_analysis": "Phân tích đệ trình",
-            "text_submission_pre_read": "Đã đọc trước bài nộp",
+            "text_submission_analysis": "Phân tích bài nộp",
+            "text_submission_pre_read": "Pre-read bài nộp",
             "text_submission_pre_read_ready": "Bản pre-read của bài nộp đã sẵn sàng để bạn xem cùng bản thảo.",
             "text_supplementary_material": "Tài liệu bổ sung",
             "text_system_could_not_build_briefing": "Hệ thống không thể tạo bản tóm lược bản thảo. Hãy thử lại khi dữ liệu nguồn khả dụng.",
             "text_the_manuscript_preview_will_appear_here": "Bản xem trước bản thảo sẽ xuất hiện ở đây sau khi tệp được tải.",
             "text_this_browser_could_not_render_the": "Trình duyệt này không thể hiển thị nội tuyến tệp PDF. Sử dụng nút PDF ở trên để mở bản thảo trực tiếp.",
             "text_view_analysis": "Xem phân tích",
-            "title_claimed_contributions": "Đóng góp được yêu cầu",
+            "title_claimed_contributions": "Đóng góp được nêu",
             "title_notable_elements": "Yếu tố đáng chú ý",
-            "title_review_readiness_signals": "Xem lại tín hiệu sẵn sàng",
+            "title_review_readiness_signals": "Tín hiệu sẵn sàng phản biện",
             "title_reviewer_attention_points": "Điểm chú ý của phản biện",
-            "text_paper_annotations": "Chú thích bài báo",
-            "title_scope_and_limitations": "Phạm vi và hạn chế",
-            "text_paper_annotation": "Chú thích bài báo:"
+            "text_initial_analysis_annotations": "Chú thích phân tích ban đầu",
+            "title_scope_and_limitations": "Phạm vi và hạn chế"
           },
-          "paper-annotation-panel": {
+          "initial-analysis-annotations-panel": {
             "text_overall_impression": "Ấn tượng tổng thể",
             "text_domain_context_prefix": "Bối cảnh lĩnh vực:"
           },
@@ -2676,14 +2888,14 @@
           "text_scoring_guide": "Hướng dẫn chấm điểm",
           "text_significance": "Ý nghĩa",
           "text_saving": "Đang lưu...",
-          "text_submit_review": "Gửi đánh giá",
+          "text_submit_review": "Gửi phản biện",
           "text_submitting": "Đang gửi...",
           "text_technical_quality": "Chất lượng kỹ thuật",
           "text_unassigned": "Chưa phân công",
-          "text_audit_workflow_failed_override_logged": "Quy trình kiểm tra đánh giá không hoàn tất. Bạn vẫn có thể gửi, nhưng thao tác ghi đè này sẽ được ghi nhận.",
+          "text_audit_workflow_failed_override_logged": "Quy trình kiểm tra chất lượng không hoàn tất. Bạn vẫn có thể gửi, nhưng thao tác bỏ qua sẽ được ghi nhận.",
           "text_submit_anyway": "Vẫn gửi",
-          "text_submit_without_completed_audit": "Gửi mà không hoàn thành kiểm toán?",
-          "text_view_full_reviewer_guide_rarr": "Xem hướng dẫn đánh giá đầy đủ &rarr;"
+          "text_submit_without_completed_audit": "Gửi khi chưa hoàn tất kiểm tra?",
+          "text_view_full_reviewer_guide_rarr": "Xem hướng dẫn phản biện đầy đủ &rarr;"
         },
         "invitation-dialog": {
           "text_failed_to_load_invitation": "Không tải được lời mời",
@@ -2798,8 +3010,8 @@
             "text_all_status": "Tất cả trạng thái",
             "text_all_threads": "Tất cả chủ đề",
             "text_all_visibility": "Tất cả khả năng hiển thị",
-            "text_collaborate_with_other_reviewers_and_committee": "Cộng tác với những người đánh giá khác và các thành viên ủy ban. Khả năng hiển thị của chủ đề được kiểm soát bởi chế độ xem lại và lựa chọn của bạn.",
-            "text_committee_only": "Chỉ Ủy ban",
+            "text_collaborate_with_other_reviewers_and_committee": "Cộng tác với các phản biện khác và thành viên ban chương trình. Quyền hiển thị của chủ đề phụ thuộc vào chế độ phản biện và lựa chọn của bạn.",
+            "text_committee_only": "Chỉ ban chương trình",
             "text_discussion_threads": "Chủ đề thảo luận",
             "text_flagged": "Đã gắn cờ",
             "text_new_topic": "Chủ đề mới",
@@ -2807,18 +3019,57 @@
             "text_open": "Mở",
             "text_pinned": "Đã ghim",
             "text_resolved": "Đã giải quyết",
-            "text_reviewers_only": "Chỉ người đánh giá",
+            "text_reviewers_only": "Chỉ phản biện",
             "text_start_discussion": "Bắt đầu thảo luận",
             "text_visible_to_authors": "Hiển thị với tác giả"
+          },
+          "config": {
+            "category": {
+              "clarity": "Độ rõ ràng",
+              "ethics": "Đạo đức",
+              "general": "Chung",
+              "meta_review": "Meta-review",
+              "methodology": "Phương pháp",
+              "results": "Kết quả"
+            },
+            "role": {
+              "area_chair": "AC",
+              "author": "Tác giả",
+              "reviewer": "Phản biện",
+              "senior_pc": "SPC",
+              "system": "Hệ thống"
+            },
+            "visibility": {
+              "authors": {
+                "description": "Tác giả có thể xem chủ đề thảo luận này",
+                "label": "Hiển thị với tác giả",
+                "short_label": "Tác giả"
+              },
+              "committee": {
+                "description": "Chỉ Area Chair, Senior PC và Program Chair có thể xem",
+                "label": "Chỉ ban chương trình",
+                "short_label": "Committee"
+              },
+              "public": {
+                "description": "Mọi người dùng trên nền tảng đều có thể xem (open review)",
+                "label": "Thảo luận công khai",
+                "short_label": "Công khai"
+              },
+              "reviewers": {
+                "description": "Tất cả phản biện được phân công và thành viên ban chương trình có thể xem",
+                "label": "Chỉ phản biện",
+                "short_label": "Phản biện"
+              }
+            }
           },
           "components": {
             "message-item": {
               "text_copy_text": "Sao chép văn bản",
               "text_delete": "Xóa",
               "text_edited": "(đã chỉnh sửa)",
-              "title_more": "Hơn",
+              "title_more": "Thêm",
               "title_quote": "Trích dẫn",
-              "title_react": "Phản ứng"
+              "title_react": "Bày tỏ cảm xúc"
             },
             "new-thread-modal": {
               "placeholder_describe_your_topic_or_concern": "Mô tả chủ đề hoặc mối quan tâm của bạn...",
@@ -2829,23 +3080,23 @@
               "text_start_discussion": "Bắt đầu thảo luận",
               "text_start_new_discussion": "Bắt đầu cuộc thảo luận mới",
               "text_topic_title": "Tiêu đề chủ đề",
-              "text_visibility": "khả năng hiển thị"
+              "text_visibility": "Quyền hiển thị"
             },
             "participant-avatar": {
               "text_you": "Bạn"
             },
             "review-mode-indicator": {
               "prop_description_all_identities_are_visible": "Tất cả danh tính đều có thể nhìn thấy",
-              "prop_description_author_and_reviewer_identities_are_hidden": "Danh tính tác giả và người đánh giá được ẩn",
-              "prop_description_author_identities_are_hidden_from_reviewers": "Danh tính tác giả được ẩn khỏi người đánh giá",
+              "prop_description_author_and_reviewer_identities_are_hidden": "Danh tính tác giả và phản biện đều được ẩn",
+              "prop_description_author_identities_are_hidden_from_reviewers": "Danh tính tác giả được ẩn khỏi phản biện",
               "prop_label_double_blind": "Phản biện hai chiều",
-              "prop_label_open_review": "Đánh giá mở",
+              "prop_label_open_review": "Open review",
               "prop_label_single_blind": "Phản biện một chiều"
             },
             "thread-card": {
               "placeholder_display_text_optional": "Hiển thị văn bản (tùy chọn)",
               "placeholder_https": "https://...",
-              "placeholder_write_a_reply": "Viết thư trả lời...",
+              "placeholder_write_a_reply": "Viết phản hồi...",
               "text_cancel": "Hủy",
               "text_insert": "Chèn",
               "text_reply": "Hồi đáp",
@@ -2855,14 +3106,58 @@
           }
         },
         "rebuttal": {
+          "config": {
+            "category": {
+              "clarification": "Làm rõ",
+              "question": "Câu hỏi",
+              "suggestion": "Gợi ý",
+              "weakness": "Điểm yếu"
+            },
+            "phase": {
+              "awaiting": {
+                "author_description": "Vui lòng gửi phản hồi cho các nhận xét của phản biện",
+                "chair_description": "Đang chờ tác giả gửi rebuttal",
+                "description": "Tác giả chưa gửi phản hồi",
+                "label": "Đang chờ rebuttal",
+                "reviewer_description": "Tác giả chưa gửi phản hồi"
+              },
+              "discussion": {
+                "author_description": "Các phản biện đang thảo luận về phản hồi của bạn",
+                "chair_description": "Điều phối thảo luận giữa các phản biện",
+                "description": "Các phản biện đang thảo luận rebuttal với AC",
+                "label": "Giai đoạn thảo luận",
+                "reviewer_description": "Thảo luận rebuttal với các phản biện khác và AC"
+              },
+              "finalized": {
+                "author_description": "Giai đoạn rebuttal đã kết thúc",
+                "chair_description": "Giai đoạn rebuttal đã hoàn tất - chuyển sang quyết định",
+                "description": "Giai đoạn rebuttal đã kết thúc",
+                "label": "Đã kết thúc",
+                "reviewer_description": "Giai đoạn rebuttal đã kết thúc"
+              },
+              "submitted": {
+                "author_description": "Rebuttal của bạn đã được gửi - vui lòng chờ phản hồi từ phản biện",
+                "chair_description": "Tác giả đã gửi rebuttal - theo dõi phản hồi của phản biện",
+                "description": "Tác giả đã phản hồi - vui lòng xem lại và cập nhật đánh giá",
+                "label": "Đã gửi rebuttal",
+                "reviewer_description": "Tác giả đã phản hồi - vui lòng xem lại và cập nhật đánh giá"
+              }
+            },
+            "status": {
+              "addressed": "Đã phản hồi",
+              "not_addressed": "Chưa phản hồi",
+              "partially_addressed": "Phản hồi một phần",
+              "pending_review": "Cần bạn xem lại"
+            }
+          },
           "RebuttalPanel": {
             "text_point_by_point_responses": "Phản hồi từng điểm"
           },
           "components": {
             "action-bar": {
               "text_start_discussion": "Bắt đầu thảo luận",
-              "text_submit_rebuttal": "Gửi phản đối",
-              "text_update_review": "Đánh giá cập nhật"
+              "text_submit_rebuttal": "Gửi rebuttal",
+              "text_update_review": "Cập nhật đánh giá"
             },
             "general-response-section": {
               "text_attachments": "Tệp đính kèm",
@@ -2880,6 +3175,7 @@
               "text_addressed": "Đã phản hồi",
               "text_author_response": "Phản hồi của tác giả",
               "text_cancel": "Hủy",
+              "text_from": "từ",
               "text_not_addressed": "Chưa phản hồi",
               "text_partial": "một phần",
               "text_reviewer_response": "Phản hồi của phản biện",
@@ -2972,14 +3268,14 @@
               "text_duration": "Khoảng thời gian:",
               "text_provide_the_fundamental_information_for_your_new_conference": "Cung cấp những thông tin nền tảng cho hội nghị mới của bạn. Bao gồm định danh hội nghị, địa điểm và thời gian diễn ra.",
               "title_basic_details": "Chi tiết cơ bản",
-              "title_conference_dates": "Ngày Diễn Ra Hội Nghị",
+              "title_conference_dates": "Ngày diễn ra hội nghị",
               "title_conference_description": "Mô tả hội nghị",
-              "title_conference_identity": "Nhận dạng hội nghị",
+              "title_conference_identity": "Thông tin định danh hội nghị",
               "title_venue_format": "Địa điểm & định dạng"
             },
             "call-for-papers": {
               "placeholder_start_writing_your_call_for_papers": "Bắt đầu viết Lời mời gửi bài của bạn...",
-              "text_characters": "KÝ TỰ",
+              "text_characters": "Ký tự",
               "text_loading_editor": "Đang tải trình chỉnh sửa...",
               "text_use_the_rich_text_editor_below": "Sử dụng trình soạn thảo bên dưới để soạn Lời mời gửi bài của bạn. Hỗ trợ định dạng Markdown bao gồm tiêu đề, danh sách, bảng, khối mã, hình ảnh, v.v.",
               "title_call_for_papers": "Lời mời gửi bài"
@@ -3014,7 +3310,7 @@
               "text_allowed": "Được phép",
               "text_by_checking_this_box_you_confirm": "Bằng cách chọn hộp này, bạn xác nhận rằng tất cả các chi tiết hội nghị đều chính xác. Một số cài đặt không thể thay đổi sau khi hội nghị được xuất bản.",
               "text_conference_name": "Tên hội nghị",
-              "text_conference_tracks": "Track Hội Nghị",
+              "text_conference_tracks": "Track hội nghị",
               "text_double_blind": "Phản biện hai chiều",
               "text_edit": "Chỉnh sửa",
               "text_end_date": "Ngày kết thúc",
@@ -3029,14 +3325,14 @@
               "text_members": "Thành viên",
               "text_more_count": "+ {count} nữa",
               "text_no_topics_defined": "Không có chủ đề nào được xác định",
-              "text_not_allowed": "Không được phép",
-              "text_paper_submission_deadline": "Hạn chót gửi bài",
+              "text_not_allowed": "Không cho phép",
+              "text_paper_submission_deadline": "Hạn nộp bài",
               "text_pdf": "PDF",
               "text_pending_invite": "Đang chờ mời",
               "text_please_review_all_details_before_creating": "Vui lòng xem lại tất cả các chi tiết trước khi tạo hội nghị.",
               "text_program_chairs": "Chủ trì chương trình",
-              "text_ready_to_publish": "Sẵn sàng để xuất bản",
-              "text_review_mode": "Chế độ đánh giá",
+              "text_ready_to_publish": "Sẵn sàng công bố",
+              "text_review_mode": "Chế độ phản biện",
               "text_reviewers": "Phản biện",
               "text_selected_topics": "Chủ đề đã chọn",
               "text_single_blind": "Phản biện một chiều",
@@ -3045,13 +3341,13 @@
               "text_virtual_conference": "Hội nghị trực tuyến",
               "title_basic_details": "Chi tiết cơ bản",
               "title_committees": "Ủy ban",
-              "title_review_policy": "Chính sách đánh giá",
-              "title_submission_guidelines": "Hướng Dẫn Nộp Bài",
-              "title_topics_tracks": "Chủ đề & Track"
+              "title_review_policy": "Chính sách phản biện",
+              "title_submission_guidelines": "Hướng dẫn nộp bài",
+              "title_topics_tracks": "Chủ đề & track"
             },
             "policy-guidelines": {
               "aria_label_banned_phrases": "Cụm từ bị cấm",
-              "aria_label_enable_submission_gating": "Bật tính năng kiểm soát gửi bài",
+              "aria_label_enable_submission_gating": "Bật kiểm tra trước khi nộp",
               "aria_label_minimum_references": "Tài liệu tham khảo tối thiểu",
               "aria_label_require_anonymized_submissions": "Yêu cầu gửi ẩn danh",
               "aria_label_required_sections": "Phần bắt buộc",
@@ -3072,20 +3368,20 @@
               "prop_label_word": "Word",
               "text_allow_supplementary_materials": "Cho phép tài liệu bổ sung",
               "text_authors_can_upload_additional_files_with": "Tác giả có thể tải lên các tập tin bổ sung cùng với bài nộp của họ.",
-              "text_both_author_and_reviewer_identities_are": "Danh tính của cả tác giả và người đánh giá đều bị ẩn. Tác giả phải ẩn danh bài viết của họ.",
+              "text_both_author_and_reviewer_identities_are": "Danh tính của cả tác giả và phản biện đều được ẩn. Tác giả phải ẩn danh bản thảo.",
               "text_double_blind": "Phản biện hai chiều",
               "text_double_blind_2": "Phản biện hai chiều:",
-              "text_enable_submission_gating": "Bật tính năng kiểm soát gửi bài",
-              "text_flag_author_identifying_names_or_metadata": "Gắn cờ tên hoặc siêu dữ liệu nhận dạng tác giả khi chính sách đánh giá yêu cầu ẩn danh.",
+              "text_enable_submission_gating": "Bật kiểm tra trước khi nộp",
+              "text_flag_author_identifying_names_or_metadata": "Gắn cờ tên hoặc siêu dữ liệu có thể nhận dạng tác giả khi chính sách phản biện yêu cầu ẩn danh.",
               "text_require_anonymized_submissions": "Yêu cầu gửi ẩn danh",
               "text_reviewers_know_author_identities_but_authors": "Phản biện biết danh tính tác giả nhưng tác giả không biết danh tính phản biện.",
-              "text_run_deterministic_policy_checks_before_review": "Chạy kiểm tra chính sách xác định trước khi xem xét và tùy ý thêm các phát hiện nội dung AI mang tính tư vấn.",
+              "text_run_deterministic_policy_checks_before_review": "Chạy kiểm tra chính sách trước vòng phản biện và tùy chọn thêm phát hiện nội dung do AI gợi ý.",
               "text_single_blind": "Phản biện một chiều",
               "text_single_blind_2": "Phản biện một chiều:",
-              "title_policy_guidelines": "Chính sách & Nguyên tắc",
+              "title_policy_guidelines": "Chính sách & nguyên tắc",
               "title_review_configuration": "Cấu hình phản biện",
-              "title_submission_gating": "Gửi bài",
-              "title_submission_guidelines": "Hướng Dẫn Nộp Bài",
+              "title_submission_gating": "Kiểm tra trước khi nộp",
+              "title_submission_guidelines": "Hướng dẫn nộp bài",
               "title_supplementary_materials": "Tài liệu bổ sung"
             },
             "topics-deadlines": {
@@ -3094,22 +3390,22 @@
               "placeholder_pick_abstract_deadline": "Chọn thời hạn tóm tắt",
               "placeholder_pick_camera_ready_deadline": "Chọn thời hạn camera-ready",
               "placeholder_pick_notification_date": "Chọn ngày thông báo",
-              "placeholder_pick_paper_deadline": "Chọn thời hạn nộp bài báo",
+              "placeholder_pick_paper_deadline": "Chọn hạn nộp bài",
               "text_added": "Đã thêm",
-              "text_automatically_prevent_submissions_after_the_deadline": "Tự động ngăn chặn việc gửi bài sau khi hết thời hạn",
+              "text_automatically_prevent_submissions_after_the_deadline": "Tự động chặn nộp bài sau hạn",
               "text_deadline_for_final_version": "Hạn chót cho phiên bản cuối cùng",
               "text_deadline_for_initial_abstract_registration": "Thời hạn đăng ký Abstract lần đầu",
               "text_e_g_machine_learning_nlp_computer": "ví dụ: Học máy, NLP, Thị giác máy tính",
               "text_e_g_main_track_workshop_demo": "ví dụ: Track chính, Hội thảo, Demo, Công nghiệp",
               "text_final_deadline_for_pdf_upload": "Hạn chót cuối cùng để tải lên bản PDF",
               "text_no_topics_added_yet": "Chưa có chủ đề nào được thêm vào",
-              "text_no_tracks_added_yet": "Chưa có Track nào được thêm vào",
+              "text_no_tracks_added_yet": "Chưa có track nào được thêm vào",
               "text_press_enter": "Nhấn Enter",
               "text_strict_deadlines": "Thời hạn nghiêm ngặt",
-              "text_topic": "Đề tài",
-              "text_track": "Theo dõi",
+              "text_topic": "Chủ đề",
+              "text_track": "Track",
               "text_when_authors_will_receive_decisions": "Khi nào tác giả sẽ nhận được quyết định",
-              "title_conference_tracks": "Track Hội Nghị",
+              "title_conference_tracks": "Track hội nghị",
               "title_research_topics": "Chủ đề nghiên cứu",
               "title_submission_timeline": "Tiến độ nộp bài",
               "title_topics_deadlines": "Chủ đề & Thời hạn"

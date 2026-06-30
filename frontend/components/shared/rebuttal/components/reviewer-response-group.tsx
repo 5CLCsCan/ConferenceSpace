@@ -95,7 +95,7 @@ export function ReviewerResponseGroup({
               point={point}
               reviewer={reviewer}
               userRole={userRole}
-              onMarkStatus={(status) => onPointStatusChange(point.id, status)}
+              onMarkStatus={(status, note) => onPointStatusChange(point.id, status, note)}
               onAuthorResponseChange={(response) => onAuthorResponseChange?.(point.id, response)}
               readOnly={readOnly}
             />

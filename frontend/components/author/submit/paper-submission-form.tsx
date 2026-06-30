@@ -43,6 +43,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { getSubmissionEligibility } from "@/lib/submission-eligibility"
 import { getManuscriptUploadError, isAcceptedManuscriptFile } from "./submission-file-validation"
 import type { SubmissionAutofillResponse } from "@/lib/api/submission-autofill"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 interface PaperSubmissionFormProps {
   conference?: Conference | null
@@ -158,7 +159,9 @@ function normalizeStoredConflicts(submission: Submission | null | undefined): Co
   }
 
   return (submission?.information?.declared_conflicts || []).map((conflict, index) => {
-    const fallbackName = conflict.email ? nameFromEmail(conflict.email) : { firstName: "", lastName: "" }
+    const fallbackName = conflict.email
+      ? nameFromEmail(conflict.email)
+      : { firstName: "", lastName: "" }
     return {
       id: `declared-conflict-${index}-${conflict.email}`,
       firstName: fallbackName.firstName,
@@ -224,6 +227,7 @@ export function PaperSubmissionForm({
   const [successMessage, setSuccessMessage] = useState("")
   const lastSavedSignatureRef = useRef<string>("")
   const lastAutosaveErrorRef = useRef<string | null>(null)
+  const hasTrackedSubmissionStartRef = useRef(false)
   const userSubmissionSnapshot = useMemo(
     () => ({
       email: user?.email,
@@ -474,6 +478,16 @@ export function PaperSubmissionForm({
   const recommendationEligible =
     title.trim().length >= 8 && abstract.trim().split(/\s+/).filter(Boolean).length >= 20
 
+  useEffect(() => {
+    if (!conference || initialSubmission || hasTrackedSubmissionStartRef.current) return
+    hasTrackedSubmissionStartRef.current = true
+    trackUsageEvent("submission_started", {
+      role: "author",
+      entityType: "conference",
+      entityId: conference.id,
+    })
+  }, [conference, initialSubmission])
+
   const saveDraft = useCallback(
     async ({ manual = false, force = false }: { manual?: boolean; force?: boolean } = {}) => {
       if (!user || !conference) {
@@ -485,7 +499,9 @@ export function PaperSubmissionForm({
             title: t(
               "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
             ),
-            description: "Submission editing is locked after the deadline.",
+            description: t(
+              "runtime.components.author.submit.paper-submission-form.prop_description_submission_editing_is_locked_after_the_deadline",
+            ),
             variant: "destructive",
           })
         }
@@ -536,7 +552,9 @@ export function PaperSubmissionForm({
             })
           } else if (shouldShowError) {
             toast({
-              title: "Draft could not be saved",
+              title: t(
+                "runtime.components.author.submit.paper-submission-form.prop_title_failed_to_save_draft",
+              ),
               description,
               variant: "destructive",
             })
@@ -554,6 +572,16 @@ export function PaperSubmissionForm({
         const now = new Date()
         setLastSavedAt(now)
         setAutosaveStatus("saved")
+        const savedSubmissionId = response.data?.id ?? draftSubmissionId ?? undefined
+        trackUsageEvent("submission_draft_saved", {
+          role: "author",
+          entityType: "submission",
+          entityId: savedSubmissionId,
+          metadata: {
+            conferenceId: conference.id,
+            manual,
+          },
+        })
 
         if (manual) {
           toast({
@@ -807,17 +835,15 @@ export function PaperSubmissionForm({
   }
 
   const handleApplyAutofill = (result: SubmissionAutofillResponse, sourceFiles: File[] = []) => {
-    const nextTitle = result.fields.title.value.trim()
-    const nextAbstract = result.fields.abstract.value.trim()
-    const nextKeywords = result.fields.keywords.value
-      .map((keyword) => keyword.trim())
-      .filter(Boolean)
+    const nextTitle = result.fields.title.trim()
+    const nextAbstract = result.fields.abstract.trim()
+    const nextKeywords = result.fields.keywords.map((keyword) => keyword.trim()).filter(Boolean)
     const nextTrack =
       result.selected_track_name?.trim() ||
       result.track_rankings.find((ranking) => availableTracks.includes(ranking.track_name))
         ?.track_name ||
       ""
-    const nextPaperType = result.fields.paper_type.value
+    const nextPaperType = result.fields.paper_type
 
     if (nextTitle) setTitle(nextTitle)
     if (nextAbstract) setAbstract(nextAbstract)
@@ -852,21 +878,6 @@ export function PaperSubmissionForm({
         })),
       )
     }
-
-    const generatedConflicts = result.possible_conflicts
-      .filter((conflict) => conflict.name.trim() || conflict.email?.trim())
-      .map((conflict, index): Conflict => {
-        const nameParts = conflict.name.trim().split(/\s+/).filter(Boolean)
-        return {
-          id: `autofill-conflict-${index}-${conflict.email || conflict.name}`,
-          firstName: nameParts[0] || "",
-          lastName: nameParts.slice(1).join(" "),
-          email: conflict.email?.trim() || "",
-          reason: conflict.reason || "other",
-        }
-      })
-    if (generatedConflicts.length > 0) setConflicts(generatedConflicts)
-
     const manuscriptFile = findAutofillManuscriptFile(sourceFiles, result)
     if (manuscriptFile) {
       setUploadedFile(manuscriptFile)
@@ -921,6 +932,12 @@ export function PaperSubmissionForm({
   const handleSubmit = async () => {
     if (!user || !conference) return
     if (isNewSubmissionBlocked) {
+      trackUsageEvent("form_error_seen", {
+        role: "author",
+        entityType: "conference",
+        entityId: conference.id,
+        metadata: { form: "paper_submission", reason: "submissions_closed" },
+      })
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_submissions_are_closed",
@@ -933,6 +950,12 @@ export function PaperSubmissionForm({
       return
     }
     if (isPublishBlocked) {
+      trackUsageEvent("form_error_seen", {
+        role: "author",
+        entityType: "conference",
+        entityId: conference.id,
+        metadata: { form: "paper_submission", reason: "submission_deadline_passed" },
+      })
       toast({
         title: t(
           "runtime.components.author.submit.paper-submission-form.prop_title_submission_deadline_has_passed",
@@ -998,6 +1021,13 @@ export function PaperSubmissionForm({
         setLastPrecheckBlock(null)
         setSuccessMessage("Your paper has been submitted successfully!")
         setShowSuccessDialog(true)
+        const submittedSubmissionId = response.data?.id ?? draftSubmissionId ?? undefined
+        trackUsageEvent("submission_submitted", {
+          role: "author",
+          entityType: "submission",
+          entityId: submittedSubmissionId,
+          metadata: { conferenceId: conference.id },
+        })
       }
     } catch (error) {
       toast({

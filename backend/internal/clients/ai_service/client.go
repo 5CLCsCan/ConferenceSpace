@@ -90,14 +90,14 @@ type FileMetadataPayload struct {
 	ContentType      string `json:"content_type,omitempty"`
 }
 
-type ReviewerBriefingSubmissionPayload struct {
+type ReviewerInitialSubmissionPayload struct {
 	Title    string   `json:"title"`
 	Abstract string   `json:"abstract"`
 	Keywords []string `json:"keywords,omitempty"`
 	Track    string   `json:"track,omitempty"`
 }
 
-type ReviewerBriefingFileMetadataPayload struct {
+type ReviewerInitialFileMetadataPayload struct {
 	OriginalFilename string `json:"original_filename"`
 	SizeBytes        int64  `json:"size_bytes,omitempty"`
 	ContentType      string `json:"content_type,omitempty"`
@@ -149,23 +149,24 @@ type TrackRecommendationResponse struct {
 	Recommendations []TrackRecommendationItem `json:"recommendations"`
 }
 
-type ReviewerBriefingResolveRequest struct {
-	Action                     string                              `json:"action"`
-	ConferenceID               int64                               `json:"conference_id"`
-	AssignmentID               int64                               `json:"assignment_id"`
-	SubmissionID               int64                               `json:"submission_id"`
-	Actor                      ActorPayload                        `json:"actor"`
-	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
-	Submission                 ReviewerBriefingSubmissionPayload   `json:"submission"`
-	FileMetadata               ReviewerBriefingFileMetadataPayload `json:"file_metadata"`
+type ReviewerInitialAnalysisResolveRequest struct {
+	Action                     string                             `json:"action"`
+	ConferenceID               int64                              `json:"conference_id"`
+	AssignmentID               int64                              `json:"assignment_id"`
+	SubmissionID               int64                              `json:"submission_id"`
+	Actor                      ActorPayload                       `json:"actor"`
+	SubmissionStateFingerprint string                             `json:"submission_state_fingerprint"`
+	Submission                 ReviewerInitialSubmissionPayload   `json:"submission"`
+	FileMetadata               ReviewerInitialFileMetadataPayload `json:"file_metadata"`
+	DomainTags                 []string                           `json:"domain_tags,omitempty"`
 }
 
-type ReviewerBriefingCachePayload struct {
+type ReviewerInitialAnalysisCachePayload struct {
 	Hit                        bool   `json:"hit"`
 	SubmissionStateFingerprint string `json:"submission_state_fingerprint"`
 }
 
-type ReviewerBriefingSubmissionSnapshot struct {
+type ReviewerInitialSubmissionSnapshot struct {
 	Title              string   `json:"title"`
 	AbstractSummary    string   `json:"abstract_summary"`
 	ManuscriptOverview string   `json:"manuscript_overview"`
@@ -173,86 +174,47 @@ type ReviewerBriefingSubmissionSnapshot struct {
 	Track              *string  `json:"track"`
 }
 
-type ReviewerBriefingContribution struct {
+type ReviewerInitialContribution struct {
 	Label    string   `json:"label"`
 	Evidence []string `json:"evidence"`
 	Source   string   `json:"source"`
 }
 
-type ReviewerBriefingNotableElement struct {
+type ReviewerInitialNotableElement struct {
 	Label  string `json:"label"`
 	Detail string `json:"detail"`
 	Source string `json:"source"`
 }
 
-type ReviewerBriefingAttentionPoint struct {
+type ReviewerInitialAttentionPoint struct {
 	Focus  string  `json:"focus"`
 	Reason *string `json:"reason"`
 	Source string  `json:"source"`
 }
 
-type ReviewerBriefingScopeLimitation struct {
+type ReviewerInitialScopeLimitation struct {
 	Label  string `json:"label"`
 	Detail string `json:"detail"`
 	Source string `json:"source"`
 }
 
-type ReviewerBriefingReadinessSignal struct {
+type ReviewerInitialReadinessSignal struct {
 	Label  string `json:"label"`
 	Status string `json:"status"`
 	Detail string `json:"detail"`
 	Source string `json:"source"`
 }
 
-type ReviewerBriefingGuardrails struct {
-	NoRecommendation bool   `json:"no_recommendation"`
-	NoScore          bool   `json:"no_score"`
-	BiasNotice       string `json:"bias_notice"`
+type ReviewerInitialBriefing struct {
+	SubmissionSnapshot      ReviewerInitialSubmissionSnapshot `json:"submission_snapshot"`
+	ReviewReadinessSignals  []ReviewerInitialReadinessSignal  `json:"review_readiness_signals"`
+	ClaimedContributions    []ReviewerInitialContribution     `json:"claimed_contributions"`
+	NotableElements         []ReviewerInitialNotableElement   `json:"notable_elements"`
+	ReviewerAttentionPoints []ReviewerInitialAttentionPoint   `json:"reviewer_attention_points"`
+	StatedScopeLimitations  []ReviewerInitialScopeLimitation  `json:"stated_scope_and_limitations"`
 }
 
-type ReviewerBriefingArtifact struct {
-	SubmissionSnapshot      ReviewerBriefingSubmissionSnapshot `json:"submission_snapshot"`
-	ReviewReadinessSignals []ReviewerBriefingReadinessSignal  `json:"review_readiness_signals"`
-	ClaimedContributions    []ReviewerBriefingContribution     `json:"claimed_contributions"`
-	NotableElements         []ReviewerBriefingNotableElement   `json:"notable_elements"`
-	ReviewerAttentionPoints []ReviewerBriefingAttentionPoint   `json:"reviewer_attention_points"`
-	StatedScopeLimitations  []ReviewerBriefingScopeLimitation  `json:"stated_scope_and_limitations"`
-	Guardrails              ReviewerBriefingGuardrails         `json:"guardrails"`
-}
-
-type ReviewerBriefingErrorPayload struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
-
-type ReviewerBriefingResolveResponse struct {
-	Status   string                        `json:"status"`
-	RunID    string                        `json:"run_id,omitempty"`
-	Cache    ReviewerBriefingCachePayload  `json:"cache"`
-	Artifact *ReviewerBriefingArtifact     `json:"artifact,omitempty"`
-	Error    *ReviewerBriefingErrorPayload `json:"error,omitempty"`
-}
-
-// --- Paper Annotation types ---
-
-type PaperAnnotationResolveRequest struct {
-	Action                     string                              `json:"action"`
-	ConferenceID               int64                               `json:"conference_id"`
-	AssignmentID               int64                               `json:"assignment_id"`
-	SubmissionID               int64                               `json:"submission_id"`
-	Actor                      ActorPayload                        `json:"actor"`
-	SubmissionStateFingerprint string                              `json:"submission_state_fingerprint"`
-	Submission                 ReviewerBriefingSubmissionPayload   `json:"submission"`
-	FileMetadata               ReviewerBriefingFileMetadataPayload `json:"file_metadata"`
-	DomainTags                 []string                            `json:"domain_tags,omitempty"`
-}
-
-type PaperAnnotationCachePayload struct {
-	Hit                        bool   `json:"hit"`
-	SubmissionStateFingerprint string `json:"submission_state_fingerprint"`
-}
-
-type PaperAnnotationItem struct {
+type ReviewerInitialAnnotationItem struct {
 	Category      string  `json:"category"`
 	Severity      *string `json:"severity,omitempty"`
 	QuotedPassage string  `json:"quoted_passage"`
@@ -260,49 +222,47 @@ type PaperAnnotationItem struct {
 	ReviewerHint  *string `json:"reviewer_hint,omitempty"`
 }
 
-type PaperAnnotationSection struct {
-	SectionName string                `json:"section_name"`
-	Summary     string                `json:"summary"`
-	Annotations []PaperAnnotationItem `json:"annotations,omitempty"`
+type ReviewerInitialAnnotationSection struct {
+	SectionName string                          `json:"section_name"`
+	Summary     string                          `json:"summary"`
+	Annotations []ReviewerInitialAnnotationItem `json:"annotations,omitempty"`
 }
 
-type PaperAnnotationGuardrails struct {
-	AdvisoryOnly     bool     `json:"advisory_only"`
-	NoRecommendation bool     `json:"no_recommendation"`
-	BiasNotices      []string `json:"bias_notices,omitempty"`
+type ReviewerInitialAnnotations struct {
+	OverallImpression string                             `json:"overall_impression"`
+	DomainContext     *string                            `json:"domain_context,omitempty"`
+	Sections          []ReviewerInitialAnnotationSection `json:"sections,omitempty"`
 }
 
-type PaperAnnotationArtifact struct {
-	OverallImpression string                    `json:"overall_impression"`
-	DomainContext     *string                   `json:"domain_context,omitempty"`
-	Sections          []PaperAnnotationSection  `json:"sections,omitempty"`
-	Guardrails        PaperAnnotationGuardrails `json:"guardrails"`
+type ReviewerInitialAnalysisArtifact struct {
+	Briefing    ReviewerInitialBriefing    `json:"briefing"`
+	Annotations ReviewerInitialAnnotations `json:"annotations"`
 }
 
-type PaperAnnotationErrorPayload struct {
+type ReviewerInitialAnalysisErrorPayload struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-type PaperAnnotationResolveResponse struct {
-	Status   string                       `json:"status"`
-	RunID    string                       `json:"run_id,omitempty"`
-	Cache    PaperAnnotationCachePayload  `json:"cache"`
-	Artifact *PaperAnnotationArtifact     `json:"artifact,omitempty"`
-	Error    *PaperAnnotationErrorPayload `json:"error,omitempty"`
+type ReviewerInitialAnalysisResolveResponse struct {
+	Status   string                               `json:"status"`
+	RunID    string                               `json:"run_id,omitempty"`
+	Cache    ReviewerInitialAnalysisCachePayload  `json:"cache"`
+	Artifact *ReviewerInitialAnalysisArtifact     `json:"artifact,omitempty"`
+	Error    *ReviewerInitialAnalysisErrorPayload `json:"error,omitempty"`
 }
 
 type ReviewQualityAuditResolveRequest struct {
-	Mode             string                            `json:"mode"`
-	ConferenceID     int64                             `json:"conference_id"`
-	AssignmentID     int64                             `json:"assignment_id"`
-	SubmissionID     int64                             `json:"submission_id"`
-	Actor            ActorPayload                      `json:"actor"`
-	Submission       ReviewerBriefingSubmissionPayload `json:"submission"`
-	ReviewScore      *float64                          `json:"review_score,omitempty"`
-	Review           ReviewQualityAuditReviewPayload   `json:"review"`
-	Policy           *ReviewQualityAuditPolicyPayload  `json:"policy,omitempty"`
-	BriefingArtifact *ReviewerBriefingArtifact         `json:"briefing_artifact,omitempty"`
+	Mode             string                           `json:"mode"`
+	ConferenceID     int64                            `json:"conference_id"`
+	AssignmentID     int64                            `json:"assignment_id"`
+	SubmissionID     int64                            `json:"submission_id"`
+	Actor            ActorPayload                     `json:"actor"`
+	Submission       ReviewerInitialSubmissionPayload `json:"submission"`
+	ReviewScore      *float64                         `json:"review_score,omitempty"`
+	Review           ReviewQualityAuditReviewPayload  `json:"review"`
+	Policy           *ReviewQualityAuditPolicyPayload `json:"policy,omitempty"`
+	AnalysisArtifact *ReviewerInitialAnalysisArtifact `json:"analysis_artifact,omitempty"`
 }
 
 type ReviewQualityAuditReviewPayload struct {
@@ -373,6 +333,15 @@ type DecisionCopilotComponentFingerprintsPayload struct {
 	Rebuttal   string `json:"rebuttal"`
 }
 
+type DecisionCopilotConferenceCFPPayload struct {
+	Name          string   `json:"name,omitempty"`
+	Acronym       string   `json:"acronym,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	Domains       []string `json:"domains,omitempty"`
+	Tracks        []string `json:"tracks,omitempty"`
+	CallForPapers string   `json:"call_for_papers,omitempty"`
+}
+
 type DecisionCopilotSubmissionContextPayload struct {
 	Title         string   `json:"title,omitempty"`
 	Track         string   `json:"track,omitempty"`
@@ -392,7 +361,7 @@ type DecisionCopilotReviewPayload struct {
 	Weaknesses                 string         `json:"weaknesses,omitempty"`
 	Questions                  string         `json:"questions,omitempty"`
 	Criteria                   map[string]int `json:"criteria,omitempty"`
-	PostRebuttalScore          *int           `json:"post_rebuttal_score,omitempty"`
+	PostRebuttalScore          *float64       `json:"post_rebuttal_score,omitempty"`
 	PostRebuttalRecommendation string         `json:"post_rebuttal_recommendation,omitempty"`
 	PostRebuttalComment        string         `json:"post_rebuttal_comment,omitempty"`
 	PostRebuttalUpdatedAt      string         `json:"post_rebuttal_updated_at,omitempty"`
@@ -409,9 +378,9 @@ type DecisionCopilotAnalyticsPayload struct {
 }
 
 type DecisionCopilotDiscussionMessagePayload struct {
-	AuthorEmail string `json:"author_email,omitempty"`
-	Content     string `json:"content,omitempty"`
-	CreatedAt   string `json:"created_at,omitempty"`
+	Role      string `json:"role,omitempty"`
+	Content   string `json:"content,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
 }
 
 type DecisionCopilotDiscussionThreadPayload struct {
@@ -455,6 +424,7 @@ type DecisionCopilotRebuttalPayload struct {
 
 type DecisionCopilotEvidencePayload struct {
 	SchemaVersion   string                                  `json:"schema_version,omitempty"`
+	ConferenceCFP   DecisionCopilotConferenceCFPPayload     `json:"conference_cfp"`
 	Submission      DecisionCopilotSubmissionContextPayload `json:"submission"`
 	Reviews         []DecisionCopilotReviewPayload          `json:"reviews,omitempty"`
 	ReviewAnalytics DecisionCopilotAnalyticsPayload         `json:"review_analytics"`
@@ -514,13 +484,6 @@ type DecisionCopilotDisagreementMap struct {
 	ConfidenceLimits    []string `json:"confidence_limits,omitempty"`
 }
 
-type DecisionCopilotGuardrails struct {
-	AdvisoryOnly            bool   `json:"advisory_only"`
-	NoDecision              bool   `json:"no_decision"`
-	NoAutomaticStatusChange bool   `json:"no_automatic_status_change"`
-	HumanJudgmentRequired   string `json:"human_judgment_required"`
-}
-
 type DecisionCopilotArtifact struct {
 	EvidenceSummary         DecisionCopilotEvidenceSummary         `json:"evidence_summary"`
 	ReviewFeedbackSynthesis DecisionCopilotReviewFeedbackSynthesis `json:"review_feedback_synthesis"`
@@ -529,7 +492,6 @@ type DecisionCopilotArtifact struct {
 	RebuttalSignals         DecisionCopilotRebuttalSignals         `json:"rebuttal_signals"`
 	DisagreementMap         DecisionCopilotDisagreementMap         `json:"disagreement_map"`
 	SuggestedChairNote      string                                 `json:"suggested_chair_note"`
-	Guardrails              DecisionCopilotGuardrails              `json:"guardrails"`
 	EvidenceFingerprint     string                                 `json:"evidence_fingerprint"`
 	GeneratedAt             string                                 `json:"generated_at"`
 }
@@ -557,70 +519,40 @@ type SubmissionAutofillFileMetadata struct {
 type SubmissionAutofillConferenceContext struct {
 	Name        string   `json:"name"`
 	Acronym     string   `json:"acronym"`
-	Description string   `json:"description,omitempty"`
-	Domain      []string `json:"domain,omitempty"`
-	CFPText     string   `json:"cfp_text,omitempty"`
+	Description string   `json:"description"`
+	Domain      []string `json:"domain"`
+	CFPText     string   `json:"cfp_text"`
 	Tracks      []string `json:"tracks"`
 }
 
 type SubmissionAutofillRunRequest struct {
-	ConferenceID      int64                                `json:"conference_id"`
-	Actor             ActorPayload                         `json:"actor"`
-	ExtraDetails      string                               `json:"extra_details,omitempty"`
-	AvailableTracks   []string                             `json:"available_tracks,omitempty"`
-	ConferenceContext SubmissionAutofillConferenceContext  `json:"conference_context"`
-	Files             []SubmissionAutofillFileMetadata     `json:"files"`
-}
-
-type SubmissionAutofillEvidence struct {
-	FileID        string `json:"file_id"`
-	SourceType    string `json:"source_type,omitempty"`
-	QuoteOrSignal string `json:"quote_or_signal"`
-	LocationHint  string `json:"location_hint,omitempty"`
-}
-
-type SubmissionAutofillField[T any] struct {
-	Value      T                            `json:"value"`
-	Confidence string                       `json:"confidence"`
-	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings   []string                     `json:"warnings,omitempty"`
+	ConferenceID      int64                               `json:"conference_id"`
+	Actor             ActorPayload                        `json:"actor"`
+	ExtraDetails      string                              `json:"extra_details,omitempty"`
+	AvailableTracks   []string                            `json:"available_tracks,omitempty"`
+	ConferenceContext SubmissionAutofillConferenceContext `json:"conference_context"`
+	Files             []SubmissionAutofillFileMetadata    `json:"files"`
 }
 
 type SubmissionAutofillFields struct {
-	Title           SubmissionAutofillField[string]   `json:"title"`
-	Abstract        SubmissionAutofillField[string]   `json:"abstract"`
-	Keywords        SubmissionAutofillField[[]string] `json:"keywords"`
-	PaperType       SubmissionAutofillField[string]   `json:"paper_type"`
-	AdditionalNotes SubmissionAutofillField[string]   `json:"additional_notes"`
+	Title           string   `json:"title"`
+	Abstract        string   `json:"abstract"`
+	Keywords        []string `json:"keywords"`
+	PaperType       string   `json:"paper_type"`
+	AdditionalNotes string   `json:"additional_notes"`
 }
 
 type SubmissionAutofillTrackRanking struct {
-	TrackName  string                       `json:"track_name"`
-	Confidence float64                      `json:"confidence"`
-	Rationale  string                       `json:"rationale"`
-	Evidence   []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings   []string                     `json:"warnings,omitempty"`
+	TrackName  string  `json:"track_name"`
+	Confidence float64 `json:"confidence"`
+	Rationale  string  `json:"rationale"`
 }
 
 type SubmissionAutofillAuthor struct {
-	Name        string                       `json:"name"`
-	Email       string                       `json:"email,omitempty"`
-	Affiliation string                       `json:"affiliation,omitempty"`
-	Country     string                       `json:"country,omitempty"`
-	Ordinal     *int                         `json:"ordinal,omitempty"`
-	Confidence  string                       `json:"confidence"`
-	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings    []string                     `json:"warnings,omitempty"`
-}
-
-type SubmissionAutofillConflict struct {
-	Name        string                       `json:"name"`
-	Email       string                       `json:"email,omitempty"`
-	Institution string                       `json:"institution,omitempty"`
-	Reason      string                       `json:"reason"`
-	Confidence  string                       `json:"confidence"`
-	Evidence    []SubmissionAutofillEvidence `json:"evidence,omitempty"`
-	Warnings    []string                     `json:"warnings,omitempty"`
+	Name        string `json:"name"`
+	Email       string `json:"email,omitempty"`
+	Affiliation string `json:"affiliation,omitempty"`
+	Country     string `json:"country,omitempty"`
 }
 
 type SubmissionAutofillMaterial struct {
@@ -641,15 +573,14 @@ type SubmissionAutofillErrorPayload struct {
 }
 
 type SubmissionAutofillRunResponse struct {
-	RunID             string                          `json:"run_id"`
-	Status            string                          `json:"status"`
-	Fields            SubmissionAutofillFields        `json:"fields"`
-	TrackRankings     []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
-	Authors           []SubmissionAutofillAuthor      `json:"authors,omitempty"`
-	PossibleConflicts []SubmissionAutofillConflict    `json:"possible_conflicts,omitempty"`
-	Materials         []SubmissionAutofillMaterial    `json:"materials,omitempty"`
-	Warnings          []string                        `json:"warnings,omitempty"`
-	Error             *SubmissionAutofillErrorPayload `json:"error,omitempty"`
+	RunID         string                           `json:"run_id"`
+	Status        string                           `json:"status"`
+	Fields        SubmissionAutofillFields         `json:"fields"`
+	TrackRankings []SubmissionAutofillTrackRanking `json:"track_rankings,omitempty"`
+	Authors       []SubmissionAutofillAuthor       `json:"authors,omitempty"`
+	Materials     []SubmissionAutofillMaterial     `json:"materials,omitempty"`
+	Warnings      []string                         `json:"warnings,omitempty"`
+	Error         *SubmissionAutofillErrorPayload  `json:"error,omitempty"`
 }
 
 type SubmissionAutofillFileContent struct {
@@ -836,6 +767,10 @@ func (c *Client) RunSubmissionAutofill(
 		return nil, fmt.Errorf("submission autofill files are required")
 	}
 
+	requestPayload.ConferenceContext.Domain = nonNilStrings(requestPayload.ConferenceContext.Domain)
+	requestPayload.ConferenceContext.Tracks = nonNilStrings(requestPayload.ConferenceContext.Tracks)
+	requestPayload.AvailableTracks = nonNilStrings(requestPayload.AvailableTracks)
+
 	requestJSON, err := json.Marshal(requestPayload)
 	if err != nil {
 		return nil, fmt.Errorf("marshal submission autofill request: %w", err)
@@ -883,182 +818,93 @@ func (c *Client) RunSubmissionAutofill(
 	return doJSONRequest[SubmissionAutofillRunResponse](c.httpClient, req, "submission autofill workflow")
 }
 
-func (c *Client) LookupReviewerBriefing(
+func (c *Client) LookupReviewerInitialAnalysis(
 	ctx context.Context,
 	token string,
-	requestPayload *ReviewerBriefingResolveRequest,
-) (*ReviewerBriefingResolveResponse, error) {
+	requestPayload *ReviewerInitialAnalysisResolveRequest,
+) (*ReviewerInitialAnalysisResolveResponse, error) {
 	if c == nil || strings.TrimSpace(c.baseURL) == "" {
 		return nil, fmt.Errorf("ai-service client is not configured")
 	}
 	if requestPayload == nil {
-		return nil, fmt.Errorf("reviewer briefing request payload is required")
+		return nil, fmt.Errorf("reviewer initial analysis request payload is required")
 	}
 
 	requestJSON, err := json.Marshal(requestPayload)
 	if err != nil {
-		return nil, fmt.Errorf("marshal reviewer briefing request: %w", err)
+		return nil, fmt.Errorf("marshal reviewer initial analysis request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		c.baseURL+"/api/v1/workflows/reviewer-pre-read-briefing/resolve",
+		c.baseURL+"/api/v1/workflows/reviewer-initial-analysis/resolve",
 		bytes.NewReader(requestJSON),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("create reviewer briefing request: %w", err)
+		return nil, fmt.Errorf("create reviewer initial analysis request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
 		req.Header.Set("Authorization", "Bearer "+normalizedToken)
 	}
 
-	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
+	return doJSONRequest[ReviewerInitialAnalysisResolveResponse](c.httpClient, req, "reviewer initial analysis workflow")
 }
 
-func (c *Client) GenerateReviewerBriefing(
+func (c *Client) GenerateReviewerInitialAnalysis(
 	ctx context.Context,
 	token string,
-	requestPayload *ReviewerBriefingResolveRequest,
+	requestPayload *ReviewerInitialAnalysisResolveRequest,
 	filename string,
 	fileContent []byte,
-) (*ReviewerBriefingResolveResponse, error) {
+) (*ReviewerInitialAnalysisResolveResponse, error) {
 	if c == nil || strings.TrimSpace(c.baseURL) == "" {
 		return nil, fmt.Errorf("ai-service client is not configured")
 	}
 	if requestPayload == nil {
-		return nil, fmt.Errorf("reviewer briefing request payload is required")
+		return nil, fmt.Errorf("reviewer initial analysis request payload is required")
 	}
 	if len(fileContent) == 0 {
-		return nil, fmt.Errorf("reviewer briefing file content is required")
+		return nil, fmt.Errorf("reviewer initial analysis file content is required")
 	}
 
 	requestJSON, err := json.Marshal(requestPayload)
 	if err != nil {
-		return nil, fmt.Errorf("marshal reviewer briefing request: %w", err)
+		return nil, fmt.Errorf("marshal reviewer initial analysis request: %w", err)
 	}
 
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	if err := writer.WriteField("request_payload", string(requestJSON)); err != nil {
-		return nil, fmt.Errorf("write reviewer briefing request field: %w", err)
+		return nil, fmt.Errorf("write reviewer initial analysis request field: %w", err)
 	}
 	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
-		return nil, fmt.Errorf("create reviewer briefing file part: %w", err)
+		return nil, fmt.Errorf("create reviewer initial analysis file part: %w", err)
 	}
 	if _, err := part.Write(fileContent); err != nil {
-		return nil, fmt.Errorf("write reviewer briefing file content: %w", err)
+		return nil, fmt.Errorf("write reviewer initial analysis file content: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return nil, fmt.Errorf("close reviewer briefing multipart body: %w", err)
+		return nil, fmt.Errorf("close reviewer initial analysis multipart body: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		c.baseURL+"/api/v1/workflows/reviewer-pre-read-briefing/resolve",
+		c.baseURL+"/api/v1/workflows/reviewer-initial-analysis/resolve",
 		bytes.NewReader(body.Bytes()),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("create reviewer briefing request: %w", err)
+		return nil, fmt.Errorf("create reviewer initial analysis request: %w", err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
 		req.Header.Set("Authorization", "Bearer "+normalizedToken)
 	}
 
-	return doJSONRequest[ReviewerBriefingResolveResponse](c.httpClient, req, "reviewer briefing workflow")
-}
-
-func (c *Client) LookupPaperAnnotation(
-	ctx context.Context,
-	token string,
-	requestPayload *PaperAnnotationResolveRequest,
-) (*PaperAnnotationResolveResponse, error) {
-	if c == nil || strings.TrimSpace(c.baseURL) == "" {
-		return nil, fmt.Errorf("ai-service client is not configured")
-	}
-	if requestPayload == nil {
-		return nil, fmt.Errorf("paper annotation request payload is required")
-	}
-
-	requestJSON, err := json.Marshal(requestPayload)
-	if err != nil {
-		return nil, fmt.Errorf("marshal paper annotation request: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		c.baseURL+"/api/v1/workflows/paper-annotation/resolve",
-		bytes.NewReader(requestJSON),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("create paper annotation request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
-		req.Header.Set("Authorization", "Bearer "+normalizedToken)
-	}
-
-	return doJSONRequest[PaperAnnotationResolveResponse](c.httpClient, req, "paper annotation workflow")
-}
-
-func (c *Client) GeneratePaperAnnotation(
-	ctx context.Context,
-	token string,
-	requestPayload *PaperAnnotationResolveRequest,
-	filename string,
-	fileContent []byte,
-) (*PaperAnnotationResolveResponse, error) {
-	if c == nil || strings.TrimSpace(c.baseURL) == "" {
-		return nil, fmt.Errorf("ai-service client is not configured")
-	}
-	if requestPayload == nil {
-		return nil, fmt.Errorf("paper annotation request payload is required")
-	}
-	if len(fileContent) == 0 {
-		return nil, fmt.Errorf("paper annotation file content is required")
-	}
-
-	requestJSON, err := json.Marshal(requestPayload)
-	if err != nil {
-		return nil, fmt.Errorf("marshal paper annotation request: %w", err)
-	}
-
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-	if err := writer.WriteField("request_payload", string(requestJSON)); err != nil {
-		return nil, fmt.Errorf("write paper annotation request field: %w", err)
-	}
-	part, err := writer.CreateFormFile("file", filename)
-	if err != nil {
-		return nil, fmt.Errorf("create paper annotation file part: %w", err)
-	}
-	if _, err := part.Write(fileContent); err != nil {
-		return nil, fmt.Errorf("write paper annotation file content: %w", err)
-	}
-	if err := writer.Close(); err != nil {
-		return nil, fmt.Errorf("close paper annotation multipart body: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		c.baseURL+"/api/v1/workflows/paper-annotation/resolve",
-		bytes.NewReader(body.Bytes()),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("create paper annotation request: %w", err)
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	if normalizedToken := normalizeBearerToken(token); normalizedToken != "" {
-		req.Header.Set("Authorization", "Bearer "+normalizedToken)
-	}
-
-	return doJSONRequest[PaperAnnotationResolveResponse](c.httpClient, req, "paper annotation workflow")
+	return doJSONRequest[ReviewerInitialAnalysisResolveResponse](c.httpClient, req, "reviewer initial analysis workflow")
 }
 
 func (c *Client) ExtractResearchKeywords(
@@ -1255,6 +1101,13 @@ func normalizeBearerToken(token string) string {
 		return strings.TrimSpace(value[7:])
 	}
 	return value
+}
+
+func nonNilStrings(values []string) []string {
+	if values == nil {
+		return []string{}
+	}
+	return values
 }
 
 func extractErrorDetail(body []byte) string {

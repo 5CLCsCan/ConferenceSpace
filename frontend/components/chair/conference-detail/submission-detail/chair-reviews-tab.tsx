@@ -20,6 +20,7 @@ import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
 import useChairDecisionCopilot from "@/hooks/use-chair-decision-copilot"
 import { ChairDecisionCopilotPanel } from "./chair-decision-copilot-panel"
+import { trackUsageEvent } from "@/lib/usage-events"
 import { AssignmentStatusBadge } from "./components"
 import { Button } from "@/components/ui/button"
 import {
@@ -130,14 +131,18 @@ function buildReviewerScores(
     .filter((review) => review.review_status === "submitted")
     .map((review, index) => {
       const rebuttalReviewer = rebuttalReviewers.get(String(review.id))
+      const originalScore = typeof review.review_score === "number" ? review.review_score : 0
+      const postRebuttalScore = typeof review.post_rebuttal_score === "number" ? review.post_rebuttal_score : undefined
+      const currentScore = postRebuttalScore !== undefined ? postRebuttalScore : originalScore
+      const updated = postRebuttalScore !== undefined && postRebuttalScore !== originalScore
 
       return {
         id: String(review.id),
         anonymousId: rebuttalReviewer?.anonymousId || reviewerLabel(index),
-        originalScore: typeof review.review_score === "number" ? review.review_score : 0,
-        currentScore: typeof review.review_score === "number" ? review.review_score : 0,
-        updated: false,
-        recommendation: mapReviewRecommendation(review.review_data?.recommendation),
+        originalScore,
+        currentScore,
+        updated,
+        recommendation: mapReviewRecommendation(review.post_rebuttal_recommendation || review.review_data?.recommendation),
       }
     })
 
@@ -401,7 +406,10 @@ function ReviewerAssignmentsPanel({
       setInviteLoading(true)
       setInviteError(null)
 
-      const response = await getConferenceReviewers(conferenceId, { status: "accepted", limit: 200 })
+      const response = await getConferenceReviewers(conferenceId, {
+        status: "accepted",
+        limit: 200,
+      })
       if (isCancelled) {
         return
       }
@@ -415,9 +423,13 @@ function ReviewerAssignmentsPanel({
         )
         setAvailableReviewers([])
       } else {
-        const assignedReviewerIds = new Set(assignedReviewers.map((reviewer) => reviewer.reviewerId))
+        const assignedReviewerIds = new Set(
+          assignedReviewers.map((reviewer) => reviewer.reviewerId),
+        )
         setAvailableReviewers(
-          response.data.reviewers.filter((reviewer) => reviewer.id && !assignedReviewerIds.has(reviewer.id)),
+          response.data.reviewers.filter(
+            (reviewer) => reviewer.id && !assignedReviewerIds.has(reviewer.id),
+          ),
         )
       }
 
@@ -544,7 +556,10 @@ function ReviewerAssignmentsPanel({
   })
 
   const totalPages = Math.max(1, Math.ceil(filteredReviewers.length / itemsPerPage))
-  const paginatedReviewers = filteredReviewers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedReviewers = filteredReviewers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
 
   const assignedCount = assignedReviewers.length
 
@@ -565,7 +580,10 @@ function ReviewerAssignmentsPanel({
         </div>
         <div className="flex flex-col items-end gap-2">
           <span className="text-[10px] font-medium text-slate-400">
-            {assignedCount} {t("runtime.components.chair.conference-detail.conference-assignments.text_assigned_reviewer")}
+            {assignedCount}{" "}
+            {t(
+              "runtime.components.chair.conference-detail.conference-assignments.text_assigned_reviewer",
+            )}
             {assignedCount === 1 ? "" : "s"}
           </span>
           <div className="flex items-center gap-2">
@@ -597,12 +615,36 @@ function ReviewerAssignmentsPanel({
             }}
             className="bg-white border border-slate-200 text-slate-600 text-[10px] rounded px-2 py-1 focus:ring-1 focus:ring-[#1B3C53] outline-none cursor-pointer"
           >
-            <option value="all">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_statuses")}</option>
-            <option value="suggested">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invitation_pending")}</option>
-            <option value="pending">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_pending")}</option>
-            <option value="accepted">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_accepted")}</option>
-            <option value="declined">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_declined")}</option>
-            <option value="completed">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_completed")}</option>
+            <option value="all">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_statuses",
+              )}
+            </option>
+            <option value="suggested">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_invitation_pending",
+              )}
+            </option>
+            <option value="pending">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_pending",
+              )}
+            </option>
+            <option value="accepted">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_accepted",
+              )}
+            </option>
+            <option value="declined">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_declined",
+              )}
+            </option>
+            <option value="completed">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_completed",
+              )}
+            </option>
           </select>
           <select
             value={filterReviewStatus}
@@ -612,10 +654,26 @@ function ReviewerAssignmentsPanel({
             }}
             className="bg-white border border-slate-200 text-slate-600 text-[10px] rounded px-2 py-1 focus:ring-1 focus:ring-[#1B3C53] outline-none cursor-pointer"
           >
-            <option value="all">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_review_statuses")}</option>
-            <option value="not_started">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_not_started")}</option>
-            <option value="in_progress">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_in_progress")}</option>
-            <option value="submitted">{t("runtime.components.chair.conference-detail.conference-assignments.prop_label_submitted")}</option>
+            <option value="all">
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_all_review_statuses",
+              )}
+            </option>
+            <option value="not_started">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.prop_label_not_started",
+              )}
+            </option>
+            <option value="in_progress">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.prop_label_in_progress",
+              )}
+            </option>
+            <option value="submitted">
+              {t(
+                "runtime.components.chair.conference-detail.conference-assignments.prop_label_submitted",
+              )}
+            </option>
           </select>
         </div>
       )}
@@ -647,7 +705,9 @@ function ReviewerAssignmentsPanel({
         ) : filteredReviewers.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center">
             <p className="text-[10px] text-slate-500">
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_reviewers_matching_filters")}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_reviewers_matching_filters",
+              )}
             </p>
           </div>
         ) : (
@@ -666,7 +726,9 @@ function ReviewerAssignmentsPanel({
                       <p className="truncate text-xs font-semibold text-slate-700">
                         {formatReviewerLabel(reviewer.reviewerEmail)}
                       </p>
-                      <p className="truncate text-[10px] text-slate-400">{reviewer.reviewerEmail}</p>
+                      <p className="truncate text-[10px] text-slate-400">
+                        {reviewer.reviewerEmail}
+                      </p>
                     </div>
                   </div>
 
@@ -677,33 +739,47 @@ function ReviewerAssignmentsPanel({
                           variant="ghost"
                           size="sm"
                           disabled={confirmingSuggestionId === reviewer.assignmentId}
-                          onClick={() => reviewer.assignmentId && void handleConfirmSingle(reviewer.assignmentId)}
+                          onClick={() =>
+                            reviewer.assignmentId && void handleConfirmSingle(reviewer.assignmentId)
+                          }
                           className="text-green-600 hover:text-green-700 hover:bg-green-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                         >
                           <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                             check
                           </span>
                           {confirmingSuggestionId === reviewer.assignmentId
-                            ? t("runtime.components.chair.conference-detail.conference-assignments.text_confirming")
-                            : t("runtime.components.chair.conference-detail.conference-assignments.text_confirm")}
+                            ? t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_confirming",
+                              )
+                            : t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_confirm",
+                              )}
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           disabled={deletingSuggestionId === reviewer.assignmentId}
-                          onClick={() => reviewer.assignmentId && void handleDeleteSingle(reviewer.assignmentId)}
+                          onClick={() =>
+                            reviewer.assignmentId && void handleDeleteSingle(reviewer.assignmentId)
+                          }
                           className="text-red-600 hover:text-red-700 hover:bg-red-50 text-[9px] font-bold uppercase tracking-wider h-7 px-2.5 gap-1.5"
                         >
                           <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                             close
                           </span>
                           {deletingSuggestionId === reviewer.assignmentId
-                            ? t("runtime.components.chair.conference-detail.conference-assignments.text_removing")
-                            : t("runtime.components.chair.conference-detail.conference-assignments.text_remove")}
+                            ? t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_removing",
+                              )
+                            : t(
+                                "runtime.components.chair.conference-detail.conference-assignments.text_remove",
+                              )}
                         </Button>
                       </div>
                     ) : (
-                      <AssignmentStatusBadge status={reviewer.status as ConfirmedAssignmentStatus} />
+                      <AssignmentStatusBadge
+                        status={reviewer.status as ConfirmedAssignmentStatus}
+                      />
                     )}
                     <ReviewProgressBadge status={reviewer.reviewStatus} />
                   </div>
@@ -714,8 +790,10 @@ function ReviewerAssignmentsPanel({
             {totalPages > 1 && (
               <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
                 <div className="text-[10px] text-slate-400">
-                  {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page")} {currentPage}{" "}
-                  of {totalPages}
+                  {t(
+                    "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page",
+                  )}{" "}
+                  {currentPage} of {totalPages}
                 </div>
                 <div className="flex gap-1">
                   <button
@@ -724,7 +802,9 @@ function ReviewerAssignmentsPanel({
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                   >
-                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev")}
+                    {t(
+                      "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev",
+                    )}
                   </button>
                   <button
                     type="button"
@@ -732,7 +812,9 @@ function ReviewerAssignmentsPanel({
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                   >
-                    {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next")}
+                    {t(
+                      "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next",
+                    )}
                   </button>
                 </div>
               </div>
@@ -790,7 +872,10 @@ function ReviewerAssignmentsPanel({
                     </p>
                     {reviewer.domain && reviewer.domain.length > 0 && (
                       <p className="mt-0.5 truncate text-[10px] text-slate-400">
-                        {t("runtime.components.chair.conference-detail.conference-assignments.text_expertise")} {reviewer.domain.join(", ")}
+                        {t(
+                          "runtime.components.chair.conference-detail.conference-assignments.text_expertise",
+                        )}{" "}
+                        {reviewer.domain.join(", ")}
                       </p>
                     )}
                   </div>
@@ -832,7 +917,9 @@ const CATEGORY_CONFIG: Record<string, { icon: string; color: string; label: stri
   clarification: {
     icon: "info",
     color: "text-sky-500",
-    label: t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_clarification"),
+    label: t(
+      "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.prop_label_clarification",
+    ),
   },
   suggestion: {
     icon: "lightbulb",
@@ -1026,7 +1113,10 @@ function DecisionMakingPanel({
           )
         })}
         <p className="text-[10px] text-slate-400 leading-relaxed">
-          {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_only_accept_and_reject_can_be")}{" "}</p>
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_only_accept_and_reject_can_be",
+          )}{" "}
+        </p>
       </div>
 
       {/* Divider */}
@@ -1061,7 +1151,10 @@ function DecisionMakingPanel({
               )}
             />
             <div className="text-[9px] text-slate-400 mt-1">
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_private_notes_are_not_persisted_yet")}{" "}</div>
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_private_notes_are_not_persisted_yet",
+              )}{" "}
+            </div>
           </>
         )}
       </div>
@@ -1120,7 +1213,10 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
 
   const scoredReviewers = reviewers.filter((reviewer) => reviewer.currentScore > 0)
   const totalPages = Math.max(1, Math.ceil(scoredReviewers.length / itemsPerPage))
-  const paginatedReviewers = scoredReviewers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedReviewers = scoredReviewers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
 
   if (scoredReviewers.length === 0) {
     return (
@@ -1132,7 +1228,11 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
             )}{" "}
           </h3>
         </div>
-        <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_submitted_reviews_yet")}</p>
+        <p className="text-xs text-slate-500">
+          {t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_no_submitted_reviews_yet",
+          )}
+        </p>
       </div>
     )
   }
@@ -1229,8 +1329,10 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-2 border-t border-slate-100 mt-3 pt-3">
           <div className="text-[10px] text-slate-400">
-            {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page")} {currentPage} of{" "}
-            {totalPages}
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_page",
+            )}{" "}
+            {currentPage} of {totalPages}
           </div>
           <div className="flex gap-1">
             <button
@@ -1239,7 +1341,9 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
             >
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev")}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_prev",
+              )}
             </button>
             <button
               type="button"
@@ -1247,7 +1351,9 @@ function ReviewerScoresPanel({ reviewers }: { reviewers: ReviewerScore[] }) {
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               className="px-2 py-1 rounded border border-slate-200 text-[10px] text-slate-500 hover:bg-slate-50 disabled:opacity-50"
             >
-              {t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next")}
+              {t(
+                "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_next",
+              )}
             </button>
           </div>
         </div>
@@ -1450,7 +1556,11 @@ function PointByPointSection({
           )}{" "}
         </h3>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs text-slate-500">{t("runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_loading_point_by_point_responses")}</p>
+          <p className="text-xs text-slate-500">
+            {t(
+              "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_loading_point_by_point_responses",
+            )}
+          </p>
         </div>
       </div>
     )
@@ -1627,6 +1737,15 @@ export function ChairReviewsTab({
     if (result.error) {
       setDecisionMessage(`Failed to save decision: ${result.error}`)
     } else {
+      trackUsageEvent("chair_decision_made", {
+        role: "chair",
+        entityType: "submission",
+        entityId: submissionId,
+        metadata: {
+          conferenceId,
+          decision: nextStatus,
+        },
+      })
       onStatusChange?.(nextStatus)
       setDecisionMessage(
         notes.trim().length > 0

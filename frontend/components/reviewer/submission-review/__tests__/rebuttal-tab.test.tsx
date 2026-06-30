@@ -137,5 +137,6 @@ describe("Reviewer RebuttalTab", () => {
       "addressed",
       "Good response.",
     )
+    expect(mockGetRebuttal).toHaveBeenCalledTimes(1)
   })
 })

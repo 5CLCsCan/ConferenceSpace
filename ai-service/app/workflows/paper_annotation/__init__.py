@@ -1,1 +1,0 @@
-"""Paper annotation workflow."""

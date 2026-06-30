@@ -5,9 +5,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-Confidence = Literal["high", "medium", "low", "not_found"]
-
-
 class StrictSchemaModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -58,41 +55,18 @@ class SubmissionAutofillRunRequest(BaseModel):
         return [str(item).strip() for item in value if str(item).strip()]
 
 
-class AutofillEvidence(StrictSchemaModel):
-    file_id: str
-    source_type: str | None
-    quote_or_signal: str
-    location_hint: str | None
-
-
-class AutofillField(StrictSchemaModel):
-    value: str
-    confidence: Confidence
-    evidence: list[AutofillEvidence]
-    warnings: list[str]
-
-
-class AutofillStringListField(StrictSchemaModel):
-    value: list[str]
-    confidence: Confidence
-    evidence: list[AutofillEvidence]
-    warnings: list[str]
-
-
 class SubmissionAutofillFields(StrictSchemaModel):
-    title: AutofillField
-    abstract: AutofillField
-    keywords: AutofillStringListField
-    paper_type: AutofillField
-    additional_notes: AutofillField
+    title: str
+    abstract: str
+    keywords: list[str]
+    paper_type: str
+    additional_notes: str
 
 
 class AutofillTrackRanking(StrictSchemaModel):
     track_name: str
     confidence: float = Field(..., ge=1.0, le=10.0)
     rationale: str
-    evidence: list[AutofillEvidence]
-    warnings: list[str]
 
 
 class AutofillAuthor(StrictSchemaModel):
@@ -100,20 +74,6 @@ class AutofillAuthor(StrictSchemaModel):
     email: str | None
     affiliation: str | None
     country: str | None
-    ordinal: int | None
-    confidence: Confidence
-    evidence: list[AutofillEvidence]
-    warnings: list[str]
-
-
-class AutofillConflict(StrictSchemaModel):
-    name: str
-    email: str | None
-    institution: str | None
-    reason: str
-    confidence: Confidence
-    evidence: list[AutofillEvidence]
-    warnings: list[str]
 
 
 class AutofillMaterial(StrictSchemaModel):
@@ -139,7 +99,6 @@ class SubmissionAutofillRunResponse(StrictSchemaModel):
     fields: SubmissionAutofillFields
     track_rankings: list[AutofillTrackRanking]
     authors: list[AutofillAuthor]
-    possible_conflicts: list[AutofillConflict]
     materials: list[AutofillMaterial]
     warnings: list[str]
     error: SubmissionAutofillError | None
@@ -149,5 +108,4 @@ class SubmissionAutofillArtifact(StrictSchemaModel):
     fields: SubmissionAutofillFields
     track_rankings: list[AutofillTrackRanking]
     authors: list[AutofillAuthor]
-    possible_conflicts: list[AutofillConflict]
     warnings: list[str]

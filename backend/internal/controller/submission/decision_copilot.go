@@ -169,6 +169,11 @@ func (c *Controller) buildDecisionCopilotEvidence(
 		return aiServiceClient.DecisionCopilotEvidencePayload{}, aiServiceClient.DecisionCopilotComponentFingerprintsPayload{}, "", handler.NewErrorResponse(http.StatusInternalServerError, "failed to load review analytics")
 	}
 
+	conference, err := c.conferenceStorage.GetByID(ctx, submission.ConferenceID)
+	if err != nil {
+		return aiServiceClient.DecisionCopilotEvidencePayload{}, aiServiceClient.DecisionCopilotComponentFingerprintsPayload{}, "", handler.NewErrorResponse(http.StatusInternalServerError, "failed to load conference context")
+	}
+
 	rebuttalConfig, err := c.conferenceStorage.GetRebuttalSettings(ctx, submission.ConferenceID)
 	if err != nil {
 		return aiServiceClient.DecisionCopilotEvidencePayload{}, aiServiceClient.DecisionCopilotComponentFingerprintsPayload{}, "", handler.NewErrorResponse(http.StatusInternalServerError, "failed to load rebuttal settings")
@@ -195,6 +200,7 @@ func (c *Controller) buildDecisionCopilotEvidence(
 
 	evidence := aiServiceClient.DecisionCopilotEvidencePayload{
 		SchemaVersion: decisionCopilotSchemaVersion,
+		ConferenceCFP: buildDecisionCopilotConferenceCFP(conference),
 		Submission: aiServiceClient.DecisionCopilotSubmissionContextPayload{
 			Title:         normalizeDecisionCopilotText(submission.Title),
 			Track:         normalizeDecisionCopilotText(submission.Track),
@@ -209,7 +215,7 @@ func (c *Controller) buildDecisionCopilotEvidence(
 	}
 
 	componentFingerprints := aiServiceClient.DecisionCopilotComponentFingerprintsPayload{
-		Submission: hashDecisionCopilotValue(evidence.Submission),
+		Submission: hashDecisionCopilotValue(map[string]any{"conference_cfp": evidence.ConferenceCFP, "submission": evidence.Submission}),
 		Reviews:    hashDecisionCopilotValue(map[string]any{"reviews": evidence.Reviews, "analytics": evidence.ReviewAnalytics}),
 		Discussion: hashDecisionCopilotValue(evidence.Discussion),
 		Rebuttal:   hashDecisionCopilotValue(evidence.Rebuttal),
@@ -221,6 +227,26 @@ func (c *Controller) buildDecisionCopilotEvidence(
 	})
 
 	return evidence, componentFingerprints, evidenceFingerprint, nil
+}
+
+func buildDecisionCopilotConferenceCFP(conference *dto.ConferenceResponse) aiServiceClient.DecisionCopilotConferenceCFPPayload {
+	if conference == nil {
+		return aiServiceClient.DecisionCopilotConferenceCFPPayload{}
+	}
+
+	callForPapers := ""
+	if conference.Configurations != nil && conference.Configurations.CallForPaperText != nil {
+		callForPapers = normalizeDecisionCopilotText(*conference.Configurations.CallForPaperText)
+	}
+
+	return aiServiceClient.DecisionCopilotConferenceCFPPayload{
+		Name:          normalizeDecisionCopilotText(conference.Title),
+		Acronym:       normalizeDecisionCopilotText(conference.Acronym),
+		Description:   normalizeDecisionCopilotText(conference.Description),
+		Domains:       normalizeDecisionCopilotStrings(conference.Domain),
+		Tracks:        normalizeDecisionCopilotStrings(conference.Tracks),
+		CallForPapers: callForPapers,
+	}
 }
 
 func buildDecisionCopilotReviews(assignments []*dto.Assignment) ([]aiServiceClient.DecisionCopilotReviewPayload, time.Time) {
@@ -373,9 +399,9 @@ func (c *Controller) buildDecisionCopilotDiscussion(
 
 		for _, message := range messages {
 			threadPayload.Messages = append(threadPayload.Messages, aiServiceClient.DecisionCopilotDiscussionMessagePayload{
-				AuthorEmail: normalizeDecisionCopilotText(message.AuthorEmail),
-				Content:     normalizeDecisionCopilotText(message.Content),
-				CreatedAt:   formatDecisionCopilotTime(message.CreatedAt),
+				Role:      decisionCopilotDiscussionRole(message, thread),
+				Content:   normalizeDecisionCopilotText(message.Content),
+				CreatedAt: formatDecisionCopilotTime(message.CreatedAt),
 			})
 			if message.CreatedAt.After(latest) {
 				latest = message.CreatedAt
@@ -509,6 +535,38 @@ func hashDecisionCopilotValue(value any) string {
 
 func normalizeDecisionCopilotText(value string) string {
 	return strings.Join(strings.Fields(strings.TrimSpace(value)), " ")
+}
+
+func normalizeDecisionCopilotStrings(values []string) []string {
+	seen := map[string]struct{}{}
+	normalized := make([]string, 0, len(values))
+	for _, value := range values {
+		item := normalizeDecisionCopilotText(value)
+		if item == "" {
+			continue
+		}
+		key := strings.ToLower(item)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+		normalized = append(normalized, item)
+	}
+	sort.Strings(normalized)
+	return normalized
+}
+
+func decisionCopilotDiscussionRole(message *model.DiscussionMessage, thread *model.DiscussionThread) string {
+	if message == nil || thread == nil {
+		return "unknown"
+	}
+	if message.AuthorEmail != "" && thread.AuthorEmail != "" && strings.EqualFold(message.AuthorEmail, thread.AuthorEmail) {
+		return "author"
+	}
+	if message.AuthorID != 0 && thread.ReviewerID != 0 && message.AuthorID == thread.ReviewerID {
+		return "reviewer"
+	}
+	return "unknown"
 }
 
 func normalizeKeywords(submission *dto.Submission) []string {

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import uuid4
+
 import asyncpg
 import pytest
 from sqlalchemy import text
@@ -40,8 +42,8 @@ async def test_save_completed_run_persists_current_artifact_and_run_history() ->
         await connection.run_sync(Base.metadata.create_all)
 
     repo = DecisionCopilotRepository(session_factory)
-    request_payload = make_request_payload(action="generate", fingerprint="sha256:repo-integration")
-    run_id = "550e8400-e29b-41d4-a716-446655440000"
+    run_id = str(uuid4())
+    request_payload = make_request_payload(action="generate", fingerprint=f"sha256:repo-integration-{run_id}")
     response_payload = {
         "status": "ready",
         "run_id": run_id,

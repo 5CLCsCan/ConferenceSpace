@@ -10,6 +10,7 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ROUTES } from "@/lib/routes"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { tStatic as t } from "@/lib/i18n/static-translate"
+import { trackUsageEvent } from "@/lib/usage-events"
 
 /* ------------------------------------------------------------------ */
 /*  Abstract decorative shape component                                */
@@ -74,9 +75,7 @@ export default function RoleSelectionPage() {
         icon: "groups",
         label: t("runtime.app.role.page.prop_label_oversight"),
         title: t("runtime.app.role.page.prop_title_pc"),
-        description: t(
-          "runtime.app.role.page.prop_description_read_only_access_to_conference",
-        ),
+        description: t("runtime.app.role.page.prop_description_read_only_access_to_conference"),
         gradient: "from-amber-500 via-orange-600 to-orange-700",
         accentColor: "#d97706",
         shadowColor: "rgba(217,119,6,0.25)",
@@ -243,10 +242,13 @@ export default function RoleSelectionPage() {
     if (!canAccessRole(user, role)) return
     const didSwitchRole = switchRole(role)
     if (!didSwitchRole) return
+    trackUsageEvent("role_selected", { role })
     router.push(ROUTES.ROLE_ROUTE_MAP[role] ?? ROUTES.ROLE_SELECT)
   }
 
-  const roles = (["author", "reviewer", "chair", "pc"] as const).filter((r) => canAccessRole(user, r))
+  const roles = (["author", "reviewer", "chair", "pc"] as const).filter((r) =>
+    canAccessRole(user, r),
+  )
 
   return (
     <div className="bg-white dark:bg-[#191919] text-slate-800 dark:text-white font-sans min-h-screen flex flex-col md:flex-row overflow-hidden">
@@ -349,6 +351,31 @@ export default function RoleSelectionPage() {
               </div>
             </div>
 
+            <Link
+              href={ROUTES.ONBOARDING}
+              className={`group flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-[#1B3C53]/30 hover:shadow-card-hover dark:border-neutral-800 dark:bg-neutral-900 sm:flex-row sm:items-center sm:justify-between ${mounted ? "card-enter card-enter-1" : "opacity-0"}`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1B3C53] text-white">
+                  <span className="material-symbols-outlined text-[22px] leading-none">school</span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-bold leading-tight text-slate-900 dark:text-white">
+                    {t("runtime.app.role.page.text_user_guide_title")}
+                  </h3>
+                  <p className="mt-1 max-w-2xl text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                    {t("runtime.app.role.page.text_user_guide_description")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-[#1B3C53]">
+                {t("runtime.app.role.page.text_open_user_guide")}
+                <span className="material-symbols-outlined text-base transition-transform group-hover:translate-x-1">
+                  arrow_forward
+                </span>
+              </div>
+            </Link>
+
             {/* Role Cards Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full pb-10">
               {roles.map((roleKey, idx) => {
@@ -424,8 +451,14 @@ export default function RoleSelectionPage() {
                       {roleKey === "pc" && (
                         <>
                           {/* Overlapping rectangles - oversight */}
-                          <div className="absolute -right-4 top-4 w-24 h-16 rounded-lg border border-white/10" style={{ transform: "rotate(10deg)" }} />
-                          <div className="absolute right-8 -top-2 w-20 h-14 rounded-lg border border-white/[0.07]" style={{ transform: "rotate(-5deg)" }} />
+                          <div
+                            className="absolute -right-4 top-4 w-24 h-16 rounded-lg border border-white/10"
+                            style={{ transform: "rotate(10deg)" }}
+                          />
+                          <div
+                            className="absolute right-8 -top-2 w-20 h-14 rounded-lg border border-white/[0.07]"
+                            style={{ transform: "rotate(-5deg)" }}
+                          />
                           <div className="absolute -left-4 -bottom-4 w-28 h-28 rounded-full bg-white/[0.04]" />
                           <div className="absolute top-8 left-[50%] w-1.5 h-1.5 rounded-full bg-white/25" />
                         </>

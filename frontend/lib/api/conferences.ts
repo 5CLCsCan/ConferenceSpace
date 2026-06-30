@@ -5,6 +5,7 @@
 import type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track } from "@/lib/types"
 export type { Conference, ConferenceStats, ConferenceStatus, Paper, User, Track }
 import { apiFetch, ApiError } from "@/lib/api/client"
+import { tStatic } from "@/lib/i18n/static-translate"
 
 // API Response wrapper for type safety
 export interface ApiResponse<T> {
@@ -57,6 +58,7 @@ export async function getConferenceById(conferenceId: string): Promise<ApiRespon
         full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
         format: data.data.configurations?.format,
+        virtual_platform: data.data.configurations?.virtual_platform,
         review_type: data.data.configurations?.review_type,
         have_coi: data.data.configurations?.have_coi,
         maximum_pages: data.data.configurations?.maximum_pages,
@@ -309,6 +311,7 @@ export async function listConferences(filters?: {
         full_paper_submission_deadline: conf.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: conf.configurations?.camera_ready_deadline,
         format: conf.configurations?.format,
+        virtual_platform: conf.configurations?.virtual_platform,
         review_type: conf.configurations?.review_type,
         have_coi: conf.configurations?.have_coi,
         maximum_pages: conf.configurations?.maximum_pages,
@@ -358,6 +361,7 @@ export async function createConference(conferenceData: {
     full_paper_submission_deadline?: string
     camera_ready_deadline?: string
     format: string
+    virtual_platform?: string
     review_type: string
     maximum_pages: number
     have_coi: boolean
@@ -452,6 +456,7 @@ export async function updateConference(
       full_paper_submission_deadline?: string
       camera_ready_deadline?: string
       call_for_paper_text?: string
+      virtual_platform?: string
       review_type?: string
       submission_format?: string
       maximum_pages?: number
@@ -506,6 +511,7 @@ export async function updateConference(
         full_paper_submission_deadline: data.data.configurations?.full_paper_submission_deadline,
         camera_ready_deadline: data.data.configurations?.camera_ready_deadline,
         format: data.data.configurations?.format,
+        virtual_platform: data.data.configurations?.virtual_platform,
         review_type: data.data.configurations?.review_type,
         have_coi: data.data.configurations?.have_coi,
         maximum_pages: data.data.configurations?.maximum_pages,
@@ -798,6 +804,10 @@ export interface ImportantDate {
   isPast: boolean
 }
 
+function importantDateText(key: string, values?: Record<string, string | number>) {
+  return tStatic(`common.importantDates.${key}`, values)
+}
+
 export async function getConferenceDates(
   conferenceId: string,
 ): Promise<ApiResponse<ImportantDate[]>> {
@@ -830,9 +840,9 @@ export async function getConferenceDates(
       const dateStr = config.abstract_submission_deadline
       dates.push({
         id: "abstract-submission-deadline",
-        title: "Abstract Submission Deadline",
+        title: importantDateText("abstractSubmissionDeadlineTitle"),
         date: dateStr,
-        description: "Deadline for abstract submissions",
+        description: importantDateText("abstractSubmissionDeadlineDescription"),
         type: "deadline",
         isPast: new Date(dateStr) < now,
       })
@@ -842,9 +852,9 @@ export async function getConferenceDates(
       const dateStr = config.full_paper_submission_deadline
       dates.push({
         id: "submission-deadline",
-        title: "Paper Submission Deadline",
+        title: importantDateText("paperSubmissionDeadlineTitle"),
         date: dateStr,
-        description: "Final deadline for paper submissions",
+        description: importantDateText("paperSubmissionDeadlineDescription"),
         type: "deadline",
         isPast: new Date(dateStr) < now,
       })
@@ -854,21 +864,9 @@ export async function getConferenceDates(
       const dateStr = config.camera_ready_deadline
       dates.push({
         id: "camera-ready-deadline",
-        title: "Camera-Ready Deadline",
+        title: importantDateText("cameraReadyDeadlineTitle"),
         date: dateStr,
-        description: "Final version of accepted papers due",
-        type: "deadline",
-        isPast: new Date(dateStr) < now,
-      })
-    }
-
-    if (config.discussion_settings?.start_at) {
-      const dateStr = config.discussion_settings.start_at
-      dates.push({
-        id: "review-deadline",
-        title: "Review Deadline",
-        date: dateStr,
-        description: "Reviews are completed and discussion phase begins",
+        description: importantDateText("cameraReadyDeadlineDescription"),
         type: "deadline",
         isPast: new Date(dateStr) < now,
       })
@@ -878,9 +876,9 @@ export async function getConferenceDates(
       const dateStr = config.discussion_settings.end_at
       dates.push({
         id: "notification-date",
-        title: "Notification of Acceptance",
+        title: importantDateText("notificationOfAcceptanceTitle"),
         date: dateStr,
-        description: "Authors are notified of paper acceptance/rejection",
+        description: importantDateText("notificationOfAcceptanceDescription"),
         type: "event",
         isPast: new Date(dateStr) < now,
       })
@@ -891,17 +889,17 @@ export async function getConferenceDates(
       const endStr = config.rebuttal_settings.end_at
       dates.push({
         id: "rebuttal-period-start",
-        title: "Rebuttal Period Starts",
+        title: importantDateText("rebuttalPeriodStartsTitle"),
         date: startStr,
-        description: "Authors can begin responding to reviews",
+        description: importantDateText("rebuttalPeriodStartsDescription"),
         type: "event",
         isPast: new Date(startStr) < now,
       })
       dates.push({
         id: "rebuttal-period-end",
-        title: "Rebuttal Period Ends",
+        title: importantDateText("rebuttalPeriodEndsTitle"),
         date: endStr,
-        description: "Final deadline for author rebuttals",
+        description: importantDateText("rebuttalPeriodEndsDescription"),
         type: "deadline",
         isPast: new Date(endStr) < now,
       })
@@ -911,9 +909,9 @@ export async function getConferenceDates(
       const dateStr = config.start_date
       dates.push({
         id: "conference-start-date",
-        title: "Conference Start Date",
+        title: importantDateText("conferenceStartDateTitle"),
         date: dateStr,
-        description: "Main conference event begins",
+        description: importantDateText("conferenceStartDateDescription"),
         type: "event",
         isPast: new Date(dateStr) < now,
       })
@@ -923,9 +921,9 @@ export async function getConferenceDates(
       const dateStr = config.end_date
       dates.push({
         id: "conference-end-date",
-        title: "Conference End Date",
+        title: importantDateText("conferenceEndDateTitle"),
         date: dateStr,
-        description: "Main conference event ends",
+        description: importantDateText("conferenceEndDateDescription"),
         type: "event",
         isPast: new Date(dateStr) < now,
       })
