@@ -8,6 +8,54 @@ Hệ thống phục vụ ba nhóm người dùng chính với những nhu cầu 
 
 Về kiến trúc tổng thể, ConferenceSpace được cấu trúc thành ba lớp rõ ràng và tách biệt về mặt trách nhiệm. Lớp thứ nhất là **lớp nghiệp vụ cốt lõi**, bao gồm toàn bộ quy trình quản lý hội nghị, nộp bài, phân công, đánh giá và ra quyết định — những tác vụ không cần AI và cần hoạt động ổn định, xác định. Lớp thứ hai là **lớp thuật toán xác định**, bao gồm thuật toán đối sánh phản biện — bài nộp dựa trên Jaccard Similarity và cơ chế phát hiện xung đột lợi ích đa tầng — những tác vụ cần kết quả nhất quán và có thể giải thích được mà không phụ thuộc vào mô hình ngôn ngữ lớn. Lớp thứ ba là **lớp AI hỗ trợ**, bao gồm sáu mô-đun AI phục vụ các tác nhân khác nhau trong quy trình: Autofill, Track Recommendation, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot. Sự phân tầng này không chỉ là quyết định thiết kế mà còn là câu trả lời cho câu hỏi cốt lõi: phần nào trong quy trình xét duyệt học thuật phù hợp để AI hỗ trợ, và phần nào cần giải quyết bằng logic có thể kiểm chứng?
 
+### 3.1.1. Sơ đồ kiến trúc tổng quan hệ thống
+
+Dưới đây là sơ đồ Mermaid biểu diễn sự phân tầng ba lớp và mối tương tác giữa các dịch vụ trong hệ thống ConferenceSpace.
+
+```mermaid
+graph TD
+    %% Định nghĩa các lớp phân tầng
+    subgraph Layer3 ["Lớp AI Hỗ Trợ (Python FastAPI Service)"]
+        AI_Autofill["Autofill Workflow"]
+        AI_Track["Track Rec Workflow"]
+        AI_Gating["Gating Workflow"]
+        AI_Briefing["Initial Analysis Workflow"]
+        AI_Audit["Quality Auditor Workflow"]
+        AI_Decision["Decision Copilot Workflow"]
+    end
+
+    subgraph Layer2 ["Lớp Thuật Toán Xác Định (Go Domain Packages)"]
+        Algo_Jaccard["Jaccard Matching (Reviewer-Submission)"]
+        Algo_COI["Multi-Layer COI Detection"]
+    end
+
+    subgraph Layer1 ["Lớp Nghiệp Vụ Cốt Lõi (Go Core Service & Databases)"]
+        Core_App["Go Backend Service (Gin Router)"]
+        DB_Postgres[("PostgreSQL (Dữ liệu quan hệ)")]
+        DB_Neo4j[("Neo4j (Đồ thị đồng tác giả)")]
+        DB_Redis[("Redis (Cache & State)")]
+    end
+
+    %% Mối liên kết tương tác
+    Browser["Client Browser (React/Next.js)"] -->|HTTPS / API Gateway| Core_App
+    Core_App --> DB_Postgres
+    Core_App --> DB_Redis
+    
+    Core_App -->|Internal Go Calls| Algo_Jaccard
+    Core_App -->|Internal Go Calls| Algo_COI
+    Algo_COI -->|Cypher Queries| DB_Neo4j
+    
+    Core_App -->|HTTP REST Client| Layer3
+    Layer3 -->|Gemini/OpenRouter APIs| LLM_Providers["External LLM (Gemini, OpenRouter)"]
+```
+
+#### Giải thích sơ đồ kiến trúc tổng quan
+
+Sơ đồ trên minh họa rõ ràng luồng dữ liệu đi từ trình duyệt của người dùng (Client Browser) qua các tầng phân lớp của ConferenceSpace:
+1. **Lớp 1 (Nghiệp vụ cốt lõi):** Đóng vai trò là cổng tiếp nhận tất cả các yêu cầu từ phía máy khách. Go Backend chạy Gin Router sẽ định tuyến các yêu cầu, thực hiện các thao tác CRUD dữ liệu trên PostgreSQL, ghi nhận phiên làm việc trên Redis và quản lý kết nối WebSocket.
+2. **Lớp 2 (Thuật toán xác định):** Khi cần tính toán phân công phản biện hoặc kiểm tra xung đột lợi ích (COI), Go Backend sẽ gọi các package nội bộ. Riêng thuật toán phát hiện COI sẽ gửi các câu lệnh Cypher đến Neo4j Database để duyệt đồ thị đồng tác giả theo thời gian thực.
+3. **Lớp 3 (AI hỗ trợ):** Các tác vụ đọc hiểu, phân tích ngữ nghĩa được tách hoàn toàn sang Python FastAPI Service. Go Backend giao tiếp với AI Service qua giao thức HTTP REST. AI Service sau đó sẽ tương tác với các LLM Provider bên ngoài để xử lý kết quả và trả về cho Go Backend dưới dạng JSON có cấu trúc.
+
 ---
 
 ## 3.2. Use Case
@@ -32,11 +80,54 @@ Hệ thống ConferenceSpace xác định sáu tác nhân tương tác trực ti
 
 Hệ thống ConferenceSpace tổ chức các chức năng thành các nhóm use case theo từng tác nhân, phản ánh trực tiếp nhu cầu đã xác định trong quá trình khảo sát người dùng ở Chương 2.
 
-Nhóm use case của **tác giả** tập trung vào hành trình từ tìm kiếm hội nghị đến hoàn tất quy trình nộp bài và theo dõi kết quả. Tác giả có thể tìm kiếm hội nghị theo tên, lĩnh vực hoặc deadline và đánh dấu các hội nghị quan tâm để theo dõi dễ dàng hơn. Quy trình nộp bài được thiết kế theo luồng nhiều bước có hướng dẫn rõ ràng: nhập thông tin cơ bản, tải lên tệp PDF bản thảo (kèm tùy chọn hỗ trợ AI điền tự động metadata), khai báo xung đột lợi ích, tải cover letter và xem lại trước khi gửi. Sau khi nộp, tác giả theo dõi trạng thái bài nộp, nhận thông báo realtime khi có cập nhật, xem phản biện khi được công bố và gửi rebuttal trong khoảng thời gian hội nghị quy định. Ở giai đoạn cuối, tác giả nộp camera-ready nếu bài được chấp nhận.
+```mermaid
+graph TD
+    %% Tác nhân
+    Author["Tác giả (Author)"]
+    Reviewer["Người phản biện (Reviewer)"]
+    Chair["Chủ tọa (Chair)"]
+    
+    %% Use Cases
+    subgraph Author_UseCases ["Nhóm chức năng Tác giả"]
+        UC_Autofill(["Nộp bài & AI Autofill"])
+        UC_Track(["Nhận gợi ý Track"])
+        UC_Rebuttal(["Gửi bài Rebuttal"])
+    end
+    
+    subgraph Reviewer_UseCases ["Nhóm chức năng Phản biện"]
+        UC_Review(["Đánh giá & Nhập điểm"])
+        UC_Briefing(["Xem tóm tắt bài nộp"])
+    end
+    
+    subgraph Chair_UseCases ["Nhóm chức năng Chủ tọa"]
+        UC_Config(["Cấu hình Hội nghị"])
+        UC_COI(["Kiểm tra xung đột (COI)"])
+        UC_Assign(["Phân công (Matching)"])
+        UC_Decision(["Ra quyết định & Decision Copilot"])
+    end
 
-Nhóm use case của **người phản biện** xoay quanh luồng nhận bài, đánh giá và phản hồi. Reviewer nhận thông báo khi được phân công, xem thông tin chi tiết về bài nộp kèm phân tích sơ bộ từ AI, nhập đánh giá theo tiêu chí được cấu hình bởi chair (điểm chuyên môn, tính mới, trình bày, mức tự tin, khuyến nghị chấp nhận hay từ chối), lưu nháp và gửi phản biện. Sau giai đoạn rebuttal, reviewer đọc phản hồi của tác giả và có thể cập nhật điểm đánh giá nếu rebuttal thay đổi nhận định của mình.
+    %% Mối liên kết
+    Author --> UC_Autofill
+    Author --> UC_Rebuttal
+    Author --> UC_Track
 
-Nhóm use case của **chủ tọa** là phức tạp nhất về mặt nghiệp vụ. Chair tạo hội nghị và cấu hình các track, deadline từng giai đoạn (nộp bài, phản biện, rebuttal), mẫu tiêu chí đánh giá, chính sách double-blind và các quy định reviewer. Chair mời reviewer từ danh sách người dùng nội bộ hoặc gửi lời mời cho reviewer bên ngoài chưa có tài khoản trên hệ thống. Khi cần phân công bài cho reviewer, chair xem danh sách gợi ý từ thuật toán matching và điều chỉnh thủ công nếu cần, đồng thời kiểm tra và xử lý các xung đột lợi ích được phát hiện. Trong giai đoạn đánh giá, chair theo dõi tiến độ qua dashboard thống kê, chạy kiểm tra chất lượng phản biện bằng mô-đun Review Quality Auditor và sử dụng Decision Copilot để tổng hợp thông tin trước khi ra quyết định cuối cùng.
+    Reviewer --> UC_Review
+    Reviewer --> UC_Briefing
+
+    Chair --> UC_Config
+    Chair --> UC_COI
+    Chair --> UC_Assign
+    Chair --> UC_Decision
+```
+
+#### Giải thích biểu đồ Use Case hệ thống
+
+Biểu đồ Use Case tổng quát trên biểu diễn mối liên kết giữa ba nhóm tác nhân chính và các chức năng quan trọng nhất trong vòng đời của một hội nghị khoa học:
+1. **Tác giả (Author):** Tập trung vào việc nộp bài báo. Tác nhân này có thể tải lên tệp PDF để kích hoạt `AI Autofill` (tự điền metadata) hoặc nhận gợi ý track chuyên môn trước khi gửi bản thảo chính thức. Sau khi có kết quả review, tác giả tham gia giai đoạn phản hồi bằng cách gửi `Rebuttal`.
+2. **Người phản biện (Reviewer):** Nhận bài nộp được phân công, xem bản tóm tắt đóng góp chính của bài viết do AI biên soạn nhằm nắm bắt nhanh nội dung, và tiến hành đánh giá chuyên môn theo mẫu tiêu chí có sẵn của hội nghị.
+3. **Chủ tọa (Chair):** Quản lý toàn bộ cấu hình, tiến hành rà soát xung đột lợi ích (COI), xác nhận phân công reviewer dựa trên gợi ý từ thuật toán matching và sử dụng `Decision Copilot` để có cái nhìn tổng hợp đa chiều trước khi đưa ra quyết định chấp nhận hay từ chối bài viết.
+
+---
 
 ### 3.2.3. Đặc tả use case quan trọng
 
@@ -48,11 +139,36 @@ Phần này trình bày chi tiết ba use case trọng tâm đại diện cho ba
 
 **Điều kiện tiên quyết:** Tác giả đã đăng nhập, hội nghị đang trong giai đoạn mở nhận bài và tác giả chưa nộp bài vào hội nghị này.
 
-**Luồng xử lý chính:** Tác giả truy cập trang chi tiết hội nghị và bắt đầu quy trình nộp bài theo luồng nhiều bước. Ở bước đầu, tác giả tải lên tệp PDF bản thảo; hệ thống cho phép kích hoạt mô-đun Autofill để Gemini API phân tích PDF và điền tự động tiêu đề, tóm tắt và từ khóa vào biểu mẫu. Tác giả xem lại và điều chỉnh thông tin tự động điền nếu cần, nhập thêm danh sách đồng tác giả và track dự kiến. Ở bước tiếp theo, mô-đun gợi ý track có thể đề xuất track phù hợp dựa trên nội dung bài và danh sách track của hội nghị. Tác giả khai báo xung đột lợi ích (nếu có), tải cover letter (tùy chọn) và xem lại toàn bộ thông tin trước khi gửi chính thức. Khi gửi thành công, bài nộp được lưu với trạng thái `submitted`, hệ thống gửi xác nhận qua email và thông báo realtime đến tác giả.
+**Sơ đồ hoạt động (Activity Diagram) cho UC-01:**
 
-**Trường hợp ngoại lệ:** Nếu mô-đun Autofill không trả về kết quả trong thời gian timeout (do lỗi API hoặc tệp PDF không đọc được), hệ thống thông báo rõ nguyên nhân và cho phép tác giả nhập thủ công — quá trình nộp bài không bị gián đoạn. Nếu hội nghị đã hết deadline, hệ thống từ chối nộp bài mới và hiển thị thông báo cụ thể.
+```mermaid
+flowchart TD
+    Start([Bắt đầu nộp bài]) --> Upload[Tải lên PDF bản thảo]
+    Upload --> Choice{Bật AI Autofill?}
+    Choice -- Có --> CallAI[AI Service trích xuất metadata từ PDF]
+    CallAI --> AutofillForm[Tự động điền Tiêu đề, Tóm tắt, Từ khóa]
+    Choice -- Không --> ManualInput[Nhập thủ công metadata]
+    AutofillForm --> ReviewForm[Tác giả xem lại và chỉnh sửa]
+    ManualInput --> ReviewForm
+    ReviewForm --> TrackRec{Xem gợi ý Track?}
+    TrackRec -- Có --> SuggestTrack[AI gợi ý Track dựa trên Abstract]
+    SuggestTrack --> ChooseTrack[Tác giả chọn Track]
+    TrackRec -- Không --> ChooseTrack
+    ChooseTrack --> DeclareCOI[Khai báo xung đột lợi ích thủ công]
+    DeclareCOI --> Submit[Gửi bài nộp chính thức]
+    Submit --> DB[("Lưu vào PostgreSQL Database")]
+    DB --> Notify[Gửi Realtime Notification & Email]
+    Notify --> End([Hoàn tất quy trình nộp bài])
+```
 
-**Đầu ra:** Một bản ghi bài nộp trong bảng `conference_submissions` với đầy đủ metadata, tệp PDF được lưu trữ và bản ghi vai trò `author` trong `conference_user_roles`.
+#### Giải thích sơ đồ hoạt động UC-01
+
+Sơ đồ hoạt động trên mô tả trình tự các bước từ khi tác giả bắt đầu nộp bài cho đến khi hoàn thành:
+1. **Bước tải PDF và trích xuất:** Tác giả tải lên tệp PDF. Nếu bật tùy chọn AI Autofill, AI Service sẽ xử lý tệp PDF và tự động điền các trường chính. Nếu không, tác giả tự nhập thủ công.
+2. **Gợi ý Track:** Sau khi có thông tin tiêu đề và tóm tắt, hệ thống cung cấp tùy chọn gợi ý track. AI phân tích sự tương đồng giữa abstract và mô tả của các track để đưa ra đề xuất.
+3. **Khai báo và Lưu trữ:** Tác giả xác nhận track, khai báo COI thủ công với các thành viên ban tổ chức, và gửi bài. Hệ thống lưu toàn bộ metadata vào PostgreSQL, đồng thời kích hoạt WebSocket để thông báo realtime cho tác giả và ban tổ chức.
+
+---
 
 #### UC-02: Phân công phản biện có kiểm tra xung đột lợi ích
 
@@ -60,11 +176,42 @@ Phần này trình bày chi tiết ba use case trọng tâm đại diện cho ba
 
 **Điều kiện tiên quyết:** Hội nghị đang trong giai đoạn phân công, đã có ít nhất một bài nộp được xem xét và ít nhất một reviewer đã được mời và chấp nhận tham gia.
 
-**Luồng xử lý chính:** Chair truy cập trang quản lý phân công của hội nghị. Hệ thống tính điểm phù hợp giữa từng cặp (reviewer, bài nộp) dựa trên Jaccard Similarity giữa tập domain/keyword của reviewer và tập keyword của bài nộp. Thuật toán sau đó áp dụng chiến lược gán tham lam có ràng buộc: mỗi bài cần đủ số reviewer tối thiểu (theo cấu hình hội nghị), mỗi reviewer không được vượt quá giới hạn số bài tối đa và các cặp có COI bị loại khỏi danh sách gợi ý. Chair xem danh sách gợi ý dạng ma trận điểm số và điều chỉnh thủ công nếu cần trước khi xác nhận phân công. Khi xác nhận, hệ thống tạo các bản ghi trong `paper_assignments`, gửi lời mời đến từng reviewer qua email và thông báo realtime, và chuyển trạng thái bài nộp sang giai đoạn phản biện.
+**Sơ đồ luồng xử lý COI và Phân công cho UC-02:**
 
-**Luồng kiểm tra COI:** Song song với quá trình tính điểm matching, hệ thống chạy ba lớp kiểm tra COI theo kiến trúc Composite Pattern: (1) `SelfAuthorDetector` kiểm tra reviewer có phải là tác giả của bài nộp không; (2) `DeclaredConflictsDetector` kiểm tra xung đột đã khai báo thủ công; (3) `RelationshipDetector` truy vấn đồ thị đồng tác giả trên Neo4j để phát hiện quan hệ gần đây trong độ sâu 1–2 bậc. Kết quả COI được lưu vào `coi_relationships` kèm mức độ nghiêm trọng và bằng chứng, giúp chair hiểu tại sao một cặp bị đánh dấu xung đột.
+```mermaid
+flowchart TD
+    Start([Khởi động kiểm tra phân công]) --> Parallel{Chạy song song 3 bộ lọc COI}
+    
+    Parallel --> SelfAuthor["SelfAuthorDetector: Trùng email tác giả?"]
+    Parallel --> Declared["DeclaredConflictsDetector: Tác giả tự khai báo?"]
+    Parallel --> Relationship["RelationshipDetector: Check quan hệ đồ thị"]
+    
+    SelfAuthor --> Merge{Tổng hợp kết quả lọc}
+    Declared --> Merge
+    Relationship --> Neo4j[("Neo4j Database: Tìm quan hệ đồng tác giả N-bậc")]
+    Neo4j --> Merge
+    
+    Merge --> Decision{Có xung đột lợi ích?}
+    Decision -- Có --> Block[Ghi nhận COI vào bảng coi_relationships]
+    Block --> Remove[Loại bỏ cặp Reviewer - Bài nộp khỏi gợi ý matching]
+    Decision -- Không --> JaccardMatch[Tính độ phù hợp Jaccard Similarity]
+    
+    JaccardMatch --> GreedyAssign[Thuật toán gán tham lam có ràng buộc tải]
+    Remove --> Matrix[Hiển thị ma trận phân công cho Chair xem xét]
+    GreedyAssign --> Matrix
+    
+    Matrix --> Confirm[Chair xác nhận và lưu vào PostgreSQL]
+    Confirm --> End([Hoàn tất phân công])
+```
 
-**Đầu ra:** Các bản ghi phân công trong `paper_assignments` với trạng thái `pending`, reviewer nhận thông báo và email, chair thấy tiến độ cập nhật trên dashboard.
+#### Giải thích sơ đồ xử lý UC-02
+
+Sơ đồ trên mô tả cơ chế kiểm tra COI đa tầng kết hợp với thuật toán đối sánh phân công:
+1. **Lọc COI song song:** Hệ thống chạy đồng thời 3 cơ chế phát hiện xung đột nhằm đảm bảo tính toàn vẹn học thuật. Điểm đặc sắc là `RelationshipDetector` truy vấn đồ thị đồng tác giả trong database Neo4j để phát hiện các mối quan hệ gián tiếp (ví dụ: reviewer đã viết chung bài báo với tác giả của bài nộp trong vòng 2 năm qua).
+2. **Loại trừ và Tính điểm:** Những cặp bị phát hiện COI sẽ bị loại ngay lập tức. Những cặp hợp lệ được đưa qua bộ tính điểm Jaccard Similarity giữa tập domain của reviewer và tập keyword của bài nộp.
+3. **Gán tham lam:** Thuật toán sắp xếp các cặp hợp lệ theo điểm số từ cao xuống thấp và tiến hành phân công tự động, đảm bảo reviewer không bị quá tải và bài nộp nhận đủ số phản biện tối thiểu. Chair có quyền sửa đổi thủ công trên ma trận trực quan trước khi nhấn xác nhận để ghi vào database.
+
+---
 
 #### UC-03: Hỗ trợ quyết định bằng AI (Decision Copilot)
 
@@ -72,11 +219,42 @@ Phần này trình bày chi tiết ba use case trọng tâm đại diện cho ba
 
 **Điều kiện tiên quyết:** Bài nộp đã có đủ phản biện và giai đoạn rebuttal đã kết thúc hoặc không được bật.
 
-**Luồng xử lý chính:** Chair kích hoạt Decision Copilot cho một bài nộp cụ thể. Backend thu thập toàn bộ dữ liệu liên quan: metadata bài nộp, tất cả phản biện kèm điểm số, rebuttal của tác giả (nếu có) và các thảo luận nội bộ. Dữ liệu này được gửi đến AI Service qua HTTP; AI Service gọi Gemini API với prompt được thiết kế để tổng hợp các điểm đồng thuận, mâu thuẫn giữa reviewers, các vấn đề nổi bật và đề xuất sơ bộ. Kết quả trả về là bản tóm tắt có cấu trúc, được hiển thị cho chair cùng với toàn bộ dữ liệu gốc để chair có thể kiểm chứng trực tiếp. Quyết định chấp nhận hoặc từ chối vẫn hoàn toàn thuộc về chair; AI chỉ đóng vai trò tổng hợp thông tin và không ghi nhận bất kỳ quyết định nào vào hệ thống.
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-03:**
 
-**Trường hợp ngoại lệ:** Nếu AI Service không phản hồi trong timeout cấu hình (mặc định 180 giây), hệ thống thông báo lỗi cụ thể và chair vẫn có thể xem toàn bộ dữ liệu gốc để tự tổng hợp.
+```mermaid
+sequenceDiagram
+    actor Chair as Chủ tọa (Chair)
+    participant BE as Go Backend (Gin)
+    participant AI as Python AI Service (FastAPI)
+    participant Gemini as Google Gemini API
 
-**Đầu ra:** Bản tóm tắt AI được hiển thị dưới dạng giao diện, không được lưu vào cơ sở dữ liệu như một quyết định. Mọi hành động ra quyết định sau đó được ghi nhận theo logic nghiệp vụ thông thường.
+    Chair->>BE: Yêu cầu Decision Copilot (submission_id)
+    activate BE
+    BE->>BE: Lấy metadata bài nộp
+    BE->>BE: Lấy điểm số & nội dung các bản phản biện (PostgreSQL)
+    BE->>BE: Lấy phản hồi rebuttal của tác giả
+    BE->>BE: Lấy các tin nhắn thảo luận nội bộ (discussion_messages)
+    
+    BE->>AI: POST /workflows/chair-decision-copilot (dữ liệu thô)
+    activate AI
+    AI->>AI: Xây dựng Prompt (đưa dữ liệu vào template)
+    AI->>Gemini: Gọi API với dữ liệu đầu vào (gemini-2.0-flash)
+    activate Gemini
+    Gemini-->>AI: Trả về kết quả phân tích & tổng hợp (Markdown)
+    deactivate Gemini
+    AI-->>BE: JSON Response (bản tóm tắt có cấu trúc)
+    deactivate AI
+    
+    BE-->>Chair: Hiển thị bản phân tích Decision Copilot trên Dashboard
+    deactivate BE
+```
+
+#### Giải thích sơ đồ tuần tự UC-03
+
+Sơ đồ tuần tự minh họa dòng tương tác giữa các dịch vụ khi chủ tọa kích hoạt tính năng hỗ trợ quyết định:
+1. **Thu thập dữ liệu thô:** Go Backend chịu trách nhiệm truy vấn PostgreSQL để gom toàn bộ ngữ cảnh liên quan của bài viết. Dữ liệu bao gồm các bản phản biện thô, phản hồi rebuttal và các đoạn chat thảo luận bảo mật giữa các reviewer.
+2. **Định dạng Prompt:** Dữ liệu thô được gửi sang AI Service dưới dạng payload JSON. Tại đây, AI Service định dạng dữ liệu vào một prompt mẫu được thiết kế sẵn cho việc tổng hợp học thuật.
+3. **Phân tích bằng Gemini:** Gemini API xử lý dữ liệu và trả về bản tổng hợp dưới dạng văn bản có cấu trúc (các điểm đồng thuận, bất đồng chính, đánh giá rebuttal). Kết quả cuối cùng được hiển thị trên dashboard để chair tham khảo. Toàn bộ quy trình này diễn ra bất đồng bộ, bảo vệ backend không bị block luồng xử lý do latency cao của LLM.
 
 ---
 
@@ -92,6 +270,8 @@ Luồng tương tác giữa các thành phần được thiết kế có chủ �
 
 Các thành phần tùy chọn (Neo4j, Semantic Scholar, AI Service) được thiết kế theo nguyên tắc **graceful degradation**: nếu không được cấu hình, hệ thống tự động tắt các tính năng liên quan mà không gây lỗi đối với các chức năng cốt lõi. Điều này giúp hệ thống có thể triển khai ở nhiều mức độ cấu hình khác nhau tùy theo tài nguyên sẵn có.
 
+---
+
 ### 3.3.2. Thiết kế backend
 
 Backend của ConferenceSpace được viết bằng Go 1.24 với framework Gin, tổ chức theo kiến trúc phân lớp rõ ràng trong thư mục `internal/`. Quyết định dùng Go thay vì Node.js hay Python/FastAPI xuất phát từ ba yếu tố kỹ thuật chính: hiệu năng cao nhờ biên dịch thành binary, mô hình concurrency đơn giản và hiệu quả qua goroutines (đặc biệt phù hợp khi gọi AI API đồng thời cho nhiều request), và kiểu tĩnh giúp phát hiện lỗi tại compile-time trong một codebase lớn. Kết quả benchmark thực tế trên tập dữ liệu 300 hội nghị và 15.000 bài nộp cho thấy backend xử lý được 369–572 request/giây với p95 latency dưới 120ms, trong khi container API chỉ sử dụng trung bình 28% CPU của một core và khoảng 30 MB RAM — Go là lựa chọn phù hợp về hiệu năng với tài nguyên tiêu thụ tối thiểu.
@@ -103,6 +283,51 @@ Ngoài bốn tầng chính, backend còn có các module chuyên biệt phục v
 Toàn bộ các phụ thuộc được khởi tạo rõ ràng (Dependency Injection) tại điểm entry `cmd/server/main.go` thông qua struct `AppContext`. Cách tiếp cận này giúp dòng phụ thuộc của cả ứng dụng có thể đọc hiểu chỉ bằng cách nhìn vào hàm `main`, tránh "magic" không rõ nguồn gốc và làm cho việc kiểm thử unit test trở nên trực tiếp hơn.
 
 Phân quyền được thiết kế theo mô hình **RBAC cấp hội nghị** (per-conference RBAC). Mỗi request đến các endpoint hội nghị cụ thể đều đi qua middleware kiểm tra cả JWT token (xác thực danh tính) lẫn vai trò của người dùng trong hội nghị đó (phân quyền). Các middleware phân quyền chuyên biệt như `RequireChairOrCoChair`, `RequireSubmissionAccess`, `RequireAssignmentOwner` giúp kiểm soát truy cập ở mức chi tiết mà không cần nhúng logic phân quyền vào từng handler.
+
+#### Sơ đồ phụ thuộc các tầng trong Go Backend
+
+```mermaid
+graph TD
+    %% Tầng hiển thị và Router
+    subgraph Layer_HTTP ["HTTP Layer"]
+        Gin_Router["Gin Engine / Routing"]
+        Controller["Controller Module (/internal/controller)"]
+    end
+
+    %% Tầng Nghiệp vụ
+    subgraph Layer_Business ["Business Logic Layer"]
+        Orchestrator["Orchestrator Module (/internal/orchestrator)"]
+        Service["Service Module (/internal/service)"]
+        Domain_Models["Domain Models (/internal/model)"]
+    end
+
+    %% Tầng tích hợp và dữ liệu
+    subgraph Layer_Data ["Data & Client Layer"]
+        Storage["Storage Repository (/internal/storage)"]
+        Clients["Clients Module (/internal/clients)"]
+    end
+
+    %% Luồng phụ thuộc một chiều
+    Gin_Router --> Controller
+    Controller --> Service
+    Orchestrator --> Service
+    Service --> Storage
+    Service --> Clients
+    Storage --> Domain_Models
+    
+    %% Chú thích dependency
+    linkStyle 1 stroke:#2ecd71,stroke-width:2px;
+    linkStyle 3 stroke:#2ecd71,stroke-width:2px;
+```
+
+#### Giải thích sơ đồ phụ thuộc Go Backend
+
+Sơ đồ trên thể hiện nguyên lý phụ thuộc một chiều (Clean/Layered Architecture) trong Go backend:
+1. **Tính độc lập:** Các package bên trên (`HTTP Layer`) phụ thuộc vào các package bên dưới (`Business Logic Layer`), và tầng nghiệp vụ phụ thuộc vào tầng dữ liệu (`Data & Client Layer`). Không có sự phụ thuộc ngược chiều.
+2. **Orchestrator:** Được đặt ngang hàng với Service để điều phối các tác vụ liên vùng nghiệp vụ (ví dụ: đăng ký và gửi email đồng thời), tránh việc các Service gọi chéo nhau tạo thành vòng lặp phụ thuộc (circular dependency).
+3. **Clients:** Nằm ở tầng thấp nhất, chịu trách nhiệm đóng gói các kết nối ra ngoài (Gemini, Neo4j, Semantic Scholar). Điều này đảm bảo khi thay đổi API của bên thứ ba, chúng ta chỉ cần sửa đổi code trong thư mục `/internal/clients` mà không làm ảnh hưởng đến logic nghiệp vụ cốt lõi của Service.
+
+---
 
 ### 3.3.3. Thiết kế dữ liệu
 
@@ -121,13 +346,188 @@ RETURN r, a
 
 Với SQL thuần, truy vấn tương đương đòi hỏi nhiều lượt JOIN lồng nhau và hiệu năng giảm mạnh khi đồ thị có hàng triệu quan hệ. Neo4j tối ưu hóa graph traversal ở mức engine, cho kết quả nhanh hơn đáng kể cho loại truy vấn này. Quan trọng là Neo4j được thiết kế như thành phần tùy chọn: backend kiểm tra sự khả dụng khi khởi động và chỉ kích hoạt `RelationshipDetector` khi kết nối Neo4j thành công, trong khi hai lớp COI còn lại luôn hoạt động độc lập.
 
+#### Sơ đồ Quan hệ Thực thể (PostgreSQL ERD) và Đồ thị (Neo4j Schema)
+
+```mermaid
+classDiagram
+    %% PostgreSQL tables
+    class USERS {
+        UUID user_id
+        String email
+        String hashed_password
+        String[] domain
+        Boolean email_verified
+    }
+    
+    class CONFERENCES {
+        UUID conference_id
+        String name
+        JSONB configurations
+        String status
+    }
+    
+    class CONFERENCE_USER_ROLES {
+        UUID user_id
+        UUID conference_id
+        String role
+    }
+    
+    class CONFERENCE_SUBMISSIONS {
+        UUID submission_id
+        UUID conference_id
+        String title
+        String abstract
+        String status
+        String pdf_path
+    }
+    
+    class PAPER_ASSIGNMENTS {
+        UUID submission_id
+        UUID reviewer_id
+        JSONB review_data
+        Float score
+    }
+
+    class COI_RELATIONSHIPS {
+        UUID coi_id
+        UUID conference_id
+        UUID user_id
+        UUID target_user_id
+        String type
+        JSONB evidence
+    }
+
+    %% Relationships
+    USERS "1" --* "many" CONFERENCE_USER_ROLES : has role
+    CONFERENCES "1" --* "many" CONFERENCE_USER_ROLES : defines role
+    CONFERENCES "1" --* "many" CONFERENCE_SUBMISSIONS : contains
+    CONFERENCE_SUBMISSIONS "1" --* "many" PAPER_ASSIGNMENTS : assigned to
+    USERS "1" --* "many" PAPER_ASSIGNMENTS : reviews
+    CONFERENCES "1" --* "many" COI_RELATIONSHIPS : tracks
+```
+
+```mermaid
+graph LR
+    %% Neo4j Graph Model
+    Author1["(:Author {email: 'rev@uni.edu', name: 'A'})"]
+    Author2["(:Author {email: 'auth@uni.edu', name: 'B'})"]
+    
+    Author1 -->|"-[:COAUTHORED {established_date: 2025, paper_link: '...'}]-"| Author2
+```
+
+#### Giải thích mô hình dữ liệu PostgreSQL và Neo4j
+
+Sơ đồ dữ liệu kết hợp làm rõ vai trò của từng loại cơ sở dữ liệu:
+1. **PostgreSQL ERD:** Biểu diễn mô hình quan hệ chặt chẽ. Bảng trung gian `CONFERENCE_USER_ROLES` liên kết `USERS` và `CONFERENCES` để định vị vai trò của một tài khoản theo từng hội nghị cụ thể. Dữ liệu bài nộp (`CONFERENCE_SUBMISSIONS`) và phân công (`PAPER_ASSIGNMENTS`) liên kết chặt chẽ qua khoá ngoại để đảm bảo tính toàn vẹn dữ liệu.
+2. **Neo4j Graph Database Schema:** Thể hiện đồ thị đồng tác giả gọn nhẹ. Chỉ có một nhãn node duy nhất là `:Author` và một mối quan hệ `:COAUTHORED`. Tuy đơn giản nhưng mô hình đồ thị này cho phép hệ thống thực hiện duyệt đồ thị N-bậc rất nhanh thông qua Cypher, giảm thiểu tải cho database PostgreSQL chính.
+
+---
+
 ### 3.3.4. Luồng xử lý hệ thống
 
 Để hiểu hệ thống hoạt động ra sao trong thực tế, phần này trình bày hai luồng xử lý quan trọng và có tính phức tạp cao: luồng nộp bài có hỗ trợ AI và luồng phân công phản biện.
 
-**Luồng nộp bài với AI Autofill:** Khi tác giả nộp bài và kích hoạt Autofill, luồng xử lý diễn ra qua nhiều thành phần. Trình duyệt gửi request đến Next.js frontend theo route `/api/backend/conferences/:id/submissions`; Next.js đóng vai trò proxy, chuyển tiếp đến backend Go tại `backend:8080/api/v1/...`. Backend kiểm tra JWT token trong middleware, xác nhận hội nghị đang mở nhận bài. Controller gọi service; service kiểm tra ràng buộc nghiệp vụ, lưu bài nộp vào PostgreSQL với trạng thái `submitted`, kích hoạt thông báo realtime qua WebSocket Hub và gửi email xác nhận qua Brevo. Song song đó, nếu tác giả kích hoạt Autofill, backend gọi AI Service qua HTTP (`ai-service:8090/workflows/submission-autofill`), truyền tệp PDF được encode base64. AI Service gọi Gemini API với khả năng đọc PDF trực tiếp (multimodal), trả về JSON chứa title, abstract và keywords. Backend nhận kết quả và trả về cho frontend để điền vào biểu mẫu; người dùng xem lại và có thể chỉnh sửa trước khi gửi. Điểm then chốt trong luồng này là AI Autofill được xử lý tách biệt: nếu AI Service không phản hồi, bài nộp vẫn được lưu thành công và tác giả nhập metadata thủ công — không có sự phụ thuộc cứng giữa bước AI và bước lưu dữ liệu.
+#### Sơ đồ tuần tự: Luồng nộp bài với AI Autofill
 
-**Luồng matching và phân công phản biện:** Khi chair khởi động phân công tự động, luồng xử lý diễn ra hoàn toàn ở backend, không qua AI Service. Module `internal/assignment/` triển khai pipeline gồm ba giai đoạn. Giai đoạn **scoring** tính Jaccard Similarity giữa tập keyword của mỗi bài nộp và tập domain của mỗi reviewer: `similarity = |A ∩ B| / |A ∪ B|`. Giai đoạn **COI filtering** loại bỏ các cặp có xung đột lợi ích khỏi danh sách ứng viên khả thi. Giai đoạn **assignment** áp dụng thuật toán gán tham lam có ràng buộc: duyệt các cặp điểm cao nhất, gán cho đến khi mỗi bài đủ số reviewer hoặc mỗi reviewer đạt giới hạn tải. Kết quả là danh sách gợi ý phân công được trả về cho chair dưới dạng bảng điểm số, giúp chair hiểu cơ sở của mỗi gợi ý trước khi xác nhận. Điểm mấu chốt của thiết kế này là tính minh bạch và giải thích được: mỗi cặp phân công đều có điểm số cụ thể và lý do COI (nếu bị loại) được ghi lại, phản ánh trực tiếp yêu cầu trong Chương 2 rằng người dùng kỳ vọng thuật toán phải minh bạch và không thay thế quyết định của họ.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Author as Tác giả (Author)
+    participant Front as Frontend (Next.js)
+    participant BE as Backend (Go/Gin)
+    participant AI as AI Service (FastAPI)
+    participant Gemini as Google Gemini
+
+    Author->>Front: Tải lên bản thảo PDF & Nhấn "Autofill"
+    activate Front
+    Front->>BE: POST /submissions/autofill (PDF file)
+    activate BE
+    BE->>AI: POST /workflows/submission-autofill (PDF Base64)
+    activate AI
+    AI->>Gemini: Gửi PDF trực tiếp (Multimodal input)
+    activate Gemini
+    Gemini-->>AI: Trả về JSON (Title, Abstract, Keywords)
+    deactivate Gemini
+    AI-->>BE: Trả về JSON kết quả trích xuất
+    deactivate AI
+    BE-->>Front: Trả về JSON metadata cho Frontend
+    deactivate BE
+    Front-->>Author: Tự động điền biểu mẫu nộp bài
+    deactivate Front
+    
+    Author->>Front: Chỉnh sửa lại thông tin & Xác nhận nộp bài
+    activate Front
+    Front->>BE: POST /submissions (Metadata + PDF file)
+    activate BE
+    BE->>BE: Lưu file PDF vào Storage (Local/Supabase)
+    BE->>BE: Lưu thông tin bài nộp vào PostgreSQL
+    BE->>BE: Kích hoạt Realtime Notification Hub
+    BE-->>Front: Trả về HTTP 201 Created
+    deactivate BE
+    Front-->>Author: Hiển thị thông báo nộp bài thành công
+    deactivate Front
+```
+
+#### Giải thích luồng nộp bài với AI Autofill
+
+Biểu đồ tuần tự trên mô tả chi tiết hai giai đoạn của luồng nộp bài:
+1. **Giai đoạn 1 (Trích xuất thử):** Diễn ra từ bước 1 đến bước 8. Khi người dùng tải PDF lên, file được mã hoá base64 và gửi qua Go Backend đến Python AI Service. Nhờ tính năng multimodal của Gemini, tệp PDF được đọc trực tiếp và trích xuất thông tin mà không cần parse text thủ công. Thông tin hiển thị lên UI để tác giả kiểm chứng.
+2. **Giai đoạn 2 (Gửi chính thức):** Diễn ra từ bước 9 đến bước 14. Sau khi tác giả chỉnh sửa, dữ liệu và file PDF chính thức được gửi lên Go Backend để ghi vào cơ sở dữ liệu và lưu trữ lâu dài. Nếu AI Service gặp sự cố ở Giai đoạn 1, luồng xử lý sẽ quay về chế độ điền tay thủ công, đảm bảo Giai đoạn 2 luôn hoạt động độc lập.
+
+---
+
+#### Sơ đồ tuần tự: Luồng matching và phân công phản biện tự động
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Chair as Chủ tọa (Chair)
+    participant BE as Backend (Go/Gin)
+    participant Assign as Assignment Module (Go)
+    participant DB as PostgreSQL
+    participant Neo4j as Neo4j Graph DB
+
+    Chair->>BE: Yêu cầu gợi ý phân công tự động (conference_id)
+    activate BE
+    BE->>Assign: Khởi động quy trình matching
+    activate Assign
+    
+    Assign->>DB: Lấy danh sách reviewer (domain) & bài nộp (keywords)
+    activate DB
+    DB-->>Assign: Trả về dữ liệu reviewer và bài nộp
+    deactivate DB
+    
+    Assign->>Assign: Scoring: Tính Jaccard Similarity cho từng cặp
+    
+    Assign->>Neo4j: Kiểm tra COI đồ thị đồng tác giả (2-hop)
+    activate Neo4j
+    Neo4j-->>Assign: Trả về danh sách cặp có quan hệ đồng tác giả
+    deactivate Neo4j
+    
+    Assign->>Assign: Lọc COI: Loại các cặp trùng tác giả, COI đồ thị, COI khai báo
+    Assign->>Assign: Phân công: Chạy thuật toán gán tham lam có ràng buộc tải
+    
+    Assign-->>BE: Trả về ma trận kết quả phân công và điểm số gợi ý
+    deactivate Assign
+    BE-->>Chair: Hiển thị ma trận phân công gợi ý trên UI
+    deactivate BE
+    
+    Chair->>BE: Xác nhận cấu hình phân công (có thể điều chỉnh)
+    activate BE
+    BE->>DB: Ghi nhận dữ liệu vào bảng paper_assignments
+    activate DB
+    DB-->>BE: Lưu thành công
+    deactivate DB
+    BE-->>Chair: Trả về trạng thái hoàn tất phân công
+    deactivate BE
+```
+
+#### Giải thích luồng matching và phân công phản biện tự động
+
+Biểu đồ mô tả quy trình tính toán đối sánh phản biện hoàn toàn xác định tại Go Backend:
+1. **Đọc dữ liệu và Tính điểm Jaccard:** (Bước 1 - 5) Hệ thống lấy tập domain của reviewer và keyword bài nộp từ PostgreSQL, tính điểm độ tương đồng Jaccard.
+2. **Lọc COI bằng Neo4j:** (Bước 6 - 8) Hệ thống truy vấn Neo4j để lấy danh sách các reviewer có xung đột đồng tác giả với tác giả bài nộp và loại bỏ các cặp này khỏi danh sách ứng viên hợp lệ.
+3. **Phân công tham lam và Phê duyệt:** (Bước 9 - 14) Thuật toán gán tham lam chạy trên tập ứng viên sạch COI để đưa ra gợi ý tối ưu. Gợi ý này hiển thị cho Chair xem xét, điều chỉnh thủ công trước khi lưu chính thức vào PostgreSQL.
 
 ---
 
@@ -157,6 +557,8 @@ ConferenceSpace triển khai sáu workflow AI, mỗi workflow được hiện th
 
 **Chair Decision Copilot** là workflow phức tạp nhất về mặt đầu vào: toàn bộ metadata bài nộp, tất cả phản biện với điểm số, rebuttal của tác giả và các thảo luận nội bộ. Gemini được gọi với context window lớn (lý do chọn Gemini Flash thay vì GPT-4o cho workflow này) để tổng hợp các điểm đồng thuận và mâu thuẫn giữa reviewers, các vấn đề kỹ thuật chính và tóm tắt rebuttal của tác giả. Đầu ra là bản tóm lược có cấu trúc, không bao gồm khuyến nghị chấp nhận hay từ chối — ngay cả ở mức gợi ý — để tránh tạo ra bất kỳ áp lực vô hình nào lên quyết định của chair.
 
+---
+
 ### 3.4.3. Tích hợp AI vào kiến trúc hệ thống
 
 AI Service được triển khai như một dịch vụ FastAPI độc lập, giao tiếp với backend Go qua HTTP nội bộ trong mạng Docker. Thiết kế tách biệt này có ba lợi ích rõ ràng: AI Service có thể được scale riêng khi có nhiều yêu cầu đồng thời, thay đổi model hay thêm workflow mới không đòi hỏi biên dịch lại backend Go, và timeout dài của các lời gọi AI không ảnh hưởng đến pool goroutine của backend.
@@ -166,6 +568,44 @@ Phía backend Go, mọi lời gọi đến AI Service được bọc trong modul
 Phía AI Service, mỗi workflow được tổ chức thành một module Python riêng trong `ai_service/app/workflows/`. Mỗi module định nghĩa schema đầu vào và đầu ra bằng Pydantic, xử lý lỗi từ LLM provider và chuẩn hóa output trước khi trả về. AI Service dùng LiteLLM làm lớp trừu tượng gọi LLM, cho phép chuyển đổi giữa Gemini, OpenAI hay các provider khác chỉ bằng thay đổi biến môi trường mà không cần sửa code. Cơ chế xác thực giữa backend và AI Service dùng header `X-Agent-Service-Token` — một shared secret được cấu hình qua biến môi trường — đảm bảo chỉ backend Go mới có thể gọi các API của AI Service.
 
 Redis đóng vai trò lưu trữ session và cache cho AI Service, đặc biệt quan trọng cho chatbot agent cần duy trì context hội thoại qua nhiều lượt tương tác. Chatbot sử dụng cơ chế context compaction khi conversation vượt ngưỡng 70% context window để giảm chi phí token mà vẫn duy trì đủ ngữ cảnh cần thiết.
+
+#### Sơ đồ luồng tích hợp và xử lý lỗi AI
+
+```mermaid
+flowchart TD
+    %% Tác nhân và điểm bắt đầu
+    Start([Go Service: Cần xử lý AI]) --> CallAIClient[Gọi Clients/AI_Service Client]
+    
+    %% Tiến trình bọc Go Client
+    CallAIClient --> SendRequest[Gửi HTTP POST sang FastAPI ai-service]
+    SendRequest --> WaitResponse{Nhận phản hồi trong timeout?}
+    
+    %% Nhánh xử lý Timeout / Lỗi mạng
+    WaitResponse -- Không / Lỗi mạng --> Retry{Thử lại < 3 lần?}
+    Retry -- Có --> Backoff[Chờ với Exponential Backoff] --> SendRequest
+    Retry -- Không --> ReturnError[Trả về Lỗi có cấu trúc Graceful Degradation]
+    
+    %% Nhánh phản hồi thành công
+    WaitResponse -- Có (HTTP 200) --> ValidateJSON[AI Service: Pydantic Validation]
+    ValidateJSON --> DB_Cache[(Lưu cache Session vào Redis)]
+    DB_Cache --> ReturnSuccess[Trả kết quả JSON chuẩn hóa về Go Service]
+    
+    %% Điểm kết thúc
+    ReturnError --> UserAlert[Frontend: Hiển thị điền tay hoặc thông báo hệ thống bận]
+    ReturnSuccess --> FrontEnd[Frontend: Render giao diện hỗ trợ AI]
+    
+    UserAlert --> End([Kết thúc])
+    FrontEnd --> End
+```
+
+#### Giải thích sơ đồ luồng tích hợp AI
+
+Sơ đồ trên thể hiện cơ chế giao tiếp và xử lý lỗi tự động để đảm bảo độ tin cậy của ứng dụng:
+1. **Kháng lỗi (Resilience):** Khi xảy ra lỗi mạng hoặc timeout tạm thời từ phía LLM Provider, Go Backend Client tự động thực hiện cơ chế thử lại (retry) tối đa 3 lần với thời gian chờ tăng dần (exponential backoff), giúp triệt tiêu các lỗi transient.
+2. **Graceful Degradation:** Nếu sau 3 lần thử lại vẫn thất bại, hệ thống không bị crash mà trả về lỗi có cấu trúc. Go Backend thông báo cho Frontend để tắt tính năng AI tương ứng và hướng dẫn người dùng chuyển sang điền tay thủ công.
+3. **Cache & Validation:** Dữ liệu phản hồi từ Gemini API được Python AI Service kiểm tra tính hợp lệ bằng Pydantic trước khi gửi về Go Backend, đồng thời Redis được cập nhật để cache session làm việc của người dùng.
+
+---
 
 ### 3.4.4. Ưu điểm và giới hạn của các workflow AI
 
@@ -203,6 +643,8 @@ conference-space.com, www.conference-space.com {
 
 Caddy xử lý hai loại lưu lượng theo thứ tự ưu tiên. Lưu lượng WebSocket (`/ws/*`) được proxy trực tiếp đến Go backend tại `backend:8080` để xử lý kết nối realtime — WebSocket cần kết nối persistent và Caddy hỗ trợ upgrade protocol HTTP→WebSocket tự động. Toàn bộ lưu lượng HTTP còn lại được proxy đến Next.js frontend tại `web:3000`; frontend tự xử lý routing nội bộ và proxy các lời gọi API đến backend Go theo cấu hình Next.js. Caddy hoạt động trong Docker network `app` và có thể resolve tên dịch vụ (`web`, `backend`) nhờ DNS nội bộ của Docker, giúp cấu hình không cần hardcode địa chỉ IP và tự động cập nhật khi container được khởi động lại với IP khác.
 
+---
+
 ### 3.5.3. Các thành phần triển khai khác
 
 Toàn bộ hệ thống được quản lý bởi **Docker Compose** thông qua file `deployment/docker-compose.prod.yml`, định nghĩa tám service được điều phối theo thứ tự phụ thuộc và health check. Hai mạng Docker được định nghĩa với mục đích tách biệt rõ ràng: mạng `app` (bridge) kết nối các thành phần ứng dụng cần giao tiếp với nhau (Caddy, Next.js, backend, AI Service, Neo4j), và mạng `data` (bridge với thuộc tính `internal: true`) kết nối riêng các thành phần dữ liệu (PostgreSQL, Redis, Neo4j). Vì mạng `data` có thuộc tính `internal: true`, cổng của PostgreSQL và Redis không thể truy cập từ bên ngoài Docker host.
@@ -211,4 +653,50 @@ PostgreSQL 15 được triển khai với volume `postgres_data` để dữ li�
 
 Service `backend-migrate` là một container one-shot chạy sau khi PostgreSQL healthy, thực thi database migrations bằng golang-migrate và exit sau khi hoàn thành (`restart: "no"`). Đây là cách tiếp cận an toàn: migration được chạy như một bước riêng trong pipeline CI/CD, không phải khi backend khởi động, giúp tránh tình huống nhiều instance backend cùng chạy migration đồng thời trong môi trường có nhiều replica.
 
-Quy trình CI/CD được tự động hóa hoàn toàn qua GitHub Actions. Khi có push vào nhánh `main`, pipeline chạy lint và test song song cho ba service (Frontend, Backend Go, AI Service Python), sau đó build ba Docker image và push lên GitHub Container Registry (GHCR) với tag theo Git commit hash. Cuối cùng, pipeline SSH vào VPS, copy file cấu hình, chạy migration và thực thi `docker compose up -d --remove-orphans` để cập nhật các container với image mới mà không gây gián đoạn dịch vụ quá vài giây. Tất cả secret nhạy cảm (SSH key, GHCR token, API keys) được lưu trong GitHub Secrets và không bao giờ xuất hiện trong log của pipeline, đảm bảo an toàn thông tin trong toàn bộ quy trình CD.
+Quy trình CI/CD được tự động hóa hoàn toàn qua GitHub Actions. Khi có push vào nhánh `main`, pipeline chạy lint và test song song cho ba service (Frontend, Backend Go, AI Service Python), sau đó build ba Docker image và push lên GitHub Container Registry (GHCR) với tag theo Git commit hash. Cuối cùng, pipeline SSH vào VPS, copy file cấu hình (`docker-compose.prod.yml`, `Caddyfile`), chạy migration và thực thi `docker compose up -d --remove-orphans` để cập nhật các container với image mới mà không gây gián đoạn dịch vụ quá vài giây. Tất cả secret nhạy cảm (SSH key, GHCR token, API keys) được lưu trong GitHub Secrets và không bao giờ xuất hiện trong log của pipeline, đảm bảo an toàn thông tin trong toàn bộ quy trình CD.
+
+#### Sơ đồ mạng nội bộ Docker (Network Isolation Topology)
+
+```mermaid
+graph LR
+    %% Định nghĩa bên ngoài và Proxy
+    Internet([Người dùng từ Internet]) -->|Cổng 80/443| Caddy["Caddy Container (Reverse Proxy)"]
+    
+    %% Mạng app
+    subgraph Net_App ["Docker Network: app (External Bridge)"]
+        Caddy
+        NextJS["web: Next.js Frontend"]
+        BE_App["backend: Go Backend"]
+        AI_App["ai-service: FastAPI Service"]
+    end
+    
+    %% Mạng data
+    subgraph Net_Data ["Docker Network: data (Internal Bridge, Isolation)"]
+        BE_Data["backend: Go Backend"]
+        AI_Data["ai-service: FastAPI Service"]
+        Postgres[("postgres: PostgreSQL DB")]
+        Redis[("redis: Redis Store")]
+        Neo4j[("neo4j: Neo4j Graph DB")]
+    end
+    
+    %% Đường dẫn lưu lượng
+    Caddy -->|ws://| BE_App
+    Caddy -->|http://| NextJS
+    NextJS -->|/api/backend/| BE_App
+    BE_App -->|HTTP POST| AI_App
+    
+    %% Kết nối cô lập
+    BE_Data --> Postgres
+    BE_Data --> Neo4j
+    AI_Data --> Redis
+    AI_Data --> Postgres
+    
+    %% Style cô lập mạng dữ liệu
+    style Net_Data fill:#fff5f5,stroke:#ff9999,stroke-width:2px;
+```
+
+#### Giải thích sơ đồ mạng nội bộ Docker
+
+Sơ đồ trên minh họa giải pháp an ninh mạng cấp container được thiết lập trong Docker Compose:
+1. **Mạng app (Vòng ngoài):** Là mạng cầu nối (bridge) cho phép các dịch vụ web giao tiếp với nhau. Caddy có thể chuyển hướng lưu lượng đến Next.js hoặc Go Backend. Next.js có thể proxy request đến Go backend. Dịch vụ AI FastAPI cũng kết nối vào đây để Go Backend có thể gọi API.
+2. **Mạng data (Vòng trong - Cô lập):** Được thiết lập với thuộc tính `internal: true`. Mạng này không có cổng kết nối ra ngoài Internet (no gateway) và cũng không thể giao tiếp với các container trong mạng khác. Chỉ có `backend` và `ai-service` được kết nối đồng thời vào cả hai mạng để làm cầu nối truy vấn. Các cơ sở dữ liệu như PostgreSQL, Redis và Neo4j hoàn toàn vô hình đối với Caddy, Next.js hay bất kỳ kẻ tấn công nào dò quét cổng từ ngoài Internet.
