@@ -10,9 +10,9 @@ Use Codex as the visual reasoning layer and local MCP tools as the deterministic
 ## Workflow
 
 1. Read the current selection with `get_svg_extract_selection`.
-2. Confirm there is a selected image and one selected extract box, or a selection payload that clearly identifies a source image and crop target.
+2. Confirm there is exactly one selected image and one selected extract box.
 3. Use visual inspection to understand the target icon/logo and choose initial tracing settings.
-4. Call `export_svg_extract_crop` to create a PNG crop.
+4. Call `export_svg_extract_crop` with `projectDir`; it reads the selected pasted image and extract box when explicit `sourcePath` and `crop` are omitted.
 5. Call `vectorize_crop` using VTracer. Start with `mode: "color"` unless the target is clearly monochrome.
 6. Call `optimize_svg` to sanitize and reduce the SVG.
 7. Call `render_svg_preview` and visually compare the preview to the crop.

@@ -24,6 +24,10 @@ function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
 }
 
+function finiteNumber(value, fallback = 0) {
+  return Number.isFinite(Number(value)) ? Number(value) : fallback
+}
+
 function projectCanvasDir(projectDir) {
   return join(resolve(nonEmptyString(projectDir) ?? process.cwd()), 'canvas')
 }
@@ -78,12 +82,125 @@ function textContent(text) {
   return { content: [{ type: 'text', text }] }
 }
 
+function pageWorkDir(projectDir, pageId = 'default') {
+  return join(resolve(nonEmptyString(projectDir) ?? process.cwd()), 'canvas', 'pages', encodeURIComponent(pageId.replace(/^page:/, '')))
+}
+
+function extensionForMimeType(mimeType) {
+  if (mimeType === 'image/jpeg') return '.jpg'
+  if (mimeType === 'image/webp') return '.webp'
+  if (mimeType === 'image/gif') return '.gif'
+  return '.png'
+}
+
+function parseDataUrl(value) {
+  const match = /^data:([^;,]+)?(;base64)?,(.*)$/s.exec(String(value ?? ''))
+  if (!match) return null
+  const mimeType = match[1] || 'application/octet-stream'
+  const payload = match[3] || ''
+  return {
+    mimeType,
+    buffer: match[2] ? Buffer.from(payload, 'base64') : Buffer.from(decodeURIComponent(payload), 'utf8'),
+  }
+}
+
+function shapeBounds(shape) {
+  return {
+    x: finiteNumber(shape?.x),
+    y: finiteNumber(shape?.y),
+    width: finiteNumber(shape?.props?.w ?? shape?.asset?.w),
+    height: finiteNumber(shape?.props?.h ?? shape?.asset?.h),
+  }
+}
+
+function intersectBounds(a, b) {
+  const left = Math.max(a.x, b.x)
+  const top = Math.max(a.y, b.y)
+  const right = Math.min(a.x + a.width, b.x + b.width)
+  const bottom = Math.min(a.y + a.height, b.y + b.height)
+  return {
+    x: left,
+    y: top,
+    width: Math.max(0, right - left),
+    height: Math.max(0, bottom - top),
+  }
+}
+
+function selectedImageShape(selection) {
+  const images = selection.selectedShapes.filter((shape) => shape?.asset?.src && (shape.type === 'image' || shape.asset.type === 'image'))
+  if (images.length !== 1) throw new Error(`Expected exactly one selected image, found ${images.length}`)
+  return images[0]
+}
+
+function selectedExtractBox(selection) {
+  const boxes = selection.selectedShapes.filter((shape) => shape?.isSvgExtractTarget === true || shape?.meta?.svgExtractTarget === true)
+  if (boxes.length !== 1) throw new Error(`Expected exactly one selected extract box, found ${boxes.length}`)
+  return boxes[0]
+}
+
+async function materializeSelectionAsset({ projectDir, imageShape, pageId = 'default' }) {
+  const src = nonEmptyString(imageShape?.asset?.src)
+  if (!src) throw new Error('Selected image is missing asset source')
+
+  const dataUrl = parseDataUrl(src)
+  if (!dataUrl) {
+    const resolved = resolve(src)
+    safeProjectPath({ projectDir, unsafePath: resolved })
+    return resolved
+  }
+
+  const assetsDir = join(pageWorkDir(projectDir, pageId), 'assets')
+  const extension = extensionForMimeType(dataUrl.mimeType)
+  const fileName = normalizeFileName(`${imageShape.id || 'selected-image'}${extension}`, `selected-image${extension}`)
+  const sourcePath = join(assetsDir, fileName)
+  await mkdir(dirname(sourcePath), { recursive: true })
+  await writeFile(sourcePath, dataUrl.buffer)
+  return sourcePath
+}
+
+async function exportCropFromSelection(args = {}) {
+  const { cropImage } = await import('../tools/crop.mjs')
+  const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+  const pageId = nonEmptyString(args.pageId) ?? 'default'
+  const outputDir = nonEmptyString(args.outputDir) ?? join(pageWorkDir(projectDir, pageId), 'crops')
+  safeProjectPath({ projectDir, unsafePath: outputDir })
+
+  const selection = await loadSelectionState({ projectDir })
+  const imageShape = selectedImageShape(selection)
+  const extractBox = selectedExtractBox(selection)
+  const imageBounds = shapeBounds(imageShape)
+  const boxBounds = shapeBounds(extractBox)
+  const overlap = intersectBounds(imageBounds, boxBounds)
+  if (overlap.width <= 0 || overlap.height <= 0) {
+    throw new Error('Selected extract box does not overlap the selected image')
+  }
+
+  const assetWidth = finiteNumber(imageShape.asset?.w, imageBounds.width)
+  const assetHeight = finiteNumber(imageShape.asset?.h, imageBounds.height)
+  const scaleX = imageBounds.width > 0 ? assetWidth / imageBounds.width : 1
+  const scaleY = imageBounds.height > 0 ? assetHeight / imageBounds.height : 1
+  const sourcePath = await materializeSelectionAsset({ projectDir, imageShape, pageId })
+
+  return cropImage({
+    sourcePath,
+    outputDir,
+    fileName: nonEmptyString(args.fileName) ?? 'selected-crop.png',
+    crop: {
+      x: (overlap.x - imageBounds.x) * scaleX,
+      y: (overlap.y - imageBounds.y) * scaleY,
+      width: overlap.width * scaleX,
+      height: overlap.height * scaleY,
+    },
+  })
+}
+
 async function callTool(name, args = {}) {
   switch (name) {
     case 'get_svg_extract_selection':
       return jsonContent(await loadSelectionState({ projectDir: args.projectDir }))
     case 'export_svg_extract_crop': {
       const { cropImage } = await import('../tools/crop.mjs')
+      if (!args.sourcePath && !args.crop) return jsonContent(await exportCropFromSelection(args))
       const safeArgs = { ...args }
       if (args.outputDir) safeArgs.outputDir = safeProjectPath({ projectDir: args.projectDir, unsafePath: args.outputDir })
       return jsonContent(await cropImage(safeArgs))
