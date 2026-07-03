@@ -42,3 +42,19 @@ test('optimizeSvg writes safe optimized SVG with viewBox and stats', async () =>
   assert.equal(result.stats.pathCount, 1)
   assert.equal(result.stats.fileBytes > 0, true)
 })
+
+test('optimizeSvg synthesizes viewBox from width and height when missing', async () => {
+  const { optimizeSvg } = await import('../tools/optimizeSvg.mjs')
+  const dir = await tempDir()
+  const rawSvgPath = join(dir, 'raw-no-viewbox.svg')
+  await writeFile(
+    rawSvgPath,
+    '<svg width="84" height="92"><path d="M0 0h84v92z"/></svg>',
+  )
+
+  const result = await optimizeSvg({ rawSvgPath, outputDir: dir, fileName: 'clean-no-viewbox.svg' })
+  const svg = await readFile(result.svgPath, 'utf8')
+
+  assert.match(svg, /viewBox="0 0 84 92"/)
+  assert.equal(result.stats.pathCount, 1)
+})
