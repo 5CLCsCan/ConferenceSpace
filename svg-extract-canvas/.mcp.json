@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "svg_extract_canvas": {
+      "command": "bash",
+      "args": [
+        "./scripts/start-mcp.sh"
+      ],
+      "cwd": "."
+    }
+  }
+}

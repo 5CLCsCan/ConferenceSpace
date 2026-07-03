@@ -1,0 +1,38 @@
+{
+  "name": "svg-extract-canvas",
+  "version": "0.1.0",
+  "description": "A local Codex canvas plugin for annotating screenshots and extracting editable SVG drafts.",
+  "author": {
+    "name": "SVG Extract Canvas"
+  },
+  "keywords": [
+    "svg",
+    "canvas",
+    "vectorize",
+    "codex",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "SVG Extract Canvas",
+    "shortDescription": "Annotate screenshots and extract editable SVG drafts with Codex.",
+    "longDescription": "SVG Extract Canvas provides a local tldraw canvas, deterministic crop/vector/SVG tools, and Codex skills for turning screenshot regions into editable SVG drafts.",
+    "developerName": "SVG Extract Canvas",
+    "category": "Productivity",
+    "brandColor": "#2563EB",
+    "capabilities": [
+      "Local canvas",
+      "Screenshot annotation",
+      "SVG vectorization",
+      "Project-local persistence",
+      "MCP tools"
+    ],
+    "defaultPrompt": [
+      "Open the SVG extraction canvas.",
+      "Extract the selected icon as SVG.",
+      "Refine this SVG.",
+      "Export the final SVG."
+    ]
+  }
+}
