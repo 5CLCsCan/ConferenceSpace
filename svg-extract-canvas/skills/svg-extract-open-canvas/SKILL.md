@@ -8,6 +8,7 @@ description: Open the SVG Extract Canvas local web service for a Codex project. 
 Start the local canvas service from the plugin repository root:
 
 ```bash
+npm run build
 ./scripts/start-canvas.sh /absolute/path/to/user/project
 ```
 

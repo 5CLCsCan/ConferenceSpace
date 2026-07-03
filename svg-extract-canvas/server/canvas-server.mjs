@@ -1,6 +1,7 @@
 import { createServer } from 'node:http'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { createReadStream } from 'node:fs'
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const DEFAULT_PAGE_ID = 'page:default'
@@ -147,6 +148,56 @@ function sendJson(response, statusCode, payload) {
   response.end(`${JSON.stringify(payload)}\n`)
 }
 
+export function pluginRootDir() {
+  return resolve(dirname(fileURLToPath(import.meta.url)), '..')
+}
+
+export function contentTypeForPath(filePath) {
+  const extension = extname(filePath).toLowerCase()
+  if (extension === '.html') return 'text/html; charset=utf-8'
+  if (extension === '.js') return 'text/javascript; charset=utf-8'
+  if (extension === '.css') return 'text/css; charset=utf-8'
+  if (extension === '.svg') return 'image/svg+xml'
+  if (extension === '.png') return 'image/png'
+  if (extension === '.json') return 'application/json'
+  return 'application/octet-stream'
+}
+
+export async function resolveStaticPath({ distDir = join(pluginRootDir(), 'dist'), pathname = '/' } = {}) {
+  const decodedPath = decodeURIComponent(pathname.split('?')[0] || '/')
+  const relativePath = decodedPath === '/' ? 'index.html' : decodedPath.replace(/^\/+/, '')
+  const candidate = resolve(distDir, relativePath)
+  const root = resolve(distDir)
+
+  if (candidate !== root && !candidate.startsWith(`${root}${sep}`)) return null
+
+  try {
+    const info = await stat(candidate)
+    if (info.isFile()) return candidate
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+  }
+
+  const fallback = resolve(root, 'index.html')
+  try {
+    const info = await stat(fallback)
+    return info.isFile() ? fallback : null
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+    return null
+  }
+}
+
+async function serveStaticDist(request, response) {
+  const url = new URL(request.url, 'http://127.0.0.1')
+  const filePath = await resolveStaticPath({ pathname: url.pathname })
+  if (!filePath) return false
+
+  response.writeHead(200, { 'content-type': contentTypeForPath(filePath) })
+  createReadStream(filePath).pipe(response)
+  return true
+}
+
 export function createCanvasApiHandler({ projectDir } = {}) {
   const rootProjectDir = resolveProjectDir(projectDir)
 
@@ -198,9 +249,10 @@ export function createStandaloneServer({ projectDir, port = Number(process.env.S
   const handleApi = createCanvasApiHandler({ projectDir })
   return createServer(async (request, response) => {
     if (await handleApi(request, response)) return
+    if (await serveStaticDist(request, response)) return
     if (request.url === '/' || request.url === '/index.html') {
       response.writeHead(200, { 'content-type': 'text/html' })
-      response.end('<!doctype html><div id="root">SVG Extract Canvas server is running.</div>')
+      response.end('<!doctype html><div id="root">SVG Extract Canvas server is running. Run npm run build to serve the canvas UI.</div>')
       return
     }
     response.writeHead(404, { 'content-type': 'text/plain' })

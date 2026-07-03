@@ -19,6 +19,7 @@ export VTRACER_BIN=/absolute/path/to/vtracer
 ## Run
 
 ```bash
+npm run build
 ./scripts/start-canvas.sh /path/to/user/project
 ```
 
@@ -27,6 +28,8 @@ Default local URL:
 ```text
 http://127.0.0.1:43227/
 ```
+
+The canvas server serves the built Vite app from `dist/` and the local API endpoints from the same port.
 
 ## Codex Prompts
 
