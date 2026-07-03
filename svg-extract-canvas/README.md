@@ -83,9 +83,9 @@ canvas/pages/default/extractions/v001/crops/
 canvas/pages/default/extractions/v001/manifest.json
 ```
 
-Each button press creates the next version, such as `v002` or `v003`. Batch extraction crops every extract frame unless it is explicitly marked `rejected`.
+Each button press creates the next version, such as `v002` or `v003`. If one or more extract frames are selected, **Extract** crops only those selected frames. If no extract frame is selected, it crops every extract frame on the page. Frames marked `rejected` are always skipped.
 
-Extract boxes are bound to source image shapes. Codex-suggested boxes are included by default when you press **Extract**; delete or reject boxes you do not want.
+Extract boxes are bound to source image shapes. Codex-suggested boxes are included by default when you press **Extract** with no extract-frame selection; select specific boxes first when you only want a subset.
 
 The intended positioning is “editable SVG drafts for design exploration,” not exact cloning of logos or paid icon sets.
 

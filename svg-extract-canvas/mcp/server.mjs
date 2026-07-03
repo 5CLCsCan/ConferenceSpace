@@ -73,7 +73,7 @@ function listTools() {
     tools: [
       toolDefinition('get_svg_extract_selection', 'Read the current SVG extraction canvas selection.'),
       toolDefinition('export_svg_extract_crop', 'Crop a selected screenshot region into a PNG.'),
-      toolDefinition('batch_export_extract_crops', 'Crop every non-rejected extract frame into a versioned folder.'),
+      toolDefinition('batch_export_extract_crops', 'Crop selected non-rejected extract frames, or every non-rejected frame when none are selected, into a versioned folder.'),
       toolDefinition('isolate_crop_background', 'Remove or flatten crop backgrounds before vectorization.'),
       toolDefinition('save_clean_raster_draft', 'Save a Codex-created clean raster draft for tracing.'),
       toolDefinition('vectorize_crop', 'Vectorize a crop into raw SVG with VTracer.'),

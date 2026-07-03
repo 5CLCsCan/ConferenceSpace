@@ -222,6 +222,7 @@ export function createCanvasApiHandler({ projectDir } = {}) {
         const result = await batchExtractCrops({
           projectDir: rootProjectDir,
           pageId: nonEmptyString(body.pageId) ?? DEFAULT_PAGE_ID,
+          selectedShapeIds: Array.isArray(body.selectedShapeIds) ? body.selectedShapeIds : [],
         })
         sendJson(response, 200, result)
         return true

@@ -119,7 +119,7 @@ test('canvas snapshots are isolated by project directory', async () => {
   assert.equal(loadedB.store['shape:only-a'], undefined)
 })
 
-test('POST /api/extract writes versioned crops for accepted frames', async () => {
+test('POST /api/extract writes versioned crops for selected frames', async () => {
   const { createCanvasApiHandler, saveCanvasSnapshot } = await import('../server/canvas-server.mjs')
   const projectDir = await tempProject()
   const sourcePath = join(projectDir, 'canvas/pages/default/assets/source.png')
@@ -161,16 +161,38 @@ test('POST /api/extract writes versioned crops for accepted frames', async () =>
             label: 'api icon',
           },
         },
+        'shape:other-target': {
+          id: 'shape:other-target',
+          typeName: 'shape',
+          type: 'geo',
+          parentId: 'page:default',
+          x: 10,
+          y: 10,
+          props: { geo: 'rectangle', w: 4, h: 4 },
+          meta: {
+            svgExtractTarget: true,
+            svgExtractTargetVersion: 2,
+            sourceShapeId: 'shape:image',
+            sourceRelativeBounds: { x: 10, y: 10, width: 4, height: 4 },
+            status: 'suggested',
+            label: 'other icon',
+          },
+        },
       },
     },
   })
   const handler = createCanvasApiHandler({ projectDir })
 
-  const result = await callApi(handler, { method: 'POST', url: '/api/extract', body: { pageId: 'page:default' } })
+  const result = await callApi(handler, {
+    method: 'POST',
+    url: '/api/extract',
+    body: { pageId: 'page:default', selectedShapeIds: ['shape:target'] },
+  })
 
   assert.equal(result.handled, true)
   assert.equal(result.statusCode, 200)
   assert.equal(result.body.version, 'v001')
+  assert.equal(result.body.selectionMode, 'selected')
   assert.equal(result.body.cropCount, 1)
   assert.match(result.body.crops[0].cropPath, /extractions\/v001\/crops\/01-api-icon\.png$/)
 })

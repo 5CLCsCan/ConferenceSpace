@@ -24,7 +24,8 @@ Use Codex as the vision layer. The app does not call an AI API.
 
 ## Guardrails
 
-- Suggested boxes are extractable by default when the user presses Extract.
+- Suggested boxes are extractable by default when the user presses Extract with no extract-frame selection.
+- To extract only a subset, select those extract boxes before pressing Extract.
 - Do not extract from `rejected` boxes.
 - Prefer slightly larger boxes that contain the complete icon over tight boxes that clip strokes or shadows.
 - Do not place boxes by viewport pixels or screenshot-of-the-canvas coordinates. Always convert to local image coordinates first.

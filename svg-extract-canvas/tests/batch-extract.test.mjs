@@ -108,7 +108,58 @@ test('batchExtractCrops writes versioned crop folder and manifest', async () => 
 
   assert.equal(manifest.version, 'v001')
   assert.equal(manifest.cropCount, 3)
+  assert.equal(manifest.selectionMode, 'all')
   assert.equal(cropBytes.subarray(1, 4).toString('ascii'), 'PNG')
+})
+
+test('batchExtractCrops crops only selected extract frames when provided', async () => {
+  const { batchExtractCrops } = await import('../tools/batchExtract.mjs')
+  const projectDir = await tempProject()
+  await seedCanvas(projectDir)
+
+  const result = await batchExtractCrops({
+    projectDir,
+    selectedShapeIds: ['shape:manual'],
+    createdAt: '2026-07-03T00:00:00.000Z',
+  })
+
+  assert.equal(result.selectionMode, 'selected')
+  assert.deepEqual(result.selectedShapeIds, ['shape:manual'])
+  assert.equal(result.cropCount, 1)
+  assert.equal(result.crops[0].extractBoxId, 'shape:manual')
+  assert.equal(result.crops[0].label, 'blue icon')
+})
+
+test('batchExtractCrops falls back to all frames when selection has no extract frames', async () => {
+  const { batchExtractCrops } = await import('../tools/batchExtract.mjs')
+  const projectDir = await tempProject()
+  await seedCanvas(projectDir)
+
+  const result = await batchExtractCrops({
+    projectDir,
+    selectedShapeIds: ['shape:image'],
+    createdAt: '2026-07-03T00:00:00.000Z',
+  })
+
+  assert.equal(result.selectionMode, 'all')
+  assert.deepEqual(result.selectedShapeIds, ['shape:image'])
+  assert.equal(result.cropCount, 3)
+})
+
+test('batchExtractCrops skips rejected frames even when selected', async () => {
+  const { batchExtractCrops } = await import('../tools/batchExtract.mjs')
+  const projectDir = await tempProject()
+  await seedCanvas(projectDir)
+
+  await assert.rejects(
+    () =>
+      batchExtractCrops({
+        projectDir,
+        selectedShapeIds: ['shape:rejected'],
+        createdAt: '2026-07-03T00:00:00.000Z',
+      }),
+    /No extractable selected frames/,
+  )
 })
 
 test('batchExtractCrops rejects a canvas without extractable targets', async () => {

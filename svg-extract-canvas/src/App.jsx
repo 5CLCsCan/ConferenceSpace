@@ -233,7 +233,10 @@ export default function App() {
               const extractResponse = await fetch(EXTRACT_ENDPOINT, {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ pageId: editor.getCurrentPageId() }),
+                body: JSON.stringify({
+                  pageId: editor.getCurrentPageId(),
+                  selectedShapeIds: editor.getSelectedShapeIds().map((id) => String(id)),
+                }),
               })
               const result = await extractResponse.json()
               if (!extractResponse.ok) throw new Error(result.error ?? `Extract failed: ${extractResponse.status}`)

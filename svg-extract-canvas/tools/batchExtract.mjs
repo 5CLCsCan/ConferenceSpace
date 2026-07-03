@@ -88,12 +88,32 @@ function relativeBoundsFromTarget({ target, sourceBounds }) {
   }
 }
 
-function extractTargets(snapshot) {
-  return Object.values(snapshot?.store ?? {}).filter((record) => {
-    if (record?.typeName !== 'shape' || record?.meta?.svgExtractTarget !== true) return false
-    const status = nonEmptyString(record.meta.status) ?? 'manual'
-    return status !== 'rejected'
-  })
+function normalizedSelectedShapeIds(selectedShapeIds) {
+  if (!Array.isArray(selectedShapeIds)) return []
+  return selectedShapeIds.map((id) => nonEmptyString(id)).filter(Boolean)
+}
+
+function isExtractTarget(record) {
+  return record?.typeName === 'shape' && record?.meta?.svgExtractTarget === true
+}
+
+function isRejectedTarget(record) {
+  return (nonEmptyString(record?.meta?.status) ?? 'manual') === 'rejected'
+}
+
+function extractTargets(snapshot, selectedShapeIds = []) {
+  const selectedIds = normalizedSelectedShapeIds(selectedShapeIds)
+  const selectedIdSet = new Set(selectedIds)
+  const allTargets = Object.values(snapshot?.store ?? {}).filter(isExtractTarget)
+  const selectedTargets = selectedIdSet.size > 0 ? allTargets.filter((record) => selectedIdSet.has(record.id)) : []
+  const selectionMode = selectedTargets.length > 0 ? 'selected' : 'all'
+  const candidateTargets = selectionMode === 'selected' ? selectedTargets : allTargets
+
+  return {
+    targets: candidateTargets.filter((record) => !isRejectedTarget(record)),
+    selectionMode,
+    selectedShapeIds: selectedIds,
+  }
 }
 
 function imageShapeForTarget(snapshot, target) {
@@ -144,11 +164,20 @@ function targetFileName({ target, index }) {
   return `${String(index + 1).padStart(2, '0')}-${label}.png`
 }
 
-export async function batchExtractCrops({ projectDir, pageId = 'default', snapshot, createdAt = new Date().toISOString() } = {}) {
+export async function batchExtractCrops({
+  projectDir,
+  pageId = 'default',
+  snapshot,
+  selectedShapeIds = [],
+  createdAt = new Date().toISOString(),
+} = {}) {
   const resolvedProjectDir = resolve(nonEmptyString(projectDir) ?? process.cwd())
   const canvasSnapshot = snapshot ?? JSON.parse(await readFile(join(pageWorkDir(resolvedProjectDir, pageId), 'svg-extract-canvas.json'), 'utf8')).snapshot
-  const targets = extractTargets(canvasSnapshot)
-  if (targets.length === 0) throw new Error('No extractable frames found')
+  const extractionSelection = extractTargets(canvasSnapshot, selectedShapeIds)
+  const { targets } = extractionSelection
+  if (targets.length === 0) {
+    throw new Error(extractionSelection.selectionMode === 'selected' ? 'No extractable selected frames found' : 'No extractable frames found')
+  }
 
   const pageDir = pageWorkDir(resolvedProjectDir, pageId)
   const extractionsDir = join(pageDir, 'extractions')
@@ -200,6 +229,8 @@ export async function batchExtractCrops({ projectDir, pageId = 'default', snapsh
     versionNumber,
     createdAt,
     pageId,
+    selectionMode: extractionSelection.selectionMode,
+    selectedShapeIds: extractionSelection.selectedShapeIds,
     cropCount: crops.length,
     outputDir,
     cropsDir,
