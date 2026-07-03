@@ -23,8 +23,9 @@ test('loadCanvasSnapshot creates a default canvas snapshot', async () => {
   const snapshot = await loadCanvasSnapshot({ projectDir })
 
   assert.equal(typeof snapshot.schema, 'object')
+  assert.equal(snapshot.schema.schemaVersion, 2)
+  assert.equal(typeof snapshot.schema.sequences, 'object')
   assert.equal(typeof snapshot.store, 'object')
-  assert.ok(snapshot.store['page:default'])
 })
 
 test('saveCanvasSnapshot and loadCanvasSnapshot roundtrip canvas content', async () => {

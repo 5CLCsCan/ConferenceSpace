@@ -5,7 +5,6 @@ import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const DEFAULT_PAGE_ID = 'page:default'
-const DEFAULT_PAGE_NAME = 'Default'
 const CANVAS_FILE_NAME = 'svg-extract-canvas.json'
 const VIEW_STATE_FILE_NAME = 'svg-extract-view-state.json'
 const SELECTION_FILE_NAME = 'svg-extract-selection.json'
@@ -43,29 +42,9 @@ export function createDefaultCanvasSnapshot() {
   return {
     schema: {
       schemaVersion: 2,
-      storeVersion: 4,
-      recordVersions: {},
+      sequences: {},
     },
-    store: {
-      [DEFAULT_PAGE_ID]: {
-        id: DEFAULT_PAGE_ID,
-        typeName: 'page',
-        name: DEFAULT_PAGE_NAME,
-        meta: {},
-      },
-      'instance_page_state:default': {
-        id: 'instance_page_state:default',
-        typeName: 'instance_page_state',
-        pageId: DEFAULT_PAGE_ID,
-        selectedShapeIds: [],
-        hintingShapeIds: [],
-        erasingShapeIds: [],
-        editingShapeId: null,
-        croppingShapeId: null,
-        focusedGroupId: null,
-        meta: {},
-      },
-    },
+    store: {},
   }
 }
 
