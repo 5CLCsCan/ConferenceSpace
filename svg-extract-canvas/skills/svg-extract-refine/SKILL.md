@@ -14,11 +14,15 @@ Use this after an initial extraction when visual comparison shows issues.
 - Rounded corners look jagged: use spline mode and lower path precision only after shape quality is acceptable.
 - Color icon has banding/noise: reduce `colorPrecision` or crop closer to the icon.
 - Background is included: recrop tighter or preprocess to flatten/remove background before vectorizing.
+- Background and icon are visually entangled: switch from direct trace to a recreated clean raster draft, then trace that draft.
+- The generated SVG matches screenshot artifacts more than the icon: go back one step and improve the raster source before changing vector settings again.
 
 Always rerun:
 
 ```text
 crop -> vectorize_crop -> optimize_svg -> render_svg_preview
 ```
+
+If the raster source changes because Codex recreated a clean draft, use that recreated raster as the new input to the same loop.
 
 Then visually inspect the crop and preview again before reporting success.

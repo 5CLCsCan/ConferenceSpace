@@ -4,6 +4,13 @@ SVG Extract Canvas is a Codex-first local plugin for turning screenshot regions 
 
 The plugin provides the deterministic pieces: a local tldraw canvas, project-local files, MCP tools for crop/vectorize/clean/preview/export, and Codex skills. Codex provides the image understanding and visual judgment.
 
+The intended extraction strategy is:
+
+```text
+manual crop -> direct trace when possible
+manual crop -> recreate clean raster draft -> trace when the crop is too noisy
+```
+
 ## Install
 
 ```bash
@@ -31,11 +38,14 @@ http://127.0.0.1:43227/
 
 The canvas server serves the built Vite app from `dist/` and the local API endpoints from the same port.
 
+For the intended Codex workflow, open this URL in the Codex in-app browser side pane. That keeps chat and canvas visible together, and lets Codex visually inspect the canvas while you select regions.
+
 ## Codex Prompts
 
 ```text
 Open the SVG extraction canvas.
 Extract the selected icon as SVG.
+If direct tracing is noisy, recreate a clean raster draft first and then trace it.
 Refine this SVG.
 Export the final SVG.
 ```

@@ -20,6 +20,8 @@ Open the printed local URL, usually:
 http://127.0.0.1:43227/
 ```
 
+Prefer opening the URL in Codex's in-app browser side pane so the user can work on the canvas while Codex can visually inspect it. Keep the browser visible when the user's goal is interactive canvas work.
+
 Canvas data belongs to the user project:
 
 ```text
