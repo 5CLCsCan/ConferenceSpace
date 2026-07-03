@@ -54,5 +54,6 @@ test('required Codex skills exist', async () => {
     assertFile(path('skills/svg-extract-icon/SKILL.md')),
     assertFile(path('skills/svg-extract-refine/SKILL.md')),
     assertFile(path('skills/svg-extract-export/SKILL.md')),
+    assertFile(path('skills/svg-extract-suggest-targets/SKILL.md')),
   ])
 })

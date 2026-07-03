@@ -9,18 +9,18 @@ Use this after an initial extraction when visual comparison shows issues.
 
 ## Adjustment Guide
 
-- Too many tiny paths: increase `filterSpeckle`, reduce color precision, simplify the crop background.
+- Too many tiny paths: improve the raster source first with `isolate_crop_background` or a clean raster draft, then increase `filterSpeckle` only if needed.
 - Wrong monochrome shape: retry `mode: "bw"` and adjust threshold before tracing.
 - Rounded corners look jagged: use spline mode and lower path precision only after shape quality is acceptable.
 - Color icon has banding/noise: reduce `colorPrecision` or crop closer to the icon.
-- Background is included: recrop tighter or preprocess to flatten/remove background before vectorizing.
+- Background is included: rerun `isolate_crop_background`; if it still fails, recreate a clean raster draft and trace that.
 - Background and icon are visually entangled: switch from direct trace to a recreated clean raster draft, then trace that draft.
 - The generated SVG matches screenshot artifacts more than the icon: go back one step and improve the raster source before changing vector settings again.
 
-Always rerun:
+Prefer improving the raster input before changing vectorization settings. Then rerun:
 
 ```text
-crop -> vectorize_crop -> optimize_svg -> render_svg_preview
+crop -> isolate_crop_background -> vectorize_crop -> optimize_svg -> render_svg_preview
 ```
 
 If the raster source changes because Codex recreated a clean draft, use that recreated raster as the new input to the same loop.

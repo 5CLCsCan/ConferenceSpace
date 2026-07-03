@@ -3,6 +3,7 @@ import { basename, dirname, extname, join, relative, resolve, sep } from 'node:p
 import readline from 'node:readline'
 import { fileURLToPath } from 'node:url'
 import { loadCanvasSnapshot, loadSelectionState, saveCanvasSnapshot } from '../server/canvas-server.mjs'
+import { createExtractBoxRecord } from '../src/extractBox.js'
 
 const ERROR = {
   METHOD_NOT_FOUND: -32601,
@@ -13,11 +14,17 @@ const ERROR = {
 export const TOOL_NAMES = [
   'get_svg_extract_selection',
   'export_svg_extract_crop',
+  'isolate_crop_background',
+  'save_clean_raster_draft',
   'vectorize_crop',
   'optimize_svg',
   'render_svg_preview',
   'insert_svg_result',
   'save_export',
+  'list_canvas_images',
+  'suggest_extract_targets',
+  'apply_extract_target_suggestions',
+  'set_extract_target_status',
 ]
 
 function nonEmptyString(value) {
@@ -65,11 +72,17 @@ function listTools() {
     tools: [
       toolDefinition('get_svg_extract_selection', 'Read the current SVG extraction canvas selection.'),
       toolDefinition('export_svg_extract_crop', 'Crop a selected screenshot region into a PNG.'),
+      toolDefinition('isolate_crop_background', 'Remove or flatten crop backgrounds before vectorization.'),
+      toolDefinition('save_clean_raster_draft', 'Save a Codex-created clean raster draft for tracing.'),
       toolDefinition('vectorize_crop', 'Vectorize a crop into raw SVG with VTracer.'),
       toolDefinition('optimize_svg', 'Sanitize and optimize an SVG.'),
       toolDefinition('render_svg_preview', 'Render an SVG to a PNG preview.'),
       toolDefinition('insert_svg_result', 'Insert an SVG preview/result next to the source canvas object.'),
       toolDefinition('save_export', 'Copy a final SVG into the page export directory.'),
+      toolDefinition('list_canvas_images', 'List pasted image shapes on the canvas.'),
+      toolDefinition('suggest_extract_targets', 'Normalize Codex-proposed icon target suggestions without mutating the canvas.'),
+      toolDefinition('apply_extract_target_suggestions', 'Insert Codex-proposed icon target boxes for user review.'),
+      toolDefinition('set_extract_target_status', 'Mark suggested extract boxes as accepted or rejected.'),
     ],
   }
 }
@@ -130,29 +143,12 @@ function isImageSelectionShape(shape) {
   return Boolean(shape?.asset?.src && (shape.type === 'image' || shape.asset.type === 'image'))
 }
 
-function isRectangleTargetShape(shape) {
-  return shape?.type === 'frame' || (shape?.type === 'geo' && shape?.props?.geo === 'rectangle')
-}
-
-function selectedImageShape(selection) {
-  const images = selection.selectedShapes.filter((shape) => shape?.asset?.src && (shape.type === 'image' || shape.asset.type === 'image'))
-  if (images.length !== 1) throw new Error(`Expected exactly one selected image, found ${images.length}`)
-  return images[0]
-}
-
-function selectedExtractBox(selection) {
-  const boxes = selectedExtractBoxes(selection)
-  if (boxes.length !== 1) throw new Error(`Expected exactly one selected extract box, found ${boxes.length}`)
-  return boxes[0]
-}
-
 function selectedExtractBoxes(selection) {
-  return selection.selectedShapes.filter(
-    (shape) =>
-      shape?.isSvgExtractTarget === true ||
-      shape?.meta?.svgExtractTarget === true ||
-      isRectangleTargetShape(shape),
-  )
+  return selection.selectedShapes.filter((shape) => {
+    if (shape?.isSvgExtractTarget !== true && shape?.meta?.svgExtractTarget !== true) return false
+    const status = nonEmptyString(shape?.meta?.status) ?? 'manual'
+    return status === 'manual' || status === 'accepted'
+  })
 }
 
 function canvasImageShapeRecords(snapshot) {
@@ -204,6 +200,26 @@ function inferImageShapeFromCanvas({ selection, snapshot, extractBox }) {
   return overlappingImages[0]
 }
 
+function imageShapeFromSelectionOrCanvas({ selection, snapshot, shapeId }) {
+  const selected = selection.selectedShapes.find((shape) => shape?.id === shapeId && isImageSelectionShape(shape))
+  if (selected) return selected
+  const record = snapshot?.store?.[shapeId]
+  if (!record || record.typeName !== 'shape' || record.type !== 'image') {
+    throw new Error(`Bound source image not found: ${shapeId}`)
+  }
+  return selectionShapeFromCanvas(snapshot, record)
+}
+
+function imageShapeForExtractBox({ selection, snapshot, extractBox }) {
+  const sourceShapeId = nonEmptyString(extractBox?.meta?.sourceShapeId)
+  if (sourceShapeId) return imageShapeFromSelectionOrCanvas({ selection, snapshot, shapeId: sourceShapeId })
+
+  const version = Number(extractBox?.meta?.svgExtractTargetVersion ?? 1)
+  if (version <= 1) return inferImageShapeFromCanvas({ selection, snapshot, extractBox })
+
+  throw new Error(`Extract box is missing bound sourceShapeId: ${extractBox?.id}`)
+}
+
 async function materializeSelectionAsset({ projectDir, imageShape, pageId = 'default' }) {
   const src = nonEmptyString(imageShape?.asset?.src)
   if (!src) throw new Error('Selected image is missing asset source')
@@ -235,19 +251,21 @@ async function exportCropFromSelection(args = {}) {
   const extractBoxes = selectedExtractBoxes(selection)
   if (extractBoxes.length === 0) throw new Error('Expected at least one selected extract box, found 0')
   const snapshot = await loadCanvasSnapshot({ projectDir })
-  const imageShape = selection.selectedShapes.some(isImageSelectionShape)
-    ? selectedImageShape(selection)
-    : inferImageShapeFromCanvas({ selection, snapshot, extractBox: extractBoxes[0] })
-  const imageBounds = shapeBounds(imageShape)
-
-  const assetWidth = finiteNumber(imageShape.asset?.w, imageBounds.width)
-  const assetHeight = finiteNumber(imageShape.asset?.h, imageBounds.height)
-  const scaleX = imageBounds.width > 0 ? assetWidth / imageBounds.width : 1
-  const scaleY = imageBounds.height > 0 ? assetHeight / imageBounds.height : 1
-  const sourcePath = await materializeSelectionAsset({ projectDir, imageShape, pageId })
+  const sourceCache = new Map()
 
   const crops = []
   for (const [index, extractBox] of extractBoxes.entries()) {
+    const imageShape = imageShapeForExtractBox({ selection, snapshot, extractBox })
+    const imageBounds = shapeBounds(imageShape)
+    const assetWidth = finiteNumber(imageShape.asset?.w, imageBounds.width)
+    const assetHeight = finiteNumber(imageShape.asset?.h, imageBounds.height)
+    const scaleX = imageBounds.width > 0 ? assetWidth / imageBounds.width : 1
+    const scaleY = imageBounds.height > 0 ? assetHeight / imageBounds.height : 1
+    let sourcePath = sourceCache.get(imageShape.id)
+    if (!sourcePath) {
+      sourcePath = await materializeSelectionAsset({ projectDir, imageShape, pageId })
+      sourceCache.set(imageShape.id, sourcePath)
+    }
     const boxBounds = shapeBounds(extractBox)
     const overlap = intersectBounds(imageBounds, boxBounds)
     if (overlap.width <= 0 || overlap.height <= 0) {
@@ -289,6 +307,33 @@ async function callTool(name, args = {}) {
       if (args.outputDir) safeArgs.outputDir = safeProjectPath({ projectDir: args.projectDir, unsafePath: args.outputDir })
       return jsonContent(await cropImage(safeArgs))
     }
+    case 'isolate_crop_background': {
+      const { isolateCropBackground } = await import('../tools/isolateBackground.mjs')
+      const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+      const pageId = nonEmptyString(args.pageId) ?? 'default'
+      const safeArgs = { ...args }
+      if (args.cropPath) safeProjectPath({ projectDir, unsafePath: args.cropPath })
+      safeArgs.outputDir = safeProjectPath({
+        projectDir,
+        unsafePath: nonEmptyString(args.outputDir) ?? join(pageWorkDir(projectDir, pageId), 'isolated'),
+      })
+      if (args.maskOutputDir) safeArgs.maskOutputDir = safeProjectPath({ projectDir, unsafePath: args.maskOutputDir })
+      return jsonContent(await isolateCropBackground(safeArgs))
+    }
+    case 'save_clean_raster_draft': {
+      const { saveCleanRasterDraft } = await import('../tools/isolateBackground.mjs')
+      const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+      const pageId = nonEmptyString(args.pageId) ?? 'default'
+      const safeArgs = {
+        ...args,
+        outputDir: safeProjectPath({
+          projectDir,
+          unsafePath: nonEmptyString(args.outputDir) ?? join(pageWorkDir(projectDir, pageId), 'drafts'),
+        }),
+      }
+      if (args.sourceCropPath) safeProjectPath({ projectDir, unsafePath: args.sourceCropPath })
+      return jsonContent(await saveCleanRasterDraft(safeArgs))
+    }
     case 'vectorize_crop': {
       const { vectorizeCrop } = await import('../tools/vectorize.mjs')
       const safeArgs = { ...args }
@@ -313,9 +358,24 @@ async function callTool(name, args = {}) {
       return jsonContent(await insertSvgResult(args))
     case 'save_export':
       return jsonContent(await saveExport(args))
+    case 'list_canvas_images':
+      return jsonContent(await listCanvasImages(args))
+    case 'suggest_extract_targets':
+      return jsonContent(await suggestExtractTargets(args))
+    case 'apply_extract_target_suggestions':
+      return jsonContent(await applyExtractTargetSuggestions(args))
+    case 'set_extract_target_status':
+      return jsonContent(await setExtractTargetStatus(args))
     default:
       throw Object.assign(new Error(`Unknown tool: ${name}`), { code: ERROR.METHOD_NOT_FOUND })
   }
+}
+
+function extractTargetColorForStatus(status) {
+  if (status === 'suggested') return 'orange'
+  if (status === 'accepted') return 'green'
+  if (status === 'rejected') return 'grey'
+  return 'blue'
 }
 
 function normalizeFileName(fileName, fallback) {
@@ -369,6 +429,114 @@ export async function insertSvgResult(args = {}) {
   }
   await saveCanvasSnapshot({ projectDir, snapshot })
   return { shapeId, snapshotPath: 'canvas/pages/default/svg-extract-canvas.json' }
+}
+
+export async function listCanvasImages(args = {}) {
+  const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+  const snapshot = await loadCanvasSnapshot({ projectDir })
+  return {
+    images: canvasImageShapeRecords(snapshot).map((record) => {
+      const shape = selectionShapeFromCanvas(snapshot, record)
+      return {
+        id: shape.id,
+        pageId: shape.parentId ?? 'page:default',
+        bounds: shapeBounds(shape),
+        asset: shape.asset,
+      }
+    }),
+  }
+}
+
+function normalizeSuggestion({ suggestion, imageShape }) {
+  const box = suggestion?.box ?? {}
+  const width = finiteNumber(box.w ?? box.width)
+  const height = finiteNumber(box.h ?? box.height)
+  if (width <= 0 || height <= 0) throw new Error('Suggestion box must have positive width and height')
+  return {
+    sourceShapeId: imageShape.id,
+    box: {
+      x: finiteNumber(box.x),
+      y: finiteNumber(box.y),
+      w: width,
+      h: height,
+    },
+    label: nonEmptyString(suggestion?.label) ?? '',
+    confidence: Math.max(0, Math.min(1, finiteNumber(suggestion?.confidence, 0))),
+  }
+}
+
+export async function suggestExtractTargets(args = {}) {
+  const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+  const snapshot = await loadCanvasSnapshot({ projectDir })
+  const images = new Map(canvasImageShapeRecords(snapshot).map((record) => [record.id, selectionShapeFromCanvas(snapshot, record)]))
+  const requestedIds = Array.isArray(args.imageShapeIds) ? new Set(args.imageShapeIds.map(String)) : null
+  const candidates = Array.isArray(args.suggestions) ? args.suggestions : []
+
+  const suggestions = candidates
+    .filter((suggestion) => !requestedIds || requestedIds.has(String(suggestion?.sourceShapeId)))
+    .map((suggestion) => {
+      const imageShape = images.get(String(suggestion?.sourceShapeId))
+      if (!imageShape) throw new Error(`Suggestion references missing source image: ${suggestion?.sourceShapeId}`)
+      return normalizeSuggestion({ suggestion, imageShape })
+    })
+
+  return { suggestions }
+}
+
+export async function applyExtractTargetSuggestions(args = {}) {
+  const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+  const pageId = nonEmptyString(args.pageId) ?? 'page:default'
+  const snapshot = await loadCanvasSnapshot({ projectDir })
+  const normalized = await suggestExtractTargets(args)
+  const images = new Map(canvasImageShapeRecords(snapshot).map((record) => [record.id, selectionShapeFromCanvas(snapshot, record)]))
+  const shapeIds = []
+
+  normalized.suggestions.forEach((suggestion, index) => {
+    const imageShape = images.get(suggestion.sourceShapeId)
+    const imageBounds = shapeBounds(imageShape)
+    const shapeId = `shape:svg-suggestion-${Date.now()}-${index}`
+    snapshot.store[shapeId] = {
+      ...createExtractBoxRecord({
+        id: shapeId,
+        parentId: imageShape.parentId ?? pageId,
+        x: imageBounds.x + suggestion.box.x,
+        y: imageBounds.y + suggestion.box.y,
+        w: suggestion.box.w,
+        h: suggestion.box.h,
+        sourceShapeId: suggestion.sourceShapeId,
+        status: 'suggested',
+        label: suggestion.label,
+        confidence: suggestion.confidence,
+      }),
+      typeName: 'shape',
+    }
+    shapeIds.push(shapeId)
+  })
+
+  await saveCanvasSnapshot({ projectDir, snapshot })
+  return { shapeIds, suggestions: normalized.suggestions }
+}
+
+export async function setExtractTargetStatus(args = {}) {
+  const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+  const status = nonEmptyString(args.status)
+  if (!['suggested', 'accepted', 'rejected', 'manual'].includes(status)) {
+    throw new Error('set_extract_target_status requires status suggested, accepted, rejected, or manual')
+  }
+  const shapeIds = Array.isArray(args.shapeIds) ? args.shapeIds.map(String) : [String(args.shapeId ?? '')]
+  const snapshot = await loadCanvasSnapshot({ projectDir })
+  const updated = []
+
+  for (const shapeId of shapeIds.filter(Boolean)) {
+    const shape = snapshot.store[shapeId]
+    if (!shape?.meta?.svgExtractTarget) throw new Error(`Extract target not found: ${shapeId}`)
+    shape.meta = { ...shape.meta, status }
+    shape.props = { ...shape.props, color: extractTargetColorForStatus(status) }
+    updated.push(shapeId)
+  }
+
+  await saveCanvasSnapshot({ projectDir, snapshot })
+  return { updated, status }
 }
 
 export async function handleJsonRpcRequest(message) {

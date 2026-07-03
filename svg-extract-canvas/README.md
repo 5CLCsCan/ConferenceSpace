@@ -4,12 +4,14 @@ SVG Extract Canvas is a Codex-first local plugin for turning screenshot regions 
 
 The plugin provides the deterministic pieces: a local tldraw canvas, project-local files, MCP tools for crop/vectorize/clean/preview/export, and Codex skills. Codex provides the image understanding and visual judgment.
 
-The intended extraction strategy is:
+The intended extraction strategy is now:
 
 ```text
-manual crop -> direct trace when possible
-manual crop -> recreate clean raster draft -> trace when the crop is too noisy
+bound frame -> crop -> isolate background -> vectorize
+bound frame -> crop -> isolate background -> recreate clean raster draft -> vectorize
 ```
+
+Use the second path when the crop is visually mixed with the background or the local isolation result is not clean enough.
 
 ## Install
 
@@ -54,6 +56,8 @@ For the intended Codex workflow, open this URL in the Codex in-app browser side 
 Open the SVG extraction canvas.
 Extract the selected icon as SVG.
 If direct tracing is noisy, recreate a clean raster draft first and then trace it.
+Suggest extract boxes for the pasted screenshots.
+Accept these suggested boxes.
 Refine this SVG.
 Export the final SVG.
 ```
@@ -64,9 +68,14 @@ Project-local output is written under:
 
 ```text
 canvas/pages/default/crops/
+canvas/pages/default/isolated/
+canvas/pages/default/masks/
+canvas/pages/default/drafts/
 canvas/pages/default/raw/
 canvas/pages/default/previews/
 canvas/pages/default/exports/
 ```
+
+Extract boxes are bound to source image shapes. Suggested boxes are review-only until marked accepted.
 
 The intended positioning is “editable SVG drafts for design exploration,” not exact cloning of logos or paid icon sets.

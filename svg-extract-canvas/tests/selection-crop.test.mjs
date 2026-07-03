@@ -62,7 +62,7 @@ test('export_svg_extract_crop crops from selected pasted image and extract box',
           x: 26,
           y: 36,
           props: { w: 16, h: 16 },
-          meta: { svgExtractTarget: true },
+          meta: { svgExtractTarget: true, svgExtractTargetVersion: 2, sourceShapeId: 'shape:image', status: 'manual' },
           isSvgExtractTarget: true,
         },
       ],
@@ -99,7 +99,7 @@ test('export_svg_extract_crop rejects ambiguous selections', async () => {
   )
 })
 
-test('export_svg_extract_crop infers the source image from the canvas for a selected rectangle', async () => {
+test('export_svg_extract_crop supports legacy v1 targets when one canvas image overlaps', async () => {
   const { saveCanvasSnapshot, saveSelectionState } = await import('../server/canvas-server.mjs')
   const projectDir = await tempProject()
   await saveCanvasSnapshot({
@@ -145,8 +145,8 @@ test('export_svg_extract_crop infers the source image from the canvas for a sele
           x: 26,
           y: 36,
           props: { w: 16, h: 16, geo: 'rectangle' },
-          meta: {},
-          isSvgExtractTarget: false,
+          meta: { svgExtractTarget: true, svgExtractTargetVersion: 1 },
+          isSvgExtractTarget: true,
         },
       ],
       updatedAt: '2026-07-03T00:00:00.000Z',
@@ -165,7 +165,7 @@ test('export_svg_extract_crop infers the source image from the canvas for a sele
   assert.match(crop.cropPath, /canvas\/pages\/default\/crops\/inferred-source\.png$/)
 })
 
-test('export_svg_extract_crop batches multiple selected rectangles against one selected image', async () => {
+test('export_svg_extract_crop batches multiple selected extract targets against one selected image', async () => {
   const { saveSelectionState } = await import('../server/canvas-server.mjs')
   const projectDir = await tempProject()
   await saveSelectionState({
@@ -178,8 +178,8 @@ test('export_svg_extract_crop batches multiple selected rectangles against one s
           x: 10,
           y: 20,
           props: { w: 16, h: 16, geo: 'rectangle' },
-          meta: {},
-          isSvgExtractTarget: false,
+          meta: { svgExtractTarget: true, svgExtractTargetVersion: 2, sourceShapeId: 'shape:image', status: 'manual' },
+          isSvgExtractTarget: true,
         },
         {
           id: 'shape:image',
@@ -202,8 +202,8 @@ test('export_svg_extract_crop batches multiple selected rectangles against one s
           x: 26,
           y: 36,
           props: { w: 16, h: 16, geo: 'rectangle' },
-          meta: {},
-          isSvgExtractTarget: false,
+          meta: { svgExtractTarget: true, svgExtractTargetVersion: 2, sourceShapeId: 'shape:image', status: 'manual' },
+          isSvgExtractTarget: true,
         },
       ],
       updatedAt: '2026-07-03T00:00:00.000Z',

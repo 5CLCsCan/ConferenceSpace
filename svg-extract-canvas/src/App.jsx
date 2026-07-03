@@ -37,10 +37,18 @@ function getShapeSelection(editor) {
   })
 }
 
+function selectedImageShapes(editor) {
+  return editor
+    .getSelectedShapeIds()
+    .map((id) => editor.getShape(id))
+    .filter((shape) => shape?.type === 'image' && shape?.props?.assetId)
+}
+
 export default function App() {
   const [snapshot, setSnapshot] = useState()
   const [viewState, setViewState] = useState()
   const [error, setError] = useState(null)
+  const [actionError, setActionError] = useState(null)
   const [editor, setEditor] = useState(null)
 
   useEffect(() => {
@@ -145,6 +153,12 @@ export default function App() {
         type="button"
         onClick={() => {
           if (!editor) return
+          const images = selectedImageShapes(editor)
+          if (images.length !== 1) {
+            setActionError('Select exactly one image before creating an extract box.')
+            return
+          }
+          setActionError(null)
           const bounds = editor.getViewportPageBounds()
           const id = createShapeId()
           editor.createShape(
@@ -155,6 +169,7 @@ export default function App() {
               y: bounds.center.y - 64,
               w: 128,
               h: 128,
+              sourceShapeId: images[0].id,
             }),
           )
           editor.select(id)
@@ -174,6 +189,27 @@ export default function App() {
       >
         Extract Box
       </button>
+      {actionError ? (
+        <div
+          role="status"
+          style={{
+            position: 'fixed',
+            top: 54,
+            right: 12,
+            zIndex: 10,
+            maxWidth: 260,
+            border: '1px solid #dc2626',
+            background: '#fff',
+            color: '#991b1b',
+            borderRadius: 6,
+            padding: '8px 10px',
+            font: '500 13px system-ui',
+            boxShadow: '0 8px 24px rgb(15 23 42 / 12%)',
+          }}
+        >
+          {actionError}
+        </div>
+      ) : null}
       <Tldraw snapshot={snapshot} onMount={handleMount} />
     </div>
   )
