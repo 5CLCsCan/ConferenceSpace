@@ -3,6 +3,7 @@ import { createReadStream } from 'node:fs'
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { batchExtractCrops } from '../tools/batchExtract.mjs'
 
 const DEFAULT_PAGE_ID = 'page:default'
 const CANVAS_FILE_NAME = 'svg-extract-canvas.json'
@@ -214,6 +215,15 @@ export function createCanvasApiHandler({ projectDir } = {}) {
         const selection = await readJsonRequest(request)
         const saved = await saveSelectionState({ projectDir: rootProjectDir, selection })
         sendJson(response, 200, saved.selection)
+        return true
+      }
+      if (url.pathname === '/api/extract' && request.method === 'POST') {
+        const body = await readJsonRequest(request)
+        const result = await batchExtractCrops({
+          projectDir: rootProjectDir,
+          pageId: nonEmptyString(body.pageId) ?? DEFAULT_PAGE_ID,
+        })
+        sendJson(response, 200, result)
         return true
       }
       return false

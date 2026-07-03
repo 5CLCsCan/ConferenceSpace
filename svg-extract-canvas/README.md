@@ -64,7 +64,7 @@ Export the final SVG.
 
 ## Output
 
-Project-local output is written under:
+Step-level output is written under:
 
 ```text
 canvas/pages/default/crops/
@@ -75,6 +75,16 @@ canvas/pages/default/raw/
 canvas/pages/default/previews/
 canvas/pages/default/exports/
 ```
+
+Pressing the canvas **Extract** button writes a versioned batch folder:
+
+```text
+canvas/pages/default/extractions/v001/
+canvas/pages/default/extractions/v001/crops/
+canvas/pages/default/extractions/v001/manifest.json
+```
+
+Each button press creates the next version, such as `v002` or `v003`. Batch extraction crops only `manual` and `accepted` frames. `suggested` and `rejected` frames are ignored.
 
 Extract boxes are bound to source image shapes. Suggested boxes are review-only until marked accepted.
 

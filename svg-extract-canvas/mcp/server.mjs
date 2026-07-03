@@ -14,6 +14,7 @@ const ERROR = {
 export const TOOL_NAMES = [
   'get_svg_extract_selection',
   'export_svg_extract_crop',
+  'batch_export_extract_crops',
   'isolate_crop_background',
   'save_clean_raster_draft',
   'vectorize_crop',
@@ -72,6 +73,7 @@ function listTools() {
     tools: [
       toolDefinition('get_svg_extract_selection', 'Read the current SVG extraction canvas selection.'),
       toolDefinition('export_svg_extract_crop', 'Crop a selected screenshot region into a PNG.'),
+      toolDefinition('batch_export_extract_crops', 'Crop every manual or accepted extract frame into a versioned folder.'),
       toolDefinition('isolate_crop_background', 'Remove or flatten crop backgrounds before vectorization.'),
       toolDefinition('save_clean_raster_draft', 'Save a Codex-created clean raster draft for tracing.'),
       toolDefinition('vectorize_crop', 'Vectorize a crop into raw SVG with VTracer.'),
@@ -322,6 +324,10 @@ async function callTool(name, args = {}) {
       const safeArgs = { ...args }
       if (args.outputDir) safeArgs.outputDir = safeProjectPath({ projectDir: args.projectDir, unsafePath: args.outputDir })
       return jsonContent(await cropImage(safeArgs))
+    }
+    case 'batch_export_extract_crops': {
+      const { batchExtractCrops } = await import('../tools/batchExtract.mjs')
+      return jsonContent(await batchExtractCrops(args))
     }
     case 'isolate_crop_background': {
       const { isolateCropBackground } = await import('../tools/isolateBackground.mjs')

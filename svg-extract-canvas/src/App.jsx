@@ -7,6 +7,16 @@ import { createExtractBoxRecord, shapePageBounds, syncBoundExtractTargets } from
 const CANVAS_ENDPOINT = '/api/canvas'
 const SELECTION_ENDPOINT = '/api/selection'
 const VIEW_STATE_ENDPOINT = '/api/view-state'
+const EXTRACT_ENDPOINT = '/api/extract'
+
+const buttonStyle = {
+  border: '1px solid #2563eb',
+  background: '#2563eb',
+  color: 'white',
+  borderRadius: 6,
+  padding: '8px 10px',
+  font: '600 13px system-ui',
+}
 
 function getShapeSelection(editor) {
   return editor.getSelectedShapeIds().map((id) => {
@@ -49,6 +59,8 @@ export default function App() {
   const [viewState, setViewState] = useState()
   const [error, setError] = useState(null)
   const [actionError, setActionError] = useState(null)
+  const [extractStatus, setExtractStatus] = useState(null)
+  const [isExtracting, setIsExtracting] = useState(false)
   const [editor, setEditor] = useState(null)
 
   useEffect(() => {
@@ -158,48 +170,88 @@ export default function App() {
 
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
-      <button
-        type="button"
-        onClick={() => {
-          if (!editor) return
-          const images = selectedImageShapes(editor)
-          if (images.length !== 1) {
-            setActionError('Select exactly one image before creating an extract box.')
-            return
-          }
-          setActionError(null)
-          const imageBounds = shapePageBounds(images[0])
-          const size = Math.max(24, Math.min(128, imageBounds.width * 0.25, imageBounds.height * 0.25))
-          const id = createShapeId()
-          editor.createShape(
-            createExtractBoxRecord({
-              id,
-              parentId: editor.getCurrentPageId(),
-              x: imageBounds.x + (imageBounds.width - size) / 2,
-              y: imageBounds.y + (imageBounds.height - size) / 2,
-              w: size,
-              h: size,
-              sourceShapeId: images[0].id,
-              sourceShape: images[0],
-            }),
-          )
-          editor.select(id)
-        }}
+      <div
         style={{
           position: 'fixed',
           top: 12,
           right: 12,
           zIndex: 10,
-          border: '1px solid #2563eb',
-          background: '#2563eb',
-          color: 'white',
-          borderRadius: 6,
-          padding: '8px 10px',
-          font: '600 13px system-ui',
+          display: 'flex',
+          gap: 8,
         }}
       >
-        Extract Box
-      </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!editor) return
+            const images = selectedImageShapes(editor)
+            if (images.length !== 1) {
+              setActionError('Select exactly one image before creating an extract box.')
+              setExtractStatus(null)
+              return
+            }
+            setActionError(null)
+            setExtractStatus(null)
+            const imageBounds = shapePageBounds(images[0])
+            const size = Math.max(24, Math.min(128, imageBounds.width * 0.25, imageBounds.height * 0.25))
+            const id = createShapeId()
+            editor.createShape(
+              createExtractBoxRecord({
+                id,
+                parentId: editor.getCurrentPageId(),
+                x: imageBounds.x + (imageBounds.width - size) / 2,
+                y: imageBounds.y + (imageBounds.height - size) / 2,
+                w: size,
+                h: size,
+                sourceShapeId: images[0].id,
+                sourceShape: images[0],
+              }),
+            )
+            editor.select(id)
+          }}
+          style={buttonStyle}
+        >
+          Extract Box
+        </button>
+        <button
+          type="button"
+          disabled={!editor || isExtracting}
+          onClick={async () => {
+            if (!editor) return
+            setIsExtracting(true)
+            setActionError(null)
+            setExtractStatus(null)
+            try {
+              syncBoundExtractTargets(editor)
+              const saveResponse = await fetch(CANVAS_ENDPOINT, {
+                method: 'PUT',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(editor.store.getStoreSnapshot()),
+              })
+              if (!saveResponse.ok) throw new Error(`Canvas save failed: ${saveResponse.status}`)
+
+              const extractResponse = await fetch(EXTRACT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ pageId: editor.getCurrentPageId() }),
+              })
+              const result = await extractResponse.json()
+              if (!extractResponse.ok) throw new Error(result.error ?? `Extract failed: ${extractResponse.status}`)
+              setExtractStatus(`Extracted ${result.cropCount} crops to ${result.version}`)
+            } catch (extractError) {
+              setActionError(extractError.message)
+            } finally {
+              setIsExtracting(false)
+            }
+          }}
+          style={{
+            ...buttonStyle,
+            opacity: !editor || isExtracting ? 0.65 : 1,
+          }}
+        >
+          {isExtracting ? 'Extracting...' : 'Extract'}
+        </button>
+      </div>
       {actionError ? (
         <div
           role="status"
@@ -219,6 +271,27 @@ export default function App() {
           }}
         >
           {actionError}
+        </div>
+      ) : null}
+      {extractStatus ? (
+        <div
+          role="status"
+          style={{
+            position: 'fixed',
+            top: 54,
+            right: 12,
+            zIndex: 10,
+            maxWidth: 300,
+            border: '1px solid #16a34a',
+            background: '#fff',
+            color: '#166534',
+            borderRadius: 6,
+            padding: '8px 10px',
+            font: '500 13px system-ui',
+            boxShadow: '0 8px 24px rgb(15 23 42 / 12%)',
+          }}
+        >
+          {extractStatus}
         </div>
       ) : null}
       <Tldraw snapshot={snapshot} onMount={handleMount} />

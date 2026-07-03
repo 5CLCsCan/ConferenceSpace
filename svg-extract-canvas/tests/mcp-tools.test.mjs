@@ -24,6 +24,7 @@ test('MCP tools/list returns the SVG extraction tool surface', async () => {
   assert.deepEqual(names, [
     'get_svg_extract_selection',
     'export_svg_extract_crop',
+    'batch_export_extract_crops',
     'isolate_crop_background',
     'save_clean_raster_draft',
     'vectorize_crop',
