@@ -126,6 +126,14 @@ function intersectBounds(a, b) {
   }
 }
 
+function isImageSelectionShape(shape) {
+  return Boolean(shape?.asset?.src && (shape.type === 'image' || shape.asset.type === 'image'))
+}
+
+function isRectangleTargetShape(shape) {
+  return shape?.type === 'frame' || (shape?.type === 'geo' && shape?.props?.geo === 'rectangle')
+}
+
 function selectedImageShape(selection) {
   const images = selection.selectedShapes.filter((shape) => shape?.asset?.src && (shape.type === 'image' || shape.asset.type === 'image'))
   if (images.length !== 1) throw new Error(`Expected exactly one selected image, found ${images.length}`)
@@ -133,9 +141,67 @@ function selectedImageShape(selection) {
 }
 
 function selectedExtractBox(selection) {
-  const boxes = selection.selectedShapes.filter((shape) => shape?.isSvgExtractTarget === true || shape?.meta?.svgExtractTarget === true)
+  const boxes = selectedExtractBoxes(selection)
   if (boxes.length !== 1) throw new Error(`Expected exactly one selected extract box, found ${boxes.length}`)
   return boxes[0]
+}
+
+function selectedExtractBoxes(selection) {
+  return selection.selectedShapes.filter(
+    (shape) =>
+      shape?.isSvgExtractTarget === true ||
+      shape?.meta?.svgExtractTarget === true ||
+      isRectangleTargetShape(shape),
+  )
+}
+
+function canvasImageShapeRecords(snapshot) {
+  return Object.values(snapshot?.store ?? {}).filter((record) => record?.typeName === 'shape' && record?.type === 'image')
+}
+
+function assetRecordForImageShape(snapshot, imageShape) {
+  return snapshot?.store?.[imageShape?.props?.assetId] ?? null
+}
+
+function selectionShapeFromCanvas(snapshot, imageShape) {
+  const asset = assetRecordForImageShape(snapshot, imageShape)
+  return {
+    id: imageShape.id,
+    type: imageShape.type,
+    parentId: imageShape.parentId ?? null,
+    x: imageShape.x ?? null,
+    y: imageShape.y ?? null,
+    rotation: imageShape.rotation ?? null,
+    props: imageShape.props ?? null,
+    meta: imageShape.meta ?? null,
+    isSvgExtractTarget: imageShape?.meta?.svgExtractTarget === true,
+    asset: asset
+      ? {
+          id: asset.id,
+          type: asset.type,
+          name: asset.props?.name ?? null,
+          src: asset.props?.src ?? null,
+          w: asset.props?.w ?? null,
+          h: asset.props?.h ?? null,
+          mimeType: asset.props?.mimeType ?? null,
+        }
+      : null,
+  }
+}
+
+function inferImageShapeFromCanvas({ selection, snapshot, extractBox }) {
+  const overlappingImages = canvasImageShapeRecords(snapshot)
+    .map((shape) => selectionShapeFromCanvas(snapshot, shape))
+    .filter((shape) => {
+      if (!isImageSelectionShape(shape)) return false
+      const overlap = intersectBounds(shapeBounds(shape), shapeBounds(extractBox))
+      return overlap.width > 0 && overlap.height > 0
+    })
+
+  if (overlappingImages.length !== 1) {
+    throw new Error(`Expected exactly one overlapping image in canvas, found ${overlappingImages.length}`)
+  }
+  return overlappingImages[0]
 }
 
 async function materializeSelectionAsset({ projectDir, imageShape, pageId = 'default' }) {
@@ -166,14 +232,13 @@ async function exportCropFromSelection(args = {}) {
   safeProjectPath({ projectDir, unsafePath: outputDir })
 
   const selection = await loadSelectionState({ projectDir })
-  const imageShape = selectedImageShape(selection)
-  const extractBox = selectedExtractBox(selection)
+  const extractBoxes = selectedExtractBoxes(selection)
+  if (extractBoxes.length === 0) throw new Error('Expected at least one selected extract box, found 0')
+  const snapshot = await loadCanvasSnapshot({ projectDir })
+  const imageShape = selection.selectedShapes.some(isImageSelectionShape)
+    ? selectedImageShape(selection)
+    : inferImageShapeFromCanvas({ selection, snapshot, extractBox: extractBoxes[0] })
   const imageBounds = shapeBounds(imageShape)
-  const boxBounds = shapeBounds(extractBox)
-  const overlap = intersectBounds(imageBounds, boxBounds)
-  if (overlap.width <= 0 || overlap.height <= 0) {
-    throw new Error('Selected extract box does not overlap the selected image')
-  }
 
   const assetWidth = finiteNumber(imageShape.asset?.w, imageBounds.width)
   const assetHeight = finiteNumber(imageShape.asset?.h, imageBounds.height)
@@ -181,17 +246,36 @@ async function exportCropFromSelection(args = {}) {
   const scaleY = imageBounds.height > 0 ? assetHeight / imageBounds.height : 1
   const sourcePath = await materializeSelectionAsset({ projectDir, imageShape, pageId })
 
-  return cropImage({
-    sourcePath,
-    outputDir,
-    fileName: nonEmptyString(args.fileName) ?? 'selected-crop.png',
-    crop: {
-      x: (overlap.x - imageBounds.x) * scaleX,
-      y: (overlap.y - imageBounds.y) * scaleY,
-      width: overlap.width * scaleX,
-      height: overlap.height * scaleY,
-    },
-  })
+  const crops = []
+  for (const [index, extractBox] of extractBoxes.entries()) {
+    const boxBounds = shapeBounds(extractBox)
+    const overlap = intersectBounds(imageBounds, boxBounds)
+    if (overlap.width <= 0 || overlap.height <= 0) {
+      throw new Error(`Selected extract box does not overlap the selected image: ${extractBox.id}`)
+    }
+
+    const crop = await cropImage({
+      sourcePath,
+      outputDir,
+      fileName:
+        extractBoxes.length === 1
+          ? nonEmptyString(args.fileName) ?? 'selected-crop.png'
+          : `${index + 1}-${normalizeFileName(nonEmptyString(args.fileName), 'selected-crop.png')}`,
+      crop: {
+        x: (overlap.x - imageBounds.x) * scaleX,
+        y: (overlap.y - imageBounds.y) * scaleY,
+        width: overlap.width * scaleX,
+        height: overlap.height * scaleY,
+      },
+    })
+    crops.push({
+      ...crop,
+      sourceShapeId: imageShape.id,
+      extractBoxId: extractBox.id,
+    })
+  }
+
+  return crops.length === 1 ? crops[0] : { crops }
 }
 
 async function callTool(name, args = {}) {

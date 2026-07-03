@@ -95,6 +95,130 @@ test('export_svg_extract_crop rejects ambiguous selections', async () => {
 
   await assert.rejects(
     () => callTool('export_svg_extract_crop', { projectDir }),
-    /Expected exactly one selected image/,
+    /Expected exactly one overlapping image in canvas/,
   )
+})
+
+test('export_svg_extract_crop infers the source image from the canvas for a selected rectangle', async () => {
+  const { saveCanvasSnapshot, saveSelectionState } = await import('../server/canvas-server.mjs')
+  const projectDir = await tempProject()
+  await saveCanvasSnapshot({
+    projectDir,
+    snapshot: {
+      schema: { schemaVersion: 2, sequences: {} },
+      store: {
+        'asset:image': {
+          id: 'asset:image',
+          typeName: 'asset',
+          type: 'image',
+          props: {
+            name: 'simple-icon.png',
+            src: await simpleIconDataUrl(),
+            w: 32,
+            h: 32,
+            mimeType: 'image/png',
+          },
+          meta: {},
+        },
+        'shape:image': {
+          id: 'shape:image',
+          typeName: 'shape',
+          type: 'image',
+          parentId: 'page:default',
+          x: 10,
+          y: 20,
+          rotation: 0,
+          index: 'a1',
+          props: { w: 64, h: 64, assetId: 'asset:image' },
+          meta: {},
+        },
+      },
+    },
+  })
+  await saveSelectionState({
+    projectDir,
+    selection: {
+      selectedShapes: [
+        {
+          id: 'shape:plain-rectangle',
+          type: 'geo',
+          x: 26,
+          y: 36,
+          props: { w: 16, h: 16, geo: 'rectangle' },
+          meta: {},
+          isSvgExtractTarget: false,
+        },
+      ],
+      updatedAt: '2026-07-03T00:00:00.000Z',
+    },
+  })
+
+  const crop = await callTool('export_svg_extract_crop', {
+    projectDir,
+    fileName: 'inferred-source.png',
+  })
+
+  assert.equal(crop.width, 8)
+  assert.equal(crop.height, 8)
+  assert.equal(crop.crop.x, 8)
+  assert.equal(crop.crop.y, 8)
+  assert.match(crop.cropPath, /canvas\/pages\/default\/crops\/inferred-source\.png$/)
+})
+
+test('export_svg_extract_crop batches multiple selected rectangles against one selected image', async () => {
+  const { saveSelectionState } = await import('../server/canvas-server.mjs')
+  const projectDir = await tempProject()
+  await saveSelectionState({
+    projectDir,
+    selection: {
+      selectedShapes: [
+        {
+          id: 'shape:first-box',
+          type: 'geo',
+          x: 10,
+          y: 20,
+          props: { w: 16, h: 16, geo: 'rectangle' },
+          meta: {},
+          isSvgExtractTarget: false,
+        },
+        {
+          id: 'shape:image',
+          type: 'image',
+          x: 0,
+          y: 0,
+          props: { w: 64, h: 64 },
+          asset: {
+            id: 'asset:image',
+            type: 'image',
+            mimeType: 'image/png',
+            w: 32,
+            h: 32,
+            src: await simpleIconDataUrl(),
+          },
+        },
+        {
+          id: 'shape:second-box',
+          type: 'geo',
+          x: 26,
+          y: 36,
+          props: { w: 16, h: 16, geo: 'rectangle' },
+          meta: {},
+          isSvgExtractTarget: false,
+        },
+      ],
+      updatedAt: '2026-07-03T00:00:00.000Z',
+    },
+  })
+
+  const result = await callTool('export_svg_extract_crop', {
+    projectDir,
+    fileName: 'batch-crop.png',
+  })
+
+  assert.ok(Array.isArray(result.crops))
+  assert.equal(result.crops.length, 2)
+  assert.equal(result.crops[0].crop.x, 5)
+  assert.equal(result.crops[0].crop.y, 10)
+  assert.equal(result.crops[1].crop.x, 13)
+  assert.equal(result.crops[1].crop.y, 18)
 })
