@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Tldraw, createShapeId } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { extractCanvasSnapshot } from './canvasSnapshot.js'
-import { createExtractBoxRecord } from './extractBox.js'
+import { createExtractBoxRecord, shapePageBounds, syncBoundExtractTargets } from './extractBox.js'
 
 const CANVAS_ENDPOINT = '/api/canvas'
 const SELECTION_ENDPOINT = '/api/selection'
@@ -84,6 +84,7 @@ export default function App() {
       window.__svgExtractEditor = editor
       setEditor(editor)
       let saveTimer = null
+      let syncingBoundTargets = false
 
       if (viewState?.currentPageId && editor.getPage(viewState.currentPageId)) {
         editor.setCurrentPage(viewState.currentPageId)
@@ -100,6 +101,14 @@ export default function App() {
       }
 
       function scheduleSave() {
+        if (!syncingBoundTargets) {
+          syncingBoundTargets = true
+          try {
+            syncBoundExtractTargets(editor)
+          } finally {
+            syncingBoundTargets = false
+          }
+        }
         window.clearTimeout(saveTimer)
         saveTimer = window.setTimeout(() => saveCanvas().catch(console.error), 500)
       }
@@ -159,17 +168,19 @@ export default function App() {
             return
           }
           setActionError(null)
-          const bounds = editor.getViewportPageBounds()
+          const imageBounds = shapePageBounds(images[0])
+          const size = Math.max(24, Math.min(128, imageBounds.width * 0.25, imageBounds.height * 0.25))
           const id = createShapeId()
           editor.createShape(
             createExtractBoxRecord({
               id,
               parentId: editor.getCurrentPageId(),
-              x: bounds.center.x - 64,
-              y: bounds.center.y - 64,
-              w: 128,
-              h: 128,
+              x: imageBounds.x + (imageBounds.width - size) / 2,
+              y: imageBounds.y + (imageBounds.height - size) / 2,
+              w: size,
+              h: size,
               sourceShapeId: images[0].id,
+              sourceShape: images[0],
             }),
           )
           editor.select(id)

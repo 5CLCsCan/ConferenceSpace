@@ -49,7 +49,16 @@ async function callTool(name, args) {
 test('createExtractBoxRecord writes bound v2 metadata', async () => {
   const { createExtractBoxRecord } = await import('../src/extractBox.js')
 
-  const box = createExtractBoxRecord({ id: 'shape:box', sourceShapeId: 'shape:image', label: 'settings' })
+  const box = createExtractBoxRecord({
+    id: 'shape:box',
+    x: 14,
+    y: 25,
+    w: 8,
+    h: 9,
+    sourceShapeId: 'shape:image',
+    sourceShape: { id: 'shape:image', type: 'image', x: 10, y: 20, props: { w: 40, h: 40 } },
+    label: 'settings',
+  })
 
   assert.equal(box.meta.svgExtractTarget, true)
   assert.equal(box.meta.svgExtractTargetVersion, 2)
@@ -57,6 +66,8 @@ test('createExtractBoxRecord writes bound v2 metadata', async () => {
   assert.equal(box.meta.status, 'manual')
   assert.equal(box.meta.label, 'settings')
   assert.equal(box.meta.confidence, 1)
+  assert.deepEqual(box.meta.sourceRelativeBounds, { x: 4, y: 5, width: 8, height: 9 })
+  assert.deepEqual(box.meta.sourceLastBounds, { x: 10, y: 20, width: 40, height: 40 })
 })
 
 test('export_svg_extract_crop ignores generic rectangles', async () => {
@@ -106,4 +117,52 @@ test('export_svg_extract_crop batches bound frames across multiple source images
 
   assert.equal(result.crops.length, 2)
   assert.deepEqual(result.crops.map((crop) => crop.sourceShapeId).sort(), ['shape:image-a', 'shape:image-b'])
+})
+
+test('export_svg_extract_crop uses image-relative bounds after source image moves', async () => {
+  const { saveCanvasSnapshot, saveSelectionState } = await import('../server/canvas-server.mjs')
+  const projectDir = await tempProject()
+  const sourceA = join(projectDir, 'canvas/pages/default/assets/a.png')
+  const sourceB = join(projectDir, 'canvas/pages/default/assets/b.png')
+  await writePng(sourceA, { r: 255, g: 0, b: 0, alpha: 1 })
+  await writePng(sourceB, { r: 0, g: 0, b: 255, alpha: 1 })
+  const snapshot = snapshotWithTwoImages({ sourceA, sourceB })
+  snapshot.store['shape:image-a'].x = 100
+  snapshot.store['shape:image-a'].y = 100
+  await saveCanvasSnapshot({ projectDir, snapshot })
+  await saveSelectionState({
+    projectDir,
+    selection: {
+      selectedShapes: [
+        {
+          id: 'shape:box-a',
+          type: 'geo',
+          x: 2,
+          y: 3,
+          props: { geo: 'rectangle', w: 4, h: 5 },
+          meta: {
+            svgExtractTarget: true,
+            svgExtractTargetVersion: 2,
+            sourceShapeId: 'shape:image-a',
+            sourceRelativeBounds: { x: 2, y: 3, width: 4, height: 5 },
+            status: 'manual',
+          },
+          isSvgExtractTarget: true,
+        },
+      ],
+      updatedAt: new Date().toISOString(),
+    },
+  })
+
+  const crop = await callTool('export_svg_extract_crop', {
+    projectDir,
+    outputDir: join(projectDir, 'canvas/pages/default/crops'),
+    fileName: 'moved-image.png',
+  })
+
+  assert.equal(crop.sourceShapeId, 'shape:image-a')
+  assert.equal(crop.crop.x, 2)
+  assert.equal(crop.crop.y, 3)
+  assert.equal(crop.width, 4)
+  assert.equal(crop.height, 5)
 })

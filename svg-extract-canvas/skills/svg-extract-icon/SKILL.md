@@ -11,16 +11,17 @@ Use Codex as the visual reasoning layer and local MCP tools as the deterministic
 
 1. Read the current selection with `get_svg_extract_selection`.
 2. Confirm the selected extract boxes are bound targets with `svgExtractTarget: true`, `svgExtractTargetVersion: 2`, and `sourceShapeId`. Legacy v1 targets are acceptable only when the MCP crop tool can unambiguously migrate by overlap.
-3. Call `export_svg_extract_crop` with `projectDir`; it crops all selected `manual` or `accepted` targets from their bound source images.
-4. Call `isolate_crop_background` for each crop before vectorization.
-5. Choose the tracing source:
+3. Check each target's `sourceRelativeBounds` when present. The crop should be understood as image-local coordinates, not viewport or canvas screenshot coordinates.
+4. Call `export_svg_extract_crop` with `projectDir`; it crops all selected `manual` or `accepted` targets from their bound source images.
+5. Call `isolate_crop_background` for each crop before vectorization.
+6. Choose the tracing source:
    `Trace Isolated`: use the isolated PNG when `quality.recommendedAction` is `trace-isolated` and visual inspection confirms the icon separated cleanly.
    `Recreate Then Trace`: when isolation is low-confidence, background is mixed into the icon, or visual quality is poor, create a clean transparent raster draft and save it with `save_clean_raster_draft`.
-6. Call `vectorize_crop` using the isolated PNG or saved clean raster draft. Start with `mode: "color"` unless the target is clearly monochrome.
-7. Call `optimize_svg` to sanitize and reduce the SVG.
-8. Call `render_svg_preview` and visually compare the preview to the source crop and raster source.
-9. If quality is poor, use `svg-extract-refine` before presenting the result.
-10. Call `insert_svg_result` to place the preview/result metadata beside the source.
+7. Call `vectorize_crop` using the isolated PNG or saved clean raster draft. Start with `mode: "color"` unless the target is clearly monochrome.
+8. Call `optimize_svg` to sanitize and reduce the SVG.
+9. Call `render_svg_preview` and visually compare the preview to the source crop and raster source.
+10. If quality is poor, use `svg-extract-refine` before presenting the result.
+11. Call `insert_svg_result` to place the preview/result metadata beside the source.
 
 ## Decision Rule
 

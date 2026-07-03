@@ -95,6 +95,9 @@ test('apply_extract_target_suggestions inserts bound suggested boxes', async () 
   assert.equal(inserted[0].meta.sourceShapeId, 'shape:image')
   assert.equal(inserted[0].meta.status, 'suggested')
   assert.equal(inserted[0].meta.label, 'search')
+  assert.deepEqual(inserted[0].meta.sourceRelativeBounds, { x: 3, y: 4, width: 10, height: 11 })
+  assert.equal(inserted[0].x, 33)
+  assert.equal(inserted[0].y, 44)
 })
 
 test('set_extract_target_status marks suggestions accepted or rejected', async () => {

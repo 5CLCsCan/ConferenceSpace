@@ -3,7 +3,7 @@ import { basename, dirname, extname, join, relative, resolve, sep } from 'node:p
 import readline from 'node:readline'
 import { fileURLToPath } from 'node:url'
 import { loadCanvasSnapshot, loadSelectionState, saveCanvasSnapshot } from '../server/canvas-server.mjs'
-import { createExtractBoxRecord } from '../src/extractBox.js'
+import { absoluteBoundsForTarget, createExtractBoxRecord } from '../src/extractBox.js'
 
 const ERROR = {
   METHOD_NOT_FOUND: -32601,
@@ -201,13 +201,15 @@ function inferImageShapeFromCanvas({ selection, snapshot, extractBox }) {
 }
 
 function imageShapeFromSelectionOrCanvas({ selection, snapshot, shapeId }) {
+  const record = snapshot?.store?.[shapeId]
+  if (record?.typeName === 'shape' && record?.type === 'image') {
+    return selectionShapeFromCanvas(snapshot, record)
+  }
   const selected = selection.selectedShapes.find((shape) => shape?.id === shapeId && isImageSelectionShape(shape))
   if (selected) return selected
-  const record = snapshot?.store?.[shapeId]
   if (!record || record.typeName !== 'shape' || record.type !== 'image') {
     throw new Error(`Bound source image not found: ${shapeId}`)
   }
-  return selectionShapeFromCanvas(snapshot, record)
 }
 
 function imageShapeForExtractBox({ selection, snapshot, extractBox }) {
@@ -218,6 +220,20 @@ function imageShapeForExtractBox({ selection, snapshot, extractBox }) {
   if (version <= 1) return inferImageShapeFromCanvas({ selection, snapshot, extractBox })
 
   throw new Error(`Extract box is missing bound sourceShapeId: ${extractBox?.id}`)
+}
+
+function extractBoxBoundsForImage({ extractBox, imageBounds }) {
+  const relativeBounds = extractBox?.meta?.sourceRelativeBounds
+  if (
+    relativeBounds &&
+    Number.isFinite(Number(relativeBounds.x)) &&
+    Number.isFinite(Number(relativeBounds.y)) &&
+    Number.isFinite(Number(relativeBounds.width ?? relativeBounds.w)) &&
+    Number.isFinite(Number(relativeBounds.height ?? relativeBounds.h))
+  ) {
+    return absoluteBoundsForTarget({ sourceBounds: imageBounds, sourceRelativeBounds: relativeBounds })
+  }
+  return shapeBounds(extractBox)
 }
 
 async function materializeSelectionAsset({ projectDir, imageShape, pageId = 'default' }) {
@@ -266,7 +282,7 @@ async function exportCropFromSelection(args = {}) {
       sourcePath = await materializeSelectionAsset({ projectDir, imageShape, pageId })
       sourceCache.set(imageShape.id, sourcePath)
     }
-    const boxBounds = shapeBounds(extractBox)
+    const boxBounds = extractBoxBoundsForImage({ extractBox, imageBounds })
     const overlap = intersectBounds(imageBounds, boxBounds)
     if (overlap.width <= 0 || overlap.height <= 0) {
       throw new Error(`Selected extract box does not overlap the selected image: ${extractBox.id}`)
@@ -504,6 +520,8 @@ export async function applyExtractTargetSuggestions(args = {}) {
         w: suggestion.box.w,
         h: suggestion.box.h,
         sourceShapeId: suggestion.sourceShapeId,
+        sourceBounds: imageBounds,
+        sourceRelativeBounds: suggestion.box,
         status: 'suggested',
         label: suggestion.label,
         confidence: suggestion.confidence,
