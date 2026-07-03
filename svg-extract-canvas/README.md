@@ -57,7 +57,6 @@ Open the SVG extraction canvas.
 Extract the selected icon as SVG.
 If direct tracing is noisy, recreate a clean raster draft first and then trace it.
 Suggest extract boxes for the pasted screenshots.
-Accept these suggested boxes.
 Refine this SVG.
 Export the final SVG.
 ```
@@ -84,9 +83,9 @@ canvas/pages/default/extractions/v001/crops/
 canvas/pages/default/extractions/v001/manifest.json
 ```
 
-Each button press creates the next version, such as `v002` or `v003`. Batch extraction crops only `manual` and `accepted` frames. `suggested` and `rejected` frames are ignored.
+Each button press creates the next version, such as `v002` or `v003`. Batch extraction crops every extract frame unless it is explicitly marked `rejected`.
 
-Extract boxes are bound to source image shapes. Suggested boxes are review-only until marked accepted.
+Extract boxes are bound to source image shapes. Codex-suggested boxes are included by default when you press **Extract**; delete or reject boxes you do not want.
 
 The intended positioning is “editable SVG drafts for design exploration,” not exact cloning of logos or paid icon sets.
 

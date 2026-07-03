@@ -12,7 +12,7 @@ Use Codex as the visual reasoning layer and local MCP tools as the deterministic
 1. Read the current selection with `get_svg_extract_selection`.
 2. Confirm the selected extract boxes are bound targets with `svgExtractTarget: true`, `svgExtractTargetVersion: 2`, and `sourceShapeId`. Legacy v1 targets are acceptable only when the MCP crop tool can unambiguously migrate by overlap.
 3. Check each target's `sourceRelativeBounds` when present. The crop should be understood as image-local coordinates, not viewport or canvas screenshot coordinates.
-4. Call `export_svg_extract_crop` with `projectDir`; it crops all selected `manual` or `accepted` targets from their bound source images.
+4. Call `export_svg_extract_crop` with `projectDir`; it crops selected bound targets unless they are explicitly `rejected`.
 5. Call `isolate_crop_background` for each crop before vectorization.
 6. Choose the tracing source:
    `Trace Isolated`: use the isolated PNG when `quality.recommendedAction` is `trace-isolated` and visual inspection confirms the icon separated cleanly.

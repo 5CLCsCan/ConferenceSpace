@@ -163,7 +163,7 @@ When Codex frames icons:
 3. Propose rough icon boxes in local image coordinates.
 4. Apply suggestions as review frames.
 5. Refine frames with source-pixel foreground detection.
-6. Keep frames as `suggested` until the user accepts them.
-7. Extract only `manual` or `accepted` targets.
+6. Keep frames as `suggested` unless the user explicitly rejects or deletes them.
+7. Batch extract every non-rejected target when the user presses Extract.
 
 Do not silently convert viewport coordinates into final crop coordinates. If a coordinate came from a screenshot of the canvas, first convert it back through the source image bounds.

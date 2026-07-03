@@ -97,17 +97,17 @@ test('batchExtractCrops writes versioned crop folder and manifest', async () => 
   assert.match(first.outputDir, /canvas\/pages\/default\/extractions\/v001$/)
   assert.match(first.cropsDir, /canvas\/pages\/default\/extractions\/v001\/crops$/)
   assert.match(first.manifestPath, /canvas\/pages\/default\/extractions\/v001\/manifest\.json$/)
-  assert.equal(first.cropCount, 2)
-  assert.deepEqual(first.crops.map((crop) => crop.status).sort(), ['accepted', 'manual'])
-  assert.deepEqual(first.crops.map((crop) => crop.label).sort(), ['blue icon', 'red icon'])
-  assert.deepEqual(first.crops.map((crop) => crop.sourceRelativeBounds.x), [8, 40])
-  assert.deepEqual(first.crops.map((crop) => crop.crop.width), [8, 10])
+  assert.equal(first.cropCount, 3)
+  assert.deepEqual(first.crops.map((crop) => crop.status).sort(), ['accepted', 'manual', 'suggested'])
+  assert.deepEqual(first.crops.map((crop) => crop.label).sort(), ['blue icon', 'red icon', 'shape:suggested'])
+  assert.deepEqual(first.crops.map((crop) => crop.sourceRelativeBounds.x), [8, 40, 2])
+  assert.deepEqual(first.crops.map((crop) => crop.crop.width), [8, 10, 4])
 
   const manifest = JSON.parse(await readFile(first.manifestPath, 'utf8'))
   const cropBytes = await readFile(first.crops[0].cropPath)
 
   assert.equal(manifest.version, 'v001')
-  assert.equal(manifest.cropCount, 2)
+  assert.equal(manifest.cropCount, 3)
   assert.equal(cropBytes.subarray(1, 4).toString('ascii'), 'PNG')
 })
 
@@ -120,5 +120,5 @@ test('batchExtractCrops rejects a canvas without extractable targets', async () 
     snapshot: { schema: { schemaVersion: 2, sequences: {} }, store: {} },
   })
 
-  await assert.rejects(() => batchExtractCrops({ projectDir }), /No manual or accepted extract targets/)
+  await assert.rejects(() => batchExtractCrops({ projectDir }), /No extractable frames/)
 })

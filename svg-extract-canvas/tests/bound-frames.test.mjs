@@ -89,7 +89,7 @@ test('export_svg_extract_crop ignores generic rectangles', async () => {
   await assert.rejects(() => callTool('export_svg_extract_crop', { projectDir }), /at least one selected extract box/)
 })
 
-test('export_svg_extract_crop batches bound frames across multiple source images', async () => {
+test('export_svg_extract_crop batches non-rejected bound frames across multiple source images', async () => {
   const { saveCanvasSnapshot, saveSelectionState } = await import('../server/canvas-server.mjs')
   const projectDir = await tempProject()
   const sourceA = join(projectDir, 'canvas/pages/default/assets/a.png')
@@ -115,8 +115,8 @@ test('export_svg_extract_crop batches bound frames across multiple source images
     fileName: 'icon.png',
   })
 
-  assert.equal(result.crops.length, 2)
-  assert.deepEqual(result.crops.map((crop) => crop.sourceShapeId).sort(), ['shape:image-a', 'shape:image-b'])
+  assert.equal(result.crops.length, 3)
+  assert.deepEqual(result.crops.map((crop) => crop.sourceShapeId).sort(), ['shape:image-a', 'shape:image-b', 'shape:image-b'])
 })
 
 test('export_svg_extract_crop uses image-relative bounds after source image moves', async () => {

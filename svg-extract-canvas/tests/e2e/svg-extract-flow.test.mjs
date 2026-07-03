@@ -180,7 +180,7 @@ test('noisy icon flow can save a clean raster draft before tracing', async () =>
   assert.match(raw.rawSvgPath, /raw\/noisy-clean-raw\.svg$/)
 })
 
-test('multi-image suggestion flow extracts only accepted targets', async () => {
+test('multi-image suggestion flow skips rejected targets', async () => {
   const { saveCanvasSnapshot, saveSelectionState } = await import('../../server/canvas-server.mjs')
   const projectDir = await tempProject()
   const canvasPageDir = join(projectDir, 'canvas/pages/default')

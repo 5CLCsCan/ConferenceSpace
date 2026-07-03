@@ -92,7 +92,7 @@ function extractTargets(snapshot) {
   return Object.values(snapshot?.store ?? {}).filter((record) => {
     if (record?.typeName !== 'shape' || record?.meta?.svgExtractTarget !== true) return false
     const status = nonEmptyString(record.meta.status) ?? 'manual'
-    return status === 'manual' || status === 'accepted'
+    return status !== 'rejected'
   })
 }
 
@@ -148,7 +148,7 @@ export async function batchExtractCrops({ projectDir, pageId = 'default', snapsh
   const resolvedProjectDir = resolve(nonEmptyString(projectDir) ?? process.cwd())
   const canvasSnapshot = snapshot ?? JSON.parse(await readFile(join(pageWorkDir(resolvedProjectDir, pageId), 'svg-extract-canvas.json'), 'utf8')).snapshot
   const targets = extractTargets(canvasSnapshot)
-  if (targets.length === 0) throw new Error('No manual or accepted extract targets found')
+  if (targets.length === 0) throw new Error('No extractable frames found')
 
   const pageDir = pageWorkDir(resolvedProjectDir, pageId)
   const extractionsDir = join(pageDir, 'extractions')
