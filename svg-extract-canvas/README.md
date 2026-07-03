@@ -79,3 +79,15 @@ canvas/pages/default/exports/
 Extract boxes are bound to source image shapes. Suggested boxes are review-only until marked accepted.
 
 The intended positioning is “editable SVG drafts for design exploration,” not exact cloning of logos or paid icon sets.
+
+## Framing Accuracy
+
+Accurate framing depends on image-relative coordinates:
+
+```text
+source image bounds -> icon bounds inside image -> image-relative frame metadata -> crop
+```
+
+Do not use viewport pixels as crop coordinates. Frames store `sourceShapeId` plus `sourceRelativeBounds`, and the crop pipeline uses those relative bounds against the source image asset.
+
+See [Accurate Image-Relative Framing](docs/accurate-image-relative-framing.md) for the exact method used to tighten icon frames from source pixels.
