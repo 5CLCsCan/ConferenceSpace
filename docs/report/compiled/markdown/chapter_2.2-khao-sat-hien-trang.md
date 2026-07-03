@@ -118,7 +118,7 @@ Nhóm lựa chọn bốn hệ thống đại diện, bao phủ cả dạng thư�
 
 ### 2.2.3. So sánh với các ứng dụng khác
 
-Để làm rõ khoảng cách giữa các giải pháp hiện có và nhu cầu thực tế đã khảo sát ở mục 2.1, nhóm xây dựng bảng so sánh chi tiết theo 23 tiêu chí, bao gồm cả chức năng cơ bản, tính năng AI nâng cao và trải nghiệm người dùng.
+Để làm rõ khoảng cách giữa các giải pháp hiện có và nhu cầu thực tế đã khảo sát ở mục 2.1, nhóm xây dựng bảng so sánh chi tiết theo 22 tiêu chí, bao gồm cả chức năng cơ bản, tính năng AI nâng cao và trải nghiệm người dùng.
 
 **Bảng 2.3 — So sánh chi tiết chức năng giữa các hệ thống quản lý hội nghị**
 
@@ -138,11 +138,10 @@ Nhóm lựa chọn bốn hệ thống đại diện, bao phủ cả dạng thư�
 | **Phát hiện COI tự động (đồ thị đồng tác giả)** | Không | Không | Không | Hạn chế (DBLP, chỉ co-authorship trực tiếp) | **Có** |
 | **Trích xuất thông tin bài nộp tự động (AI Autofill)** | Không | Không | Không | Không | **Có** |
 | **Gợi ý track phù hợp bằng AI** | Không | Không | Không | Không | **Có** |
-| **Kiểm tra sơ bộ bài nộp tự động (Desk Rejection)** | Không | Không | Không | Không | **Có** |
+| **Submission Gating (Desk Rejection)** | Không | Không | Không | Không | **Có** |
 | **Hỗ trợ phân tích sơ bộ bài báo cho Reviewer** | Không | Không | Không | Không | **Có** |
 | **Kiểm tra chất lượng bài phản biện bằng AI** | Không | Không | Không | Không | **Có** |
 | **Hỗ trợ ra quyết định cho Chair bằng AI (Decision Copilot)** | Không | Không | Không | Không | **Có** |
-| **Trích xuất từ khóa nghiên cứu bằng AI** | Không | Không | Không | Không | **Có** |
 | **Chatbot AI hỗ trợ người dùng 24/7** | Không | Không | Không | Không | **Có** |
 | **Thông báo real-time (WebSocket)** | Không | Không | Không | Không | **Có** |
 | Giao diện hiện đại, responsive | Không | Không | Hạn chế | Hạn chế | **Có** |
@@ -154,7 +153,7 @@ Bảng so sánh cho thấy ba nhóm khác biệt rõ rệt giữa ConferenceSpac
 
 **Nhóm 1 — Chức năng cơ bản đã chuẩn hóa:** Tất cả năm hệ thống đều hỗ trợ các chức năng nền tảng như quản lý nộp bài, phân công phản biện, thu thập nhận xét, và rebuttal. Đây là "bảng chuẩn" mà bất kỳ hệ thống quản lý hội nghị nào cũng cần đáp ứng. ConferenceSpace đáp ứng đầy đủ nhóm yêu cầu này.
 
-**Nhóm 2 — Tính năng AI tiên tiến:** Đây là khoảng trống lớn nhất. Trong bốn hệ thống hiện tại, chỉ CMT (với TPMS) và OpenReview (với thí điểm AI Review Assistant) có yếu tố AI, nhưng đều ở mức cơ bản và giới hạn trong một khâu duy nhất của quy trình. ConferenceSpace là hệ thống duy nhất cung cấp bảy workflow AI phục vụ cả ba vai trò người dùng — từ trích xuất thông tin tự động (Author), phân tích sơ bộ bài báo (Reviewer), đến tổng hợp hỗ trợ ra quyết định (Chair).
+**Nhóm 2 — Tính năng AI tiên tiến:** Đây là khoảng trống lớn nhất. Trong bốn hệ thống hiện tại, chỉ CMT (với TPMS) và OpenReview (với thí điểm AI Review Assistant) có yếu tố AI, nhưng đều ở mức cơ bản và giới hạn trong một khâu duy nhất của quy trình. ConferenceSpace là hệ thống duy nhất cung cấp sáu workflow AI phục vụ cả ba vai trò người dùng — từ trích xuất thông tin tự động (Author), phân tích sơ bộ bài báo (Reviewer), đến tổng hợp hỗ trợ ra quyết định (Chair).
 
 **Nhóm 3 — Trải nghiệm người dùng hiện đại:** Thông báo real-time, giao diện responsive, hỗ trợ đa ngôn ngữ và chatbot 24/7 là những tính năng mà không hệ thống hiện tại nào cung cấp đầy đủ. Đây là điểm mà ConferenceSpace khác biệt rõ ràng, phản ánh trực tiếp nhu cầu đã được xác định trong khảo sát (mục 2.1).
 

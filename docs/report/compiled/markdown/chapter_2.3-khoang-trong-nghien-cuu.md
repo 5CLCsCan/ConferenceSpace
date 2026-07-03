@@ -59,7 +59,7 @@ Giải pháp ConferenceSpace không được thiết kế một cách rời rạ
 
 | Khoảng trống | Giải pháp trong ConferenceSpace | Thành phần kỹ thuật |
 |---|---|---|
-| **Thiếu AI hỗ trợ toàn diện** | Bảy workflow AI phục vụ cả ba vai trò: Submission Autofill, Track Recommendation, Desk Rejection (Author); Reviewer Initial Analysis (Reviewer); Review Quality Auditor, Chair Decision Copilot (Chair); Research Keywords (System) | Python AI Service (FastAPI) + Google Gemini LLM qua LiteLLM |
+| **Thiếu AI hỗ trợ toàn diện** | Sáu workflow AI phục vụ cả ba vai trò: Submission Autofill, Track Recommendation, Submission Gating/Desk Rejection (Author); Reviewer Initial Analysis (Reviewer); Review Quality Auditor, Chair Decision Copilot (Chair) | Python AI Service (FastAPI) + Google Gemini LLM qua LiteLLM |
 | **COI thủ công hoặc chỉ dò được quan hệ bậc một (CMT)** | Cơ chế phát hiện COI đa tầng: (1) Kiểm tra tự phản biện, (2) Khai báo thủ công, (3) Phân tích đồ thị đồng tác giả tự động, hỗ trợ phát hiện quan hệ đa bậc (1–3 bậc) | Neo4j (graph database) + Semantic Scholar API + Composite pattern COI detector |
 | **Thiếu hỗ trợ người dùng** | Chatbot AI 24/7 tích hợp Function Calling để tra cứu dữ liệu hệ thống; Review Quality Auditor hỗ trợ Chair rà soát chất lượng và tính nhất quán của các bài phản biện đã nộp; Desk Rejection tự động lọc bài không đạt chuẩn cơ bản trước khi vào quy trình phản biện chính thức | Conference Agent (LLM + AgentQuery Engine) + Review Quality Auditor + Desk Rejection pipeline |
 | **Thiếu real-time và UX hiện đại** | WebSocket push notification; giao diện Next.js 15 responsive với dark mode; hỗ trợ đa ngôn ngữ (Tiếng Anh, Tiếng Việt) | gorilla/websocket (Go) + Next.js 15 App Router + Tailwind CSS v4 + shadcn/ui + i18n |
@@ -72,7 +72,7 @@ Giải pháp ConferenceSpace không được thiết kế một cách rời rạ
 
 2. **Lớp thuật toán** (Algorithm Layer): Gợi ý phản biện (Domain Jaccard Similarity + Greedy Matching) và phát hiện COI (đồ thị đồng tác giả trên Neo4j) — hoạt động dựa trên tính toán xác định, có thể giải thích và kiểm chứng được, không sử dụng LLM.
 
-3. **Lớp hỗ trợ AI** (AI-Assisted Layer): Bảy workflow sử dụng LLM để hỗ trợ người dùng ở các khâu tổng hợp, trích xuất và đối chiếu thông tin. Lớp này đóng vai trò **hỗ trợ** chứ không thay thế quyết định — mọi kết quả AI đều được trình bày dưới dạng gợi ý, và quyết định cuối cùng luôn thuộc về người dùng.
+3. **Lớp hỗ trợ AI** (AI-Assisted Layer): Sáu workflow sử dụng LLM để hỗ trợ người dùng ở các khâu tổng hợp, trích xuất và đối chiếu thông tin. Lớp này đóng vai trò **hỗ trợ** chứ không thay thế quyết định — mọi kết quả AI đều được trình bày dưới dạng gợi ý, và quyết định cuối cùng luôn thuộc về người dùng.
 
 Thiết kế ba lớp này đảm bảo: (i) hệ thống vẫn vận hành đầy đủ nếu AI service bị ngưng, (ii) kết quả thuật toán có thể giải thích và kiểm tra, (iii) AI không đưa ra quyết định thay người dùng — phù hợp với bản chất đòi hỏi tính trách nhiệm cao của quy trình phản biện học thuật. Việc tách lớp AI-Assisted Layer thành một microservice độc lập (mục 2.3.3) cũng tạo điều kiện thuận lợi để thay thế nhà cung cấp LLM hoặc chuyển sang mô hình triển khai on-premise trong tương lai, nhằm đáp ứng các yêu cầu bảo mật dữ liệu nghiêm ngặt hơn — một hạn chế của giải pháp hiện tại được phân tích cụ thể ở Chương 6.
 
@@ -88,7 +88,7 @@ Thiết kế ba lớp này đảm bảo: (i) hệ thống vẫn vận hành đ�
 | **Frontend** | Next.js 15 + TypeScript + Tailwind CSS v4 + shadcn/ui | Giao diện responsive, hiện đại, hỗ trợ SSR; đóng vai trò proxy layer giữa browser và backend, ẩn URL nội bộ |
 | **Cơ sở dữ liệu quan hệ** | PostgreSQL 15 | Lưu trữ toàn bộ dữ liệu có cấu trúc; tận dụng JSONB cho cấu hình linh hoạt, TEXT[] cho mảng chuyên môn; 93 migration files quản lý schema |
 | **Cơ sở dữ liệu đồ thị** | Neo4j 5.15 | Lưu trữ và truy vấn mạng lưới đồng tác giả phục vụ phát hiện COI; graph traversal 1–3 bậc hiệu quả hơn SQL JOIN |
-| **AI Service** | Python + FastAPI + LiteLLM | Microservice độc lập chạy bảy workflow AI; LiteLLM trừu tượng hóa lớp gọi LLM, cho phép chuyển đổi provider mà không sửa code |
+| **AI Service** | Python + FastAPI + LiteLLM | Microservice độc lập chạy sáu workflow AI (Submission Autofill, Track Recommendation, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot); LiteLLM trừu tượng hóa lớp gọi LLM, cho phép chuyển đổi provider mà không sửa code |
 | **LLM chính** | Google Gemini 3.1 Flash-Lite | Hạn mức miễn phí phù hợp cho giai đoạn phát triển, hỗ trợ multimodal (xử lý PDF native), context window ~1M token (1.048.576 token) — phù hợp cho autofill và phân tích bài báo dài |
 | **Chatbot gateway** | OpenRouter | Cho phép chuyển đổi model chatbot linh hoạt (Gemini, GPT, Claude) mà không thay đổi code |
 | **Dữ liệu học thuật** | Semantic Scholar API | Cung cấp hồ sơ tác giả, danh sách bài báo, mạng lưới đồng tác giả phục vụ gợi ý reviewer và phát hiện COI |
