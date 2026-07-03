@@ -42,6 +42,7 @@ test('required plugin entrypoint files exist', async () => {
     assertFile(path('index.html')),
     assertFile(path('src/main.jsx')),
     assertFile(path('src/App.jsx')),
+    assertFile(path('scripts/install-vtracer.mjs')),
     assertExecutable(path('scripts/start-canvas.sh')),
     assertExecutable(path('scripts/start-mcp.sh')),
   ])

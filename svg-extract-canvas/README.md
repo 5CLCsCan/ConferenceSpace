@@ -17,11 +17,19 @@ manual crop -> recreate clean raster draft -> trace when the crop is too noisy
 npm install
 ```
 
-Install the external VTracer binary and make it available as `vtracer`, or set:
+`npm install` now attempts to vendor an official `vtracer` binary into the project. To force or re-run that setup:
+
+```bash
+npm run install:vtracer
+```
+
+If automatic install is not available on your machine, you can still install the external VTracer binary and make it available as `vtracer`, or set:
 
 ```bash
 export VTRACER_BIN=/absolute/path/to/vtracer
 ```
+
+The default trace profile is tuned for UI icons first, not photographs. It uses lower speckle filtering, higher precision, and cutout layering by default.
 
 ## Run
 

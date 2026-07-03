@@ -1,5 +1,7 @@
 node_modules/
 dist/
 canvas/
+.tmp/
+vendor/
 .DS_Store
 !package-lock.json

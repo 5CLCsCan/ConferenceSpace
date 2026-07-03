@@ -6,6 +6,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "node server/canvas-server.mjs",
+    "install:vtracer": "node scripts/install-vtracer.mjs",
+    "postinstall": "node scripts/install-vtracer.mjs --optional",
     "test": "node --test tests/*.test.mjs tests/e2e/*.test.mjs"
   },
   "dependencies": {

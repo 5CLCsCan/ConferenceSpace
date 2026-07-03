@@ -62,3 +62,20 @@ fs.writeFileSync('${join(dir, 'argv.json')}', JSON.stringify(process.argv.slice(
   assert.equal(argv.includes('--colormode'), true)
   assert.equal(argv[argv.indexOf('--colormode') + 1], 'bw')
 })
+
+test('buildVTracerArgs defaults to an icon-friendly profile', async () => {
+  const { buildVTracerArgs } = await import('../tools/vectorize.mjs')
+  const argv = buildVTracerArgs({
+    cropPath: '/tmp/crop.png',
+    rawSvgPath: '/tmp/raw.svg',
+  })
+
+  assert.equal(argv[argv.indexOf('--mode') + 1], 'spline')
+  assert.equal(argv[argv.indexOf('--filter_speckle') + 1], '1')
+  assert.equal(argv[argv.indexOf('--color_precision') + 1], '8')
+  assert.equal(argv[argv.indexOf('--path_precision') + 1], '3')
+  assert.equal(argv[argv.indexOf('--corner_threshold') + 1], '45')
+  assert.equal(argv[argv.indexOf('--segment_length') + 1], '4')
+  assert.equal(argv[argv.indexOf('--splice_threshold') + 1], '45')
+  assert.equal(argv[argv.indexOf('--hierarchical') + 1], 'cutout')
+})
