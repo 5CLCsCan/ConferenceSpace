@@ -29,9 +29,9 @@ Hệ thống đáp ứng các yêu cầu phi chức năng quan trọng: thời g
 
 Thiết kế theo **Composite pattern** cho phép hệ thống hoạt động linh hoạt: hai lớp đầu luôn sẵn sàng, lớp Neo4j tự động bật/tắt tùy thuộc cấu hình (graceful degradation). Thời gian thực thi COI detection ở mức 14,9 µs (dataset nhỏ) đến 653 µs (dataset lớn).
 
-### 6.1.3. Bảy workflow AI phục vụ ba vai trò
+### 6.1.3. Sáu workflow AI phục vụ ba vai trò
 
-Bên cạnh Chatbot (Conference Agent) được trình bày riêng ở mục 6.1.4, hệ thống còn tích hợp bảy workflow AI xử lý trực tiếp trên nội dung bài nộp và phiếu đánh giá, triển khai trên Python AI Service (FastAPI) độc lập, sử dụng Google Gemini 3.1 Flash-Lite thông qua LiteLLM:
+Bên cạnh Chatbot (Conference Agent) được trình bày riêng ở mục 6.1.4, hệ thống còn tích hợp sáu workflow AI xử lý trực tiếp trên nội dung bài nộp và phiếu đánh giá, triển khai trên Python AI Service (FastAPI) độc lập, sử dụng Google Gemini 3.1 Flash-Lite thông qua LiteLLM:
 
 | Workflow | Vai trò phục vụ | Kết quả đạt được |
 |---|---|---|
@@ -41,7 +41,6 @@ Bên cạnh Chatbot (Conference Agent) được trình bày riêng ở mục 6.1
 | **Reviewer Initial Analysis** | Reviewer | Tạo briefing tổng quan và chú thích chi tiết từng đoạn (phương pháp luận, điểm mạnh/yếu, câu hỏi gợi ý) — hỗ trợ phản biện chuẩn bị đánh giá |
 | **Review Quality Auditor** | Chair | Đánh giá chất lượng và tính nhất quán của phiếu nhận xét trước khi Chair tham khảo |
 | **Chair Decision Copilot** | Chair | Tổng hợp toàn bộ nhận xét, rebuttal và thảo luận; đề xuất quyết định có căn cứ |
-| **Research Keywords** | System | Trích xuất từ khóa nghiên cứu phù hợp từ abstract bài báo |
 
 Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời gian xử lý trung bình cho Autofill là **10,64 giây**, cho Decision Copilot là **21,68 giây**, và tổng thời gian cho toàn bộ pipeline (song song hóa) là **69,85 giây/bài**. Lượng token tiêu thụ trung bình là **28.481 token/bài** — mức chi phí hợp lý khi sử dụng hạn mức miễn phí của Google Gemini 3.1 Flash-Lite.
 
@@ -53,13 +52,13 @@ Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời
 
 ### 6.1.5. Đáp ứng nhu cầu người dùng
 
+Hệ thống đã giải quyết trực tiếp các vấn đề nhức nhối (pain points) lớn nhất được xác định từ khảo sát 71 người dùng ban đầu (mục 2.1), đặc biệt là việc giảm thiểu "tải nhận thức" (cognitive load) trước các giao diện phức tạp (gần 50% bình chọn) và tự động hóa các form nhập liệu dài, lặp lại (gần 48% bình chọn).
+
 Kết quả khảo sát thực nghiệm sau sử dụng (UAT) trên 89 người dùng cho thấy:
 - **Điểm hài lòng trung bình của Tác giả:** 3,89/5,00 (86% hài lòng hoặc rất hài lòng).
 - **Điểm hài lòng trung bình của Phản biện:** 4,29/5,00 (n=7) — cao hơn đáng kể so với vai trò Tác giả, tuy nhiên cỡ mẫu nhỏ nên kết quả chỉ mang tính tham khảo (xem thêm mục 6.2.1).
 - **82% người dùng sẵn sàng giới thiệu hệ thống** cho bạn bè/đồng nghiệp.
-- Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**.
-
-Kết quả khảo sát nhu cầu chi tiết trước khi xây dựng hệ thống được trình bày ở mục 2.1; các con số UAT nêu trên là kết quả đo lường sau khi triển khai, dùng để đối chiếu lại với nhu cầu ban đầu.
+- Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**, hoàn toàn khớp với kỳ vọng lớn nhất của người dùng trong khảo sát nhu cầu (mục 2.1.6) về việc áp dụng nguyên tắc thiết kế "Human-in-the-loop" (AI hỗ trợ nhập liệu, con người kiểm soát và xác nhận).
 
 ### 6.1.6. Đóng góp chính của đề tài
 
@@ -68,7 +67,7 @@ Tổng hợp lại, đóng góp chính của đề tài bao gồm:
 1. Xây dựng một nền tảng quản lý hội nghị hoàn chỉnh với kiến trúc ba lớp rõ ràng (nghiệp vụ cốt lõi — thuật toán — hỗ trợ AI), phục vụ đầy đủ vòng đời xét duyệt cho cả ba vai trò Author, Reviewer và Chair.
 2. Đề xuất và triển khai thuật toán đối sánh phản biện dựa trên Domain Jaccard Similarity kết hợp thuật toán gán tham lam có xét ràng buộc cân bằng tải.
 3. Xây dựng cơ chế phát hiện xung đột lợi ích đa tầng, trong đó lớp phân tích đồ thị đồng tác giả trên Neo4j cho phép phát hiện quan hệ gián tiếp (1–3 bậc) mà các hệ thống hiện có (kể cả CMT với DBLP) chưa khai thác đầy đủ.
-4. Tích hợp bảy workflow AI phục vụ cả ba vai trò, cùng chatbot hội thoại và cơ chế thông báo real-time qua WebSocket.
+4. Tích hợp sáu workflow AI phục vụ cả ba vai trò, cùng chatbot hội thoại và cơ chế thông báo real-time qua WebSocket.
 5. Cung cấp bộ đánh giá thực nghiệm trên 1.127 bài báo (chất lượng trích xuất AI) và khảo sát 89 người dùng thực tế (UAT), làm cơ sở dữ liệu tham khảo cho các nghiên cứu tiếp theo về ứng dụng AI trong quy trình phản biện học thuật.
 
 ---
@@ -89,7 +88,7 @@ Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn 
 
 - **Kết quả AI không hoàn toàn nhất quán:** Điểm hài lòng trung bình của tính năng AI ở mức 3,92/5,00 — tốt nhưng chưa xuất sắc. Đặc biệt, AI Autofill đồng thời là tính năng hữu ích nhất **và** cần cải thiện nhất (30/76 tác giả chọn cần cải thiện), phản ánh khoảng cách giữa kỳ vọng cao của người dùng và chất lượng output thực tế. Theo thực nghiệm, trích xuất tác giả có F1 thấp nhất (83,49% trung bình, chỉ 67,71% với bài y khoa MIDL 2023) do định dạng thông tin tác giả phức tạp.
 
-- **Phụ thuộc dịch vụ LLM bên ngoài:** Toàn bộ bảy workflow AI phụ thuộc vào API của Google Gemini 3.1 Flash-Lite (qua LiteLLM). Nếu dịch vụ này thay đổi chính sách miễn phí, tăng giá, hoặc ngừng hoạt động, hệ thống sẽ mất khả năng AI. Mặc dù thiết kế ba lớp cho phép hệ thống vẫn vận hành không có AI, nhưng trải nghiệm người dùng sẽ bị ảnh hưởng đáng kể.
+- **Phụ thuộc dịch vụ LLM bên ngoài:** Toàn bộ sáu workflow AI phụ thuộc vào API của Google Gemini 3.1 Flash-Lite (qua LiteLLM). Nếu dịch vụ này thay đổi chính sách miễn phí, tăng giá, hoặc ngừng hoạt động, hệ thống sẽ mất khả năng AI. Mặc dù thiết kế ba lớp cho phép hệ thống vẫn vận hành không có AI, nhưng trải nghiệm người dùng sẽ bị ảnh hưởng đáng kể.
 
 - **Lo ngại của người dùng về AI:** 57,9% người dùng có phần không thoải mái khi AI tham gia vào quy trình học thuật. Lý do chính là lo ngại gợi ý sai (32/76 người), sự nhạy cảm của đánh giá học thuật (20/76), và cảm giác bị áp lực bởi phản hồi AI (16/76). Đây không phải là hiện tượng riêng của ConferenceSpace — các nghiên cứu về AI trong quy trình phản biện học thuật nói chung cũng ghi nhận mức độ dè dặt tương tự từ cộng đồng nghiên cứu. Điều này cho thấy việc tích hợp AI vào quy trình phản biện cần cân nhắc kỹ về cách trình bày kết quả và quyền từ chối/bỏ qua.
 
@@ -99,7 +98,7 @@ Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn 
 
 - **Chưa hỗ trợ bidding:** ConferenceSpace hiện chưa triển khai cơ chế bidding — tính năng cho phép phản biện nêu ưu tiên đánh giá bài nào. Đây là tính năng có giá trị thực tiễn được HotCRP, OpenReview và CMT hỗ trợ, giúp tăng chất lượng phân công phản biện.
 
-- **Rate limit của LLM ảnh hưởng đến khả năng chịu tải:** Hạn mức miễn phí của Gemini 3.1 Flash-Lite là 15 request/phút và 500 request/ngày. Với bảy workflow AI (Autofill, Track Recommendation, Review Analysis, Decision Copilot...) cùng gọi API trong ngày, hạn mức 500 request/ngày có thể nhanh chóng cạn kiệt nếu hội nghị nhận số lượng bài nộp lớn hoặc nhiều người dùng kích hoạt workflow AI đồng thời. Trong khi các hội nghị lớn như NeurIPS có thể nhận tới 30.000 bài nộp, ước tính hệ thống hiện tại chỉ phù hợp với hội nghị quy mô vừa và nhỏ (dưới vài trăm bài nộp mỗi kỳ). Để mở rộng quy mô, cần triển khai cơ chế hàng đợi (message queue), xử lý bất đồng bộ các workflow AI, và cân nhắc nâng cấp lên gói trả phí khi cần.
+- **Rate limit của LLM ảnh hưởng đến khả năng chịu tải:** Hạn mức miễn phí của Gemini 3.1 Flash-Lite là 15 request/phút và 500 request/ngày. Với sáu workflow AI (Submission Autofill, Track Recommendation, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot) cùng gọi API trong ngày, hạn mức 500 request/ngày có thể nhanh chóng cạn kiệt nếu hội nghị nhận số lượng bài nộp lớn hoặc nhiều người dùng kích hoạt workflow AI đồng thời. Trong khi các hội nghị lớn như NeurIPS có thể nhận tới 30.000 bài nộp, ước tính hệ thống hiện tại chỉ phù hợp với hội nghị quy mô vừa và nhỏ (dưới vài trăm bài nộp mỗi kỳ). Để mở rộng quy mô, cần triển khai cơ chế hàng đợi (message queue), xử lý bất đồng bộ các workflow AI, và cân nhắc nâng cấp lên gói trả phí khi cần.
 
 - **Thiếu cơ chế backup dữ liệu tự động:** Hiện tại, backup dữ liệu PostgreSQL và Neo4j được thực hiện thủ công bằng lệnh CLI trên server. Chưa có pipeline backup tự động theo lịch với kiểm tra tính toàn vẹn.
 
@@ -113,7 +112,8 @@ Dựa trên các hạn chế đã nhận diện và phản hồi từ người d
 
 ### 6.3.1. Cải thiện ngắn hạn (khả thi trong 1–2 tháng)
 
-**a) Nâng cao chất lượng AI Autofill:**
+**a) Nâng cao chất lượng AI Autofill và Trích xuất:**
+- Ứng dụng công nghệ **OCR tiên tiến và xử lý layout** để tăng độ chính xác khi đọc các chuẩn file PDF phức tạp (như biểu đồ, cột kép lạ, tài liệu scan).
 - Cải thiện thuật toán trích xuất danh sách tác giả — xử lý tốt hơn các định dạng phức tạp (nhiều affiliation, ký hiệu đặc biệt, bài y khoa có số lượng tác giả lớn).
 - Bổ sung **cơ chế giải thích** (explainability) cho mọi output AI — hiển thị rõ lý do và bằng chứng bên cạnh mỗi gợi ý, giúp người dùng tin tưởng hơn và giảm lo ngại về AI sai.
 - Cho phép người dùng **đánh giá chất lượng** output AI (thumbs up/down) để thu thập dữ liệu cải thiện prompt.
@@ -147,11 +147,15 @@ Theo xu hướng từ các hội nghị hàng đầu như ICLR 2025 và AAAI-26,
 - Triển khai hàng đợi (message queue) để xử lý bất đồng bộ các workflow AI nặng, tránh nghẽn cổ chai khi nhiều request AI đồng thời.
 - Nghiên cứu cơ chế **prompt caching** và **batch processing** để giảm chi phí token khi xử lý nhiều bài báo liên tiếp.
 
-**b) Tích hợp phân tích nâng cao:**
+**b) Tích hợp phân tích nâng cao và đa nền tảng:**
 - Phát triển dashboard phân tích xu hướng (trend analytics) cho Chair: phân phối chủ đề bài nộp qua các năm, tỷ lệ chấp nhận theo track, phân tích chất lượng phản biện theo thời gian.
 - Xây dựng hệ thống recommendation cho tác giả: gợi ý hội nghị phù hợp dựa trên hồ sơ nghiên cứu, lịch sử nộp bài và xu hướng lĩnh vực.
+- **Hỗ trợ đa nền tảng (Mobile/Tablet):** Phát triển ứng dụng trên thiết bị di động với các tính năng tinh gọn (như nhận thông báo Push, duyệt nhanh bài báo, check deadline) để giải quyết nhu cầu cập nhật trạng thái mọi lúc mọi nơi của người dùng (như đã phân tích ở mục 2.1).
 
-**c) Đóng góp cho cộng đồng:**
+**c) Tăng cường trải nghiệm làm việc nhóm (Collaborative Tools):**
+- Tích hợp tính năng thảo luận trực tuyến ngay trong trình duyệt tài liệu (In-app annotation) để Author và Reviewer có thể trao đổi chính xác trên từng đoạn văn bản, mang lại trải nghiệm giống với các công cụ hợp tác hiện đại.
+
+**d) Đóng góp cho cộng đồng:**
 - Công bố mã nguồn dưới giấy phép mã nguồn mở, kèm tài liệu hướng dẫn triển khai — cho phép các hội nghị khác tự triển khai ConferenceSpace cho nhu cầu riêng.
 - Chia sẻ bộ benchmark 1.127 bài báo và phương pháp đánh giá workflow AI như một contribution cho cộng đồng nghiên cứu về quản lý hội nghị.
 
