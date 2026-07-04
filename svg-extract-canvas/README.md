@@ -8,10 +8,11 @@ The intended extraction strategy is now:
 
 ```text
 bound frame -> crop -> isolate background -> vectorize
+bound frame -> crop -> rembg cleanup -> vectorize
 bound frame -> crop -> isolate background -> recreate clean raster draft -> vectorize
 ```
 
-Use the second path when the crop is visually mixed with the background or the local isolation result is not clean enough.
+Use the rembg and Codex-draft paths as experiments when the crop is visually mixed with the background or the local isolation result is not clean enough. Do not treat either path as the permanent default until previews are compared on real screenshots.
 
 ## Install
 
@@ -32,6 +33,14 @@ export VTRACER_BIN=/absolute/path/to/vtracer
 ```
 
 The default trace profile is tuned for UI icons first, not photographs. It uses lower speckle filtering, higher precision, and cutout layering by default.
+
+`rembg` is optional for cleanup comparison. Install it only when you want to benchmark it against local isolation and Codex-generated clean rasters:
+
+```bash
+pip install "rembg[cpu,cli]"
+```
+
+If `rembg` is not installed, the comparison workflow records an install hint and continues with the available candidates.
 
 ## Run
 
@@ -55,6 +64,7 @@ For the intended Codex workflow, open this URL in the Codex in-app browser side 
 ```text
 Open the SVG extraction canvas.
 Extract the selected icon as SVG.
+Compare rembg and Codex cleanup paths for this crop.
 If direct tracing is noisy, recreate a clean raster draft first and then trace it.
 Suggest extract boxes for the pasted screenshots.
 Refine this SVG.
@@ -69,10 +79,12 @@ Step-level output is written under:
 canvas/pages/default/crops/
 canvas/pages/default/isolated/
 canvas/pages/default/masks/
+canvas/pages/default/rembg/
 canvas/pages/default/drafts/
 canvas/pages/default/raw/
 canvas/pages/default/previews/
 canvas/pages/default/exports/
+canvas/pages/default/experiments/
 ```
 
 Pressing the canvas **Extract** button writes a versioned batch folder:

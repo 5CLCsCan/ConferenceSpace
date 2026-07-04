@@ -16,7 +16,9 @@ export const TOOL_NAMES = [
   'export_svg_extract_crop',
   'batch_export_extract_crops',
   'isolate_crop_background',
+  'remove_background_rembg',
   'save_clean_raster_draft',
+  'compare_cleanup_paths',
   'vectorize_crop',
   'optimize_svg',
   'render_svg_preview',
@@ -75,7 +77,9 @@ function listTools() {
       toolDefinition('export_svg_extract_crop', 'Crop a selected screenshot region into a PNG.'),
       toolDefinition('batch_export_extract_crops', 'Crop selected non-rejected extract frames, or every non-rejected frame when none are selected, into a versioned folder.'),
       toolDefinition('isolate_crop_background', 'Remove or flatten crop backgrounds before vectorization.'),
+      toolDefinition('remove_background_rembg', 'Run optional rembg background removal on a crop and return install guidance when rembg is unavailable.'),
       toolDefinition('save_clean_raster_draft', 'Save a Codex-created clean raster draft for tracing.'),
+      toolDefinition('compare_cleanup_paths', 'Compare local isolation, optional rembg cleanup, and optional Codex raster draft through SVG previews.'),
       toolDefinition('vectorize_crop', 'Vectorize a crop into raw SVG with VTracer.'),
       toolDefinition('optimize_svg', 'Sanitize and optimize an SVG.'),
       toolDefinition('render_svg_preview', 'Render an SVG to a PNG preview.'),
@@ -342,6 +346,18 @@ async function callTool(name, args = {}) {
       if (args.maskOutputDir) safeArgs.maskOutputDir = safeProjectPath({ projectDir, unsafePath: args.maskOutputDir })
       return jsonContent(await isolateCropBackground(safeArgs))
     }
+    case 'remove_background_rembg': {
+      const { removeBackgroundWithRembg } = await import('../tools/rembg.mjs')
+      const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+      const pageId = nonEmptyString(args.pageId) ?? 'default'
+      const safeArgs = { ...args }
+      if (args.cropPath) safeProjectPath({ projectDir, unsafePath: args.cropPath })
+      safeArgs.outputDir = safeProjectPath({
+        projectDir,
+        unsafePath: nonEmptyString(args.outputDir) ?? join(pageWorkDir(projectDir, pageId), 'rembg'),
+      })
+      return jsonContent(await removeBackgroundWithRembg(safeArgs))
+    }
     case 'save_clean_raster_draft': {
       const { saveCleanRasterDraft } = await import('../tools/isolateBackground.mjs')
       const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
@@ -355,6 +371,21 @@ async function callTool(name, args = {}) {
       }
       if (args.sourceCropPath) safeProjectPath({ projectDir, unsafePath: args.sourceCropPath })
       return jsonContent(await saveCleanRasterDraft(safeArgs))
+    }
+    case 'compare_cleanup_paths': {
+      const { compareCleanupPaths } = await import('../tools/compareCleanupPaths.mjs')
+      const projectDir = resolve(nonEmptyString(args.projectDir) ?? process.cwd())
+      const pageId = nonEmptyString(args.pageId) ?? 'default'
+      const safeArgs = {
+        ...args,
+        projectDir,
+        outputDir: safeProjectPath({
+          projectDir,
+          unsafePath: nonEmptyString(args.outputDir) ?? join(pageWorkDir(projectDir, pageId), 'experiments', 'cleanup-comparison'),
+        }),
+      }
+      if (args.cropPath) safeProjectPath({ projectDir, unsafePath: args.cropPath })
+      return jsonContent(await compareCleanupPaths(safeArgs))
     }
     case 'vectorize_crop': {
       const { vectorizeCrop } = await import('../tools/vectorize.mjs')
