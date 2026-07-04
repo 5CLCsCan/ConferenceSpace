@@ -7,12 +7,18 @@ import { batchExtractCrops } from '../tools/batchExtract.mjs'
 import { compareCleanupPaths } from '../tools/compareCleanupPaths.mjs'
 
 const DEFAULT_PAGE_ID = 'page:default'
+const TLDRAW_DEFAULT_PAGE_ID = 'page:page'
 const CANVAS_FILE_NAME = 'svg-extract-canvas.json'
 const VIEW_STATE_FILE_NAME = 'svg-extract-view-state.json'
 const SELECTION_FILE_NAME = 'svg-extract-selection.json'
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+function storagePageId(pageId) {
+  const normalized = nonEmptyString(pageId)
+  return !normalized || normalized === TLDRAW_DEFAULT_PAGE_ID ? DEFAULT_PAGE_ID : normalized
 }
 
 export function resolveProjectDir(projectDir = process.env.SVG_EXTRACT_PROJECT_DIR) {
@@ -309,7 +315,7 @@ export function createCanvasApiHandler({ projectDir } = {}) {
         const body = await readJsonRequest(request)
         const result = await batchExtractCrops({
           projectDir: rootProjectDir,
-          pageId: nonEmptyString(body.pageId) ?? DEFAULT_PAGE_ID,
+          pageId: storagePageId(body.pageId),
           selectedShapeIds: Array.isArray(body.selectedShapeIds) ? body.selectedShapeIds : [],
         })
         sendJson(response, 200, result)
@@ -319,7 +325,7 @@ export function createCanvasApiHandler({ projectDir } = {}) {
         const body = await readJsonRequest(request)
         const result = await createCleanupPreview({
           projectDir: rootProjectDir,
-          pageId: nonEmptyString(body.pageId) ?? DEFAULT_PAGE_ID,
+          pageId: storagePageId(body.pageId),
           selectedShapeIds: Array.isArray(body.selectedShapeIds) ? body.selectedShapeIds : [],
           vtracerBin: nonEmptyString(body.vtracerBin),
           rembgBin: nonEmptyString(body.rembgBin),

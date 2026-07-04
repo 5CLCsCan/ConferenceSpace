@@ -239,3 +239,24 @@ test('POST /api/cleanup-preview writes comparison manifest and file URLs', async
   assert.match(result.body.items[0].candidates[0].rasterUrl, /^\/api\/files\//)
   assert.match(result.body.items[0].candidates[0].previewUrl, /^\/api\/files\//)
 })
+
+test('POST /api/cleanup-preview maps tldraw default page id to persisted default page', async () => {
+  const { createCanvasApiHandler, saveCanvasSnapshot } = await import('../server/canvas-server.mjs')
+  const projectDir = await tempProject()
+  const sourcePath = join(projectDir, 'canvas/pages/default/assets/source.png')
+  const vtracerBin = join(projectDir, 'fake-vtracer')
+  await writePng(sourcePath)
+  await writeFakeVTracer(vtracerBin)
+  await saveCanvasSnapshot({ projectDir, snapshot: canvasWithTwoTargets({ sourcePath }) })
+  const handler = createCanvasApiHandler({ projectDir })
+
+  const result = await callApi(handler, {
+    method: 'POST',
+    url: '/api/cleanup-preview',
+    body: { pageId: 'page:page', selectedShapeIds: ['shape:target'], vtracerBin },
+  })
+
+  assert.equal(result.statusCode, 200)
+  assert.equal(result.body.items.length, 1)
+  assert.equal(result.body.items[0].extractBoxId, 'shape:target')
+})
