@@ -140,8 +140,19 @@ export function createExtractBoxRecord({
       h: targetBounds.height,
       color: colorForStatus(status),
       dash: 'draw',
+      growY: 0,
+      url: '',
+      scale: 1,
+      labelColor: 'black',
       fill: 'none',
       size: 'm',
+      font: 'draw',
+      align: 'middle',
+      verticalAlign: 'middle',
+      richText: {
+        type: 'doc',
+        content: [{ type: 'paragraph' }],
+      },
     },
   }
 }

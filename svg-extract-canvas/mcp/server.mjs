@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import readline from 'node:readline'
 import { fileURLToPath } from 'node:url'
+import { generateNKeysBetween } from 'fractional-indexing'
 import { loadCanvasSnapshot, loadSelectionState, saveCanvasSnapshot } from '../server/canvas-server.mjs'
 import { absoluteBoundsForTarget, createExtractBoxRecord } from '../src/extractBox.js'
 
@@ -543,6 +544,11 @@ export async function applyExtractTargetSuggestions(args = {}) {
   const normalized = await suggestExtractTargets(args)
   const images = new Map(canvasImageShapeRecords(snapshot).map((record) => [record.id, selectionShapeFromCanvas(snapshot, record)]))
   const shapeIds = []
+  const existingIndexes = Object.values(snapshot.store)
+    .map((record) => nonEmptyString(record?.index))
+    .filter(Boolean)
+    .sort()
+  const shapeIndexes = generateNKeysBetween(existingIndexes.at(-1) ?? null, null, normalized.suggestions.length)
 
   normalized.suggestions.forEach((suggestion, index) => {
     const imageShape = images.get(suggestion.sourceShapeId)
@@ -564,6 +570,9 @@ export async function applyExtractTargetSuggestions(args = {}) {
         confidence: suggestion.confidence,
       }),
       typeName: 'shape',
+      index: shapeIndexes[index],
+      opacity: 1,
+      isLocked: false,
     }
     shapeIds.push(shapeId)
   })
