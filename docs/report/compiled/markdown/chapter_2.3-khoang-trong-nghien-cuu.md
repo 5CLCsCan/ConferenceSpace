@@ -8,13 +8,13 @@ Dựa trên kết quả khảo sát nhu cầu (mục 2.1) và khảo sát hiện
 
 ### 2.3.1. Hạn chế của các hệ thống hiện tại
 
-Qua phân tích bốn hệ thống đại diện (EasyChair, HotCRP, OpenReview, Microsoft CMT) kết hợp với dữ liệu khảo sát từ 89 người dùng, nhóm nhận diện bốn khoảng trống chức năng lớn mà các hệ thống hiện tại chưa giải quyết được:
+Qua phân tích bốn hệ thống đại diện (EasyChair, HotCRP, OpenReview, Microsoft CMT) kết hợp với dữ liệu khảo sát từ 71 người dùng, nhóm nhận diện bốn khoảng trống chức năng lớn mà các hệ thống hiện tại chưa giải quyết được:
 
 #### Khoảng trống 1 — Thiếu AI hỗ trợ toàn diện trong quy trình xét duyệt
 
 Đây là khoảng trống nghiêm trọng nhất. Mặc dù Microsoft CMT đã tích hợp TPMS cho gợi ý phản biện và OpenReview gần đây bắt đầu thí điểm AI Review Assistant, không hệ thống nào trong bốn nền tảng được khảo sát ứng dụng mô hình ngôn ngữ lớn (LLM) một cách nhất quán và xuyên suốt toàn bộ quy trình xét duyệt. Cụ thể:
 
-- **Tác giả** phải tự nhập toàn bộ thông tin bài nộp (tiêu đề, tóm tắt, từ khóa, danh sách tác giả) một cách thủ công, dù phần lớn thông tin này đã có sẵn trong file PDF bản thảo. Theo kết quả khảo sát (mục 2.1), tính năng AI tự động điền thông tin (Autofill) được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**, cho thấy nhu cầu rất lớn về giảm thao tác nhập liệu thủ công.
+- **Tác giả** phải tự nhập toàn bộ thông tin bài nộp (tiêu đề, tóm tắt, từ khóa, danh sách tác giả) một cách thủ công, dù phần lớn thông tin này đã có sẵn trong file PDF bản thảo. Theo kết quả khảo sát (mục 2.1), tính năng AI tự động điền thông tin (Autofill) được 35/50 tác giả (70%) đánh giá là **tính năng hữu ích nhất**, cho thấy nhu cầu rất lớn về giảm thao tác nhập liệu thủ công.
 - **Người phản biện** không có công cụ hỗ trợ đọc hiểu sơ bộ bài báo. Phản biện phải tự đọc toàn bộ bản thảo từ đầu đến cuối trước khi bắt đầu viết nhận xét — quá trình này tốn nhiều thời gian, đặc biệt khi bài báo dài hoặc thuộc lĩnh vực liên ngành.
 - **Trưởng ban (Chair)** không có công cụ tổng hợp thông minh. Khi ra quyết định chấp nhận hay từ chối một bài nộp, Chair phải tự đọc tất cả nhận xét, phản hồi rebuttal và thảo luận nội bộ — rồi tự tổng hợp trong đầu trước khi đưa ra quyết định. Với hội nghị có hàng trăm bài nộp, quy trình này vừa tốn thời gian vừa dễ bỏ sót thông tin quan trọng.
 
@@ -46,7 +46,7 @@ Tất cả bốn hệ thống hiện tại chỉ dựa vào email để thông b
 
 | STT | Khoảng trống | Hệ thống bị ảnh hưởng | Nhu cầu liên quan (mục 2.1) |
 |:---:|---|---|---|
-| 1 | Thiếu AI hỗ trợ toàn diện trong quy trình xét duyệt | Tất cả (EasyChair, HotCRP, OpenReview, CMT) | Autofill (62% tác giả chọn là hữu ích nhất), gợi ý track, hỗ trợ phản biện, Decision Copilot |
+| 1 | Thiếu AI hỗ trợ toàn diện trong quy trình xét duyệt | Tất cả (EasyChair, HotCRP, OpenReview, CMT) | Autofill (70% tác giả chọn là hữu ích nhất), gợi ý track, hỗ trợ phản biện, Decision Copilot |
 | 2 | Phát hiện COI còn thô sơ | Tất cả | Phát hiện COI đáng tin cậy (ưu tiên Trung bình–Cao) |
 | 3 | Thiếu hỗ trợ người dùng thông minh | Tất cả | Chatbot 24/7, kiểm tra chất lượng review, desk rejection |
 | 4 | Thiếu real-time và UX hiện đại | Tất cả | Thông báo tức thì, giao diện responsive, đa ngôn ngữ |
