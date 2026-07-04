@@ -1,9 +1,10 @@
 import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
-import { dirname, extname, join, resolve, sep } from 'node:path'
+import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { batchExtractCrops } from '../tools/batchExtract.mjs'
+import { compareCleanupPaths } from '../tools/compareCleanupPaths.mjs'
 
 const DEFAULT_PAGE_ID = 'page:default'
 const CANVAS_FILE_NAME = 'svg-extract-canvas.json'
@@ -20,6 +21,11 @@ export function resolveProjectDir(projectDir = process.env.SVG_EXTRACT_PROJECT_D
 
 export function canvasRoot({ projectDir } = {}) {
   return join(resolveProjectDir(projectDir), 'canvas')
+}
+
+function isSafeChildPath(parent, child) {
+  const pathToChild = relative(parent, child)
+  return pathToChild && !pathToChild.startsWith('..') && !pathToChild.includes(`..${sep}`)
 }
 
 export function pageDir({ projectDir, pageId = DEFAULT_PAGE_ID } = {}) {
@@ -139,8 +145,33 @@ export function contentTypeForPath(filePath) {
   if (extension === '.css') return 'text/css; charset=utf-8'
   if (extension === '.svg') return 'image/svg+xml'
   if (extension === '.png') return 'image/png'
+  if (extension === '.jpg' || extension === '.jpeg') return 'image/jpeg'
+  if (extension === '.webp') return 'image/webp'
   if (extension === '.json') return 'application/json'
   return 'application/octet-stream'
+}
+
+export function projectFileUrl({ projectDir, filePath } = {}) {
+  const root = canvasRoot({ projectDir })
+  const resolved = resolve(String(filePath ?? ''))
+  if (!isSafeChildPath(root, resolved)) throw new Error(`Refusing file outside canvas directory: ${resolved}`)
+  return `/api/files/${relative(root, resolved).split(sep).map(encodeURIComponent).join('/')}`
+}
+
+export async function resolveProjectFileUrl({ projectDir, pathname = '' } = {}) {
+  const root = canvasRoot({ projectDir })
+  const prefix = '/api/files/'
+  if (!pathname.startsWith(prefix)) return null
+  const relativePath = decodeURIComponent(pathname.slice(prefix.length))
+  const candidate = resolve(root, relativePath)
+  if (!isSafeChildPath(root, candidate)) return null
+  try {
+    const info = await stat(candidate)
+    return info.isFile() ? candidate : null
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+    return null
+  }
 }
 
 export async function resolveStaticPath({ distDir = join(pluginRootDir(), 'dist'), pathname = '/' } = {}) {
@@ -176,6 +207,63 @@ async function serveStaticDist(request, response) {
   response.writeHead(200, { 'content-type': contentTypeForPath(filePath) })
   createReadStream(filePath).pipe(response)
   return true
+}
+
+async function serveProjectFile({ request, response, projectDir }) {
+  const url = new URL(request.url, 'http://127.0.0.1')
+  const filePath = await resolveProjectFileUrl({ projectDir, pathname: url.pathname })
+  if (!filePath) return false
+
+  response.writeHead(200, { 'content-type': contentTypeForPath(filePath) })
+  createReadStream(filePath).pipe(response)
+  return true
+}
+
+function previewCandidateUrls({ projectDir, candidate }) {
+  return {
+    ...candidate,
+    rasterUrl: candidate.rasterPath ? projectFileUrl({ projectDir, filePath: candidate.rasterPath }) : null,
+    maskUrl: candidate.maskPath ? projectFileUrl({ projectDir, filePath: candidate.maskPath }) : null,
+    svgUrl: candidate.svgPath ? projectFileUrl({ projectDir, filePath: candidate.svgPath }) : null,
+    previewUrl: candidate.previewPath ? projectFileUrl({ projectDir, filePath: candidate.previewPath }) : null,
+  }
+}
+
+async function createCleanupPreview({ projectDir, pageId = DEFAULT_PAGE_ID, selectedShapeIds = [], vtracerBin, rembgBin, rembgModel } = {}) {
+  const extraction = await batchExtractCrops({ projectDir, pageId, selectedShapeIds })
+  const items = []
+
+  for (const [index, crop] of extraction.crops.entries()) {
+    const stem = basename(crop.cropPath, extname(crop.cropPath))
+    const outputDir = join(dirname(dirname(crop.cropPath)), 'cleanup-preview', stem)
+    const comparison = await compareCleanupPaths({
+      projectDir,
+      cropPath: crop.cropPath,
+      outputDir,
+      fileName: stem,
+      vtracerBin,
+      rembgBin,
+      rembgModel,
+    })
+    items.push({
+      index,
+      label: crop.label,
+      sourceShapeId: crop.sourceShapeId,
+      extractBoxId: crop.extractBoxId,
+      cropPath: crop.cropPath,
+      cropUrl: projectFileUrl({ projectDir, filePath: crop.cropPath }),
+      manifestPath: comparison.manifestPath,
+      manifestUrl: projectFileUrl({ projectDir, filePath: comparison.manifestPath }),
+      candidates: comparison.candidates.map((candidate) => previewCandidateUrls({ projectDir, candidate })),
+    })
+  }
+
+  return {
+    version: extraction.version,
+    outputDir: extraction.outputDir,
+    cropCount: extraction.cropCount,
+    items,
+  }
 }
 
 export function createCanvasApiHandler({ projectDir } = {}) {
@@ -227,6 +315,19 @@ export function createCanvasApiHandler({ projectDir } = {}) {
         sendJson(response, 200, result)
         return true
       }
+      if (url.pathname === '/api/cleanup-preview' && request.method === 'POST') {
+        const body = await readJsonRequest(request)
+        const result = await createCleanupPreview({
+          projectDir: rootProjectDir,
+          pageId: nonEmptyString(body.pageId) ?? DEFAULT_PAGE_ID,
+          selectedShapeIds: Array.isArray(body.selectedShapeIds) ? body.selectedShapeIds : [],
+          vtracerBin: nonEmptyString(body.vtracerBin),
+          rembgBin: nonEmptyString(body.rembgBin),
+          rembgModel: nonEmptyString(body.rembgModel),
+        })
+        sendJson(response, 200, result)
+        return true
+      }
       return false
     } catch (error) {
       sendJson(response, 500, { error: String(error?.message ?? error) })
@@ -237,8 +338,10 @@ export function createCanvasApiHandler({ projectDir } = {}) {
 
 export function createStandaloneServer({ projectDir, port = Number(process.env.SVG_EXTRACT_PORT ?? 43227) } = {}) {
   const handleApi = createCanvasApiHandler({ projectDir })
+  const rootProjectDir = resolveProjectDir(projectDir)
   return createServer(async (request, response) => {
     if (await handleApi(request, response)) return
+    if (await serveProjectFile({ request, response, projectDir: rootProjectDir })) return
     if (await serveStaticDist(request, response)) return
     if (request.url === '/' || request.url === '/index.html') {
       response.writeHead(200, { 'content-type': 'text/html' })

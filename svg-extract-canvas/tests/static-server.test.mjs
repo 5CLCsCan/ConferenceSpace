@@ -49,4 +49,20 @@ test('contentTypeForPath returns expected browser content types', async () => {
   assert.equal(contentTypeForPath('/tmp/app.js'), 'text/javascript; charset=utf-8')
   assert.equal(contentTypeForPath('/tmp/style.css'), 'text/css; charset=utf-8')
   assert.equal(contentTypeForPath('/tmp/icon.svg'), 'image/svg+xml')
+  assert.equal(contentTypeForPath('/tmp/icon.jpg'), 'image/jpeg')
+})
+
+test('projectFileUrl and resolveProjectFileUrl roundtrip canvas files safely', async () => {
+  const { projectFileUrl, resolveProjectFileUrl } = await import('../server/canvas-server.mjs')
+  const projectDir = await mkdtemp(join(tmpdir(), 'svg-extract-files-'))
+  tempDirs.push(projectDir)
+  const filePath = join(projectDir, 'canvas/pages/default/previews/icon.png')
+  await mkdir(join(projectDir, 'canvas/pages/default/previews'), { recursive: true })
+  await writeFile(filePath, 'png')
+
+  const url = projectFileUrl({ projectDir, filePath })
+
+  assert.equal(url, '/api/files/pages/default/previews/icon.png')
+  assert.equal(await resolveProjectFileUrl({ projectDir, pathname: url }), filePath)
+  assert.equal(await resolveProjectFileUrl({ projectDir, pathname: '/api/files/../package.json' }), null)
 })

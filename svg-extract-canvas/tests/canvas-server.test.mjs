@@ -53,6 +53,75 @@ async function writePng(filePath) {
     .toFile(filePath)
 }
 
+async function writeFakeVTracer(filePath) {
+  await writeFile(
+    filePath,
+    `#!/usr/bin/env node
+const fs = require('node:fs')
+const out = process.argv[process.argv.indexOf('--output') + 1]
+fs.writeFileSync(out, '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 4l6 12H4z" fill="#111"/></svg>')
+`,
+    { mode: 0o755 },
+  )
+}
+
+function canvasWithTwoTargets({ sourcePath }) {
+  return {
+    schema: { schemaVersion: 2, sequences: {} },
+    store: {
+      'asset:source': {
+        id: 'asset:source',
+        typeName: 'asset',
+        type: 'image',
+        props: { src: sourcePath, w: 20, h: 20, mimeType: 'image/png' },
+      },
+      'shape:image': {
+        id: 'shape:image',
+        typeName: 'shape',
+        type: 'image',
+        parentId: 'page:default',
+        x: 0,
+        y: 0,
+        props: { assetId: 'asset:source', w: 20, h: 20 },
+      },
+      'shape:target': {
+        id: 'shape:target',
+        typeName: 'shape',
+        type: 'geo',
+        parentId: 'page:default',
+        x: 2,
+        y: 3,
+        props: { geo: 'rectangle', w: 8, h: 9 },
+        meta: {
+          svgExtractTarget: true,
+          svgExtractTargetVersion: 2,
+          sourceShapeId: 'shape:image',
+          sourceRelativeBounds: { x: 2, y: 3, width: 8, height: 9 },
+          status: 'accepted',
+          label: 'api icon',
+        },
+      },
+      'shape:other-target': {
+        id: 'shape:other-target',
+        typeName: 'shape',
+        type: 'geo',
+        parentId: 'page:default',
+        x: 10,
+        y: 10,
+        props: { geo: 'rectangle', w: 4, h: 4 },
+        meta: {
+          svgExtractTarget: true,
+          svgExtractTargetVersion: 2,
+          sourceShapeId: 'shape:image',
+          sourceRelativeBounds: { x: 10, y: 10, width: 4, height: 4 },
+          status: 'suggested',
+          label: 'other icon',
+        },
+      },
+    },
+  }
+}
+
 test('loadCanvasSnapshot creates a default canvas snapshot', async () => {
   const { loadCanvasSnapshot } = await import('../server/canvas-server.mjs')
   const projectDir = await tempProject()
@@ -126,60 +195,7 @@ test('POST /api/extract writes versioned crops for selected frames', async () =>
   await writePng(sourcePath)
   await saveCanvasSnapshot({
     projectDir,
-    snapshot: {
-      schema: { schemaVersion: 2, sequences: {} },
-      store: {
-        'asset:source': {
-          id: 'asset:source',
-          typeName: 'asset',
-          type: 'image',
-          props: { src: sourcePath, w: 20, h: 20, mimeType: 'image/png' },
-        },
-        'shape:image': {
-          id: 'shape:image',
-          typeName: 'shape',
-          type: 'image',
-          parentId: 'page:default',
-          x: 0,
-          y: 0,
-          props: { assetId: 'asset:source', w: 20, h: 20 },
-        },
-        'shape:target': {
-          id: 'shape:target',
-          typeName: 'shape',
-          type: 'geo',
-          parentId: 'page:default',
-          x: 2,
-          y: 3,
-          props: { geo: 'rectangle', w: 8, h: 9 },
-          meta: {
-            svgExtractTarget: true,
-            svgExtractTargetVersion: 2,
-            sourceShapeId: 'shape:image',
-            sourceRelativeBounds: { x: 2, y: 3, width: 8, height: 9 },
-            status: 'accepted',
-            label: 'api icon',
-          },
-        },
-        'shape:other-target': {
-          id: 'shape:other-target',
-          typeName: 'shape',
-          type: 'geo',
-          parentId: 'page:default',
-          x: 10,
-          y: 10,
-          props: { geo: 'rectangle', w: 4, h: 4 },
-          meta: {
-            svgExtractTarget: true,
-            svgExtractTargetVersion: 2,
-            sourceShapeId: 'shape:image',
-            sourceRelativeBounds: { x: 10, y: 10, width: 4, height: 4 },
-            status: 'suggested',
-            label: 'other icon',
-          },
-        },
-      },
-    },
+    snapshot: canvasWithTwoTargets({ sourcePath }),
   })
   const handler = createCanvasApiHandler({ projectDir })
 
@@ -195,4 +211,31 @@ test('POST /api/extract writes versioned crops for selected frames', async () =>
   assert.equal(result.body.selectionMode, 'selected')
   assert.equal(result.body.cropCount, 1)
   assert.match(result.body.crops[0].cropPath, /extractions\/v001\/crops\/01-api-icon\.png$/)
+})
+
+test('POST /api/cleanup-preview writes comparison manifest and file URLs', async () => {
+  const { createCanvasApiHandler, saveCanvasSnapshot } = await import('../server/canvas-server.mjs')
+  const projectDir = await tempProject()
+  const sourcePath = join(projectDir, 'canvas/pages/default/assets/source.png')
+  const vtracerBin = join(projectDir, 'fake-vtracer')
+  await writePng(sourcePath)
+  await writeFakeVTracer(vtracerBin)
+  await saveCanvasSnapshot({ projectDir, snapshot: canvasWithTwoTargets({ sourcePath }) })
+  const handler = createCanvasApiHandler({ projectDir })
+
+  const result = await callApi(handler, {
+    method: 'POST',
+    url: '/api/cleanup-preview',
+    body: { pageId: 'page:default', selectedShapeIds: ['shape:target'], vtracerBin },
+  })
+
+  assert.equal(result.handled, true)
+  assert.equal(result.statusCode, 200)
+  assert.equal(result.body.items.length, 1)
+  assert.equal(result.body.items[0].label, 'api icon')
+  assert.match(result.body.items[0].cropUrl, /^\/api\/files\//)
+  assert.match(result.body.items[0].manifestUrl, /^\/api\/files\//)
+  assert.equal(result.body.items[0].candidates[0].name, 'local-isolated')
+  assert.match(result.body.items[0].candidates[0].rasterUrl, /^\/api\/files\//)
+  assert.match(result.body.items[0].candidates[0].previewUrl, /^\/api\/files\//)
 })

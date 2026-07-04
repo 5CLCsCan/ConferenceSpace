@@ -8,6 +8,7 @@ const CANVAS_ENDPOINT = '/api/canvas'
 const SELECTION_ENDPOINT = '/api/selection'
 const VIEW_STATE_ENDPOINT = '/api/view-state'
 const EXTRACT_ENDPOINT = '/api/extract'
+const CLEANUP_PREVIEW_ENDPOINT = '/api/cleanup-preview'
 
 const buttonStyle = {
   border: '1px solid #2563eb',
@@ -61,6 +62,9 @@ export default function App() {
   const [actionError, setActionError] = useState(null)
   const [extractStatus, setExtractStatus] = useState(null)
   const [isExtracting, setIsExtracting] = useState(false)
+  const [isPreviewing, setIsPreviewing] = useState(false)
+  const [cleanupPreview, setCleanupPreview] = useState(null)
+  const [previewSettings, setPreviewSettings] = useState({ rembgModel: '', vtracerBin: '' })
   const [editor, setEditor] = useState(null)
 
   useEffect(() => {
@@ -254,7 +258,59 @@ export default function App() {
         >
           {isExtracting ? 'Extracting...' : 'Extract'}
         </button>
+        <button
+          type="button"
+          disabled={!editor || isPreviewing}
+          onClick={async () => {
+            if (!editor) return
+            setIsPreviewing(true)
+            setActionError(null)
+            setExtractStatus(null)
+            try {
+              syncBoundExtractTargets(editor)
+              const saveResponse = await fetch(CANVAS_ENDPOINT, {
+                method: 'PUT',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(editor.store.getStoreSnapshot()),
+              })
+              if (!saveResponse.ok) throw new Error(`Canvas save failed: ${saveResponse.status}`)
+
+              const previewResponse = await fetch(CLEANUP_PREVIEW_ENDPOINT, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({
+                  pageId: editor.getCurrentPageId(),
+                  selectedShapeIds: editor.getSelectedShapeIds().map((id) => String(id)),
+                  rembgModel: previewSettings.rembgModel || undefined,
+                  vtracerBin: previewSettings.vtracerBin || undefined,
+                }),
+              })
+              const result = await previewResponse.json()
+              if (!previewResponse.ok) throw new Error(result.error ?? `Preview failed: ${previewResponse.status}`)
+              setCleanupPreview(result)
+              setExtractStatus(`Previewed ${result.items.length} cleanup set${result.items.length === 1 ? '' : 's'} in ${result.version}`)
+            } catch (previewError) {
+              setActionError(previewError.message)
+            } finally {
+              setIsPreviewing(false)
+            }
+          }}
+          style={{
+            ...buttonStyle,
+            borderColor: '#0f766e',
+            background: '#0f766e',
+            opacity: !editor || isPreviewing ? 0.65 : 1,
+          }}
+        >
+          {isPreviewing ? 'Previewing...' : 'Preview Cleanup'}
+        </button>
       </div>
+      <CleanupPreviewPanel
+        preview={cleanupPreview}
+        settings={previewSettings}
+        onSettingsChange={setPreviewSettings}
+        onClose={() => setCleanupPreview(null)}
+      />
       {actionError ? (
         <div
           role="status"
@@ -299,5 +355,184 @@ export default function App() {
       ) : null}
       <Tldraw snapshot={snapshot} onMount={handleMount} />
     </div>
+  )
+}
+
+function formatPercent(value) {
+  return Number.isFinite(Number(value)) ? `${Math.round(Number(value) * 100)}%` : null
+}
+
+function CandidateCard({ candidate }) {
+  const alpha = formatPercent(candidate.stats?.alphaCoverage ?? candidate.stats?.transparentPixelRatio)
+  const edge = formatPercent(candidate.stats?.edgeTouchRatio)
+  return (
+    <article
+      style={{
+        border: '1px solid #d4d4d8',
+        borderRadius: 6,
+        overflow: 'hidden',
+        background: '#fff',
+      }}
+    >
+      <div
+        style={{
+          padding: '8px 10px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: 8,
+          borderBottom: '1px solid #e4e4e7',
+        }}
+      >
+        <strong style={{ font: '700 13px system-ui', color: '#18181b' }}>{candidate.name}</strong>
+        <span style={{ font: '500 12px system-ui', color: candidate.skipped || candidate.vectorizeError ? '#b45309' : '#047857' }}>
+          {candidate.skipped ? 'missing' : candidate.vectorizeError ? 'raster only' : 'ready'}
+        </span>
+      </div>
+      {candidate.skipped ? (
+        <p style={{ margin: 0, padding: 10, font: '500 12px/1.4 system-ui', color: '#92400e' }}>{candidate.reason}</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, padding: 8 }}>
+          {candidate.rasterUrl ? <PreviewImage label="Raster" src={candidate.rasterUrl} /> : null}
+          {candidate.maskUrl ? <PreviewImage label="Mask" src={candidate.maskUrl} /> : null}
+          {candidate.previewUrl ? <PreviewImage label="SVG Preview" src={candidate.previewUrl} /> : null}
+          {candidate.svgUrl ? (
+            <a href={candidate.svgUrl} target="_blank" rel="noreferrer" style={{ font: '600 12px system-ui', color: '#2563eb' }}>
+              Open SVG
+            </a>
+          ) : null}
+        </div>
+      )}
+      <div style={{ padding: '0 10px 10px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {candidate.quality?.recommendedAction ? <Metric label={candidate.quality.recommendedAction} /> : null}
+        {alpha ? <Metric label={`alpha ${alpha}`} /> : null}
+        {edge ? <Metric label={`edge ${edge}`} /> : null}
+        {candidate.stats?.connectedComponentCount ? <Metric label={`${candidate.stats.connectedComponentCount} components`} /> : null}
+      </div>
+      {candidate.vectorizeError ? (
+        <p style={{ margin: 0, padding: '0 10px 10px', font: '500 12px/1.4 system-ui', color: '#92400e' }}>
+          {candidate.vectorizeError}
+        </p>
+      ) : null}
+    </article>
+  )
+}
+
+function Metric({ label }) {
+  return (
+    <span
+      style={{
+        padding: '3px 6px',
+        borderRadius: 999,
+        background: '#f4f4f5',
+        color: '#3f3f46',
+        font: '600 11px system-ui',
+      }}
+    >
+      {label}
+    </span>
+  )
+}
+
+function PreviewImage({ label, src }) {
+  return (
+    <figure style={{ margin: 0 }}>
+      <div
+        style={{
+          height: 112,
+          border: '1px solid #e4e4e7',
+          borderRadius: 4,
+          background:
+            'linear-gradient(45deg, #f4f4f5 25%, transparent 25%), linear-gradient(-45deg, #f4f4f5 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f4f4f5 75%), linear-gradient(-45deg, transparent 75%, #f4f4f5 75%)',
+          backgroundColor: '#fff',
+          backgroundSize: '16px 16px',
+          backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+          display: 'grid',
+          placeItems: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <img src={src} alt={label} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+      </div>
+      <figcaption style={{ marginTop: 4, font: '600 11px system-ui', color: '#52525b' }}>{label}</figcaption>
+    </figure>
+  )
+}
+
+function CleanupPreviewPanel({ preview, settings, onSettingsChange, onClose }) {
+  return (
+    <aside
+      style={{
+        position: 'fixed',
+        top: 64,
+        right: 12,
+        bottom: 16,
+        zIndex: 9,
+        width: 380,
+        maxWidth: 'calc(100vw - 24px)',
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid #d4d4d8',
+        borderRadius: 8,
+        background: '#fafafa',
+        boxShadow: '0 12px 40px rgb(15 23 42 / 14%)',
+        overflow: 'hidden',
+      }}
+    >
+      <header style={{ padding: 12, borderBottom: '1px solid #e4e4e7', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <h2 style={{ margin: 0, font: '700 14px system-ui', color: '#18181b' }}>Cleanup Preview</h2>
+          <p style={{ margin: '3px 0 0', font: '500 12px system-ui', color: '#71717a' }}>
+            {preview ? `${preview.items.length} item${preview.items.length === 1 ? '' : 's'} from ${preview.version}` : 'Select frames, then preview cleanup.'}
+          </p>
+        </div>
+        {preview ? (
+          <button type="button" onClick={onClose} style={{ border: 0, background: 'transparent', font: '700 18px system-ui', cursor: 'pointer' }}>
+            x
+          </button>
+        ) : null}
+      </header>
+      <div style={{ padding: 12, display: 'grid', gap: 8, borderBottom: '1px solid #e4e4e7' }}>
+        <label style={{ display: 'grid', gap: 4, font: '600 12px system-ui', color: '#3f3f46' }}>
+          rembg model
+          <input
+            value={settings.rembgModel}
+            onChange={(event) => onSettingsChange((current) => ({ ...current, rembgModel: event.target.value }))}
+            placeholder="default"
+            style={{ padding: '7px 8px', border: '1px solid #d4d4d8', borderRadius: 5, font: '500 12px system-ui' }}
+          />
+        </label>
+        <label style={{ display: 'grid', gap: 4, font: '600 12px system-ui', color: '#3f3f46' }}>
+          VTracer binary
+          <input
+            value={settings.vtracerBin}
+            onChange={(event) => onSettingsChange((current) => ({ ...current, vtracerBin: event.target.value }))}
+            placeholder="auto"
+            style={{ padding: '7px 8px', border: '1px solid #d4d4d8', borderRadius: 5, font: '500 12px system-ui' }}
+          />
+        </label>
+      </div>
+      <div style={{ padding: 12, overflow: 'auto', display: 'grid', gap: 12 }}>
+        {preview?.items?.length ? (
+          preview.items.map((item) => (
+            <section key={`${item.extractBoxId}-${item.index}`} style={{ display: 'grid', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                <h3 style={{ margin: 0, font: '700 13px system-ui', color: '#18181b' }}>{item.label || item.extractBoxId}</h3>
+                <a href={item.manifestUrl} target="_blank" rel="noreferrer" style={{ font: '600 12px system-ui', color: '#2563eb' }}>
+                  Manifest
+                </a>
+              </div>
+              <PreviewImage label="Original crop" src={item.cropUrl} />
+              {item.candidates.map((candidate) => (
+                <CandidateCard key={`${item.extractBoxId}-${candidate.name}`} candidate={candidate} />
+              ))}
+            </section>
+          ))
+        ) : (
+          <p style={{ margin: 0, font: '500 13px/1.45 system-ui', color: '#52525b' }}>
+            Preview shows original crops beside local masks, rembg output, and SVG renderings.
+          </p>
+        )}
+      </div>
+    </aside>
   )
 }
