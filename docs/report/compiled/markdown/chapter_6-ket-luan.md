@@ -52,13 +52,13 @@ Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời
 
 ### 6.1.5. Đáp ứng nhu cầu người dùng
 
+Hệ thống đã giải quyết trực tiếp các vấn đề nhức nhối (pain points) lớn nhất được xác định từ khảo sát 71 người dùng ban đầu (mục 2.1), đặc biệt là việc giảm thiểu "tải nhận thức" (cognitive load) trước các giao diện phức tạp (gần 50% bình chọn) và tự động hóa các form nhập liệu dài, lặp lại (gần 48% bình chọn).
+
 Kết quả khảo sát thực nghiệm sau sử dụng (UAT) trên 89 người dùng cho thấy:
 - **Điểm hài lòng trung bình của Tác giả:** 3,89/5,00 (86% hài lòng hoặc rất hài lòng).
 - **Điểm hài lòng trung bình của Phản biện:** 4,29/5,00 (n=7) — cao hơn đáng kể so với vai trò Tác giả, tuy nhiên cỡ mẫu nhỏ nên kết quả chỉ mang tính tham khảo (xem thêm mục 6.2.1).
 - **82% người dùng sẵn sàng giới thiệu hệ thống** cho bạn bè/đồng nghiệp.
-- Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**.
-
-Kết quả khảo sát nhu cầu chi tiết trước khi xây dựng hệ thống được trình bày ở mục 2.1; các con số UAT nêu trên là kết quả đo lường sau khi triển khai, dùng để đối chiếu lại với nhu cầu ban đầu.
+- Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**, hoàn toàn khớp với kỳ vọng lớn nhất của người dùng trong khảo sát nhu cầu (mục 2.1.6) về việc áp dụng nguyên tắc thiết kế "Human-in-the-loop" (AI hỗ trợ nhập liệu, con người kiểm soát và xác nhận).
 
 ### 6.1.6. Đóng góp chính của đề tài
 
@@ -112,7 +112,8 @@ Dựa trên các hạn chế đã nhận diện và phản hồi từ người d
 
 ### 6.3.1. Cải thiện ngắn hạn (khả thi trong 1–2 tháng)
 
-**a) Nâng cao chất lượng AI Autofill:**
+**a) Nâng cao chất lượng AI Autofill và Trích xuất:**
+- Ứng dụng công nghệ **OCR tiên tiến và xử lý layout** để tăng độ chính xác khi đọc các chuẩn file PDF phức tạp (như biểu đồ, cột kép lạ, tài liệu scan).
 - Cải thiện thuật toán trích xuất danh sách tác giả — xử lý tốt hơn các định dạng phức tạp (nhiều affiliation, ký hiệu đặc biệt, bài y khoa có số lượng tác giả lớn).
 - Bổ sung **cơ chế giải thích** (explainability) cho mọi output AI — hiển thị rõ lý do và bằng chứng bên cạnh mỗi gợi ý, giúp người dùng tin tưởng hơn và giảm lo ngại về AI sai.
 - Cho phép người dùng **đánh giá chất lượng** output AI (thumbs up/down) để thu thập dữ liệu cải thiện prompt.
@@ -146,11 +147,15 @@ Theo xu hướng từ các hội nghị hàng đầu như ICLR 2025 và AAAI-26,
 - Triển khai hàng đợi (message queue) để xử lý bất đồng bộ các workflow AI nặng, tránh nghẽn cổ chai khi nhiều request AI đồng thời.
 - Nghiên cứu cơ chế **prompt caching** và **batch processing** để giảm chi phí token khi xử lý nhiều bài báo liên tiếp.
 
-**b) Tích hợp phân tích nâng cao:**
+**b) Tích hợp phân tích nâng cao và đa nền tảng:**
 - Phát triển dashboard phân tích xu hướng (trend analytics) cho Chair: phân phối chủ đề bài nộp qua các năm, tỷ lệ chấp nhận theo track, phân tích chất lượng phản biện theo thời gian.
 - Xây dựng hệ thống recommendation cho tác giả: gợi ý hội nghị phù hợp dựa trên hồ sơ nghiên cứu, lịch sử nộp bài và xu hướng lĩnh vực.
+- **Hỗ trợ đa nền tảng (Mobile/Tablet):** Phát triển ứng dụng trên thiết bị di động với các tính năng tinh gọn (như nhận thông báo Push, duyệt nhanh bài báo, check deadline) để giải quyết nhu cầu cập nhật trạng thái mọi lúc mọi nơi của người dùng (như đã phân tích ở mục 2.1).
 
-**c) Đóng góp cho cộng đồng:**
+**c) Tăng cường trải nghiệm làm việc nhóm (Collaborative Tools):**
+- Tích hợp tính năng thảo luận trực tuyến ngay trong trình duyệt tài liệu (In-app annotation) để Author và Reviewer có thể trao đổi chính xác trên từng đoạn văn bản, mang lại trải nghiệm giống với các công cụ hợp tác hiện đại.
+
+**d) Đóng góp cho cộng đồng:**
 - Công bố mã nguồn dưới giấy phép mã nguồn mở, kèm tài liệu hướng dẫn triển khai — cho phép các hội nghị khác tự triển khai ConferenceSpace cho nhu cầu riêng.
 - Chia sẻ bộ benchmark 1.127 bài báo và phương pháp đánh giá workflow AI như một contribution cho cộng đồng nghiên cứu về quản lý hội nghị.
 
