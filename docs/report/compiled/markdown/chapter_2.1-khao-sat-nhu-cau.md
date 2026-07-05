@@ -43,12 +43,13 @@ Dữ liệu khảo sát chỉ ra các vấn đề nhức nhối hiện tại và
 | Thông báo/deadline rời rạc dễ bỏ sót | 28 | ~39.4% | Thiếu một Dashboard tập trung để theo dõi tổng quan tiến độ của hội nghị. |
 
 #### B. Đánh giá các tính năng dành cho Chair / Ban tổ chức
+*(Lưu ý: Trong 71 người tham gia, chỉ có 7 người thuộc vai trò Chair)*
 
-| Tính năng AI đề xuất | Điểm đánh giá cao (4-5/5) | Giải thích lý do người dùng lựa chọn |
+| Tính năng AI đề xuất | Mức độ ủng hộ (Điểm 4-5/5) | Giải thích / Phân tích |
 | :--- | :---: | :--- |
-| **AI cảnh báo Conflict of Interest (COI)** | Rất cao (59 người) | Chair thường gặp khó khăn và thiếu tự tin khi kiểm tra COI thủ công. Hệ thống tự động cảnh báo dựa trên quan hệ học thuật giúp tăng tính minh bạch và công bằng cho hội nghị. |
-| **Dashboard tóm tắt tình trạng toàn hội nghị** | Rất cao (52 người) | Việc AI gom nhóm tình trạng hội nghị thành các "việc cần xử lý hôm nay" giúp Chair giảm tải nhận thức, không bị lạc trong vô số email và bảng biểu. |
-| **AI gợi ý reviewer theo chuyên môn** | Cao (44 người) | Giúp Chair tiết kiệm hàng giờ đồng hồ tìm kiếm và phân công thủ công, nhất là đối với các hội nghị có lượng bài nộp lớn. |
+| **AI cảnh báo Conflict of Interest (COI)** | Cao (5/7 người) | Chair thường gặp khó khăn và thiếu tự tin khi kiểm tra COI thủ công. Việc tự động cảnh báo COI dựa trên quan hệ học thuật giúp tăng tính minh bạch và công bằng. |
+| **Dashboard tóm tắt tình trạng toàn hội nghị** | Khá (4/7 người) | Việc gom nhóm tình trạng hội nghị thành các "việc cần xử lý hôm nay" giúp Chair giảm tải nhận thức, không bị lạc trong vô số email và bảng biểu. |
+| **AI gợi ý reviewer theo chuyên môn** | Thấp (2/7 người) | Mặc dù có tiềm năng tiết kiệm thời gian, nhiều Chair chưa đặt ưu tiên cao cho tính năng này, có thể do e ngại về độ chính xác của AI so với mạng lưới chuyên gia của họ. |
 
 #### C. Đánh giá các tính năng dành cho Author (Tác giả)
 
@@ -58,13 +59,14 @@ Dữ liệu khảo sát chỉ ra các vấn đề nhức nhối hiện tại và
 | **Kiểm tra format tự động trước khi nộp** | Rất hữu ích | Tác giả mong muốn hệ thống hoạt động như một "wizard đơn giản", phát hiện sớm lỗi file, lỗi template để họ yên tâm khi nhấn nút Submit. |
 
 #### D. Đánh giá các tính năng dành cho Reviewer (Người phản biện)
+*(Lưu ý: Có 11/71 người tham gia dưới vai trò Reviewer)*
 
 *![Biểu đồ mức độ ủng hộ AI của Reviewer](link_hinh_anh_google_forms_vao_day)*
 
-| Tính năng AI đề xuất | Mức độ ủng hộ | Giải thích lý do người dùng lựa chọn |
+| Tính năng AI đề xuất | Mức độ ủng hộ (Điểm 4-5/5) | Phân tích đánh giá từ người dùng |
 | :--- | :--- | :--- |
-| **AI tạo bản tóm tắt trung lập** | Cao | Giúp Reviewer nhanh chóng nắm bắt các đóng góp và phương pháp chính của một bài báo dài hàng chục trang trước khi đọc sâu. |
-| **Làm nổi bật các điểm cần kiểm tra kỹ** | Khá cao | Tuy nhiên, nhiều Reviewer nhấn mạnh quy tắc: "AI chỉ nên làm nổi bật hoặc nhắc nhở, con người vẫn phải là người ra quyết định điểm số và nhận xét học thuật cuối cùng." |
+| **AI tạo bản tóm tắt trung lập** | Khá (6/11 người) | Giúp Reviewer nhanh chóng nắm bắt các đóng góp và phương pháp chính của một bài báo dài hàng chục trang trước khi đọc sâu. |
+| **Làm nổi bật các điểm cần kiểm tra kỹ** | Thấp (3/11 người) | Phần lớn Reviewer (8/11) chỉ cho điểm dưới mức 4. Họ nhấn mạnh quy tắc: "AI chỉ nên làm nổi bật hoặc nhắc nhở, con người vẫn phải là người ra quyết định điểm số và nhận xét học thuật cuối cùng." |
 
 ### 2.1.5 Phân tích lý do người dùng lựa chọn tính năng
 Dựa trên các bảng số liệu và ý kiến tự luận, sự ưu tiên của người dùng đối với các tính năng mới xuất phát từ các nguyên nhân cốt lõi sau:
