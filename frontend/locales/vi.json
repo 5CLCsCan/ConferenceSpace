@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "ConferenceAI"
+    "name": "ConferenceSpace"
   },
   "auth": {
     "login": {
@@ -113,6 +113,66 @@
         "english": "Tiếng Anh",
         "vietnamese": "Tiếng Việt"
       }
+    },
+    "errors": {
+      "unexpected": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+      "failedToLoadConference": "Không thể tải hội nghị",
+      "failedToLoadSubmissions": "Không thể tải danh sách bài nộp",
+      "failedToLoadRebuttal": "Không thể tải phản hồi",
+      "failedToLoadDiscussions": "Không thể tải thảo luận",
+      "failedToLoadCompletedReviews": "Không thể tải review đã hoàn thành",
+      "failedToLoadDashboard": "Không thể tải bảng điều khiển",
+      "failedToLoadSettings": "Không thể tải cài đặt",
+      "failedToLoadSubmission": "Không thể tải bài nộp",
+      "failedToLoadDates": "Không thể tải mốc thời gian",
+      "failedToLoadCfp": "Không thể tải thông báo mời bài",
+      "failedToLoadCoi": "Không thể tải dữ liệu xung đột lợi ích",
+      "failedToLoadOverview": "Không thể tải tổng quan",
+      "failedToLoadSuggestions": "Không thể tải gợi ý phản biện",
+      "failedToLoadAssignments": "Không thể tải phân công đã xác nhận",
+      "failedToLoadReview": "Không thể tải bài phản biện",
+      "invalidDiscussionContext": "Ngữ cảnh thảo luận không hợp lệ",
+      "unableToSubmit": "Không thể nộp bài do lỗi không xác định.",
+      "conferenceNotAccepting": "Hội nghị hiện không nhận bài. Vui lòng nộp trong giai đoạn mở.",
+      "precheckFailed": "Kiểm tra trước thất bại",
+      "autosaveFailed": "Tự động lưu thất bại",
+      "unsavedChanges": "Có thay đổi chưa lưu",
+      "submissionSuccess": "Bài của bạn đã được nộp thành công!",
+      "finalSubmitBlocked": "Không thể nộp chính thức cho đến khi kết quả kiểm tra trước là Chấp nhận phản biện.",
+      "reviewAuditIncomplete": "Không thể hoàn tất kiểm tra chất lượng phản biện.",
+      "noDataReturned": "Máy chủ không trả về dữ liệu",
+      "retry": "Thử lại"
+    },
+    "emptyStates": {
+      "author": {
+        "myConferences": {
+          "title": "Chưa có bài nộp",
+          "description": "Bạn chưa nộp bài nào. Khám phá hội nghị và gửi nghiên cứu của bạn."
+        },
+        "explore": {
+          "title": "Không có hội nghị để khám phá",
+          "description": "Hiện không có hội nghị nào đang mở."
+        },
+        "archived": {
+          "title": "Chưa có bài nộp lưu trữ",
+          "description": "Các bài nộp và hội nghị đã hoàn tất sẽ hiển thị tại đây."
+        }
+      }
+    },
+    "dataTable": {
+      "empty": "Không có dữ liệu",
+      "loading": "Đang tải..."
+    },
+    "time": {
+      "justNow": "Vừa xong"
+    },
+    "notifications": {
+      "newCount": "{count} mới"
+    },
+    "roles": {
+      "author": "Tác giả",
+      "chair": "Chủ trì",
+      "reviewer": "Phản biện"
     }
   },
   "dashboard": {
@@ -150,7 +210,13 @@
           "title": "Kiểm tra chất lượng bản thảo",
           "whatsFixed": "Những điểm cần sửa",
           "whatsGood": "Những điểm tốt"
-        }
+        },
+        "uploading": "Đang tải lên...",
+        "replaceFile": "Thay tệp",
+        "uploadPdf": "Tải PDF lên",
+        "autosaving": "Đang tự động lưu...",
+        "ready": "Sẵn sàng",
+        "saved": "Đã lưu"
       }
     },
     "chair": {
@@ -310,6 +376,263 @@
         "message": "Bài nộp không tồn tại",
         "title": "Không tìm thấy"
       }
+    },
+    "onboarding": {
+      "page": {
+        "eyebrow": "Hướng dẫn sử dụng",
+        "title": "Hướng dẫn nhanh theo vai trò trong ConferenceSpace",
+        "description": "Chọn vai trò để xem từng bước sử dụng ConferenceSpace, từ màn hình đầu tiên đến thao tác cuối cùng trong quy trình.",
+        "screenshotPlaceholder": "Ảnh chụp thật sẽ hiển thị tại đây khi thêm tệp:",
+        "stepsLabel": "bước",
+        "checkpointsLabel": "kiểm tra",
+        "youWillLearn": "Bạn sẽ biết",
+        "screenLabel": "Màn hình {number}",
+        "prepareTitle": "Chuẩn bị trước khi bắt đầu",
+        "prepareDescription": "Kiểm tra nhanh để tránh đi sai flow hoặc thiếu dữ liệu ở bước sau.",
+        "prepareChecklist": "Cần chuẩn bị",
+        "openFirstScreen": "Mở màn hình đầu tiên",
+        "selectGuide": "Chọn hướng dẫn",
+        "workflowTitle": "Quy trình hội nghị",
+        "workflowSubtitle": "Từ mở hội nghị đến quyết định",
+        "tip": "Gợi ý: bắt đầu với vai trò hiện tại của bạn. Sau đó xem thêm vai trò khác để hiểu toàn bộ quy trình làm việc.",
+        "brandLabel": "ConferenceSpace"
+      },
+      "quickStart": [
+        {
+          "label": "Đăng nhập",
+          "detail": "Dùng tài khoản đã được cấp quyền."
+        },
+        {
+          "label": "Chọn vai trò",
+          "detail": "Tác giả, Phản biện hoặc Chủ trì."
+        },
+        {
+          "label": "Mở dashboard",
+          "detail": "Bắt đầu từ màn hình chính của vai trò."
+        },
+        {
+          "label": "Làm theo checklist",
+          "detail": "Hoàn thành từng bước có ảnh minh họa."
+        }
+      ],
+      "runbook": [
+        {
+          "label": "Mở nhận bài",
+          "detail": "Chủ trì mở hội nghị"
+        },
+        {
+          "label": "Nộp bài",
+          "detail": "Tác giả gửi bài nộp"
+        },
+        {
+          "label": "Phản biện",
+          "detail": "Phản biện gửi review"
+        },
+        {
+          "label": "Quyết định",
+          "detail": "Chủ trì công bố kết quả"
+        }
+      ],
+      "roles": {
+        "chair": {
+          "label": "Chủ trì",
+          "eyebrow": "Quản lý hội nghị",
+          "title": "Điều phối hội nghị từ tạo CFP đến quyết định cuối",
+          "summary": "Dành cho người quản lý hội nghị: tạo hội nghị, cấu hình deadline, mời committee, theo dõi submission, phân công reviewer và ra quyết định.",
+          "outcome": "Sau 4 bước, Chủ trì biết cách mở hội nghị, chuẩn bị reviewer và ra quyết định đúng thời điểm.",
+          "checkpoints": [
+            "Có tài khoản được cấp quyền Chủ trì hoặc PC.",
+            "Chuẩn bị thông tin hội nghị, track, topic và deadline.",
+            "Có reviewer/committee để mời trước khi chạy assignment."
+          ],
+          "steps": [
+            {
+              "title": "Mở dashboard Chủ trì",
+              "actionLabel": "Mở dashboard",
+              "bullets": [
+                "Kiểm tra số lượng hội nghị, submission, review và deadline đang mở.",
+                "Dùng danh sách hội nghị gần đây để quay lại hội nghị đang xử lý.",
+                "Nếu mới bắt đầu, chuyển sang bước tạo hội nghị mới."
+              ]
+            },
+            {
+              "title": "Tạo hội nghị và cấu hình CFP",
+              "actionLabel": "Tạo hội nghị",
+              "bullets": [
+                "Nhập tên, acronym, mô tả, loại hội nghị và nền tảng tổ chức.",
+                "Thêm topics/tracks vì dữ liệu này dùng cho phân loại paper và matching reviewer.",
+                "Kiểm tra policy, review type và deadline trước khi publish."
+              ]
+            },
+            {
+              "title": "Mời committee và phân công reviewer",
+              "actionLabel": "Mở danh sách hội nghị",
+              "bullets": [
+                "Mời reviewer bằng email, đợi trạng thái invitation được accept nếu flow yêu cầu.",
+                "Mở tab submissions/assignments để chạy suggested reviewers hoặc auto-assign.",
+                "Luôn mở Match Details để xem keyword match, workload và COI trước khi confirm."
+              ]
+            },
+            {
+              "title": "Theo dõi review và ra quyết định",
+              "actionLabel": "Quản lý hội nghị",
+              "bullets": [
+                "Theo dõi review đã nộp, reviewer quá hạn và các discussion cần xử lý.",
+                "Mở rebuttal nếu hội nghị có vòng phản hồi tác giả.",
+                "Chỉ commit accept/reject sau khi kiểm tra review, COI và camera-ready requirements."
+              ]
+            }
+          ]
+        },
+        "author": {
+          "label": "Tác giả",
+          "eyebrow": "Nộp bài",
+          "title": "Nộp bài và theo dõi toàn bộ vòng đời submission",
+          "summary": "Dành cho tác giả: tìm hội nghị đang mở, nộp paper, chỉnh sửa/rút bài, đọc review, gửi rebuttal và nộp camera-ready.",
+          "outcome": "Sau 4 bước, Tác giả biết cách chọn hội nghị, nộp paper và theo dõi kết quả đến camera-ready.",
+          "checkpoints": [
+            "Có tài khoản Tác giả với domain chuyên môn phù hợp.",
+            "Chuẩn bị title, abstract, keywords, co-author và file PDF hợp lệ.",
+            "Chọn hội nghị còn hạn nhận bài hoặc còn mở vòng camera-ready."
+          ],
+          "steps": [
+            {
+              "title": "Tìm hội nghị đang mở",
+              "actionLabel": "Mở hội nghị",
+              "bullets": [
+                "Xem danh sách hội nghị và kiểm tra trạng thái nhận bài.",
+                "Mở chi tiết hội nghị để đọc track, topics, deadline và policy.",
+                "Chỉ bắt đầu submission khi conference còn mở full paper deadline."
+              ]
+            },
+            {
+              "title": "Tạo submission mới",
+              "actionLabel": "Nộp bài mới",
+              "bullets": [
+                "Nhập title, abstract, keywords và chọn track phù hợp.",
+                "Thêm co-author và khai báo conflict of interest nếu có.",
+                "Upload PDF hợp lệ rồi chạy precheck/autofill nếu tính năng AI đang hoạt động."
+              ]
+            },
+            {
+              "title": "Quản lý submission",
+              "actionLabel": "Bài nộp của tôi",
+              "bullets": [
+                "Theo dõi trạng thái draft, submitted, under review, rebuttal hoặc decision.",
+                "Sửa hoặc rút bài khi hệ thống còn cho phép theo deadline.",
+                "Mở chi tiết submission để xem thông báo, discussion và review khi được công bố."
+              ]
+            },
+            {
+              "title": "Gửi rebuttal hoặc camera-ready",
+              "actionLabel": "Theo dõi kết quả",
+              "bullets": [
+                "Đọc kỹ review trước khi viết rebuttal, trả lời theo từng điểm chính.",
+                "Khi paper được accept, kiểm tra yêu cầu camera-ready và upload đúng file cuối.",
+                "Theo dõi notification để không bỏ lỡ deadline phản hồi."
+              ]
+            }
+          ]
+        },
+        "reviewer": {
+          "label": "Phản biện",
+          "eyebrow": "Phản biện",
+          "title": "Nhận lời mời, đọc bài và gửi review có chất lượng",
+          "summary": "Dành cho reviewer: nhận/decline invitation, xem assignment, dùng briefing hỗ trợ đọc bài, chấm điểm và cập nhật sau rebuttal.",
+          "outcome": "Sau 4 bước, Phản biện biết cách nhận lời mời, đọc assignment và gửi review đủ chất lượng.",
+          "checkpoints": [
+            "Email tài khoản phải trùng email được Chủ trì mời.",
+            "Domain chuyên môn nên được cập nhật để matching chính xác hơn.",
+            "Chỉ accept khi đủ chuyên môn, còn thời gian và không có COI."
+          ],
+          "steps": [
+            {
+              "title": "Mở dashboard Phản biện",
+              "actionLabel": "Mở dashboard",
+              "bullets": [
+                "Kiểm tra invitation mới, assignment đang chờ review và deadline gần nhất.",
+                "Ưu tiên xử lý lời mời trước để Chủ trì biết reviewer có tham gia hay không.",
+                "Dùng dashboard để quay lại các review chưa hoàn tất."
+              ]
+            },
+            {
+              "title": "Accept hoặc decline invitation",
+              "actionLabel": "Xem lời mời",
+              "bullets": [
+                "Đọc conference, paper summary, deadline và cảnh báo COI nếu có.",
+                "Accept khi phù hợp chuyên môn và không có conflict.",
+                "Decline với lý do rõ ràng nếu bận, lệch chuyên môn hoặc có xung đột lợi ích."
+              ]
+            },
+            {
+              "title": "Đọc assignment và briefing",
+              "actionLabel": "Xem assignment",
+              "bullets": [
+                "Mở paper được phân công để xem metadata, file và review criteria.",
+                "Dùng briefing/AI hỗ trợ đọc nhanh nếu màn hình này được bật.",
+                "Ghi chú điểm mạnh, điểm yếu, câu hỏi và rủi ro kỹ thuật trước khi chấm."
+              ]
+            },
+            {
+              "title": "Gửi review và cập nhật sau rebuttal",
+              "actionLabel": "Review đã hoàn thành",
+              "bullets": [
+                "Chấm điểm từng tiêu chí, recommendation và confidence nhất quán với nhận xét.",
+                "Viết strengths/weaknesses cụ thể, tránh nhận xét quá ngắn như “good paper”.",
+                "Sau rebuttal, đọc phản hồi của Tác giả và cập nhật score nếu cần."
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "wizard": {
+      "topicsDeadlines": {
+        "description": "Xác định phạm vi chủ đề và các mốc nộp bài quan trọng cho hội nghị.",
+        "topicsTooltip": "Chủ đề gắn thẻ bài nộp và hỗ trợ ghép phản biện. Chúng giúp tác giả phân loại bài và hỗ trợ phân công phản biện phù hợp.",
+        "tracksTooltip": "Track là các luồng chủ đề trong hội nghị. Tác giả chọn track khi nộp bài và bài được phản biện trong track đó.",
+        "datesTooltip": "Đặt các mốc quan trọng cho quy trình phản biện. Mặc định tất cả thời gian là 23:59 AoE (Anywhere on Earth)."
+      },
+      "policyGuidelines": {
+        "formattingTooltip": "Xác định yêu cầu định dạng và độ dài cho bài nộp.",
+        "screeningTooltip": "Xác định quy tắc sàng lọc bài nộp và prompt AI tư vấn tùy chọn.",
+        "blindReviewTooltip": "Cấu hình phản biện kín danh và chính sách xung đột lợi ích.",
+        "supplementaryTooltip": "Cấu hình tài liệu bổ sung tác giả có thể nộp kèm bài."
+      }
+    },
+    "profile": {
+      "saving": "Đang lưu...",
+      "saveChanges": "Lưu thay đổi"
+    },
+    "copilot": {
+      "generate": "Tạo",
+      "regenerate": "Tạo lại",
+      "generating": "Đang tạo..."
+    },
+    "reviewer": {
+      "rebuttal": {
+        "openingDiscussion": "Đang mở thảo luận...",
+        "discussionOpen": "Thảo luận đã mở cho hội nghị này.",
+          "unacknowledgedOne": "{count} điểm chưa xác nhận",
+          "unacknowledgedOther": "{count} điểm chưa xác nhận",
+        "hide": "Ẩn",
+        "update": "Cập nhật"
+      },
+      "completedReviews": {
+        "loadError": "Không thể tải review đã hoàn thành. Vui lòng thử lại.",
+        "missingReviewer": "Không có thông tin phản biện."
+      },
+      "dashboard": {
+        "loadError": "Không thể tải bảng điều khiển. Vui lòng thử lại."
+      }
+    },
+    "discussion": {
+      "attachFile": "Đính kèm tệp",
+      "uploading": "Đang tải lên…",
+      "close": "Đóng",
+      "attachNotAvailable": "Chưa hỗ trợ đính kèm tệp",
+      "linkNotAvailable": "Chưa hỗ trợ chèn liên kết",
+      "mathNotAvailable": "Chưa hỗ trợ ký hiệu toán học"
     }
   },
   "runtime": {
@@ -342,7 +665,7 @@
           "prop_text_conference_management": "Quản lý hội nghị",
           "prop_text_paper_submission_tracking": "Nộp và theo dõi bài báo",
           "prop_text_structured_peer_review": "Phản biện đồng nghiệp có cấu trúc",
-          "text_conferencespace": "CONFERENCESPACE",
+          "text_conferencespace": "ConferenceSpace",
           "text_signing_in": "Đang đăng nhập...",
           "text_submit_research_coordinate_reviews_and_chair": "Nộp nghiên cứu, điều phối phản biện và quản lý hội nghị - tất cả trong một hệ thống thống nhất.",
           "text_the_scholarly_platform_for_academic_conferences": "Nền tảng học thuật cho các hội nghị học thuật."
@@ -451,7 +774,7 @@
           "roles": {
             "author": {
               "description": "Author bắt đầu từ danh sách hội nghị, chọn CFP phù hợp rồi nộp bài qua form nhiều bước.",
-              "label": "Author",
+              "label": "Tác giả",
               "steps": {
                 "conferences": {
                   "bullets": [
@@ -490,7 +813,7 @@
             },
             "chair": {
               "description": "Chair quản lý hội nghị từ lúc mở CFP, phân công reviewer đến khi công bố kết quả.",
-              "label": "Chair",
+              "label": "Chủ trì",
               "steps": {
                 "assign": {
                   "bullets": [
@@ -529,7 +852,7 @@
             },
             "reviewer": {
               "description": "Reviewer xử lý lời mời, xem bài được giao và gửi phản biện theo tiêu chí của hội nghị.",
-              "label": "Reviewer",
+              "label": "Phản biện",
               "steps": {
                 "assignment": {
                   "bullets": [
@@ -749,7 +1072,7 @@
           "prop_text_conference_management": "Quản lý hội nghị",
           "prop_text_paper_submission_tracking": "Nộp và theo dõi bài báo",
           "prop_text_structured_peer_review": "Phản biện đồng nghiệp có cấu trúc",
-          "text_conferencespace": "CONFERENCESPACE",
+          "text_conferencespace": "ConferenceSpace",
           "text_create_your_scholar_account_to_submit": "Tạo tài khoản học giả để nộp bài, phản biện bản thảo và quản lý hội nghị.",
           "text_failed_to_load_invitation": "Không tải được thông tin lời mời.",
           "text_creating_account": "Đang tạo tài khoản...",

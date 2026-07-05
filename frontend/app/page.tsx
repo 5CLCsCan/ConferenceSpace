@@ -515,7 +515,7 @@ function PublicGuidePreview() {
                       <span />
                       <span />
                       <span />
-                      <strong>ConferenceSpace</strong>
+                      <strong>{t("app.name")}</strong>
                     </div>
                     <Image
                       src={step.image}

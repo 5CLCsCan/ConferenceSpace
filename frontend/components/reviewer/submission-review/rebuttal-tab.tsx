@@ -39,7 +39,7 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
       setLoading(false)
     }
     if (result.error || !result.data) {
-      setError(result.error ?? "Failed to load rebuttal")
+      setError(result.error ?? t("common.errors.failedToLoadRebuttal"))
     } else {
       setData(result.data)
     }
@@ -196,12 +196,12 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-4">
           {discussionOpening && (
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              Opening discussion...
+              {t("dashboard.reviewer.rebuttal.openingDiscussion")}
             </p>
           )}
           {discussionSuccess && (
             <p className="text-[10px] text-green-600 dark:text-green-400">
-              Discussion is open for this conference.
+              {t("dashboard.reviewer.rebuttal.discussionOpen")}
             </p>
           )}
 
@@ -209,8 +209,12 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
           {myUnackedPoints.length > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {myUnackedPoints.length} point{myUnackedPoints.length !== 1 ? "s" : ""}{" "}
-                unacknowledged
+                {t(
+                  myUnackedPoints.length === 1
+                    ? "dashboard.reviewer.rebuttal.unacknowledgedOne"
+                    : "dashboard.reviewer.rebuttal.unacknowledgedOther",
+                  { count: myUnackedPoints.length },
+                )}
               </span>
               <button
                 onClick={handleMarkAllRead}
@@ -226,7 +230,8 @@ export function RebuttalTab({ conferenceId, submissionId, assignmentId }: Rebutt
               onClick={() => setScoreFormOpen(!scoreFormOpen)}
               className="text-xs font-medium text-[#1B3C53] dark:text-blue-300 hover:underline"
             >
-              {scoreFormOpen ? "▾ Hide" : "▸ Update"} {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_post_rebuttal_score")}{" "}</button>
+              {scoreFormOpen ? `▾ ${t("dashboard.reviewer.rebuttal.hide")}` : `▸ ${t("dashboard.reviewer.rebuttal.update")}`}{" "}
+              {t("runtime.components.reviewer.submission-review.rebuttal-tab.text_post_rebuttal_score")}{" "}</button>
 
             {scoreFormOpen && (
               <div className="mt-3 space-y-3">

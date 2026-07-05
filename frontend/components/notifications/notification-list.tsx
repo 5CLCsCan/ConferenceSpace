@@ -67,7 +67,7 @@ export function NotificationList({
             </h3>
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                {unreadCount} new
+                {t("common.notifications.newCount", { count: unreadCount })}
               </span>
             )}
           </div>

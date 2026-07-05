@@ -22,8 +22,6 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
   const { t } = useTranslation()
   const router = useRouter()
 
-  const currentReviewerId = reviewerId || "1"
-
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("date")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
@@ -37,7 +35,7 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
     setCurrentPage(1)
   }
 
-  const { reviews, total, isLoading } = useCompletedReviews(currentReviewerId, {
+  const { reviews, total, isLoading, error } = useCompletedReviews(reviewerId ?? null, {
     search: debouncedSearch,
     limit: PAGE_SIZE,
     offset: (currentPage - 1) * PAGE_SIZE,
@@ -182,6 +180,19 @@ export function CompletedReviews({ reviewerId, onSelectPaper }: CompletedReviews
             <span className="text-xs font-medium">
               {t("runtime.components.reviewer.completed-reviews.text_loading_completed_reviews")}
             </span>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 gap-3">
+            <p className="text-sm font-bold text-red-600 dark:text-red-400">
+              {t("dashboard.reviewer.completedReviews.loadError")}
+            </p>
+            <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">{error}</p>
+          </div>
+        ) : !reviewerId ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <p className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1">
+              {t("dashboard.reviewer.completedReviews.missingReviewer")}
+            </p>
           </div>
         ) : sortedReviews.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4">

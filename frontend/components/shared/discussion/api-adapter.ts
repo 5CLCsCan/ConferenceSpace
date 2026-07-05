@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns"
+import { tStatic } from "@/lib/i18n/static-translate"
 import type {
   DiscussionThread as ApiDiscussionThread,
   DiscussionMessage as ApiDiscussionMessage,
@@ -25,11 +26,11 @@ export interface DiscussionConfigAdapter {
 }
 
 function toRelativeTime(value?: string): string {
-  if (!value) return "Just now"
+  if (!value) return tStatic("common.time.justNow")
   try {
     return formatDistanceToNow(new Date(value), { addSuffix: true })
   } catch {
-    return "Just now"
+    return tStatic("common.time.justNow")
   }
 }
 

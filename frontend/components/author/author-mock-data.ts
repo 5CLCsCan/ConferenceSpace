@@ -151,24 +151,30 @@ export const MOCK_ARCHIVED_CONFERENCES: ExploreConference[] = [
 // Empty State Content
 // -------------------------------------------------------------------------
 
-export const EMPTY_STATE_CONTENT: Record<
+export const EMPTY_STATE_ICONS: Record<AuthorTabType, string> = {
+  "my-conferences": "description",
+  explore: "explore",
+  archived: "archive",
+}
+
+const EMPTY_STATE_MESSAGE_KEYS: Record<
   AuthorTabType,
-  { icon: string; title: string; description: string }
+  { title: string; description: string }
 > = {
   "my-conferences": {
-    icon: "description",
-    title: "No submissions yet",
-    description:
-      "You haven't submitted any papers yet. Explore conferences and submit your research.",
+    title: "common.emptyStates.author.myConferences.title",
+    description: "common.emptyStates.author.myConferences.description",
   },
   explore: {
-    icon: "explore",
-    title: "No conferences to explore",
-    description: "There are no open conferences available at this time.",
+    title: "common.emptyStates.author.explore.title",
+    description: "common.emptyStates.author.explore.description",
   },
   archived: {
-    icon: "archive",
-    title: "No archived submissions",
-    description: "Your past submissions and completed conferences will appear here.",
+    title: "common.emptyStates.author.archived.title",
+    description: "common.emptyStates.author.archived.description",
   },
+}
+
+export function getAuthorEmptyStateKeys(type: AuthorTabType) {
+  return EMPTY_STATE_MESSAGE_KEYS[type]
 }

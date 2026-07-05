@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "ConferenceAI",
+  title: "ConferenceSpace",
   description: "Academic conference workspace",
 }
 

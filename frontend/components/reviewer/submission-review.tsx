@@ -234,7 +234,7 @@ export function SubmissionReviewScreen({
       toast({
         variant: "destructive",
         title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_save_draft"),
-        description: error || "An unexpected error occurred. Please try again.",
+        description: error || t("common.errors.unexpected"),
       })
     }
   }
@@ -322,7 +322,7 @@ export function SubmissionReviewScreen({
         title: t(
           "runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review",
         ),
-        description: error || "An unexpected error occurred. Please try again.",
+        description: error || t("common.errors.unexpected"),
       })
     }
   }
@@ -356,7 +356,7 @@ export function SubmissionReviewScreen({
     toast({
       variant: "destructive",
       title: t("runtime.components.reviewer.submission-review.prop_title_failed_to_submit_review"),
-      description: result.error || "An unexpected error occurred. Please try again.",
+      description: result.error || t("common.errors.unexpected"),
     })
   }
 
@@ -372,7 +372,7 @@ export function SubmissionReviewScreen({
         title: t(
           "runtime.components.reviewer.submission-review.prop_title_failed_to_update_audit_finding",
         ),
-        description: result.error || "An unexpected error occurred. Please try again.",
+        description: result.error || t("common.errors.unexpected"),
       })
     }
   }

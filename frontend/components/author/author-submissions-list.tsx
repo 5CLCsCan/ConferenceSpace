@@ -158,7 +158,7 @@ export function AuthorSubmissionsList() {
           setSubmissions([])
         }
       } catch (err) {
-        setError("Failed to load submissions")
+        setError(t("common.errors.failedToLoadSubmissions"))
       } finally {
         setLoading(false)
       }
