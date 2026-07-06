@@ -1,82 +1,82 @@
-# Mo ta chi tiet benchmark cac workflow AI
+# Mô tả chi tiết benchmark các workflow AI
 
-Tai lieu nay mo ta thiet ke benchmark cho hai nhom chuc nang AI can danh gia trong he thong ConferenceSpace:
+Tài liệu này mô tả thiết kế benchmark cho hai nhóm chức năng AI cần đánh giá trong hệ thống ConferenceSpace:
 
-1. Goi y track ben trong workflow Submission Autofill.
-2. Submission Gating day du, gom deterministic rule check va LLM steering check.
+1. Gợi ý track bên trong workflow Submission Autofill.
+2. Submission Gating đầy đủ, gồm deterministic rule check và LLM steering check.
 
-Muc tieu cua benchmark khong chi la chung minh script co the chay, ma la tao ra mot quy trinh danh gia co the lap lai, co dau vao ro rang, co artifact de review thu cong, va co gioi han dien giai duoc neu dua vao bao cao. Benchmark duoc thiet ke theo huong toi gian nhung kiem soat chat: chay local, khong dung dispatcher, khong phu thuoc Modal, va luu tat ca ket qua thanh file de co the audit lai tung case.
+Mục tiêu của benchmark không chỉ là chứng minh script có thể chạy, mà là tạo ra một quy trình đánh giá có thể lặp lại, có đầu vào rõ ràng, có artifact để review thủ công, và có giới hạn diễn giải đủ chặt chẽ để đưa vào báo cáo. Benchmark được thiết kế theo hướng tối giản nhưng kiểm soát chặt: chạy local, không dùng dispatcher, không phụ thuộc Modal, và lưu toàn bộ kết quả thành file để có thể audit lại từng case.
 
-## 1. Pham vi va nguyen tac danh gia
+## 1. Phạm vi và nguyên tắc đánh giá
 
-### 1.1. Pham vi he thong duoc benchmark
+### 1.1. Phạm vi hệ thống được benchmark
 
-Benchmark tap trung vao cac workflow AI sau:
+Benchmark tập trung vào các workflow AI sau:
 
-| Nhom benchmark | Workflow he thong | Thanh phan duoc danh gia | Ghi chu pham vi |
+| Nhóm benchmark | Workflow hệ thống | Thành phần được đánh giá | Ghi chú phạm vi |
 | --- | --- | --- | --- |
-| Track recommendation | Submission Autofill | `track_rankings` trong output autofill | Khong danh gia workflow track recommendation doc lap. Dau vao la hoi nghi dang hoat dong va paper can nop. |
-| Submission Gating - rules | Submission Gating | Cac rule deterministic va verdict blocking do rule tao ra | Danh gia bang fixture co ground truth ro rang. |
-| Submission Gating - LLM steering | Submission Gating | Kha nang phat hien van de noi dung theo yeu cau cua chair | Danh gia bang submission that; LLM chi duoc dua ra canh bao/nhan xet, khong duoc tao blocking verdict. |
+| Track recommendation | Submission Autofill | `track_rankings` trong output autofill | Không đánh giá workflow track recommendation độc lập. Đầu vào là hội nghị đang hoạt động và paper cần nộp. |
+| Submission Gating - rules | Submission Gating | Các rule deterministic và verdict blocking do rule tạo ra | Đánh giá bằng fixture có ground truth rõ ràng. |
+| Submission Gating - LLM steering | Submission Gating | Khả năng phát hiện vấn đề nội dung theo yêu cầu của chair | Đánh giá bằng submission thật; LLM chỉ được đưa ra cảnh báo/nhận xét, không được tạo blocking verdict. |
 
-Phan track recommendation duoc dat trong Submission Autofill vi day la hanh vi thuc te cua platform: khi author upload paper va chon hoi nghi dang hoat dong, workflow autofill trich xuat metadata va dong thoi de xuat track phu hop dua tren thong tin paper va context cua hoi nghi. Do do benchmark nay khong co y nghia neu tach track recommendation thanh mot workflow doc lap voi context khac.
+Phần track recommendation được đặt trong Submission Autofill vì đây là hành vi thực tế của platform: khi author upload paper và chọn hội nghị đang hoạt động, workflow autofill trích xuất metadata và đồng thời đề xuất track phù hợp dựa trên thông tin paper và context của hội nghị. Do đó benchmark này không có ý nghĩa nếu tách track recommendation thành một workflow độc lập với context khác.
 
-### 1.2. Nguyen tac thiet ke benchmark
+### 1.2. Nguyên tắc thiết kế benchmark
 
-Benchmark duoc thiet ke theo bon nguyen tac:
+Benchmark được thiết kế theo bốn nguyên tắc:
 
-- **Dung runtime that cua he thong**: script benchmark goi runner workflow that trong `ai-service`, khong viet lai logic goc de tranh danh gia mot ban mo phong khac voi san pham.
-- **Tach cac loai evidence**: deterministic rules duoc danh gia bang exact match voi expected rule id va verdict; LLM steering duoc danh gia bang artifact de review thu cong va rubric chat luong; track recommendation duoc danh gia bang plausibility review do chua co ground truth track chinh thuc cho tung paper.
-- **Luu ket qua de audit**: moi run tao raw response, normalized output, CSV review, summary metrics, audit report, va report-ready summary.
-- **Khong trao quyen reject cho LLM**: LLM steering chi phat hien va giai thich rui ro noi dung. Blocking decision chi den tu rule deterministic co the tai lap, giai thich, va kiem tra bang fixture.
+- **Dùng runtime thật của hệ thống**: script benchmark gọi runner workflow thật trong `ai-service`, không viết lại logic gốc để tránh đánh giá một bản mô phỏng khác với sản phẩm.
+- **Tách các loại evidence**: deterministic rules được đánh giá bằng exact match với expected rule id và verdict; LLM steering được đánh giá bằng artifact review thủ công và rubric chất lượng; track recommendation được đánh giá bằng plausibility review do chưa có ground truth track chính thức cho từng paper.
+- **Lưu kết quả để audit**: mỗi run tạo raw response, normalized output, CSV review, summary metrics, audit report, và report-ready summary.
+- **Không trao quyền reject cho LLM**: LLM steering chỉ phát hiện và giải thích rủi ro nội dung. Blocking decision chỉ đến từ rule deterministic có thể tái lập, giải thích, và kiểm tra bằng fixture.
 
-## 2. Moi truong benchmark
+## 2. Môi trường benchmark
 
-### 2.1. Vi tri project benchmark
+### 2.1. Vị trí project benchmark
 
-Benchmark duoc dat trong project rieng:
+Benchmark được đặt trong project riêng:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks
 ```
 
-Ly do tach project:
+Lý do tách project:
 
-- Runner benchmark cu trong `Benchmarks/workflow_runner` duoc thiet ke cho Modal, khong phu hop voi benchmark local.
-- Benchmark moi can isolation de khong lam bien doi code workflow san pham.
-- Tat ca artifact dau ra duoc ghi local, phu hop voi quy mo 50-100 test cases.
-- Khong can dispatcher vi task list da biet truoc va co the fetch tu dataset local.
+- Runner benchmark cũ trong `Benchmarks/workflow_runner` được thiết kế cho Modal, không phù hợp với benchmark local.
+- Benchmark mới cần isolation để không làm biến đổi code workflow sản phẩm.
+- Tất cả artifact đầu ra được ghi local, phù hợp với quy mô 50-100 test cases.
+- Không cần dispatcher vì task list đã biết trước và có thể fetch từ dataset local.
 
-### 2.2. Code san pham duoc benchmark
+### 2.2. Code sản phẩm được benchmark
 
-Benchmark tham chieu workflow trong repo ConferenceSpace:
+Benchmark tham chiếu workflow trong repo ConferenceSpace:
 
 ```text
 E:\HCMUS\Graduate-Project\ConferenceSpace\ai-service
 ```
 
-Hai runner chinh:
+Hai runner chính:
 
 ```text
 ai-service/app/workflows/submission_autofill/runner.py
 ai-service/app/workflows/submission_gating/runner.py
 ```
 
-Voi Submission Gating, benchmark can bao dam runner su dung dung thu tu stage, dac biet `document_extraction` phai chay truoc `format_compliance` vi format compliance can `state.extracted_document` de kiem tra font size, margin, paper size, column count va cac thong tin layout khac.
+Với Submission Gating, benchmark cần bảo đảm runner sử dụng đúng thứ tự stage, đặc biệt `document_extraction` phải chạy trước `format_compliance` vì format compliance cần `state.extracted_document` để kiểm tra font size, margin, paper size, column count và các thông tin layout khác.
 
-Voi PDF extraction, benchmark su dung extractor that cua workflow, khong thay bang parser don gian. Dieu nay quan trong vi paper IEEE hoac paper hai cot thuong lam sai cac extractor pho thong; neu dung extractor khac, ket qua benchmark se khong dai dien cho hanh vi san pham.
+Với PDF extraction, benchmark sử dụng extractor thật của workflow, không thay bằng parser đơn giản. Điều này quan trọng vì paper IEEE hoặc paper hai cột thường làm sai các extractor phổ thông; nếu dùng extractor khác, kết quả benchmark sẽ không đại diện cho hành vi sản phẩm.
 
-### 2.3. Cau hinh LLM va bien moi truong
+### 2.3. Cấu hình LLM và biến môi trường
 
-Benchmark dung cau hinh OpenAI/OpenRouter san co trong:
+Benchmark dùng cấu hình OpenAI/OpenRouter sẵn có trong:
 
 ```text
 E:\HCMUS\Graduate-Project\ConferenceSpace\ai-service\.env
 ```
 
-Run cuoi cung ghi nhan cau hinh runtime nhu sau:
+Run cuối cùng ghi nhận cấu hình runtime như sau:
 
-| Truong | Gia tri |
+| Trường | Giá trị |
 | --- | --- |
 | `openai_configured` | `true` |
 | `openai_base_url` | `http://13.250.136.185:20128/v1` |
@@ -88,17 +88,17 @@ Run cuoi cung ghi nhan cau hinh runtime nhu sau:
 | `local_first` | `true` |
 | `max_concurrency` | `10` |
 
-Neu can fetch lai file tu OpenReview hoac tranh rate limiting, benchmark co the dung proxy list:
+Nếu cần fetch lại file từ OpenReview hoặc tránh rate limiting, benchmark có thể dùng proxy list:
 
 ```text
 E:\Download\proxyscrape_premium_http_proxies (4).txt
 ```
 
-Trong run da review, benchmark uu tien local cached PDFs va chi dung network khi can. Thiet ke nay lam giam do nhieu tu OpenReview va giup ket qua on dinh hon.
+Trong run đã review, benchmark ưu tiên local cached PDFs và chỉ dùng network khi cần. Thiết kế này làm giảm độ nhiễu từ OpenReview và giúp kết quả ổn định hơn.
 
-### 2.4. Lenh chay benchmark
+### 2.4. Lệnh chạy benchmark
 
-Chay tat ca workflow:
+Chạy tất cả workflow:
 
 ```powershell
 cd E:\HCMUS\Graduate-Project\Benchmarks
@@ -111,7 +111,7 @@ python ai_workflow_benchmarks/run_benchmarks.py `
   --proxy-file "E:\Download\proxyscrape_premium_http_proxies (4).txt"
 ```
 
-Chay rieng track recommendation:
+Chạy riêng track recommendation:
 
 ```powershell
 cd E:\HCMUS\Graduate-Project\Benchmarks
@@ -123,7 +123,7 @@ python ai_workflow_benchmarks/run_benchmarks.py `
   --proxy-file "E:\Download\proxyscrape_premium_http_proxies (4).txt"
 ```
 
-Chay rieng Submission Gating rules:
+Chạy riêng Submission Gating rules:
 
 ```powershell
 cd E:\HCMUS\Graduate-Project\Benchmarks
@@ -133,7 +133,7 @@ python ai_workflow_benchmarks/run_benchmarks.py `
   --task-timeout-seconds 180
 ```
 
-Chay rieng Submission Gating LLM steering:
+Chạy riêng Submission Gating LLM steering:
 
 ```powershell
 cd E:\HCMUS\Graduate-Project\Benchmarks
@@ -145,7 +145,7 @@ python ai_workflow_benchmarks/run_benchmarks.py `
   --proxy-file "E:\Download\proxyscrape_premium_http_proxies (4).txt"
 ```
 
-Tao artifact review tong hop:
+Tạo artifact review tổng hợp:
 
 ```powershell
 cd E:\HCMUS\Graduate-Project\Benchmarks
@@ -156,77 +156,77 @@ python -m local_ai_benchmark.review_outputs `
   --output-dir "E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\final_ai_workflow_review\run_20260706T194602Z_track__20260706T190216Z_llm"
 ```
 
-## 3. Dataset dau vao
+## 3. Dataset đầu vào
 
 ### 3.1. Dataset cho track recommendation
 
-Track recommendation dung submission that da co trong benchmark dataset:
+Track recommendation dùng submission thật đã có trong benchmark dataset:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\dataset
 ```
 
-Cac nguon dau vao chinh:
+Các nguồn đầu vào chính:
 
-| Artifact | Vai tro |
+| Artifact | Vai trò |
 | --- | --- |
-| `conference_dataset.json` | Chua context cua hoi nghi: ten, acronym, nam, mo ta, CFP text, track/topic neu co. |
-| `submission_data.jsonl` | Danh sach submission/paper duoc lay tu cac hoi nghi trong dataset. |
-| PDF cached theo paper | File goc de Submission Autofill doc va trich xuat metadata. |
-| Extracted metadata cached | Dung de tham khao va giam fetch lai khi co san. |
+| `conference_dataset.json` | Chứa context của hội nghị: tên, acronym, năm, mô tả, CFP text, track/topic nếu có. |
+| `submission_data.jsonl` | Danh sách submission/paper được lấy từ các hội nghị trong dataset. |
+| PDF cached theo paper | File gốc để Submission Autofill đọc và trích xuất metadata. |
+| Extracted metadata cached | Dùng để tham khảo và giảm fetch lại khi có sẵn. |
 
-Moi test case cho track recommendation can co toi thieu:
+Mỗi test case cho track recommendation cần có tối thiểu:
 
-- `case_id`: ma benchmark case.
-- `conference_id`: hoi nghi dang hoat dong.
-- `paper_id`: paper can nop.
-- `paper_pdf`: file PDF goc.
-- `conference_context`: thong tin hoi nghi dang hoat dong.
-- `available_tracks`: danh sach track hop le ma workflow duoc phep de xuat.
+- `case_id`: mã benchmark case.
+- `conference_id`: hội nghị đang hoạt động.
+- `paper_id`: paper cần nộp.
+- `paper_pdf`: file PDF gốc.
+- `conference_context`: thông tin hội nghị đang hoạt động.
+- `available_tracks`: danh sách track hợp lệ mà workflow được phép đề xuất.
 
-Danh sach `available_tracks` duoc trich xuat tu CFP hoac tu domain/topic list cua hoi nghi. Benchmark co buoc loc cac item khong phai track, vi CFP thuong chua lich su kien, deadline, dia diem, ngay thang, hoac noi dung huong dan. Neu khong loc, workflow co the goi y cac chuoi nhu "2-4 August: Main conference", lam sai metric invalid track rate va khong phan anh dung bai toan.
+Danh sách `available_tracks` được trích xuất từ CFP hoặc từ domain/topic list của hội nghị. Benchmark có bước lọc các item không phải track, vì CFP thường chứa lịch sự kiện, deadline, địa điểm, ngày tháng, hoặc nội dung hướng dẫn. Nếu không lọc, workflow có thể gợi ý các chuỗi như "2-4 August: Main conference", làm sai metric invalid track rate và không phản ánh đúng bài toán.
 
 ### 3.2. Dataset cho Submission Gating rule check
 
-Rule check khong dung submission that lam ground truth chinh, vi muc tieu la kiem tra deterministic rule co hoat dong dung hay khong. Benchmark tao seed fixture cuc bo, moi fixture duoc thiet ke de kich hoat mot hoac mot nhom rule cu the.
+Rule check không dùng submission thật làm ground truth chính, vì mục tiêu là kiểm tra deterministic rule có hoạt động đúng hay không. Benchmark tạo seed fixture cục bộ, mỗi fixture được thiết kế để kích hoạt một hoặc một nhóm rule cụ thể.
 
-Tap case seed gom 8 case:
+Tập case seed gồm 8 case:
 
-| Case | Muc tieu |
+| Case | Mục tiêu |
 | --- | --- |
-| `valid_baseline` | Paper hop le, khong bi block. |
-| `min_references_block` | Thieu so luong references toi thieu, ky vong block theo rule reference. |
-| `required_sections_block` | Thieu section bat buoc, ky vong block theo rule section. |
-| `banned_phrases_block` | Chua phrase bi cam, ky vong block theo rule policy. |
-| `unsupported_format_block` | File khong phai PDF hop le, ky vong block o binary/document integrity. |
-| `unreadable_pdf_block` | PDF hong/khong doc duoc, ky vong block o extraction integrity. |
-| `required_sections_pass` | Co du required sections, xac nhan rule khong false positive. |
-| `maximum_pages_warn` | Vuot nguong page warning neu policy chi yeu cau canh bao, khong tao sai blocking verdict. |
+| `valid_baseline` | Paper hợp lệ, không bị block. |
+| `min_references_block` | Thiếu số lượng references tối thiểu, kỳ vọng block theo rule reference. |
+| `required_sections_block` | Thiếu section bắt buộc, kỳ vọng block theo rule section. |
+| `banned_phrases_block` | Chứa phrase bị cấm, kỳ vọng block theo rule policy. |
+| `unsupported_format_block` | File không phải PDF hợp lệ, kỳ vọng block ở binary/document integrity. |
+| `unreadable_pdf_block` | PDF hỏng/không đọc được, kỳ vọng block ở extraction integrity. |
+| `required_sections_pass` | Có đủ required sections, xác nhận rule không false positive. |
+| `maximum_pages_warn` | Vượt ngưỡng page warning nếu policy chỉ yêu cầu cảnh báo, không tạo sai blocking verdict. |
 
-LLM steering bi tat trong benchmark rules bang cach de `prompt_fragments=[]`. Neu khong tat, benchmark deterministic se bi nhieu boi output cua LLM va khong the quy loi sai ve rule nao.
+LLM steering bị tắt trong benchmark rules bằng cách để `prompt_fragments=[]`. Nếu không tắt, benchmark deterministic sẽ bị nhiễu bởi output của LLM và không thể quy lỗi sai về rule nào.
 
 ### 3.3. Dataset cho Submission Gating LLM steering
 
-LLM steering dung 24 submission that tu dataset, moi submission co PDF goc va metadata hoi nghi. Khac voi rule check, benchmark nay khong tao paper gia lap, vi muc tieu la xem LLM co phat hien cac van de noi dung thuc te theo yeu cau cua chair hay khong.
+LLM steering dùng 24 submission thật từ dataset, mỗi submission có PDF gốc và metadata hội nghị. Khác với rule check, benchmark này không tạo paper giả lập, vì mục tiêu là xem LLM có phát hiện các vấn đề nội dung thực tế theo yêu cầu của chair hay không.
 
-Moi case co them mot steering prompt rieng, dong vai tro nhu input cua chair truoc khi mo cong nop bai. Steering prompt mo ta ky vong noi dung cua hoi nghi, nhung viet theo ngon ngu business/reviewer, khong dua ra chi dan ky thuat cho model.
+Mỗi case có thêm một steering prompt riêng, đóng vai trò như input của chair trước khi mở cổng nộp bài. Steering prompt mô tả kỳ vọng nội dung của hội nghị, nhưng viết theo ngôn ngữ business/reviewer, không đưa ra chỉ dẫn kỹ thuật cho model.
 
-Bon nhom steering duoc bao phu:
+Bốn nhóm steering được bao phủ:
 
-| Nhom steering | So case | Dieu can danh gia |
+| Nhóm steering | Số case | Điều cần đánh giá |
 | --- | ---: | --- |
-| `readiness_and_limitations` | 6 | Paper co neu ro limitation, assumption, threat to validity, hoac dieu kien ap dung khong. |
-| `evidence_quality` | 6 | Paper co bang chung thuc nghiem, baseline, metric, hoac lap luan du manh khong. |
-| `conference_fit` | 6 | Paper co phu hop voi scope va muc tieu cua hoi nghi/track khong. |
-| `general_submission_readiness` | 6 | Paper co san sang de nop ve mat noi dung, ro rang, day du, khong thieu thong tin quan trong khong. |
+| `readiness_and_limitations` | 6 | Paper có nêu rõ limitation, assumption, threat to validity, hoặc điều kiện áp dụng không. |
+| `evidence_quality` | 6 | Paper có bằng chứng thực nghiệm, baseline, metric, hoặc lập luận đủ mạnh không. |
+| `conference_fit` | 6 | Paper có phù hợp với scope và mục tiêu của hội nghị/track không. |
+| `general_submission_readiness` | 6 | Paper có sẵn sàng để nộp về mặt nội dung, rõ ràng, đầy đủ, không thiếu thông tin quan trọng không. |
 
-Trong LLM steering benchmark, deterministic rules duoc neutralize toi muc toi thieu, ngoai tru binary integrity va document extraction integrity. Dieu nay can thiet vi benchmark gia dinh submission da qua cac rule format co ban; phan con lai la danh gia noi dung ma rule khong the bat bang thuat toan.
+Trong LLM steering benchmark, deterministic rules được neutralize tới mức tối thiểu, ngoại trừ binary integrity và document extraction integrity. Điều này cần thiết vì benchmark giả định submission đã qua các rule format cơ bản; phần còn lại là đánh giá nội dung mà rule không thể bắt bằng thuật toán.
 
 ## 4. Benchmark track recommendation trong Submission Autofill
 
-### 4.1. Cau truc input
+### 4.1. Cấu trúc input
 
-Moi case goi Submission Autofill voi cac thanh phan:
+Mỗi case gọi Submission Autofill với các thành phần:
 
 ```text
 {
@@ -248,61 +248,61 @@ Moi case goi Submission Autofill voi cac thanh phan:
 }
 ```
 
-Trong san pham, Submission Autofill khong chi nhan text metadata co san. Workflow phai doc PDF, trich xuat title, authors, abstract, keywords va cac metadata lien quan; sau do dung noi dung do cung voi context hoi nghi de xep hang track. Vi vay benchmark khong nen chi dua abstract vao model, vi lam vay se bo qua loi extraction va bo qua hanh vi tich hop cua workflow.
+Trong sản phẩm, Submission Autofill không chỉ nhận text metadata có sẵn. Workflow phải đọc PDF, trích xuất title, authors, abstract, keywords và các metadata liên quan; sau đó dùng nội dung đó cùng với context hội nghị để xếp hạng track. Vì vậy benchmark không nên chỉ đưa abstract vào model, vì làm vậy sẽ bỏ qua lỗi extraction và bỏ qua hành vi tích hợp của workflow.
 
-### 4.2. Output can thu thap
+### 4.2. Output cần thu thập
 
-Moi response can duoc luu o hai lop:
+Mỗi response cần được lưu ở hai lớp:
 
-- Raw response: giu nguyen output cua workflow de audit loi parser, loi schema, loi runtime.
-- Normalized prediction: chuan hoa thanh cac cot review on dinh.
+- Raw response: giữ nguyên output của workflow để audit lỗi parser, lỗi schema, lỗi runtime.
+- Normalized prediction: chuẩn hóa thành các cột review ổn định.
 
-Voi track recommendation, normalized output can co:
+Với track recommendation, normalized output cần có:
 
-| Truong | Y nghia |
+| Trường | Ý nghĩa |
 | --- | --- |
-| `case_id` | Ma case benchmark. |
-| `conference_id` | Hoi nghi active. |
-| `paper_id` | Paper can danh gia. |
-| `paper_title` | Tieu de paper sau extraction hoac metadata cache. |
-| `available_tracks` | Danh sach track hop le. |
-| `rank_1_track` | Track top 1 workflow de xuat. |
-| `rank_1_confidence` | Confidence neu workflow tra ve. |
-| `rank_1_rationale` | Ly do cua top 1. |
-| `top_3_tracks` | Ba track dau tien sau khi chuan hoa. |
-| `invalid_tracks` | Track khong nam trong `available_tracks`. |
-| `duplicate_tracks` | Track bi lap trong ranking. |
-| `review_decision` | Ket qua review thu cong: strong/plausible/weak/reject. |
-| `review_note` | Ly do reviewer chap nhan hoac nghi ngo. |
+| `case_id` | Mã case benchmark. |
+| `conference_id` | Hội nghị active. |
+| `paper_id` | Paper cần đánh giá. |
+| `paper_title` | Tiêu đề paper sau extraction hoặc metadata cache. |
+| `available_tracks` | Danh sách track hợp lệ. |
+| `rank_1_track` | Track top 1 workflow đề xuất. |
+| `rank_1_confidence` | Confidence nếu workflow trả về. |
+| `rank_1_rationale` | Lý do của top 1. |
+| `top_3_tracks` | Ba track đầu tiên sau khi chuẩn hóa. |
+| `invalid_tracks` | Track không nằm trong `available_tracks`. |
+| `duplicate_tracks` | Track bị lặp trong ranking. |
+| `review_decision` | Kết quả review thủ công: strong/plausible/weak/reject. |
+| `review_note` | Lý do reviewer chấp nhận hoặc nghi ngờ. |
 
 ### 4.3. Metric
 
-Vi dataset hien tai khong co ground truth track chinh thuc cho tung paper, benchmark khong duoc goi metric nay la accuracy theo nghia supervised. Cac metric hop le la:
+Vì dataset hiện tại không có ground truth track chính thức cho từng paper, benchmark không được gọi metric này là accuracy theo nghĩa supervised. Các metric hợp lệ là:
 
-| Metric | Cong thuc/dien giai | Ly do su dung |
+| Metric | Công thức/diễn giải | Lý do sử dụng |
 | --- | --- | --- |
-| Completion rate | `completed_count / case_count` | Do on dinh runtime. |
-| Invalid track rate | So track ngoai danh sach hop le / tong so track duoc de xuat | Kiem tra workflow co ton trong option cua hoi nghi khong. |
-| Duplicate track rate | So ranking co track lap / tong case | Kiem tra chat luong ranking. |
-| Strong Top-1 plausible rate | So case top 1 duoc reviewer danh gia strong / tong case | Uoc luong muc do phu hop cao. |
-| Top-1 plausible rate | So case top 1 duoc reviewer chap nhan / tong case | Uoc luong muc do co the dung duoc. |
-| Top-3 acceptable rate | So case co it nhat mot track chap nhan duoc trong top 3 / tong case | Phu hop voi UX neu user co the chon lai track. |
+| Completion rate | `completed_count / case_count` | Độ ổn định runtime. |
+| Invalid track rate | Số track ngoài danh sách hợp lệ / tổng số track được đề xuất | Kiểm tra workflow có tôn trọng option của hội nghị không. |
+| Duplicate track rate | Số ranking có track lặp / tổng case | Kiểm tra chất lượng ranking. |
+| Strong Top-1 plausible rate | Số case top 1 được reviewer đánh giá strong / tổng case | Ước lượng mức độ phù hợp cao. |
+| Top-1 plausible rate | Số case top 1 được reviewer chấp nhận / tổng case | Ước lượng mức độ có thể dùng được. |
+| Top-3 acceptable rate | Số case có ít nhất một track chấp nhận được trong top 3 / tổng case | Phù hợp với UX nếu user có thể chọn lại track. |
 
-Neu sau nay co ground truth track tu conference management system, co the bo sung Top-1 accuracy, Top-3 accuracy, MRR va NDCG@K. Trong benchmark hien tai, dung cac metric do se tao cam giac chinh xac gia vi khong co label tin cay.
+Nếu sau này có ground truth track từ conference management system, có thể bổ sung Top-1 accuracy, Top-3 accuracy, MRR và NDCG@K. Trong benchmark hiện tại, dùng các metric đó sẽ tạo cảm giác chính xác giả vì không có label tin cậy.
 
-### 4.4. Ket qua run da review
+### 4.4. Kết quả run đã review
 
-Run cuoi cung:
+Run cuối cùng:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\track_recommendation\run_20260706T194602Z
 ```
 
-Ket qua tong hop:
+Kết quả tổng hợp:
 
-| Chi so | Gia tri |
+| Chỉ số | Giá trị |
 | --- | ---: |
-| So case | 48 |
+| Số case | 48 |
 | Completed | 48 |
 | Failed | 0 |
 | Invalid track rate | 0.0 |
@@ -310,39 +310,39 @@ Ket qua tong hop:
 | Top-1 plausible | 47/48 = 97.9% |
 | Top-3 acceptable | 48/48 = 100.0% |
 
-Case can chu y:
+Case cần chú ý:
 
-| Case | Van de |
+| Case | Vấn đề |
 | --- | --- |
-| `trackrec_0004` | Top-1 yeu/low confidence, can review khi dua vao bao cao. |
-| `trackrec_0015` | Khong duoc xep strong, nhung van co the chap nhan tuy ngu canh. |
-| `trackrec_0044` | Khong duoc xep strong, can ghi la case bien. |
+| `trackrec_0004` | Top-1 yếu/low confidence, cần review khi đưa vào báo cáo. |
+| `trackrec_0015` | Không được xếp strong, nhưng vẫn có thể chấp nhận tùy ngữ cảnh. |
+| `trackrec_0044` | Không được xếp strong, cần ghi là case biên. |
 
-Dien giai bao cao nen than trong: workflow cho ket qua de xuat track on dinh va khong tao invalid track trong 48 case, nhung con so 97.9% la reviewer plausibility, khong phai accuracy co ground truth.
+Diễn giải báo cáo nên thận trọng: workflow cho kết quả đề xuất track ổn định và không tạo invalid track trong 48 case, nhưng con số 97.9% là reviewer plausibility, không phải accuracy có ground truth.
 
 ## 5. Benchmark Submission Gating - deterministic rules
 
-### 5.1. Muc tieu
+### 5.1. Mục tiêu
 
-Rule benchmark kiem tra cac dieu kien co the xac dinh bang thuat toan:
+Rule benchmark kiểm tra các điều kiện có thể xác định bằng thuật toán:
 
-- File co phai PDF hop le khong.
-- PDF co doc duoc khong.
-- Paper co du section bat buoc khong.
-- Paper co dat so references toi thieu khong.
-- Paper co chua phrase bi cam khong.
-- Paper co vi pham nguong format/page policy khong.
+- File có phải PDF hợp lệ không.
+- PDF có đọc được không.
+- Paper có đủ section bắt buộc không.
+- Paper có đạt số references tối thiểu không.
+- Paper có chứa phrase bị cấm không.
+- Paper có vi phạm ngưỡng format/page policy không.
 
-Day la nhom rule co the tao blocking verdict vi:
+Đây là nhóm rule có thể tạo blocking verdict vì:
 
-- Dau vao va dau ra co the tai lap.
-- Rule co the giai thich bang dieu kien cu the.
-- Author co the sua truc tiep.
-- Ket qua khong phu thuoc vao danh gia mo ho cua LLM.
+- Đầu vào và đầu ra có thể tái lập.
+- Rule có thể giải thích bằng điều kiện cụ thể.
+- Author có thể sửa trực tiếp.
+- Kết quả không phụ thuộc vào đánh giá mơ hồ của LLM.
 
-### 5.2. Cau truc input
+### 5.2. Cấu trúc input
 
-Moi fixture gom:
+Mỗi fixture gồm:
 
 ```text
 {
@@ -362,50 +362,50 @@ Moi fixture gom:
 }
 ```
 
-Fixture PDF duoc sinh local de kiem soat noi dung. Cac case file hong hoac unsupported format khong can paper that, vi muc tieu la validate boundary behavior cua upload/document extraction.
+Fixture PDF được sinh local để kiểm soát nội dung. Các case file hỏng hoặc unsupported format không cần paper thật, vì mục tiêu là validate boundary behavior của upload/document extraction.
 
-### 5.3. Output can thu thap
+### 5.3. Output cần thu thập
 
-Normalized rule output can co:
+Normalized rule output cần có:
 
-| Truong | Y nghia |
+| Trường | Ý nghĩa |
 | --- | --- |
-| `case_id` | Ma fixture. |
-| `expected_verdict` | Verdict mong doi. |
-| `actual_verdict` | Verdict workflow tra ve. |
-| `expected_rule_ids` | Rule id ky vong bi kich hoat. |
-| `actual_rule_ids` | Rule id workflow kich hoat. |
-| `missing_rule_ids` | Rule ky vong nhung khong xuat hien. |
-| `unexpected_rule_ids` | Rule xuat hien ngoai ky vong. |
-| `false_block` | Co block khi expected khong block. |
+| `case_id` | Mã fixture. |
+| `expected_verdict` | Verdict mong đợi. |
+| `actual_verdict` | Verdict workflow trả về. |
+| `expected_rule_ids` | Rule id kỳ vọng bị kích hoạt. |
+| `actual_rule_ids` | Rule id workflow kích hoạt. |
+| `missing_rule_ids` | Rule kỳ vọng nhưng không xuất hiện. |
+| `unexpected_rule_ids` | Rule xuất hiện ngoài kỳ vọng. |
+| `false_block` | Có block khi expected không block. |
 | `false_pass` | Pass khi expected block. |
-| `review_note` | Ghi chu de doc lai loi neu co. |
+| `review_note` | Ghi chú để đọc lại lỗi nếu có. |
 
 ### 5.4. Metric
 
-| Metric | Dien giai |
+| Metric | Diễn giải |
 | --- | --- |
-| Blocking verdict accuracy | Ty le case co verdict dung voi expected. |
-| Rule id recall | Ty le expected blocking/warning rule duoc kich hoat. |
-| False block count | So case bi block sai. |
-| False pass count | So case dang le block nhung pass. |
-| Runtime failure count | So case loi runner, parser, extractor hoac schema. |
+| Blocking verdict accuracy | Tỷ lệ case có verdict đúng với expected. |
+| Rule id recall | Tỷ lệ expected blocking/warning rule được kích hoạt. |
+| False block count | Số case bị block sai. |
+| False pass count | Số case đáng lẽ block nhưng pass. |
+| Runtime failure count | Số case lỗi runner, parser, extractor hoặc schema. |
 
-Voi deterministic rules, metric phai dat gan 100% truoc khi dung de benchmark tiep. Neu rule check sai, cac benchmark LLM steering va track recommendation van co the chay, nhung bao cao ve gating se khong dang tin vi pipeline co loi nen tang.
+Với deterministic rules, metric phải đạt gần 100% trước khi dùng để benchmark tiếp. Nếu rule check sai, các benchmark LLM steering và track recommendation vẫn có thể chạy, nhưng báo cáo về gating sẽ không đáng tin vì pipeline có lỗi nền tảng.
 
-### 5.5. Ket qua run da review
+### 5.5. Kết quả run đã review
 
-Run cuoi cung:
+Run cuối cùng:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\submission_gating_rule_check\run_20260706T185930Z
 ```
 
-Ket qua:
+Kết quả:
 
-| Chi so | Gia tri |
+| Chỉ số | Giá trị |
 | --- | ---: |
-| So case | 8 |
+| Số case | 8 |
 | Completed | 8 |
 | Failed | 0 |
 | Correct verdict | 8 |
@@ -414,25 +414,25 @@ Ket qua:
 | Blocking verdict accuracy | 1.0 |
 | Rule id recall | 1.0 |
 
-Ket qua nay cho thay runner va cac rule deterministic da du on dinh de dung lam lop gating co quyen block. Tuy nhien, vi fixture hien tai chi bao phu cac rule chinh, khong nen dien giai thanh bao dam toan bo format compliance cua moi template paper. Neu can claim rong hon, can them fixture ve font size, margin, paper size va column count.
+Kết quả này cho thấy runner và các rule deterministic đã đủ ổn định để dùng làm lớp gating có quyền block. Tuy nhiên, vì fixture hiện tại chỉ bao phủ các rule chính, không nên diễn giải thành bảo đảm toàn bộ format compliance của mọi template paper. Nếu cần claim rộng hơn, cần thêm fixture về font size, margin, paper size và column count.
 
 ## 6. Benchmark Submission Gating - LLM steering
 
-### 6.1. Muc tieu
+### 6.1. Mục tiêu
 
-LLM steering benchmark danh gia kha nang workflow dua ra feedback noi dung theo yeu cau cua chair. Day la nhom van de ma deterministic rules khong the bat tot, vi chung can doc y nghia cua paper:
+LLM steering benchmark đánh giá khả năng workflow đưa ra feedback nội dung theo yêu cầu của chair. Đây là nhóm vấn đề mà deterministic rules không thể bắt tốt, vì chúng cần đọc ý nghĩa của paper:
 
-- Paper co lech scope hoi nghi khong.
-- Evidence co du de support claim khong.
-- Limitation co du ro khong.
-- Noi dung co san sang de author nop chinh thuc khong.
-- Paper co thieu thong tin quan trong ma rule format khong phat hien duoc khong.
+- Paper có lệch scope hội nghị không.
+- Evidence có đủ để support claim không.
+- Limitation có đủ rõ không.
+- Nội dung có sẵn sàng để author nộp chính thức không.
+- Paper có thiếu thông tin quan trọng mà rule format không phát hiện được không.
 
-LLM steering khong duoc tao blocking verdict. Neu LLM thay co van de, output dung phai la advisory finding: noi ro van de, vi sao quan trong, va author nen xem lai diem nao. Quyen reject hoac block chi nam o deterministic rule hoac quyet dinh con nguoi.
+LLM steering không được tạo blocking verdict. Nếu LLM thấy có vấn đề, output đúng phải là advisory finding: nói rõ vấn đề, vì sao quan trọng, và author nên xem lại điểm nào. Quyền reject hoặc block chỉ nằm ở deterministic rule hoặc quyết định con người.
 
-### 6.2. Cau truc input
+### 6.2. Cấu trúc input
 
-Moi case gom:
+Mỗi case gồm:
 
 ```text
 {
@@ -455,53 +455,53 @@ Moi case gom:
 }
 ```
 
-Steering prompt phai viet nhu chair dang dua ra yeu cau noi dung cho cong nop bai. Prompt khong nen noi ve model, token, pipeline, embedding, hay cach he thong suy luan. Ly do la prompt san pham can giong input nghiep vu that, de ket qua benchmark dai dien cho cach chair su dung chuc nang.
+Steering prompt phải viết như chair đang đưa ra yêu cầu nội dung cho cổng nộp bài. Prompt không nên nói về model, token, pipeline, embedding, hay cách hệ thống suy luận. Lý do là prompt sản phẩm cần giống input nghiệp vụ thật, để kết quả benchmark đại diện cho cách chair sử dụng chức năng.
 
-### 6.3. Output can thu thap
+### 6.3. Output cần thu thập
 
-Normalized LLM steering output can co:
+Normalized LLM steering output cần có:
 
-| Truong | Y nghia |
+| Trường | Ý nghĩa |
 | --- | --- |
-| `case_id` | Ma case benchmark. |
-| `paper_title` | Tieu de paper. |
-| `conference_id` | Hoi nghi active. |
-| `focus` | Nhom steering duoc test. |
-| `chair_instruction` | Yeu cau noi dung cua chair. |
-| `finding_severity` | `pass`, `warning`, hoac severity advisory tu workflow. |
-| `finding_summary` | Tom tat van de hoac ly do pass. |
-| `evidence` | Doan bang chung/ly do workflow dua ra. |
-| `actionability` | Reviewer danh gia feedback co giup author sua bai khong. |
-| `groundedness` | Reviewer danh gia finding co bam vao paper/context khong. |
-| `llm_block_violation` | Co vi pham contract khong: LLM tu tao blocking verdict. |
+| `case_id` | Mã case benchmark. |
+| `paper_title` | Tiêu đề paper. |
+| `conference_id` | Hội nghị active. |
+| `focus` | Nhóm steering được test. |
+| `chair_instruction` | Yêu cầu nội dung của chair. |
+| `finding_severity` | `pass`, `warning`, hoặc severity advisory từ workflow. |
+| `finding_summary` | Tóm tắt vấn đề hoặc lý do pass. |
+| `evidence` | Đoạn bằng chứng/lý do workflow đưa ra. |
+| `actionability` | Reviewer đánh giá feedback có giúp author sửa bài không. |
+| `groundedness` | Reviewer đánh giá finding có bám vào paper/context không. |
+| `llm_block_violation` | Có vi phạm contract không: LLM tự tạo blocking verdict. |
 | `manual_review_decision` | Accepted / caution / rejected. |
-| `review_note` | Ghi chu cua reviewer. |
+| `review_note` | Ghi chú của reviewer. |
 
 ### 6.4. Rubric review
 
-LLM steering khong nen duoc danh gia bang exact match. Thay vao do, moi finding duoc review theo rubric:
+LLM steering không nên được đánh giá bằng exact match. Thay vào đó, mỗi finding được review theo rubric:
 
-| Tieu chi | Dat | Khong dat |
+| Tiêu chí | Đạt | Không đạt |
 | --- | --- | --- |
-| Groundedness | Nhan xet co lien he ro voi noi dung paper hoac scope hoi nghi. | Nhan xet chung chung, khong chung minh duoc da doc paper. |
-| Actionability | Author biet can sua/kiem tra diem nao. | Feedback mo ho, khong tao hanh dong. |
-| Severity appropriateness | Warning/pass phu hop voi muc do van de. | Phong dai rui ro hoac bo qua van de ro rang. |
-| Chair alignment | Nhan xet bam vao steering instruction. | Tra loi lech sang yeu cau khac. |
-| Contract compliance | Khong tao blocking verdict. | LLM tu de xuat reject/block nhu mot quyet dinh he thong. |
+| Groundedness | Nhận xét có liên hệ rõ với nội dung paper hoặc scope hội nghị. | Nhận xét chung chung, không chứng minh được đã đọc paper. |
+| Actionability | Author biết cần sửa/kiểm tra điểm nào. | Feedback mơ hồ, không tạo hành động. |
+| Severity appropriateness | Warning/pass phù hợp với mức độ vấn đề. | Phóng đại rủi ro hoặc bỏ qua vấn đề rõ ràng. |
+| Chair alignment | Nhận xét bám vào steering instruction. | Trả lời lệch sang yêu cầu khác. |
+| Contract compliance | Không tạo blocking verdict. | LLM tự đề xuất reject/block như một quyết định hệ thống. |
 
-### 6.5. Ket qua run da review
+### 6.5. Kết quả run đã review
 
-Run cuoi cung:
+Run cuối cùng:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\submission_gating_llm_steering\run_20260706T190216Z
 ```
 
-Ket qua:
+Kết quả:
 
-| Chi so | Gia tri |
+| Chỉ số | Giá trị |
 | --- | ---: |
-| So case | 24 |
+| Số case | 24 |
 | Completed | 24 |
 | Failed | 0 |
 | Review rows | 26 |
@@ -511,15 +511,15 @@ Ket qua:
 | Positive pass checks | 6 |
 | Needs manual caution | 0 |
 | LLM block contract violation | 0 |
-| Grounded rate tren non-empty findings | 1.0 |
-| Actionable rate tren warnings | 1.0 |
+| Grounded rate trên non-empty findings | 1.0 |
+| Actionable rate trên warnings | 1.0 |
 | Severity OK rate | 1.0 |
 
-Ket qua nay co the duoc dien giai la workflow LLM steering da tao feedback co the review va co tinh hanh dong trong tap test hien tai, dong thoi tuan thu contract quan trong: LLM khong tao blocking verdict. Tuy nhien, day van la benchmark reviewer-assessed, khong phai ground truth doc lap tu program committee.
+Kết quả này có thể được diễn giải là workflow LLM steering đã tạo feedback có thể review và có tính hành động trong tập test hiện tại, đồng thời tuân thủ contract quan trọng: LLM không tạo blocking verdict. Tuy nhiên, đây vẫn là benchmark reviewer-assessed, không phải ground truth độc lập từ program committee.
 
-## 7. Artifact dau ra
+## 7. Artifact đầu ra
 
-### 7.1. Artifact cua track recommendation
+### 7.1. Artifact của track recommendation
 
 Run:
 
@@ -527,17 +527,15 @@ Run:
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\track_recommendation\run_20260706T194602Z
 ```
 
-Can co:
-
-| File | Noi dung |
+| File | Nội dung |
 | --- | --- |
-| `raw_responses.jsonl` | Output workflow nguyen ban theo tung case. |
-| `normalized_predictions.jsonl` | Output da chuan hoa cho metric va review. |
-| `human_review.csv` | Bang review thu cong top track, rationale va note. |
-| `summary_metrics.json` | Metric tong hop. |
-| `audit_report.json` | Ket qua audit script: pass/fail, loi schema, loi runtime. |
+| `raw_responses.jsonl` | Output workflow nguyên bản theo từng case. |
+| `normalized_predictions.jsonl` | Output đã chuẩn hóa cho metric và review. |
+| `human_review.csv` | Bảng review thủ công top track, rationale và note. |
+| `summary_metrics.json` | Metric tổng hợp. |
+| `audit_report.json` | Kết quả audit script: pass/fail, lỗi schema, lỗi runtime. |
 
-### 7.2. Artifact cua Submission Gating rules
+### 7.2. Artifact của Submission Gating rules
 
 Run:
 
@@ -545,17 +543,15 @@ Run:
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\submission_gating_rule_check\run_20260706T185930Z
 ```
 
-Can co:
-
-| File | Noi dung |
+| File | Nội dung |
 | --- | --- |
-| `raw_responses.jsonl` | Output workflow nguyen ban. |
-| `normalized_rule_findings.jsonl` | Verdict/rule ids da chuan hoa. |
-| `rule_review.csv` | Bang so sanh expected vs actual cho tung fixture. |
+| `raw_responses.jsonl` | Output workflow nguyên bản. |
+| `normalized_rule_findings.jsonl` | Verdict/rule ids đã chuẩn hóa. |
+| `rule_review.csv` | Bảng so sánh expected vs actual cho từng fixture. |
 | `summary_metrics.json` | Accuracy, recall, false block, failure count. |
-| `audit_report.json` | Trang thai audit cua run. |
+| `audit_report.json` | Trạng thái audit của run. |
 
-### 7.3. Artifact cua Submission Gating LLM steering
+### 7.3. Artifact của Submission Gating LLM steering
 
 Run:
 
@@ -563,93 +559,89 @@ Run:
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\submission_gating_llm_steering\run_20260706T190216Z
 ```
 
-Can co:
-
-| File | Noi dung |
+| File | Nội dung |
 | --- | --- |
-| `raw_responses.jsonl` | Output workflow nguyen ban. |
-| `normalized_content_findings.jsonl` | Finding da chuan hoa theo case/focus. |
-| `llm_steering_review.csv` | Bang review thu cong groundedness, actionability, severity va contract. |
-| `summary_metrics.json` | Metric tong hop cua LLM steering. |
-| `audit_report.json` | Ket qua audit run. |
+| `raw_responses.jsonl` | Output workflow nguyên bản. |
+| `normalized_content_findings.jsonl` | Finding đã chuẩn hóa theo case/focus. |
+| `llm_steering_review.csv` | Bảng review thủ công groundedness, actionability, severity và contract. |
+| `summary_metrics.json` | Metric tổng hợp của LLM steering. |
+| `audit_report.json` | Kết quả audit run. |
 
-### 7.4. Artifact review tong hop
+### 7.4. Artifact review tổng hợp
 
-Run review tong hop:
+Run review tổng hợp:
 
 ```text
 E:\HCMUS\Graduate-Project\Benchmarks\ai_workflow_benchmarks\outputs\final_ai_workflow_review\run_20260706T194602Z_track__20260706T190216Z_llm
 ```
 
-Can co:
-
-| File | Noi dung |
+| File | Nội dung |
 | --- | --- |
-| `reviewed_track_recommendation.csv` | Bang review 48 case track recommendation. |
-| `reviewed_llm_steering.csv` | Bang review 26 finding/case LLM steering. |
-| `final_review_metrics.json` | Metric tong hop da tinh sau review. |
-| `failure_and_limitation_cases.md` | Cac case yeu, caveat va gioi han dien giai. |
-| `report_ready_ai_workflow_evaluation.md` | Ban tom tat ket qua co the dua vao report. |
+| `reviewed_track_recommendation.csv` | Bảng review 48 case track recommendation. |
+| `reviewed_llm_steering.csv` | Bảng review 26 finding/case LLM steering. |
+| `final_review_metrics.json` | Metric tổng hợp đã tính sau review. |
+| `failure_and_limitation_cases.md` | Các case yếu, caveat và giới hạn diễn giải. |
+| `report_ready_ai_workflow_evaluation.md` | Bản tóm tắt kết quả có thể đưa vào report. |
 
-## 8. Dien giai ket qua cho bao cao
+## 8. Diễn giải kết quả cho báo cáo
 
 ### 8.1. Track recommendation
 
-Ket qua nen duoc viet theo huong:
+Kết quả nên được viết theo hướng:
 
-> Benchmark tren 48 submission that cho thay Submission Autofill co the tao ranking track hop le voi invalid track rate bang 0.0. Reviewer danh gia 45/48 case co Top-1 recommendation manh, 47/48 case co Top-1 recommendation chap nhan duoc, va 48/48 case co it nhat mot track phu hop trong Top-3. Do dataset chua co ground truth track chinh thuc cho tung paper, cac chi so nay phan anh muc do hop ly duoi review thu cong, khong duoc dien giai la accuracy supervised.
+> Benchmark trên 48 submission thật cho thấy Submission Autofill có thể tạo ranking track hợp lệ với invalid track rate bằng 0.0. Reviewer đánh giá 45/48 case có Top-1 recommendation mạnh, 47/48 case có Top-1 recommendation chấp nhận được, và 48/48 case có ít nhất một track phù hợp trong Top-3. Do dataset chưa có ground truth track chính thức cho từng paper, các chỉ số này phản ánh mức độ hợp lý dưới review thủ công, không được diễn giải là accuracy supervised.
 
-Diem quan trong can nhan manh:
+Điểm quan trọng cần nhấn mạnh:
 
-- Workflow ton trong danh sach track hop le cua hoi nghi.
-- Ket qua Top-3 phu hop voi UX vi author van co buoc review/chon lai.
-- Can giu caveat ve ground truth.
+- Workflow tôn trọng danh sách track hợp lệ của hội nghị.
+- Kết quả Top-3 phù hợp với UX vì author vẫn có bước review/chọn lại.
+- Cần giữ caveat về ground truth.
 
 ### 8.2. Submission Gating rules
 
-Ket qua nen duoc viet theo huong:
+Kết quả nên được viết theo hướng:
 
-> Benchmark deterministic rules tren 8 fixture co ground truth cho thay workflow tra ve dung verdict va dung rule id trong tat ca case. Ket qua nay ung ho viec dung rule deterministic lam lop gating co quyen block, vi cac rule nay co the tai lap, giai thich va kiem tra bang case duoc seed.
+> Benchmark deterministic rules trên 8 fixture có ground truth cho thấy workflow trả về đúng verdict và đúng rule id trong tất cả case. Kết quả này ủng hộ việc dùng rule deterministic làm lớp gating có quyền block, vì các rule này có thể tái lập, giải thích và kiểm tra bằng case được seed.
 
-Diem quan trong:
+Điểm quan trọng:
 
-- Rule check la lop co quyen block.
-- Fixture hien tai bao phu rule chinh, khong phai moi bien the format cua moi template paper.
-- Neu claim ve format compliance nang cao, can them fixture rieng cho layout.
+- Rule check là lớp có quyền block.
+- Fixture hiện tại bao phủ rule chính, không phải mọi biến thể format của mọi template paper.
+- Nếu claim về format compliance nâng cao, cần thêm fixture riêng cho layout.
 
 ### 8.3. Submission Gating LLM steering
 
-Ket qua nen duoc viet theo huong:
+Kết quả nên được viết theo hướng:
 
-> Benchmark LLM steering tren 24 submission that cho thay workflow tao duoc feedback noi dung co tinh hanh dong va bam vao steering instruction cua chair. Tat ca warning finding trong tap test duoc danh gia la usable, groundedness tren non-empty findings dat 1.0, va khong co case nao LLM vi pham contract bang cach tao blocking verdict. Dieu nay phu hop voi vai tro thiet ke cua LLM steering: ho tro author phat hien rui ro noi dung truoc khi nop, khong thay the deterministic rule hay quyet dinh reject cua con nguoi.
+> Benchmark LLM steering trên 24 submission thật cho thấy workflow tạo được feedback nội dung có tính hành động và bám vào steering instruction của chair. Tất cả warning finding trong tập test được đánh giá là usable, groundedness trên non-empty findings đạt 1.0, và không có case nào LLM vi phạm contract bằng cách tạo blocking verdict. Điều này phù hợp với vai trò thiết kế của LLM steering: hỗ trợ author phát hiện rủi ro nội dung trước khi nộp, không thay thế deterministic rule hay quyết định reject của con người.
 
-Diem quan trong:
+Điểm quan trọng:
 
-- LLM steering la advisory, khong phai desk reject automation.
-- Ket qua phu hop de viet ve kha nang ho tro chair/author.
-- Khong nen claim LLM co do chinh xac reject cao, vi benchmark khong duoc thiet ke cho quyet dinh reject.
+- LLM steering là advisory, không phải desk reject automation.
+- Kết quả phù hợp để viết về khả năng hỗ trợ chair/author.
+- Không nên claim LLM có độ chính xác reject cao, vì benchmark không được thiết kế cho quyết định reject.
 
-## 9. Gioi han va rui ro can cong bo
+## 9. Giới hạn và rủi ro cần công bố
 
-Benchmark co cac gioi han sau:
+Benchmark có các giới hạn sau:
 
-1. **Track recommendation chua co ground truth chinh thuc**: ket qua la reviewer plausibility. Neu co label track that tu he thong nop bai, can chay lai voi Top-1 accuracy, Top-3 accuracy, MRR va NDCG@K.
-2. **So luong case con nho**: 48 track cases va 24 LLM steering cases du de review thu cong chat luong, nhung chua du de ket luan thong ke manh tren moi domain hoi nghi.
-3. **Rule fixtures bao phu rule chinh, khong bao phu moi bien the layout**: neu bao cao muon claim ve IEEE format compliance sau hon, can them case font size, margin, paper size, column count va bibliography edge cases.
-4. **LLM steering phu thuoc vao steering prompt**: ket qua tot voi tap prompt da review khong dam bao moi chair prompt ngoai doi se cho output tuong duong.
-5. **Review thu cong co tinh chu quan**: rubric lam giam chu quan, nhung chua thay the double-blind independent annotation.
-6. **Network va provider co the anh huong reproducibility**: model, base URL, timeout va cached PDF can duoc ghi vao manifest moi run.
+1. **Track recommendation chưa có ground truth chính thức**: kết quả là reviewer plausibility. Nếu có label track thật từ hệ thống nộp bài, cần chạy lại với Top-1 accuracy, Top-3 accuracy, MRR và NDCG@K.
+2. **Số lượng case còn nhỏ**: 48 track cases và 24 LLM steering cases đủ để review thủ công chất lượng, nhưng chưa đủ để kết luận thống kê mạnh trên mọi domain hội nghị.
+3. **Rule fixtures bao phủ rule chính, không bao phủ mọi biến thể layout**: nếu báo cáo muốn claim về IEEE format compliance sâu hơn, cần thêm case font size, margin, paper size, column count và bibliography edge cases.
+4. **LLM steering phụ thuộc vào steering prompt**: kết quả tốt với tập prompt đã review không bảo đảm mọi chair prompt ngoài đời sẽ cho output tương đương.
+5. **Review thủ công có tính chủ quan**: rubric làm giảm chủ quan, nhưng chưa thay thế double-blind independent annotation.
+6. **Network và provider có thể ảnh hưởng reproducibility**: model, base URL, timeout và cached PDF cần được ghi vào manifest mỗi run.
 
-## 10. Dieu kien de xem benchmark la review-ready
+## 10. Điều kiện để xem benchmark là review-ready
 
-Mot run benchmark chi nen duoc dua vao bao cao neu dat tat ca dieu kien:
+Một run benchmark chỉ nên được đưa vào báo cáo nếu đạt tất cả điều kiện:
 
-- Tat ca workflow hoan thanh voi `failed_count = 0`.
-- Track recommendation co `invalid_track_rate = 0.0` hoac moi invalid case duoc giai thich ro.
-- Rule check khong co false pass va khong co false block.
-- LLM steering khong co `llm_block_contract_violation`.
-- Moi output deu co raw response va normalized review artifact.
-- Cac case yeu duoc liet ke trong `failure_and_limitation_cases.md`.
-- Report-ready summary khong dien giai reviewer plausibility thanh ground truth accuracy.
+- Tất cả workflow hoàn thành với `failed_count = 0`.
+- Track recommendation có `invalid_track_rate = 0.0` hoặc mọi invalid case được giải thích rõ.
+- Rule check không có false pass và không có false block.
+- LLM steering không có `llm_block_contract_violation`.
+- Mọi output đều có raw response và normalized review artifact.
+- Các case yếu được liệt kê trong `failure_and_limitation_cases.md`.
+- Report-ready summary không diễn giải reviewer plausibility thành ground truth accuracy.
 
-Theo cac run da review, tap artifact hien tai dat dieu kien review-ready cho muc tieu bao cao: chung minh workflow da chay end-to-end, co output de review thu cong, va co bang chung du de dua ra nhan dinh can trong ve chat luong cua track recommendation va Submission Gating.
+Theo các run đã review, tập artifact hiện tại đạt điều kiện review-ready cho mục tiêu báo cáo: chứng minh workflow đã chạy end-to-end, có output để review thủ công, và có bằng chứng đủ để đưa ra nhận định thận trọng về chất lượng của track recommendation và Submission Gating.
