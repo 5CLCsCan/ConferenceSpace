@@ -41,6 +41,7 @@ backend/scripts/coauthorships.csv
 backend/scripts/reduce_data_seeder.py
 
 backend/benchmarks/quality/testdata/s2_snapshot.json
+backend/benchmarks/quality/testdata/s2_snapshot_synthetic_backup.json
 
 .env
 __pycache__
