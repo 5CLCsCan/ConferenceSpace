@@ -1,0 +1,3574 @@
+{
+  "authors": [
+    {
+      "id": "A0001",
+      "name": "Author 1 (graph)",
+      "papers": [
+        "P00001",
+        "P00002",
+        "P00003",
+        "P00004",
+        "P00005"
+      ]
+    },
+    {
+      "id": "A0002",
+      "name": "Author 2 (ir)",
+      "papers": [
+        "P00006",
+        "P00007",
+        "P00008",
+        "P00009"
+      ]
+    },
+    {
+      "id": "A0003",
+      "name": "Author 3 (nlp)",
+      "papers": [
+        "P00010",
+        "P00011",
+        "P00012",
+        "P00013",
+        "P00014"
+      ]
+    },
+    {
+      "id": "A0004",
+      "name": "Author 4 (rl)",
+      "papers": [
+        "P00015",
+        "P00016",
+        "P00017",
+        "P00018",
+        "P00019"
+      ]
+    },
+    {
+      "id": "A0005",
+      "name": "Author 5 (speech)",
+      "papers": [
+        "P00020",
+        "P00021",
+        "P00022",
+        "P00023"
+      ]
+    },
+    {
+      "id": "A0006",
+      "name": "Author 6 (systems)",
+      "papers": [
+        "P00024",
+        "P00025",
+        "P00026",
+        "P00027",
+        "P00028"
+      ]
+    },
+    {
+      "id": "A0007",
+      "name": "Author 7 (theory)",
+      "papers": [
+        "P00029",
+        "P00030",
+        "P00031"
+      ]
+    },
+    {
+      "id": "A0008",
+      "name": "Author 8 (vision)",
+      "papers": [
+        "P00032",
+        "P00033",
+        "P00034"
+      ]
+    },
+    {
+      "id": "A0009",
+      "name": "Author 9 (graph)",
+      "papers": [
+        "P00035",
+        "P00036",
+        "P00037",
+        "P00038"
+      ]
+    },
+    {
+      "id": "A0010",
+      "name": "Author 10 (ir)",
+      "papers": [
+        "P00039",
+        "P00040",
+        "P00041"
+      ]
+    },
+    {
+      "id": "A0011",
+      "name": "Author 11 (nlp)",
+      "papers": [
+        "P00042",
+        "P00043",
+        "P00044"
+      ]
+    },
+    {
+      "id": "A0012",
+      "name": "Author 12 (rl)",
+      "papers": [
+        "P00045",
+        "P00046",
+        "P00047",
+        "P00048",
+        "P00049"
+      ]
+    },
+    {
+      "id": "A0013",
+      "name": "Author 13 (speech)",
+      "papers": [
+        "P00050",
+        "P00051",
+        "P00052"
+      ]
+    },
+    {
+      "id": "A0014",
+      "name": "Author 14 (systems)",
+      "papers": [
+        "P00053",
+        "P00054",
+        "P00055"
+      ]
+    },
+    {
+      "id": "A0015",
+      "name": "Author 15 (theory)",
+      "papers": [
+        "P00056",
+        "P00057",
+        "P00058",
+        "P00059"
+      ]
+    },
+    {
+      "id": "A0016",
+      "name": "Author 16 (vision)",
+      "papers": [
+        "P00060",
+        "P00061",
+        "P00062",
+        "P00063",
+        "P00064"
+      ]
+    },
+    {
+      "id": "A0017",
+      "name": "Author 17 (graph)",
+      "papers": [
+        "P00065",
+        "P00066",
+        "P00067",
+        "P00068"
+      ]
+    },
+    {
+      "id": "A0018",
+      "name": "Author 18 (ir)",
+      "papers": [
+        "P00069",
+        "P00070",
+        "P00071",
+        "P00072",
+        "P00073"
+      ]
+    },
+    {
+      "id": "A0019",
+      "name": "Author 19 (nlp)",
+      "papers": [
+        "P00074",
+        "P00075",
+        "P00076",
+        "P00077"
+      ]
+    },
+    {
+      "id": "A0020",
+      "name": "Author 20 (rl)",
+      "papers": [
+        "P00078",
+        "P00079",
+        "P00080",
+        "P00081"
+      ]
+    },
+    {
+      "id": "A0021",
+      "name": "Author 21 (speech)",
+      "papers": [
+        "P00082",
+        "P00083",
+        "P00084",
+        "P00085",
+        "P00086"
+      ]
+    },
+    {
+      "id": "A0022",
+      "name": "Author 22 (systems)",
+      "papers": [
+        "P00087",
+        "P00088",
+        "P00089",
+        "P00090",
+        "P00091"
+      ]
+    },
+    {
+      "id": "A0023",
+      "name": "Author 23 (theory)",
+      "papers": [
+        "P00092",
+        "P00093",
+        "P00094",
+        "P00095"
+      ]
+    },
+    {
+      "id": "A0024",
+      "name": "Author 24 (vision)",
+      "papers": [
+        "P00096",
+        "P00097",
+        "P00098",
+        "P00099",
+        "P00100"
+      ]
+    },
+    {
+      "id": "A0025",
+      "name": "Author 25 (graph)",
+      "papers": [
+        "P00101",
+        "P00102",
+        "P00103",
+        "P00104",
+        "P00105"
+      ]
+    },
+    {
+      "id": "A0026",
+      "name": "Author 26 (ir)",
+      "papers": [
+        "P00106",
+        "P00107",
+        "P00108",
+        "P00109",
+        "P00110"
+      ]
+    },
+    {
+      "id": "A0027",
+      "name": "Author 27 (nlp)",
+      "papers": [
+        "P00111",
+        "P00112",
+        "P00113"
+      ]
+    },
+    {
+      "id": "A0028",
+      "name": "Author 28 (rl)",
+      "papers": [
+        "P00114",
+        "P00115",
+        "P00116",
+        "P00117",
+        "P00118"
+      ]
+    },
+    {
+      "id": "A0029",
+      "name": "Author 29 (speech)",
+      "papers": [
+        "P00119",
+        "P00120",
+        "P00121"
+      ]
+    },
+    {
+      "id": "A0030",
+      "name": "Author 30 (systems)",
+      "papers": [
+        "P00122",
+        "P00123",
+        "P00124",
+        "P00125"
+      ]
+    },
+    {
+      "id": "A0031",
+      "name": "Author 31 (theory)",
+      "papers": [
+        "P00126",
+        "P00127",
+        "P00128",
+        "P00129",
+        "P00130"
+      ]
+    },
+    {
+      "id": "A0032",
+      "name": "Author 32 (vision)",
+      "papers": [
+        "P00131",
+        "P00132",
+        "P00133"
+      ]
+    },
+    {
+      "id": "A0033",
+      "name": "Author 33 (graph)",
+      "papers": [
+        "P00134",
+        "P00135",
+        "P00136",
+        "P00137",
+        "P00138"
+      ]
+    },
+    {
+      "id": "A0034",
+      "name": "Author 34 (ir)",
+      "papers": [
+        "P00139",
+        "P00140",
+        "P00141"
+      ]
+    },
+    {
+      "id": "A0035",
+      "name": "Author 35 (nlp)",
+      "papers": [
+        "P00142",
+        "P00143",
+        "P00144",
+        "P00145",
+        "P00146"
+      ]
+    },
+    {
+      "id": "A0036",
+      "name": "Author 36 (rl)",
+      "papers": [
+        "P00147",
+        "P00148",
+        "P00149",
+        "P00150"
+      ]
+    },
+    {
+      "id": "A0037",
+      "name": "Author 37 (speech)",
+      "papers": [
+        "P00151",
+        "P00152",
+        "P00153"
+      ]
+    },
+    {
+      "id": "A0038",
+      "name": "Author 38 (systems)",
+      "papers": [
+        "P00154",
+        "P00155",
+        "P00156",
+        "P00157"
+      ]
+    },
+    {
+      "id": "A0039",
+      "name": "Author 39 (theory)",
+      "papers": [
+        "P00158",
+        "P00159",
+        "P00160",
+        "P00161",
+        "P00162"
+      ]
+    },
+    {
+      "id": "A0040",
+      "name": "Author 40 (vision)",
+      "papers": [
+        "P00163",
+        "P00164",
+        "P00165",
+        "P00166"
+      ]
+    },
+    {
+      "id": "A0041",
+      "name": "Author 41 (graph)",
+      "papers": [
+        "P00167",
+        "P00168",
+        "P00169"
+      ]
+    },
+    {
+      "id": "A0042",
+      "name": "Author 42 (ir)",
+      "papers": [
+        "P00170",
+        "P00171",
+        "P00172"
+      ]
+    },
+    {
+      "id": "A0043",
+      "name": "Author 43 (nlp)",
+      "papers": [
+        "P00173",
+        "P00174",
+        "P00175",
+        "P00176",
+        "P00177"
+      ]
+    },
+    {
+      "id": "A0044",
+      "name": "Author 44 (rl)",
+      "papers": [
+        "P00178",
+        "P00179",
+        "P00180",
+        "P00181",
+        "P00182"
+      ]
+    },
+    {
+      "id": "A0045",
+      "name": "Author 45 (speech)",
+      "papers": [
+        "P00183",
+        "P00184",
+        "P00185"
+      ]
+    },
+    {
+      "id": "A0046",
+      "name": "Author 46 (systems)",
+      "papers": [
+        "P00186",
+        "P00187",
+        "P00188",
+        "P00189",
+        "P00190"
+      ]
+    },
+    {
+      "id": "A0047",
+      "name": "Author 47 (theory)",
+      "papers": [
+        "P00191",
+        "P00192",
+        "P00193",
+        "P00194",
+        "P00195"
+      ]
+    },
+    {
+      "id": "A0048",
+      "name": "Author 48 (vision)",
+      "papers": [
+        "P00196",
+        "P00197",
+        "P00198",
+        "P00199"
+      ]
+    },
+    {
+      "id": "A0049",
+      "name": "Author 49 (graph)",
+      "papers": [
+        "P00200",
+        "P00201",
+        "P00202",
+        "P00203"
+      ]
+    },
+    {
+      "id": "A0050",
+      "name": "Author 50 (ir)",
+      "papers": [
+        "P00204",
+        "P00205",
+        "P00206",
+        "P00207"
+      ]
+    },
+    {
+      "id": "A0051",
+      "name": "Author 51 (nlp)",
+      "papers": [
+        "P00208",
+        "P00209",
+        "P00210",
+        "P00211",
+        "P00212"
+      ]
+    },
+    {
+      "id": "A0052",
+      "name": "Author 52 (rl)",
+      "papers": [
+        "P00213",
+        "P00214",
+        "P00215",
+        "P00216",
+        "P00217"
+      ]
+    },
+    {
+      "id": "A0053",
+      "name": "Author 53 (speech)",
+      "papers": [
+        "P00218",
+        "P00219",
+        "P00220",
+        "P00221"
+      ]
+    },
+    {
+      "id": "A0054",
+      "name": "Author 54 (systems)",
+      "papers": [
+        "P00222",
+        "P00223",
+        "P00224"
+      ]
+    },
+    {
+      "id": "A0055",
+      "name": "Author 55 (theory)",
+      "papers": [
+        "P00225",
+        "P00226",
+        "P00227"
+      ]
+    },
+    {
+      "id": "A0056",
+      "name": "Author 56 (vision)",
+      "papers": [
+        "P00228",
+        "P00229",
+        "P00230",
+        "P00231",
+        "P00232"
+      ]
+    },
+    {
+      "id": "A0057",
+      "name": "Author 57 (graph)",
+      "papers": [
+        "P00233",
+        "P00234",
+        "P00235",
+        "P00236",
+        "P00237"
+      ]
+    },
+    {
+      "id": "A0058",
+      "name": "Author 58 (ir)",
+      "papers": [
+        "P00238",
+        "P00239",
+        "P00240",
+        "P00241",
+        "P00242"
+      ]
+    },
+    {
+      "id": "A0059",
+      "name": "Author 59 (nlp)",
+      "papers": [
+        "P00243",
+        "P00244",
+        "P00245",
+        "P00246"
+      ]
+    },
+    {
+      "id": "A0060",
+      "name": "Author 60 (rl)",
+      "papers": [
+        "P00247",
+        "P00248",
+        "P00249",
+        "P00250"
+      ]
+    }
+  ],
+  "papers": [
+    {
+      "id": "P00001",
+      "authorIds": [
+        "A0001"
+      ],
+      "title": "Graph Embeddings, Knowledge Graphs, Message Passing",
+      "topics": [
+        "graph embeddings",
+        "knowledge graphs",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00002",
+      "authorIds": [
+        "A0001"
+      ],
+      "title": "Depth Estimation, Graph Neural Networks, Graph Representation, Node Classification",
+      "topics": [
+        "depth estimation",
+        "graph neural networks",
+        "graph representation",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00003",
+      "authorIds": [
+        "A0001"
+      ],
+      "title": "Community Detection, Knowledge Graphs",
+      "topics": [
+        "community detection",
+        "knowledge graphs"
+      ]
+    },
+    {
+      "id": "P00004",
+      "authorIds": [
+        "A0001"
+      ],
+      "title": "Graph Embeddings, Graph Neural Networks, Link Prediction, Reinforcement Learning",
+      "topics": [
+        "graph embeddings",
+        "graph neural networks",
+        "link prediction",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00005",
+      "authorIds": [
+        "A0001"
+      ],
+      "title": "Graph Representation, Link Prediction, Message Passing, Sample Complexity",
+      "topics": [
+        "graph representation",
+        "link prediction",
+        "message passing",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00006",
+      "authorIds": [
+        "A0002"
+      ],
+      "title": "Query Expansion, Relevance Feedback",
+      "topics": [
+        "query expansion",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00007",
+      "authorIds": [
+        "A0002"
+      ],
+      "title": "Dense Retrieval, Document Ranking, Graph Neural Networks, Information Retrieval",
+      "topics": [
+        "dense retrieval",
+        "document ranking",
+        "graph neural networks",
+        "information retrieval"
+      ]
+    },
+    {
+      "id": "P00008",
+      "authorIds": [
+        "A0002"
+      ],
+      "title": "Dense Retrieval, Relevance Feedback",
+      "topics": [
+        "dense retrieval",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00009",
+      "authorIds": [
+        "A0002"
+      ],
+      "title": "Information Retrieval, Relevance Feedback",
+      "topics": [
+        "information retrieval",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00010",
+      "authorIds": [
+        "A0003"
+      ],
+      "title": "Dialogue Systems, Machine Translation, Optical Flow",
+      "topics": [
+        "dialogue systems",
+        "machine translation",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00011",
+      "authorIds": [
+        "A0003"
+      ],
+      "title": "Machine Translation, Semantic Segmentation, Word Embeddings",
+      "topics": [
+        "machine translation",
+        "semantic segmentation",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00012",
+      "authorIds": [
+        "A0003"
+      ],
+      "title": "Model Based Rl, Sentiment Analysis, Word Embeddings",
+      "topics": [
+        "model based rl",
+        "sentiment analysis",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00013",
+      "authorIds": [
+        "A0003"
+      ],
+      "title": "Language Model, Machine Translation, Semantic Segmentation, Text Summarization",
+      "topics": [
+        "language model",
+        "machine translation",
+        "semantic segmentation",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00014",
+      "authorIds": [
+        "A0003"
+      ],
+      "title": "Coreference Resolution, Question Answering, Word Embeddings",
+      "topics": [
+        "coreference resolution",
+        "question answering",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00015",
+      "authorIds": [
+        "A0004"
+      ],
+      "title": "Convex Optimization, Q Learning, Reward Shaping",
+      "topics": [
+        "convex optimization",
+        "q learning",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00016",
+      "authorIds": [
+        "A0004"
+      ],
+      "title": "Exploration Strategies, Multi Agent Rl, Reinforcement Learning",
+      "topics": [
+        "exploration strategies",
+        "multi agent rl",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00017",
+      "authorIds": [
+        "A0004"
+      ],
+      "title": "Multi Agent Rl, Reinforcement Learning",
+      "topics": [
+        "multi agent rl",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00018",
+      "authorIds": [
+        "A0004"
+      ],
+      "title": "Model Based Rl, Reward Shaping",
+      "topics": [
+        "model based rl",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00019",
+      "authorIds": [
+        "A0004"
+      ],
+      "title": "Multi Agent Rl, Reinforcement Learning, Reward Shaping",
+      "topics": [
+        "multi agent rl",
+        "reinforcement learning",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00020",
+      "authorIds": [
+        "A0005"
+      ],
+      "title": "End To End Asr, Keyword Spotting, Language Model, Voice Conversion",
+      "topics": [
+        "end to end asr",
+        "keyword spotting",
+        "language model",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00021",
+      "authorIds": [
+        "A0005"
+      ],
+      "title": "Question Answering, Speech Recognition, Voice Conversion",
+      "topics": [
+        "question answering",
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00022",
+      "authorIds": [
+        "A0005"
+      ],
+      "title": "Acoustic Modeling, Memory Efficient Training, Speech Synthesis",
+      "topics": [
+        "acoustic modeling",
+        "memory efficient training",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00023",
+      "authorIds": [
+        "A0005"
+      ],
+      "title": "End To End Asr, Keyword Spotting, Speech Synthesis",
+      "topics": [
+        "end to end asr",
+        "keyword spotting",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00024",
+      "authorIds": [
+        "A0006"
+      ],
+      "title": "Distributed Training, Inference Optimization, Model Parallelism",
+      "topics": [
+        "distributed training",
+        "inference optimization",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00025",
+      "authorIds": [
+        "A0006"
+      ],
+      "title": "Inference Optimization, Model Parallelism",
+      "topics": [
+        "inference optimization",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00026",
+      "authorIds": [
+        "A0006"
+      ],
+      "title": "Gpu Scheduling, Inference Optimization",
+      "topics": [
+        "gpu scheduling",
+        "inference optimization"
+      ]
+    },
+    {
+      "id": "P00027",
+      "authorIds": [
+        "A0006"
+      ],
+      "title": "Distributed Training, Gpu Scheduling, Model Parallelism",
+      "topics": [
+        "distributed training",
+        "gpu scheduling",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00028",
+      "authorIds": [
+        "A0006"
+      ],
+      "title": "Inference Optimization, Model Parallelism",
+      "topics": [
+        "inference optimization",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00029",
+      "authorIds": [
+        "A0007"
+      ],
+      "title": "Kernel Methods, Pac Learning",
+      "topics": [
+        "kernel methods",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00030",
+      "authorIds": [
+        "A0007"
+      ],
+      "title": "Generalization Bounds, Pac Learning, Regret Analysis",
+      "topics": [
+        "generalization bounds",
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00031",
+      "authorIds": [
+        "A0007"
+      ],
+      "title": "Generalization Bounds, Pac Learning, Sample Complexity",
+      "topics": [
+        "generalization bounds",
+        "pac learning",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00032",
+      "authorIds": [
+        "A0008"
+      ],
+      "title": "Image Segmentation, Pose Estimation, Regret Analysis, Semantic Segmentation",
+      "topics": [
+        "image segmentation",
+        "pose estimation",
+        "regret analysis",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00033",
+      "authorIds": [
+        "A0008"
+      ],
+      "title": "Face Recognition, Image Generation",
+      "topics": [
+        "face recognition",
+        "image generation"
+      ]
+    },
+    {
+      "id": "P00034",
+      "authorIds": [
+        "A0008"
+      ],
+      "title": "Object Detection, Pose Estimation",
+      "topics": [
+        "object detection",
+        "pose estimation"
+      ]
+    },
+    {
+      "id": "P00035",
+      "authorIds": [
+        "A0009"
+      ],
+      "title": "Graph Embeddings, Message Passing",
+      "topics": [
+        "graph embeddings",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00036",
+      "authorIds": [
+        "A0009"
+      ],
+      "title": "Community Detection, Graph Embeddings",
+      "topics": [
+        "community detection",
+        "graph embeddings"
+      ]
+    },
+    {
+      "id": "P00037",
+      "authorIds": [
+        "A0009"
+      ],
+      "title": "Community Detection, Graph Embeddings, Node Classification",
+      "topics": [
+        "community detection",
+        "graph embeddings",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00038",
+      "authorIds": [
+        "A0009"
+      ],
+      "title": "Link Prediction, Message Passing",
+      "topics": [
+        "link prediction",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00039",
+      "authorIds": [
+        "A0010"
+      ],
+      "title": "Learning To Rank, Passage Ranking",
+      "topics": [
+        "learning to rank",
+        "passage ranking"
+      ]
+    },
+    {
+      "id": "P00040",
+      "authorIds": [
+        "A0010"
+      ],
+      "title": "Learning To Rank, Passage Ranking, Query Expansion",
+      "topics": [
+        "learning to rank",
+        "passage ranking",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00041",
+      "authorIds": [
+        "A0010"
+      ],
+      "title": "Dense Retrieval, Multi Agent Rl, Passage Ranking",
+      "topics": [
+        "dense retrieval",
+        "multi agent rl",
+        "passage ranking"
+      ]
+    },
+    {
+      "id": "P00042",
+      "authorIds": [
+        "A0011"
+      ],
+      "title": "Dependency Parsing, Relevance Feedback, Sentiment Analysis",
+      "topics": [
+        "dependency parsing",
+        "relevance feedback",
+        "sentiment analysis"
+      ]
+    },
+    {
+      "id": "P00043",
+      "authorIds": [
+        "A0011"
+      ],
+      "title": "Coreference Resolution, Dialogue Systems, Question Answering",
+      "topics": [
+        "coreference resolution",
+        "dialogue systems",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00044",
+      "authorIds": [
+        "A0011"
+      ],
+      "title": "Dialogue Systems, Language Model, Named Entity Recognition",
+      "topics": [
+        "dialogue systems",
+        "language model",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00045",
+      "authorIds": [
+        "A0012"
+      ],
+      "title": "Actor Critic, Model Based Rl, Multi Agent Rl",
+      "topics": [
+        "actor critic",
+        "model based rl",
+        "multi agent rl"
+      ]
+    },
+    {
+      "id": "P00046",
+      "authorIds": [
+        "A0012"
+      ],
+      "title": "Model Based Rl, Policy Gradient",
+      "topics": [
+        "model based rl",
+        "policy gradient"
+      ]
+    },
+    {
+      "id": "P00047",
+      "authorIds": [
+        "A0012"
+      ],
+      "title": "Actor Critic, Exploration Strategies, Text Summarization",
+      "topics": [
+        "actor critic",
+        "exploration strategies",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00048",
+      "authorIds": [
+        "A0012"
+      ],
+      "title": "Exploration Strategies, Multi Agent Rl, Reinforcement Learning",
+      "topics": [
+        "exploration strategies",
+        "multi agent rl",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00049",
+      "authorIds": [
+        "A0012"
+      ],
+      "title": "Model Parallelism, Multi Agent Rl, Reward Shaping",
+      "topics": [
+        "model parallelism",
+        "multi agent rl",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00050",
+      "authorIds": [
+        "A0013"
+      ],
+      "title": "End To End Asr, Speaker Verification",
+      "topics": [
+        "end to end asr",
+        "speaker verification"
+      ]
+    },
+    {
+      "id": "P00051",
+      "authorIds": [
+        "A0013"
+      ],
+      "title": "Acoustic Modeling, Keyword Spotting, Voice Conversion",
+      "topics": [
+        "acoustic modeling",
+        "keyword spotting",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00052",
+      "authorIds": [
+        "A0013"
+      ],
+      "title": "Acoustic Modeling, Speech Recognition, Voice Conversion",
+      "topics": [
+        "acoustic modeling",
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00053",
+      "authorIds": [
+        "A0014"
+      ],
+      "title": "Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00054",
+      "authorIds": [
+        "A0014"
+      ],
+      "title": "Distributed Training, Inference Optimization, Memory Efficient Training",
+      "topics": [
+        "distributed training",
+        "inference optimization",
+        "memory efficient training"
+      ]
+    },
+    {
+      "id": "P00055",
+      "authorIds": [
+        "A0014"
+      ],
+      "title": "Gradient Compression, Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "gradient compression",
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00056",
+      "authorIds": [
+        "A0015"
+      ],
+      "title": "Kernel Methods, Regret Analysis, Reward Shaping",
+      "topics": [
+        "kernel methods",
+        "regret analysis",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00057",
+      "authorIds": [
+        "A0015"
+      ],
+      "title": "Generalization Bounds, Kernel Methods",
+      "topics": [
+        "generalization bounds",
+        "kernel methods"
+      ]
+    },
+    {
+      "id": "P00058",
+      "authorIds": [
+        "A0015"
+      ],
+      "title": "Actor Critic, Pac Learning, Regret Analysis",
+      "topics": [
+        "actor critic",
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00059",
+      "authorIds": [
+        "A0015"
+      ],
+      "title": "Convex Optimization, Pac Learning, Regret Analysis",
+      "topics": [
+        "convex optimization",
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00060",
+      "authorIds": [
+        "A0016"
+      ],
+      "title": "Image Classification, Image Generation, Image Segmentation",
+      "topics": [
+        "image classification",
+        "image generation",
+        "image segmentation"
+      ]
+    },
+    {
+      "id": "P00061",
+      "authorIds": [
+        "A0016"
+      ],
+      "title": "Depth Estimation, Image Generation, Pac Learning",
+      "topics": [
+        "depth estimation",
+        "image generation",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00062",
+      "authorIds": [
+        "A0016"
+      ],
+      "title": "Image Segmentation, Optical Flow, Video Understanding",
+      "topics": [
+        "image segmentation",
+        "optical flow",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00063",
+      "authorIds": [
+        "A0016"
+      ],
+      "title": "Depth Estimation, Image Classification",
+      "topics": [
+        "depth estimation",
+        "image classification"
+      ]
+    },
+    {
+      "id": "P00064",
+      "authorIds": [
+        "A0016"
+      ],
+      "title": "Image Segmentation, Optical Flow, Video Understanding",
+      "topics": [
+        "image segmentation",
+        "optical flow",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00065",
+      "authorIds": [
+        "A0017"
+      ],
+      "title": "Community Detection, Knowledge Graphs, Node Classification",
+      "topics": [
+        "community detection",
+        "knowledge graphs",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00066",
+      "authorIds": [
+        "A0017"
+      ],
+      "title": "Graph Embeddings, Knowledge Graphs, Link Prediction, Node Classification",
+      "topics": [
+        "graph embeddings",
+        "knowledge graphs",
+        "link prediction",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00067",
+      "authorIds": [
+        "A0017"
+      ],
+      "title": "Graph Representation, Inference Optimization, Node Classification",
+      "topics": [
+        "graph representation",
+        "inference optimization",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00068",
+      "authorIds": [
+        "A0017"
+      ],
+      "title": "Knowledge Graphs, Message Passing",
+      "topics": [
+        "knowledge graphs",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00069",
+      "authorIds": [
+        "A0018"
+      ],
+      "title": "Actor Critic, Information Retrieval, Passage Ranking",
+      "topics": [
+        "actor critic",
+        "information retrieval",
+        "passage ranking"
+      ]
+    },
+    {
+      "id": "P00070",
+      "authorIds": [
+        "A0018"
+      ],
+      "title": "Query Expansion, Semantic Search",
+      "topics": [
+        "query expansion",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00071",
+      "authorIds": [
+        "A0018"
+      ],
+      "title": "Information Retrieval, Learning To Rank, Semantic Search",
+      "topics": [
+        "information retrieval",
+        "learning to rank",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00072",
+      "authorIds": [
+        "A0018"
+      ],
+      "title": "Dense Retrieval, Language Model, Passage Ranking",
+      "topics": [
+        "dense retrieval",
+        "language model",
+        "passage ranking"
+      ]
+    },
+    {
+      "id": "P00073",
+      "authorIds": [
+        "A0018"
+      ],
+      "title": "Dense Retrieval, Learning To Rank",
+      "topics": [
+        "dense retrieval",
+        "learning to rank"
+      ]
+    },
+    {
+      "id": "P00074",
+      "authorIds": [
+        "A0019"
+      ],
+      "title": "Dialogue Systems, Object Detection, Text Summarization",
+      "topics": [
+        "dialogue systems",
+        "object detection",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00075",
+      "authorIds": [
+        "A0019"
+      ],
+      "title": "Language Model, Relevance Feedback, Sentiment Analysis",
+      "topics": [
+        "language model",
+        "relevance feedback",
+        "sentiment analysis"
+      ]
+    },
+    {
+      "id": "P00076",
+      "authorIds": [
+        "A0019"
+      ],
+      "title": "Coreference Resolution, Language Model",
+      "topics": [
+        "coreference resolution",
+        "language model"
+      ]
+    },
+    {
+      "id": "P00077",
+      "authorIds": [
+        "A0019"
+      ],
+      "title": "Named Entity Recognition, Question Answering",
+      "topics": [
+        "named entity recognition",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00078",
+      "authorIds": [
+        "A0020"
+      ],
+      "title": "Dense Retrieval, Exploration Strategies, Multi Agent Rl, Policy Gradient",
+      "topics": [
+        "dense retrieval",
+        "exploration strategies",
+        "multi agent rl",
+        "policy gradient"
+      ]
+    },
+    {
+      "id": "P00079",
+      "authorIds": [
+        "A0020"
+      ],
+      "title": "Actor Critic, Model Based Rl, Multi Agent Rl",
+      "topics": [
+        "actor critic",
+        "model based rl",
+        "multi agent rl"
+      ]
+    },
+    {
+      "id": "P00080",
+      "authorIds": [
+        "A0020"
+      ],
+      "title": "Exploration Strategies, Q Learning, Reinforcement Learning",
+      "topics": [
+        "exploration strategies",
+        "q learning",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00081",
+      "authorIds": [
+        "A0020"
+      ],
+      "title": "Q Learning, Reinforcement Learning",
+      "topics": [
+        "q learning",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00082",
+      "authorIds": [
+        "A0021"
+      ],
+      "title": "End To End Asr, Keyword Spotting, Speech Recognition",
+      "topics": [
+        "end to end asr",
+        "keyword spotting",
+        "speech recognition"
+      ]
+    },
+    {
+      "id": "P00083",
+      "authorIds": [
+        "A0021"
+      ],
+      "title": "Keyword Spotting, Speaker Verification, Voice Conversion",
+      "topics": [
+        "keyword spotting",
+        "speaker verification",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00084",
+      "authorIds": [
+        "A0021"
+      ],
+      "title": "End To End Asr, Speaker Verification, Speech Synthesis",
+      "topics": [
+        "end to end asr",
+        "speaker verification",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00085",
+      "authorIds": [
+        "A0021"
+      ],
+      "title": "Keyword Spotting, Speaker Verification, Voice Conversion",
+      "topics": [
+        "keyword spotting",
+        "speaker verification",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00086",
+      "authorIds": [
+        "A0021"
+      ],
+      "title": "Keyword Spotting, Speaker Verification",
+      "topics": [
+        "keyword spotting",
+        "speaker verification"
+      ]
+    },
+    {
+      "id": "P00087",
+      "authorIds": [
+        "A0022"
+      ],
+      "title": "Distributed Training, Gpu Scheduling",
+      "topics": [
+        "distributed training",
+        "gpu scheduling"
+      ]
+    },
+    {
+      "id": "P00088",
+      "authorIds": [
+        "A0022"
+      ],
+      "title": "Distributed Training, Inference Optimization, Memory Efficient Training",
+      "topics": [
+        "distributed training",
+        "inference optimization",
+        "memory efficient training"
+      ]
+    },
+    {
+      "id": "P00089",
+      "authorIds": [
+        "A0022"
+      ],
+      "title": "Depth Estimation, Distributed Training, Gpu Scheduling, Gradient Compression",
+      "topics": [
+        "depth estimation",
+        "distributed training",
+        "gpu scheduling",
+        "gradient compression"
+      ]
+    },
+    {
+      "id": "P00090",
+      "authorIds": [
+        "A0022"
+      ],
+      "title": "Distributed Training, Gradient Compression, Model Parallelism",
+      "topics": [
+        "distributed training",
+        "gradient compression",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00091",
+      "authorIds": [
+        "A0022"
+      ],
+      "title": "Gradient Compression, Model Parallelism",
+      "topics": [
+        "gradient compression",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00092",
+      "authorIds": [
+        "A0023"
+      ],
+      "title": "Generalization Bounds, Pac Learning, Regret Analysis",
+      "topics": [
+        "generalization bounds",
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00093",
+      "authorIds": [
+        "A0023"
+      ],
+      "title": "Convex Optimization, Generalization Bounds, Sample Complexity",
+      "topics": [
+        "convex optimization",
+        "generalization bounds",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00094",
+      "authorIds": [
+        "A0023"
+      ],
+      "title": "Pac Learning, Regret Analysis",
+      "topics": [
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00095",
+      "authorIds": [
+        "A0023"
+      ],
+      "title": "Convex Optimization, Generalization Bounds",
+      "topics": [
+        "convex optimization",
+        "generalization bounds"
+      ]
+    },
+    {
+      "id": "P00096",
+      "authorIds": [
+        "A0024"
+      ],
+      "title": "Optical Flow, Semantic Segmentation",
+      "topics": [
+        "optical flow",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00097",
+      "authorIds": [
+        "A0024"
+      ],
+      "title": "Image Generation, Image Segmentation",
+      "topics": [
+        "image generation",
+        "image segmentation"
+      ]
+    },
+    {
+      "id": "P00098",
+      "authorIds": [
+        "A0024"
+      ],
+      "title": "Optical Flow, Pose Estimation, Semantic Segmentation",
+      "topics": [
+        "optical flow",
+        "pose estimation",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00099",
+      "authorIds": [
+        "A0024"
+      ],
+      "title": "Image Segmentation, Object Detection, Optical Flow",
+      "topics": [
+        "image segmentation",
+        "object detection",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00100",
+      "authorIds": [
+        "A0024"
+      ],
+      "title": "Face Recognition, Semantic Segmentation",
+      "topics": [
+        "face recognition",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00101",
+      "authorIds": [
+        "A0025"
+      ],
+      "title": "Graph Neural Networks, Graph Representation",
+      "topics": [
+        "graph neural networks",
+        "graph representation"
+      ]
+    },
+    {
+      "id": "P00102",
+      "authorIds": [
+        "A0025"
+      ],
+      "title": "Graph Neural Networks, Knowledge Graphs, Message Passing",
+      "topics": [
+        "graph neural networks",
+        "knowledge graphs",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00103",
+      "authorIds": [
+        "A0025"
+      ],
+      "title": "Graph Neural Networks, Link Prediction",
+      "topics": [
+        "graph neural networks",
+        "link prediction"
+      ]
+    },
+    {
+      "id": "P00104",
+      "authorIds": [
+        "A0025"
+      ],
+      "title": "Link Prediction, Message Passing, Node Classification, Sentiment Analysis",
+      "topics": [
+        "link prediction",
+        "message passing",
+        "node classification",
+        "sentiment analysis"
+      ]
+    },
+    {
+      "id": "P00105",
+      "authorIds": [
+        "A0025"
+      ],
+      "title": "Community Detection, Message Passing, Node Classification",
+      "topics": [
+        "community detection",
+        "message passing",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00106",
+      "authorIds": [
+        "A0026"
+      ],
+      "title": "Dense Retrieval, Relevance Feedback",
+      "topics": [
+        "dense retrieval",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00107",
+      "authorIds": [
+        "A0026"
+      ],
+      "title": "Dense Retrieval, Graph Representation, Passage Ranking, Query Expansion",
+      "topics": [
+        "dense retrieval",
+        "graph representation",
+        "passage ranking",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00108",
+      "authorIds": [
+        "A0026"
+      ],
+      "title": "Dense Retrieval, Keyword Spotting, Relevance Feedback",
+      "topics": [
+        "dense retrieval",
+        "keyword spotting",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00109",
+      "authorIds": [
+        "A0026"
+      ],
+      "title": "Document Ranking, Passage Ranking, Query Expansion",
+      "topics": [
+        "document ranking",
+        "passage ranking",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00110",
+      "authorIds": [
+        "A0026"
+      ],
+      "title": "Document Ranking, Information Retrieval, Passage Ranking, Query Expansion",
+      "topics": [
+        "document ranking",
+        "information retrieval",
+        "passage ranking",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00111",
+      "authorIds": [
+        "A0027"
+      ],
+      "title": "Dependency Parsing, Machine Translation, Sentiment Analysis, Word Embeddings",
+      "topics": [
+        "dependency parsing",
+        "machine translation",
+        "sentiment analysis",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00112",
+      "authorIds": [
+        "A0027"
+      ],
+      "title": "Dependency Parsing, Dialogue Systems, Language Model",
+      "topics": [
+        "dependency parsing",
+        "dialogue systems",
+        "language model"
+      ]
+    },
+    {
+      "id": "P00113",
+      "authorIds": [
+        "A0027"
+      ],
+      "title": "Machine Translation, Question Answering, Speech Synthesis, Text Summarization",
+      "topics": [
+        "machine translation",
+        "question answering",
+        "speech synthesis",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00114",
+      "authorIds": [
+        "A0028"
+      ],
+      "title": "Actor Critic, Multi Agent Rl, Voice Conversion",
+      "topics": [
+        "actor critic",
+        "multi agent rl",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00115",
+      "authorIds": [
+        "A0028"
+      ],
+      "title": "Object Detection, Policy Gradient, Q Learning, Reinforcement Learning",
+      "topics": [
+        "object detection",
+        "policy gradient",
+        "q learning",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00116",
+      "authorIds": [
+        "A0028"
+      ],
+      "title": "Model Based Rl, Q Learning, Reinforcement Learning",
+      "topics": [
+        "model based rl",
+        "q learning",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00117",
+      "authorIds": [
+        "A0028"
+      ],
+      "title": "Exploration Strategies, Reinforcement Learning",
+      "topics": [
+        "exploration strategies",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00118",
+      "authorIds": [
+        "A0028"
+      ],
+      "title": "Reinforcement Learning, Reward Shaping",
+      "topics": [
+        "reinforcement learning",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00119",
+      "authorIds": [
+        "A0029"
+      ],
+      "title": "End To End Asr, Speech Synthesis",
+      "topics": [
+        "end to end asr",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00120",
+      "authorIds": [
+        "A0029"
+      ],
+      "title": "Acoustic Modeling, Speech Recognition",
+      "topics": [
+        "acoustic modeling",
+        "speech recognition"
+      ]
+    },
+    {
+      "id": "P00121",
+      "authorIds": [
+        "A0029"
+      ],
+      "title": "Acoustic Modeling, Speaker Verification",
+      "topics": [
+        "acoustic modeling",
+        "speaker verification"
+      ]
+    },
+    {
+      "id": "P00122",
+      "authorIds": [
+        "A0030"
+      ],
+      "title": "Gpu Scheduling, Gradient Compression",
+      "topics": [
+        "gpu scheduling",
+        "gradient compression"
+      ]
+    },
+    {
+      "id": "P00123",
+      "authorIds": [
+        "A0030"
+      ],
+      "title": "Dependency Parsing, Gpu Scheduling, Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "dependency parsing",
+        "gpu scheduling",
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00124",
+      "authorIds": [
+        "A0030"
+      ],
+      "title": "Inference Optimization, Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "inference optimization",
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00125",
+      "authorIds": [
+        "A0030"
+      ],
+      "title": "Gradient Compression, Model Parallelism",
+      "topics": [
+        "gradient compression",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00126",
+      "authorIds": [
+        "A0031"
+      ],
+      "title": "Generalization Bounds, Kernel Methods, Sample Complexity",
+      "topics": [
+        "generalization bounds",
+        "kernel methods",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00127",
+      "authorIds": [
+        "A0031"
+      ],
+      "title": "Pac Learning, Regret Analysis, Sample Complexity",
+      "topics": [
+        "pac learning",
+        "regret analysis",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00128",
+      "authorIds": [
+        "A0031"
+      ],
+      "title": "Generalization Bounds, Pac Learning",
+      "topics": [
+        "generalization bounds",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00129",
+      "authorIds": [
+        "A0031"
+      ],
+      "title": "Convex Optimization, Generalization Bounds, Model Based Rl, Regret Analysis",
+      "topics": [
+        "convex optimization",
+        "generalization bounds",
+        "model based rl",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00130",
+      "authorIds": [
+        "A0031"
+      ],
+      "title": "Object Detection, Pac Learning, Regret Analysis, Sample Complexity",
+      "topics": [
+        "object detection",
+        "pac learning",
+        "regret analysis",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00131",
+      "authorIds": [
+        "A0032"
+      ],
+      "title": "Image Classification, Image Generation, Semantic Segmentation",
+      "topics": [
+        "image classification",
+        "image generation",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00132",
+      "authorIds": [
+        "A0032"
+      ],
+      "title": "Depth Estimation, Image Classification, Image Segmentation, Model Based Rl",
+      "topics": [
+        "depth estimation",
+        "image classification",
+        "image segmentation",
+        "model based rl"
+      ]
+    },
+    {
+      "id": "P00133",
+      "authorIds": [
+        "A0032"
+      ],
+      "title": "Image Segmentation, Semantic Segmentation",
+      "topics": [
+        "image segmentation",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00134",
+      "authorIds": [
+        "A0033"
+      ],
+      "title": "Community Detection, Generalization Bounds, Graph Representation, Knowledge Graphs",
+      "topics": [
+        "community detection",
+        "generalization bounds",
+        "graph representation",
+        "knowledge graphs"
+      ]
+    },
+    {
+      "id": "P00135",
+      "authorIds": [
+        "A0033"
+      ],
+      "title": "Community Detection, Graph Representation, Message Passing, Question Answering",
+      "topics": [
+        "community detection",
+        "graph representation",
+        "message passing",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00136",
+      "authorIds": [
+        "A0033"
+      ],
+      "title": "Graph Neural Networks, Graph Representation, Node Classification",
+      "topics": [
+        "graph neural networks",
+        "graph representation",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00137",
+      "authorIds": [
+        "A0033"
+      ],
+      "title": "Graph Neural Networks, Link Prediction, Message Passing",
+      "topics": [
+        "graph neural networks",
+        "link prediction",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00138",
+      "authorIds": [
+        "A0033"
+      ],
+      "title": "Community Detection, Graph Representation, Link Prediction",
+      "topics": [
+        "community detection",
+        "graph representation",
+        "link prediction"
+      ]
+    },
+    {
+      "id": "P00139",
+      "authorIds": [
+        "A0034"
+      ],
+      "title": "Dense Retrieval, Generalization Bounds, Passage Ranking",
+      "topics": [
+        "dense retrieval",
+        "generalization bounds",
+        "passage ranking"
+      ]
+    },
+    {
+      "id": "P00140",
+      "authorIds": [
+        "A0034"
+      ],
+      "title": "Document Ranking, Information Retrieval, Multi Agent Rl, Relevance Feedback",
+      "topics": [
+        "document ranking",
+        "information retrieval",
+        "multi agent rl",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00141",
+      "authorIds": [
+        "A0034"
+      ],
+      "title": "Document Ranking, Passage Ranking, Semantic Search",
+      "topics": [
+        "document ranking",
+        "passage ranking",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00142",
+      "authorIds": [
+        "A0035"
+      ],
+      "title": "Coreference Resolution, Dialogue Systems",
+      "topics": [
+        "coreference resolution",
+        "dialogue systems"
+      ]
+    },
+    {
+      "id": "P00143",
+      "authorIds": [
+        "A0035"
+      ],
+      "title": "Dialogue Systems, Document Ranking, Text Summarization, Word Embeddings",
+      "topics": [
+        "dialogue systems",
+        "document ranking",
+        "text summarization",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00144",
+      "authorIds": [
+        "A0035"
+      ],
+      "title": "Coreference Resolution, Language Model, Machine Translation",
+      "topics": [
+        "coreference resolution",
+        "language model",
+        "machine translation"
+      ]
+    },
+    {
+      "id": "P00145",
+      "authorIds": [
+        "A0035"
+      ],
+      "title": "Coreference Resolution, Depth Estimation, Named Entity Recognition, Sentiment Analysis",
+      "topics": [
+        "coreference resolution",
+        "depth estimation",
+        "named entity recognition",
+        "sentiment analysis"
+      ]
+    },
+    {
+      "id": "P00146",
+      "authorIds": [
+        "A0035"
+      ],
+      "title": "Coreference Resolution, Machine Translation, Named Entity Recognition",
+      "topics": [
+        "coreference resolution",
+        "machine translation",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00147",
+      "authorIds": [
+        "A0036"
+      ],
+      "title": "Exploration Strategies, Reinforcement Learning, Reward Shaping",
+      "topics": [
+        "exploration strategies",
+        "reinforcement learning",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00148",
+      "authorIds": [
+        "A0036"
+      ],
+      "title": "Actor Critic, Model Based Rl",
+      "topics": [
+        "actor critic",
+        "model based rl"
+      ]
+    },
+    {
+      "id": "P00149",
+      "authorIds": [
+        "A0036"
+      ],
+      "title": "Actor Critic, Exploration Strategies, Model Based Rl",
+      "topics": [
+        "actor critic",
+        "exploration strategies",
+        "model based rl"
+      ]
+    },
+    {
+      "id": "P00150",
+      "authorIds": [
+        "A0036"
+      ],
+      "title": "Multi Agent Rl, Reinforcement Learning",
+      "topics": [
+        "multi agent rl",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00151",
+      "authorIds": [
+        "A0037"
+      ],
+      "title": "End To End Asr, Model Based Rl, Voice Conversion",
+      "topics": [
+        "end to end asr",
+        "model based rl",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00152",
+      "authorIds": [
+        "A0037"
+      ],
+      "title": "Policy Gradient, Speech Recognition, Voice Conversion",
+      "topics": [
+        "policy gradient",
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00153",
+      "authorIds": [
+        "A0037"
+      ],
+      "title": "Acoustic Modeling, Keyword Spotting, Speech Synthesis",
+      "topics": [
+        "acoustic modeling",
+        "keyword spotting",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00154",
+      "authorIds": [
+        "A0038"
+      ],
+      "title": "Distributed Training, Gradient Compression, Memory Efficient Training",
+      "topics": [
+        "distributed training",
+        "gradient compression",
+        "memory efficient training"
+      ]
+    },
+    {
+      "id": "P00155",
+      "authorIds": [
+        "A0038"
+      ],
+      "title": "Distributed Training, Inference Optimization",
+      "topics": [
+        "distributed training",
+        "inference optimization"
+      ]
+    },
+    {
+      "id": "P00156",
+      "authorIds": [
+        "A0038"
+      ],
+      "title": "Gradient Compression, Memory Efficient Training",
+      "topics": [
+        "gradient compression",
+        "memory efficient training"
+      ]
+    },
+    {
+      "id": "P00157",
+      "authorIds": [
+        "A0038"
+      ],
+      "title": "Distributed Training, Gpu Scheduling, Pac Learning",
+      "topics": [
+        "distributed training",
+        "gpu scheduling",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00158",
+      "authorIds": [
+        "A0039"
+      ],
+      "title": "Community Detection, Convex Optimization, Kernel Methods, Regret Analysis",
+      "topics": [
+        "community detection",
+        "convex optimization",
+        "kernel methods",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00159",
+      "authorIds": [
+        "A0039"
+      ],
+      "title": "Kernel Methods, Pac Learning, Regret Analysis",
+      "topics": [
+        "kernel methods",
+        "pac learning",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00160",
+      "authorIds": [
+        "A0039"
+      ],
+      "title": "Generalization Bounds, Sample Complexity",
+      "topics": [
+        "generalization bounds",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00161",
+      "authorIds": [
+        "A0039"
+      ],
+      "title": "Kernel Methods, Sample Complexity",
+      "topics": [
+        "kernel methods",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00162",
+      "authorIds": [
+        "A0039"
+      ],
+      "title": "Pac Learning, Regret Analysis, Sample Complexity",
+      "topics": [
+        "pac learning",
+        "regret analysis",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00163",
+      "authorIds": [
+        "A0040"
+      ],
+      "title": "Face Recognition, Optical Flow",
+      "topics": [
+        "face recognition",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00164",
+      "authorIds": [
+        "A0040"
+      ],
+      "title": "Depth Estimation, Pose Estimation, Video Understanding",
+      "topics": [
+        "depth estimation",
+        "pose estimation",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00165",
+      "authorIds": [
+        "A0040"
+      ],
+      "title": "Face Recognition, Graph Embeddings, Image Segmentation",
+      "topics": [
+        "face recognition",
+        "graph embeddings",
+        "image segmentation"
+      ]
+    },
+    {
+      "id": "P00166",
+      "authorIds": [
+        "A0040"
+      ],
+      "title": "Face Recognition, Image Classification, Inference Optimization, Object Detection",
+      "topics": [
+        "face recognition",
+        "image classification",
+        "inference optimization",
+        "object detection"
+      ]
+    },
+    {
+      "id": "P00167",
+      "authorIds": [
+        "A0041"
+      ],
+      "title": "Graph Embeddings, Graph Neural Networks, Knowledge Graphs, Speech Recognition",
+      "topics": [
+        "graph embeddings",
+        "graph neural networks",
+        "knowledge graphs",
+        "speech recognition"
+      ]
+    },
+    {
+      "id": "P00168",
+      "authorIds": [
+        "A0041"
+      ],
+      "title": "Message Passing, Node Classification, Question Answering",
+      "topics": [
+        "message passing",
+        "node classification",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00169",
+      "authorIds": [
+        "A0041"
+      ],
+      "title": "Exploration Strategies, Graph Representation, Node Classification",
+      "topics": [
+        "exploration strategies",
+        "graph representation",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00170",
+      "authorIds": [
+        "A0042"
+      ],
+      "title": "Community Detection, Passage Ranking, Query Expansion, Relevance Feedback",
+      "topics": [
+        "community detection",
+        "passage ranking",
+        "query expansion",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00171",
+      "authorIds": [
+        "A0042"
+      ],
+      "title": "Information Retrieval, Passage Ranking, Query Expansion",
+      "topics": [
+        "information retrieval",
+        "passage ranking",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00172",
+      "authorIds": [
+        "A0042"
+      ],
+      "title": "Dense Retrieval, Semantic Search",
+      "topics": [
+        "dense retrieval",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00173",
+      "authorIds": [
+        "A0043"
+      ],
+      "title": "Acoustic Modeling, Named Entity Recognition, Text Summarization",
+      "topics": [
+        "acoustic modeling",
+        "named entity recognition",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00174",
+      "authorIds": [
+        "A0043"
+      ],
+      "title": "Question Answering, Word Embeddings",
+      "topics": [
+        "question answering",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00175",
+      "authorIds": [
+        "A0043"
+      ],
+      "title": "Dependency Parsing, Named Entity Recognition",
+      "topics": [
+        "dependency parsing",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00176",
+      "authorIds": [
+        "A0043"
+      ],
+      "title": "Dialogue Systems, Machine Translation, Question Answering",
+      "topics": [
+        "dialogue systems",
+        "machine translation",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00177",
+      "authorIds": [
+        "A0043"
+      ],
+      "title": "Coreference Resolution, Dialogue Systems, Gpu Scheduling, Text Summarization",
+      "topics": [
+        "coreference resolution",
+        "dialogue systems",
+        "gpu scheduling",
+        "text summarization"
+      ]
+    },
+    {
+      "id": "P00178",
+      "authorIds": [
+        "A0044"
+      ],
+      "title": "Policy Gradient, Reinforcement Learning",
+      "topics": [
+        "policy gradient",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00179",
+      "authorIds": [
+        "A0044"
+      ],
+      "title": "Policy Gradient, Reward Shaping",
+      "topics": [
+        "policy gradient",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00180",
+      "authorIds": [
+        "A0044"
+      ],
+      "title": "Actor Critic, Model Based Rl, Optical Flow",
+      "topics": [
+        "actor critic",
+        "model based rl",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00181",
+      "authorIds": [
+        "A0044"
+      ],
+      "title": "Multi Agent Rl, Reward Shaping",
+      "topics": [
+        "multi agent rl",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00182",
+      "authorIds": [
+        "A0044"
+      ],
+      "title": "Exploration Strategies, Model Based Rl, Q Learning",
+      "topics": [
+        "exploration strategies",
+        "model based rl",
+        "q learning"
+      ]
+    },
+    {
+      "id": "P00183",
+      "authorIds": [
+        "A0045"
+      ],
+      "title": "End To End Asr, Speech Recognition, Voice Conversion",
+      "topics": [
+        "end to end asr",
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00184",
+      "authorIds": [
+        "A0045"
+      ],
+      "title": "End To End Asr, Speaker Verification",
+      "topics": [
+        "end to end asr",
+        "speaker verification"
+      ]
+    },
+    {
+      "id": "P00185",
+      "authorIds": [
+        "A0045"
+      ],
+      "title": "Convex Optimization, End To End Asr, Speech Synthesis",
+      "topics": [
+        "convex optimization",
+        "end to end asr",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00186",
+      "authorIds": [
+        "A0046"
+      ],
+      "title": "Distributed Training, Gpu Scheduling, Gradient Compression",
+      "topics": [
+        "distributed training",
+        "gpu scheduling",
+        "gradient compression"
+      ]
+    },
+    {
+      "id": "P00187",
+      "authorIds": [
+        "A0046"
+      ],
+      "title": "Distributed Training, Gradient Compression, Model Parallelism",
+      "topics": [
+        "distributed training",
+        "gradient compression",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00188",
+      "authorIds": [
+        "A0046"
+      ],
+      "title": "Gpu Scheduling, Memory Efficient Training",
+      "topics": [
+        "gpu scheduling",
+        "memory efficient training"
+      ]
+    },
+    {
+      "id": "P00189",
+      "authorIds": [
+        "A0046"
+      ],
+      "title": "Gradient Compression, Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "gradient compression",
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00190",
+      "authorIds": [
+        "A0046"
+      ],
+      "title": "Gpu Scheduling, Graph Representation, Model Parallelism",
+      "topics": [
+        "gpu scheduling",
+        "graph representation",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00191",
+      "authorIds": [
+        "A0047"
+      ],
+      "title": "Generalization Bounds, Kernel Methods, Regret Analysis",
+      "topics": [
+        "generalization bounds",
+        "kernel methods",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00192",
+      "authorIds": [
+        "A0047"
+      ],
+      "title": "Convex Optimization, Generalization Bounds, Kernel Methods",
+      "topics": [
+        "convex optimization",
+        "generalization bounds",
+        "kernel methods"
+      ]
+    },
+    {
+      "id": "P00193",
+      "authorIds": [
+        "A0047"
+      ],
+      "title": "Convex Optimization, Kernel Methods, Pac Learning",
+      "topics": [
+        "convex optimization",
+        "kernel methods",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00194",
+      "authorIds": [
+        "A0047"
+      ],
+      "title": "Convex Optimization, Pac Learning",
+      "topics": [
+        "convex optimization",
+        "pac learning"
+      ]
+    },
+    {
+      "id": "P00195",
+      "authorIds": [
+        "A0047"
+      ],
+      "title": "Pac Learning, Regret Analysis, Sample Complexity",
+      "topics": [
+        "pac learning",
+        "regret analysis",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00196",
+      "authorIds": [
+        "A0048"
+      ],
+      "title": "Face Recognition, Image Classification, Optical Flow",
+      "topics": [
+        "face recognition",
+        "image classification",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00197",
+      "authorIds": [
+        "A0048"
+      ],
+      "title": "Image Classification, Object Detection",
+      "topics": [
+        "image classification",
+        "object detection"
+      ]
+    },
+    {
+      "id": "P00198",
+      "authorIds": [
+        "A0048"
+      ],
+      "title": "Object Detection, Video Understanding",
+      "topics": [
+        "object detection",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00199",
+      "authorIds": [
+        "A0048"
+      ],
+      "title": "Image Segmentation, Video Understanding",
+      "topics": [
+        "image segmentation",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00200",
+      "authorIds": [
+        "A0049"
+      ],
+      "title": "Graph Neural Networks, Link Prediction, Node Classification",
+      "topics": [
+        "graph neural networks",
+        "link prediction",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00201",
+      "authorIds": [
+        "A0049"
+      ],
+      "title": "Community Detection, Message Passing",
+      "topics": [
+        "community detection",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00202",
+      "authorIds": [
+        "A0049"
+      ],
+      "title": "Community Detection, Knowledge Graphs, Message Passing",
+      "topics": [
+        "community detection",
+        "knowledge graphs",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00203",
+      "authorIds": [
+        "A0049"
+      ],
+      "title": "Memory Efficient Training, Message Passing, Node Classification",
+      "topics": [
+        "memory efficient training",
+        "message passing",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00204",
+      "authorIds": [
+        "A0050"
+      ],
+      "title": "Convex Optimization, Document Ranking, Relevance Feedback, Semantic Search",
+      "topics": [
+        "convex optimization",
+        "document ranking",
+        "relevance feedback",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00205",
+      "authorIds": [
+        "A0050"
+      ],
+      "title": "Information Retrieval, Learning To Rank, Relevance Feedback",
+      "topics": [
+        "information retrieval",
+        "learning to rank",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00206",
+      "authorIds": [
+        "A0050"
+      ],
+      "title": "Dense Retrieval, Semantic Search, Voice Conversion",
+      "topics": [
+        "dense retrieval",
+        "semantic search",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00207",
+      "authorIds": [
+        "A0050"
+      ],
+      "title": "Actor Critic, Information Retrieval, Learning To Rank, Query Expansion",
+      "topics": [
+        "actor critic",
+        "information retrieval",
+        "learning to rank",
+        "query expansion"
+      ]
+    },
+    {
+      "id": "P00208",
+      "authorIds": [
+        "A0051"
+      ],
+      "title": "Named Entity Recognition, Passage Ranking, Word Embeddings",
+      "topics": [
+        "named entity recognition",
+        "passage ranking",
+        "word embeddings"
+      ]
+    },
+    {
+      "id": "P00209",
+      "authorIds": [
+        "A0051"
+      ],
+      "title": "Distributed Training, Machine Translation, Sentiment Analysis",
+      "topics": [
+        "distributed training",
+        "machine translation",
+        "sentiment analysis"
+      ]
+    },
+    {
+      "id": "P00210",
+      "authorIds": [
+        "A0051"
+      ],
+      "title": "Dependency Parsing, Dialogue Systems, Model Parallelism, Named Entity Recognition",
+      "topics": [
+        "dependency parsing",
+        "dialogue systems",
+        "model parallelism",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00211",
+      "authorIds": [
+        "A0051"
+      ],
+      "title": "Language Model, Named Entity Recognition",
+      "topics": [
+        "language model",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00212",
+      "authorIds": [
+        "A0051"
+      ],
+      "title": "Depth Estimation, Dialogue Systems, Language Model, Named Entity Recognition",
+      "topics": [
+        "depth estimation",
+        "dialogue systems",
+        "language model",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00213",
+      "authorIds": [
+        "A0052"
+      ],
+      "title": "Actor Critic, Exploration Strategies",
+      "topics": [
+        "actor critic",
+        "exploration strategies"
+      ]
+    },
+    {
+      "id": "P00214",
+      "authorIds": [
+        "A0052"
+      ],
+      "title": "Exploration Strategies, Image Generation, Model Based Rl",
+      "topics": [
+        "exploration strategies",
+        "image generation",
+        "model based rl"
+      ]
+    },
+    {
+      "id": "P00215",
+      "authorIds": [
+        "A0052"
+      ],
+      "title": "Model Based Rl, Reinforcement Learning, Semantic Search",
+      "topics": [
+        "model based rl",
+        "reinforcement learning",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00216",
+      "authorIds": [
+        "A0052"
+      ],
+      "title": "Exploration Strategies, Policy Gradient, Q Learning",
+      "topics": [
+        "exploration strategies",
+        "policy gradient",
+        "q learning"
+      ]
+    },
+    {
+      "id": "P00217",
+      "authorIds": [
+        "A0052"
+      ],
+      "title": "Model Based Rl, Q Learning",
+      "topics": [
+        "model based rl",
+        "q learning"
+      ]
+    },
+    {
+      "id": "P00218",
+      "authorIds": [
+        "A0053"
+      ],
+      "title": "Model Parallelism, Speech Recognition, Voice Conversion",
+      "topics": [
+        "model parallelism",
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00219",
+      "authorIds": [
+        "A0053"
+      ],
+      "title": "Acoustic Modeling, Speech Recognition, Speech Synthesis",
+      "topics": [
+        "acoustic modeling",
+        "speech recognition",
+        "speech synthesis"
+      ]
+    },
+    {
+      "id": "P00220",
+      "authorIds": [
+        "A0053"
+      ],
+      "title": "Speech Recognition, Voice Conversion",
+      "topics": [
+        "speech recognition",
+        "voice conversion"
+      ]
+    },
+    {
+      "id": "P00221",
+      "authorIds": [
+        "A0053"
+      ],
+      "title": "Acoustic Modeling, Speaker Verification, Speech Recognition",
+      "topics": [
+        "acoustic modeling",
+        "speaker verification",
+        "speech recognition"
+      ]
+    },
+    {
+      "id": "P00222",
+      "authorIds": [
+        "A0054"
+      ],
+      "title": "Exploration Strategies, Memory Efficient Training, Model Parallelism",
+      "topics": [
+        "exploration strategies",
+        "memory efficient training",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00223",
+      "authorIds": [
+        "A0054"
+      ],
+      "title": "Gradient Compression, Model Parallelism",
+      "topics": [
+        "gradient compression",
+        "model parallelism"
+      ]
+    },
+    {
+      "id": "P00224",
+      "authorIds": [
+        "A0054"
+      ],
+      "title": "Distributed Training, Gradient Compression, Model Parallelism, Sample Complexity",
+      "topics": [
+        "distributed training",
+        "gradient compression",
+        "model parallelism",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00225",
+      "authorIds": [
+        "A0055"
+      ],
+      "title": "Convex Optimization, Regret Analysis",
+      "topics": [
+        "convex optimization",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00226",
+      "authorIds": [
+        "A0055"
+      ],
+      "title": "Convex Optimization, Generalization Bounds",
+      "topics": [
+        "convex optimization",
+        "generalization bounds"
+      ]
+    },
+    {
+      "id": "P00227",
+      "authorIds": [
+        "A0055"
+      ],
+      "title": "Kernel Methods, Pac Learning, Sample Complexity",
+      "topics": [
+        "kernel methods",
+        "pac learning",
+        "sample complexity"
+      ]
+    },
+    {
+      "id": "P00228",
+      "authorIds": [
+        "A0056"
+      ],
+      "title": "Depth Estimation, Video Understanding",
+      "topics": [
+        "depth estimation",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00229",
+      "authorIds": [
+        "A0056"
+      ],
+      "title": "Generalization Bounds, Pose Estimation, Semantic Segmentation",
+      "topics": [
+        "generalization bounds",
+        "pose estimation",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00230",
+      "authorIds": [
+        "A0056"
+      ],
+      "title": "Image Classification, Image Segmentation, Optical Flow",
+      "topics": [
+        "image classification",
+        "image segmentation",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00231",
+      "authorIds": [
+        "A0056"
+      ],
+      "title": "Object Detection, Optical Flow",
+      "topics": [
+        "object detection",
+        "optical flow"
+      ]
+    },
+    {
+      "id": "P00232",
+      "authorIds": [
+        "A0056"
+      ],
+      "title": "Depth Estimation, Video Understanding",
+      "topics": [
+        "depth estimation",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00233",
+      "authorIds": [
+        "A0057"
+      ],
+      "title": "Distributed Training, Graph Representation, Link Prediction, Node Classification",
+      "topics": [
+        "distributed training",
+        "graph representation",
+        "link prediction",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00234",
+      "authorIds": [
+        "A0057"
+      ],
+      "title": "Graph Embeddings, Knowledge Graphs, Video Understanding",
+      "topics": [
+        "graph embeddings",
+        "knowledge graphs",
+        "video understanding"
+      ]
+    },
+    {
+      "id": "P00235",
+      "authorIds": [
+        "A0057"
+      ],
+      "title": "Graph Representation, Message Passing",
+      "topics": [
+        "graph representation",
+        "message passing"
+      ]
+    },
+    {
+      "id": "P00236",
+      "authorIds": [
+        "A0057"
+      ],
+      "title": "Knowledge Graphs, Link Prediction, Message Passing, Node Classification",
+      "topics": [
+        "knowledge graphs",
+        "link prediction",
+        "message passing",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00237",
+      "authorIds": [
+        "A0057"
+      ],
+      "title": "Knowledge Graphs, Message Passing, Node Classification",
+      "topics": [
+        "knowledge graphs",
+        "message passing",
+        "node classification"
+      ]
+    },
+    {
+      "id": "P00238",
+      "authorIds": [
+        "A0058"
+      ],
+      "title": "Document Ranking, Learning To Rank, Named Entity Recognition",
+      "topics": [
+        "document ranking",
+        "learning to rank",
+        "named entity recognition"
+      ]
+    },
+    {
+      "id": "P00239",
+      "authorIds": [
+        "A0058"
+      ],
+      "title": "Dense Retrieval, Image Generation, Semantic Search",
+      "topics": [
+        "dense retrieval",
+        "image generation",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00240",
+      "authorIds": [
+        "A0058"
+      ],
+      "title": "Dense Retrieval, Relevance Feedback",
+      "topics": [
+        "dense retrieval",
+        "relevance feedback"
+      ]
+    },
+    {
+      "id": "P00241",
+      "authorIds": [
+        "A0058"
+      ],
+      "title": "Information Retrieval, Learning To Rank, Pac Learning, Semantic Search",
+      "topics": [
+        "information retrieval",
+        "learning to rank",
+        "pac learning",
+        "semantic search"
+      ]
+    },
+    {
+      "id": "P00242",
+      "authorIds": [
+        "A0058"
+      ],
+      "title": "Dense Retrieval, Document Ranking",
+      "topics": [
+        "dense retrieval",
+        "document ranking"
+      ]
+    },
+    {
+      "id": "P00243",
+      "authorIds": [
+        "A0059"
+      ],
+      "title": "Dialogue Systems, Machine Translation, Regret Analysis",
+      "topics": [
+        "dialogue systems",
+        "machine translation",
+        "regret analysis"
+      ]
+    },
+    {
+      "id": "P00244",
+      "authorIds": [
+        "A0059"
+      ],
+      "title": "Dependency Parsing, Question Answering",
+      "topics": [
+        "dependency parsing",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00245",
+      "authorIds": [
+        "A0059"
+      ],
+      "title": "Coreference Resolution, Dialogue Systems, Language Model, Semantic Segmentation",
+      "topics": [
+        "coreference resolution",
+        "dialogue systems",
+        "language model",
+        "semantic segmentation"
+      ]
+    },
+    {
+      "id": "P00246",
+      "authorIds": [
+        "A0059"
+      ],
+      "title": "Dependency Parsing, Machine Translation, Model Based Rl, Question Answering",
+      "topics": [
+        "dependency parsing",
+        "machine translation",
+        "model based rl",
+        "question answering"
+      ]
+    },
+    {
+      "id": "P00247",
+      "authorIds": [
+        "A0060"
+      ],
+      "title": "Distributed Training, Multi Agent Rl, Q Learning",
+      "topics": [
+        "distributed training",
+        "multi agent rl",
+        "q learning"
+      ]
+    },
+    {
+      "id": "P00248",
+      "authorIds": [
+        "A0060"
+      ],
+      "title": "Exploration Strategies, Reinforcement Learning",
+      "topics": [
+        "exploration strategies",
+        "reinforcement learning"
+      ]
+    },
+    {
+      "id": "P00249",
+      "authorIds": [
+        "A0060"
+      ],
+      "title": "Actor Critic, Model Based Rl, Reward Shaping",
+      "topics": [
+        "actor critic",
+        "model based rl",
+        "reward shaping"
+      ]
+    },
+    {
+      "id": "P00250",
+      "authorIds": [
+        "A0060"
+      ],
+      "title": "Actor Critic, Gradient Compression, Q Learning, Reward Shaping",
+      "topics": [
+        "actor critic",
+        "gradient compression",
+        "q learning",
+        "reward shaping"
+      ]
+    }
+  ]
+}

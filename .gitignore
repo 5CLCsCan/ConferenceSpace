@@ -34,6 +34,7 @@ AGENTS.md
 !.vscode/settings.json
 
 backend/scripts/*.sh
+docs/superpowers/
 
 .agent
 backend/scripts/coauthorships.csv
