@@ -40,6 +40,8 @@ docs/superpowers/
 backend/scripts/coauthorships.csv
 backend/scripts/reduce_data_seeder.py
 
+backend/benchmarks/quality/testdata/s2_snapshot.json
+
 .env
 __pycache__
 .pytest_cache
