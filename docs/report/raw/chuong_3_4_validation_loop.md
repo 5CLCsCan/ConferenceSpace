@@ -16,7 +16,7 @@ Phạm vi kiểm tra:
 | Không mô tả reviewer matching/COI như workflow AI sinh nội dung | Đạt |
 | `track_rankings` nằm trong Submission Autofill, không trôi thành workflow độc lập | Đạt |
 | Không còn image placeholder dạng broken markdown link | Đạt |
-| Số block Mermaid trong Chương 3/4 | 20 |
+| Số block Mermaid trong Chương 3/4 | 21 |
 | Số citation/reference trong Chương 4 | 22 |
 
 ## 2. Đánh giá như reviewer hội đồng
@@ -24,6 +24,8 @@ Phạm vi kiểm tra:
 ### 2.1. Chương 3
 
 Chương 3 hiện đã có mạch lập luận rõ hơn so với bản cũ. Phần mở đầu nối trực tiếp với Chương 1 và Chương 2, sau đó giải thích mô hình ba lớp: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Đây là cấu trúc đúng để bảo vệ đề tài vì tránh lỗi thường gặp của các đồ án AI: đưa AI vào như một tính năng phụ mà không giải thích ranh giới trách nhiệm.
+
+Sau refinement bổ sung, mục 3.3.3 đã khôi phục và cải thiện phần thiết kế dữ liệu. Nội dung hiện không chỉ liệt kê PostgreSQL/Neo4j/schema AI, mà giải thích dữ liệu nghiệp vụ, dữ liệu học thuật-COI và artifact AI đóng vai trò gì trong kiểm soát quy trình. Đây là chỉnh sửa cần thiết vì phần dữ liệu là cầu nối giữa kiến trúc chương 3 và evidence chain ở chương 5: reviewer matching cần `paper_assignments`, COI cần `coi_relationships` và graph đồng tác giả, còn benchmark AI cần run/artifact/stage record để truy vết input, output, trạng thái và lỗi.
 
 Các use case hiện tốt hơn vì không chỉ liệt kê chức năng. Mỗi use case trọng tâm đều thể hiện vấn đề cần giải quyết, đầu vào, đầu ra và điểm kiểm soát: tác giả kiểm tra Autofill, Chair xác nhận matching, reviewer vẫn đọc bài, Chair Decision Copilot không sinh quyết định. Reviewer matching và COI được đặt đúng trong lớp thuật toán xác định, có công thức Jaccard và giải thích fallback nhưng vẫn giữ COI là ràng buộc cứng.
 
@@ -51,4 +53,3 @@ Rủi ro còn lại: Chương 4 có một số đoạn code/config minh họa nh
 ## 4. Kết luận validation
 
 Chương 3 và Chương 4 hiện đạt mức có thể đưa vào bản báo cáo tiếp theo. Hai chương đã align với Chương 1/2 về narrative: AI hỗ trợ chứ không thay thế, thuật toán xác định xử lý matching/COI, mọi quyết định học thuật vẫn thuộc về con người, và các công nghệ được chọn để phục vụ ranh giới đó. Bước tiếp theo nên là kiểm tra Chương 5 để bảo đảm các claim ở Chương 3/4 được đánh giá bằng số liệu và benchmark tương ứng.
-

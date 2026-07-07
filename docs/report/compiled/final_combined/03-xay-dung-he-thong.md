@@ -264,38 +264,67 @@ Phân quyền được thiết kế theo vai trò trong từng hội nghị, kh�
 
 ### 3.3.3. Thiết kế dữ liệu
 
-Thiết kế dữ liệu của ConferenceSpace phản ánh ba loại dữ liệu chính.
+Thiết kế dữ liệu của ConferenceSpace không chỉ trả lời câu hỏi "lưu ở đâu", mà còn xác định mỗi loại dữ liệu chịu trách nhiệm cho phần nào trong quy trình học thuật. Cách tổ chức này giúp hệ thống giữ được ba nguyên tắc đã đặt ra từ Chương 1 và Chương 2: nghiệp vụ cốt lõi phải nhất quán, các cảnh báo rủi ro phải có bằng chứng kiểm tra được, và đầu ra AI phải có khả năng truy vết thay vì trở thành kết luận mơ hồ.
 
-Thứ nhất là **dữ liệu nghiệp vụ quan hệ**: users, conferences, tracks, submissions, authors, files, paper assignments, reviews, rebuttals, decisions, notification và roles. Nhóm dữ liệu này phù hợp với PostgreSQL vì có quan hệ rõ, yêu cầu nhất quán và cần transaction.
+Nhóm thứ nhất là **dữ liệu nghiệp vụ quan hệ**. Các thực thể như `users`, `conferences`, `conference_user_roles`, `conference_submissions`, `paper_assignments`, `rebuttal_points`, `discussion_threads`, `discussion_messages` và `notifications` mô tả vòng đời chính của một hội nghị: tạo hội nghị, cấu hình track, nộp bài, phân công phản biện, viết review, phản hồi rebuttal và trao đổi sau review. Trong nhóm này, `paper_assignments` là thực thể trung tâm vì nó nối submission với reviewer, đồng thời lưu trạng thái phân công, điểm matching, trạng thái review, nội dung review có cấu trúc và metadata audit. Nhờ vậy, hệ thống không tách rời "gợi ý phân công" khỏi quá trình review thật sự.
 
-Thứ hai là **dữ liệu quan hệ học thuật**: tác giả, bài báo, đồng tác giả và các quan hệ có thể tạo COI. Nhóm dữ liệu này phù hợp với Neo4j vì việc kiểm tra quan hệ nhiều bậc giữa tác giả và reviewer tự nhiên là bài toán graph traversal.
+Nhóm thứ hai là **dữ liệu quan hệ học thuật và COI**. ConferenceSpace lưu cache hồ sơ học thuật qua `scholar_profiles`, `scholar_papers`, `scholar_profile_papers` và `semantic_scholar_cache`, đồng thời lưu kết quả phát hiện xung đột lợi ích trong `coi_relationships`. Với `coi_relationships`, mỗi cảnh báo không chỉ là một cờ boolean mà có loại quan hệ, mức độ nghiêm trọng, nguồn phát hiện và bằng chứng đi kèm. Phần graph trong Neo4j dùng để mô hình hóa quan hệ đồng tác giả giữa các tác giả/reviewer, sau đó kết quả có ý nghĩa nghiệp vụ được đồng bộ về PostgreSQL để Chair kiểm tra trong cùng luồng phân công.
 
-Thứ ba là **artifact AI và trạng thái vận hành**: kết quả autofill, gating run, reviewer analysis, review audit, decision copilot, chatbot session, fingerprint, timing và cache. Nhóm dữ liệu này cần vừa lưu được kết quả có cấu trúc, vừa đủ linh hoạt để mỗi workflow có schema riêng.
+Nhóm thứ ba là **dữ liệu AI và trạng thái vận hành**. Các workflow AI không được xem là hộp đen tách khỏi hệ thống chính. Schema `ai` lưu session hội thoại, message, tool audit, các run của Submission Gating, Reviewer Initial Analysis, Review Quality Audit, Chair Decision Copilot và Paper Annotation, cùng artifact JSON, fingerprint, trạng thái, thời điểm tạo và bản ghi theo từng stage. Thiết kế này cho phép hệ thống biết một artifact được sinh từ submission/assignment nào, theo trạng thái dữ liệu nào và có còn hợp lệ hay không. Đây cũng là nền để Chương 5 đánh giá workflow AI bằng input/output, timing và failure case, thay vì chỉ dựa vào cảm nhận người dùng.
 
-**Hình 3.8. Mô hình dữ liệu nghiệp vụ và graph COI**
+| Nhóm dữ liệu | Thực thể tiêu biểu | Vai trò trong thiết kế |
+|---|---|---|
+| Nghiệp vụ hội nghị | `conferences`, `conference_submissions`, `paper_assignments`, `rebuttal_points` | Bảo toàn vòng đời submission-review-rebuttal và các ràng buộc giao dịch |
+| Phân quyền và phối hợp | `users`, `conference_user_roles`, `discussion_threads`, `notifications` | Đảm bảo mỗi vai trò chỉ thao tác trong phạm vi được phép và nhận đúng tín hiệu vận hành |
+| Học thuật và COI | `scholar_profiles`, `scholar_papers`, `coi_relationships`, Neo4j co-author graph | Phát hiện quan hệ rủi ro và cung cấp bằng chứng để Chair kiểm tra |
+| AI artifact và audit | `ai.*_runs`, `ai.*_artifacts`, `ai.*_stage_records`, `ai_tool_audit` | Truy vết đầu vào, đầu ra, trạng thái và lỗi của các workflow AI |
+
+**Hình 3.8. Mô hình dữ liệu nghiệp vụ cốt lõi**
 
 ```mermaid
 erDiagram
-    USERS ||--o{ CONFERENCE_ROLES : has
-    CONFERENCES ||--o{ TRACKS : defines
-    CONFERENCES ||--o{ SUBMISSIONS : receives
-    SUBMISSIONS ||--o{ SUBMISSION_AUTHORS : has
-    SUBMISSIONS ||--o{ PAPER_ASSIGNMENTS : assigned
-    USERS ||--o{ PAPER_ASSIGNMENTS : reviews
-    PAPER_ASSIGNMENTS ||--o{ REVIEWS : produces
-    SUBMISSIONS ||--o{ REBUTTALS : has
-    SUBMISSIONS ||--o{ AI_ARTIFACTS : creates
+    USERS ||--o{ CONFERENCE_USER_ROLES : "has role"
+    CONFERENCES ||--o{ CONFERENCE_USER_ROLES : "scopes"
+    CONFERENCES ||--o{ CONFERENCE_SUBMISSIONS : "receives"
+    CONFERENCES ||--o{ PAPER_ASSIGNMENTS : "groups"
+    CONFERENCE_SUBMISSIONS ||--o{ PAPER_ASSIGNMENTS : "assigned"
+    USERS ||--o{ PAPER_ASSIGNMENTS : "reviews"
+    PAPER_ASSIGNMENTS ||--o{ REVIEW_AUDIT_EVENTS : "records"
+    CONFERENCE_SUBMISSIONS ||--o{ REBUTTAL_POINTS : "has"
+    CONFERENCE_SUBMISSIONS ||--o{ DISCUSSION_THREADS : "discussed"
+    DISCUSSION_THREADS ||--o{ DISCUSSION_MESSAGES : "contains"
+    CONFERENCES ||--o{ COI_RELATIONSHIPS : "tracks"
+    USERS ||--o{ SCHOLAR_PROFILES : "links"
 ```
+
+**Hình 3.9. Dữ liệu COI từ graph đến bằng chứng nghiệp vụ**
 
 ```mermaid
 flowchart LR
-    A1["Author A"] -- "COAUTHORED_WITH" --> A2["Author B"]
-    A2 -- "COAUTHORED_WITH" --> R["Reviewer"]
-    S["Submission"] --> A1
-    R --> C{"COI path within threshold?"}
+    S["Submission author"] --> A["Author node"]
+    R["Reviewer profile"] --> B["Reviewer node"]
+    A -- "COAUTHORED_WITH" --> C["Co-author"]
+    C -- "COAUTHORED_WITH" --> B
+    B --> D{"COI path within threshold?"}
+    D --> E["coi_relationships"]
+    E --> F["Chair inspection before assignment"]
 ```
 
-Điểm cần nhấn mạnh là dữ liệu AI không đứng ngoài hệ thống. Mỗi artifact cần gắn với submission, user hoặc conference tương ứng; có fingerprint hoặc trạng thái để biết artifact còn hợp lệ hay không; và có dữ liệu đủ để đánh giá lại khi cần. Đây là cơ sở để Chương 5 không chỉ đánh giá cảm tính mà có thể nhìn vào input/output thực tế.
+**Hình 3.10. Truy vết dữ liệu AI trong hệ thống**
+
+```mermaid
+flowchart TD
+    A["Submission / assignment / conference state"] --> B["Input fingerprint"]
+    B --> C["AI workflow run"]
+    C --> D["Stage records"]
+    C --> E["Artifact JSON"]
+    C --> F["Error detail / timing"]
+    E --> G["User-facing support"]
+    D --> H["Benchmark and debugging evidence"]
+    F --> H
+```
+
+Điểm quan trọng của thiết kế trên là dữ liệu AI luôn gắn với dữ liệu nghiệp vụ cụ thể. Ví dụ, Reviewer Initial Analysis và Paper Annotation gắn với `assignment_id` và `submission_id`, Review Quality Audit gắn với bản review đang được lưu trong `paper_assignments`, còn Chair Decision Copilot gắn với submission và evidence fingerprint tại thời điểm sinh gợi ý. Vì vậy, khi submission, review hoặc rebuttal thay đổi, hệ thống có cơ sở để xác định artifact cũ có còn phù hợp hay cần sinh lại. Đây là ranh giới cần thiết để giữ luận điểm "AI hỗ trợ, con người quyết định" ở mức có thể kiểm chứng bằng thiết kế dữ liệu.
 
 ### 3.3.4. Luồng xử lý hệ thống
 
