@@ -332,28 +332,9 @@ Cách viết:
 - Backend: Go API, module nghiệp vụ, migration, storage, AI service client.
 - Data: PostgreSQL cho dữ liệu bền vững, Redis cho cache/session/tool result, Neo4j cho graph quan hệ COI, file storage cho submission uploads.
 
-## 4. Citation pack
+## 4. Citation và rationale công nghệ
 
-| Nguồn | Link | Dùng cho claim |
-|---|---|---|
-| Google Gemini 3.1 Flash-Lite | https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite | Model `gemini-3.1-flash-lite`, multimodal, low-latency/cost-effective, phù hợp high-volume workflow. |
-| Gemini model list | https://ai.google.dev/gemini-api/docs/models | Kiểm tra tên model hiện hành. |
-| Gemini API changelog | https://ai.google.dev/gemini-api/docs/changelog | Tránh dùng tên preview cũ nếu stable đã thay thế. |
-| Gemini OpenAI compatibility | https://ai.google.dev/gemini-api/docs/openai | Gemini có thể gọi qua OpenAI-compatible libraries/API settings. |
-| Gemini structured output | https://ai.google.dev/gemini-api/docs/structured-output | Structured output/JSON schema cho workflow cần dữ liệu có cấu trúc. |
-| OpenRouter API reference | https://openrouter.ai/docs/api/reference/overview | OpenRouter cung cấp API tương thích Chat Completions. |
-| OpenRouter model fallbacks | https://openrouter.ai/docs/guides/routing/model-fallbacks | Provider routing/fallback. |
-| LiteLLM routing | https://docs.litellm.ai/docs/routing | Routing nhiều provider/model. |
-| LiteLLM reliability | https://docs.litellm.ai/docs/proxy/reliability | Fallback/retry ở tầng model gateway. |
-| FastAPI features | https://fastapi.tiangolo.com/features/ | OpenAPI docs, typing-based validation. |
-| Pydantic validation | https://pydantic.dev/docs/validation/latest/get-started/ | Request/response/schema validation. |
-| Next.js App Router | https://nextjs.org/docs/app | App Router và frontend architecture. |
-| Next.js Server/Client Components | https://nextjs.org/docs/app/getting-started/server-and-client-components | Phân tách server/client rendering. |
-| Docker Compose services | https://docs.docker.com/reference/compose-file/services/ | Service, healthcheck, env, network, volume. |
-| Caddy Automatic HTTPS | https://caddyserver.com/docs/automatic-https | HTTPS/TLS tự động. |
-| PostgreSQL JSON types | https://www.postgresql.org/docs/current/datatype-json.html | JSON/JSONB artifact hoặc dữ liệu bán cấu trúc. |
-| Neo4j variable-length paths | https://neo4j.com/docs/cypher-manual/current/patterns/variable-length-paths/ | Truy vấn quan hệ nhiều bước cho COI. |
-| Semantic Scholar API | https://www.semanticscholar.org/product/api | Metadata học thuật nếu trình bày tích hợp Semantic Scholar. |
+Chi tiết mô tả từng công nghệ, lý do chọn và citation chính thức được tách sang `docs/report/raw/chuong_3_4_technology_rationale_research.md`. Khi rewrite Chương 4, dùng file này làm nguồn chính cho các đoạn “công nghệ được chọn vì sao”; source pack hiện tại chỉ khóa narrative, evidence repo và validation flow.
 
 ## 5. Cấu trúc rewrite đề xuất
 
@@ -414,4 +395,3 @@ flowchart LR
 8. Văn phong học thuật: không marketing hóa AI, không nói quá benchmark, không dùng câu tuyệt đối khi Chương 5 chưa chứng minh.
 9. Placeholder ảnh được giữ như anchor nội dung để team chèn hình sau.
 10. Mỗi mục quan trọng quay lại được ít nhất một vấn đề từ Chương 1 hoặc một nhu cầu từ Chương 2.
-
