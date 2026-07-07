@@ -103,6 +103,8 @@ _![Biểu đồ mức độ ủng hộ AI của Reviewer](link_hinh_anh_google_f
 
 Kết quả này phù hợp với các chính sách gần đây của những hội nghị lớn: AI có thể hỗ trợ người phản biện trong điều kiện có kiểm soát, nhưng người phản biện vẫn chịu trách nhiệm cuối cùng về nội dung phản biện, bảo mật bản thảo và tính trung thực của đánh giá [15][16].
 
+Do đó, luận điểm phù hợp cho nhóm người phản biện không phải là hệ thống thay con người đọc và đánh giá bài báo, mà là AI hỗ trợ người phản biện đọc có định hướng hơn. Bản tóm tắt trung lập và danh sách điểm cần kiểm tra có thể giảm phần ghi chú, đối chiếu và rà soát thủ công lặp lại, giúp người phản biện tập trung hơn vào các phần quan trọng của bài báo. Tuy nhiên, đây chỉ là hỗ trợ định hướng: người phản biện vẫn phải đọc bài, kiểm tra lại các điểm AI nêu ra và chịu trách nhiệm cuối cùng về nhận xét học thuật.
+
 ### 2.1.6. Diễn giải kết quả và giới hạn khảo sát
 
 Tổng hợp các phản hồi cho thấy bốn nhu cầu nền tảng:
@@ -200,7 +202,7 @@ ConferenceSpace được thiết kế như một phản hồi trực tiếp vớ
 | Nộp bài thủ công, biểu mẫu dài | Submission Autofill trích xuất siêu dữ liệu từ PDF và gợi ý track trong ngữ cảnh hội nghị | Đầu ra là bản nháp có thể sửa, tác giả xác nhận trước khi gửi |
 | Thiếu kiểm tra lỗi sớm | Submission Gating kiểm tra điều kiện cơ bản trước khi bài nộp đi vào phản biện | Cảnh báo/chặn theo chính sách cấu hình; không tự ý loại bài ngoài luật hệ thống |
 | Ghép phản biện và COI khó kiểm soát | Thuật toán matching có điểm số, kết hợp COI đa tầng | Ghép phản biện là lớp thuật toán xác định; Chair quyết định cuối cùng |
-| Người phản biện thiếu hỗ trợ đọc hiểu ban đầu | Reviewer Initial Analysis cung cấp tóm tắt trung lập và điểm cần kiểm tra | AI hỗ trợ định hướng đọc, không thay thế việc đọc và đánh giá chuyên môn |
+| Người phản biện thiếu hỗ trợ đọc hiểu ban đầu và phải tự ghi chú nhiều điểm cần kiểm tra | Reviewer Initial Analysis cung cấp tóm tắt trung lập, điểm cần kiểm tra và căn cứ liên quan | AI hỗ trợ định hướng đọc, giảm rà soát thủ công lặp lại, nhưng không thay thế việc đọc và đánh giá chuyên môn |
 | Chair khó tổng hợp nhiều review/rebuttal | Review Quality Auditor và Chair Decision Copilot tổng hợp vấn đề, đồng thuận, bất đồng, rủi ro | Không sinh quyết định chấp nhận/từ chối tự động; chỉ cung cấp bằng chứng cho Chair |
 | Người dùng khó tìm hướng dẫn thao tác | Chatbot Agent truy vấn dữ liệu hệ thống theo quyền truy cập | Trả lời phải bám dữ liệu hệ thống, không vượt quyền |
 | Thông báo và trạng thái phân tán | Bảng điều khiển và thông báo trong hệ thống | Trạng thái tập trung, giảm phụ thuộc vào email |
@@ -243,7 +245,7 @@ Mục 2.4 chuyển các kết quả khảo sát và phân tích khoảng trống
 | F-REVIEWER-01 | Người phản biện có thể nhận/từ chối lời mời và xem danh sách bài được phân công. | Nghiệp vụ phản biện cơ bản. |
 | F-REVIEWER-02 | Người phản biện có thể xem bài, tệp, siêu dữ liệu, hạn chót và trạng thái phản biện. | Cần giảm tình trạng không biết bước tiếp theo. |
 | F-REVIEWER-03 | Người phản biện có thể nhập điểm, nhận xét, mức tự tin, lưu nháp và gửi phản biện chính thức. | Nghiệp vụ phản biện. |
-| F-REVIEWER-04 | Hệ thống có thể cung cấp tóm tắt trung lập và các điểm cần kiểm tra để hỗ trợ đọc ban đầu. | Người phản biện trong khảo sát chấp nhận AI ở vai trò hỗ trợ đọc hiểu. |
+| F-REVIEWER-04 | Hệ thống có thể cung cấp tóm tắt trung lập, các điểm cần kiểm tra và căn cứ liên quan để hỗ trợ đọc ban đầu. | Người phản biện trong khảo sát chấp nhận AI ở vai trò hỗ trợ đọc hiểu; chức năng này giúp giảm thao tác ghi chú/rà soát thủ công, không thay thế trách nhiệm đọc bài. |
 | F-REVIEWER-05 | AI không viết phản biện thay người phản biện và không quyết định điểm số. | Phù hợp ranh giới liêm chính học thuật ở Chương 1 và chính sách hội nghị lớn [15][16]. |
 
 #### c) Yêu cầu cho Chủ tọa/Ban tổ chức
@@ -302,7 +304,7 @@ Các nguyên tắc này tương thích với xu hướng thận trọng của c�
 | Không biết bước tiếp theo | Bảng điều khiển, quy trình từng bước, chatbot hỗ trợ thao tác | Frontend theo vai trò, thông báo, agent query | UAT theo vai trò, chatbot tỷ lệ gọi công cụ thành công và mức độ bám dữ liệu |
 | COI khó phát hiện thủ công | COI đa tầng, đồ thị đồng tác giả | Neo4j, Semantic Scholar integration, COI detector | Tỷ lệ phát hiện self/manual/coauthor conflict, ca lỗi |
 | Phân công phản biện cần minh bạch | Matching xác định, điểm phù hợp, ràng buộc tải phản biện/COI | Dịch vụ matching và giao diện Chair xác nhận | Precision@K/độ bao phủ/cân bằng tải nếu có nhãn hoặc proxy phù hợp |
-| Người phản biện quá tải khi đọc bài | Tóm tắt trung lập, điểm cần kiểm tra | Reviewer Initial Analysis | Tính đúng sự thật, độ bao phủ, tỷ lệ đầu ra đúng và có căn cứ, phản hồi người phản biện |
+| Người phản biện quá tải khi đọc bài và theo dõi điểm cần kiểm tra | Tóm tắt trung lập, điểm cần kiểm tra, hỗ trợ ghi chú có căn cứ | Reviewer Initial Analysis | Tính đúng sự thật, độ bao phủ, tỷ lệ đầu ra đúng và có căn cứ, phản hồi người phản biện, mức độ hữu ích trong việc định hướng đọc |
 | Chair khó tổng hợp nhiều phản biện | Review Quality Auditor, Chair Decision Copilot | Luồng tổng hợp bằng chứng, không sinh quyết định | Benchmark TCA, ca lỗi, UAT Chair |
 | Lo ngại AI thay thế quyết định học thuật | Con người trong vòng kiểm soát, nhật ký kiểm tra, quyền ghi đè | Phân lớp nghiệp vụ lõi/thuật toán/AI và mô hình phân quyền | Đánh giá mức tin tưởng, tỷ lệ ghi đè, phân tích giới hạn |
 
