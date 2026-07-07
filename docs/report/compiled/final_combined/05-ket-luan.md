@@ -1,12 +1,12 @@
-# Chương 6. Kết luận
+# Chương 5. Kết luận
 
 ---
 
-## 6.1. Kết quả đạt được
+## 5.1. Kết quả đạt được
 
 Đề tài đã hoàn thành việc xây dựng hệ thống **ConferenceSpace** — một nền tảng web hỗ trợ quy trình xét duyệt bài báo khoa học tại các hội nghị học thuật. So với mục tiêu đề ra ban đầu (Chương 1), hệ thống đã đạt được các kết quả cụ thể trên cả ba lớp kiến trúc: lớp nghiệp vụ cốt lõi, lớp thuật toán, và lớp hỗ trợ AI.
 
-### 6.1.1. Hệ thống quản lý hội nghị toàn diện
+### 5.1.1. Hệ thống quản lý hội nghị toàn diện
 
 ConferenceSpace cung cấp đầy đủ chức năng phục vụ toàn bộ vòng đời xét duyệt bài báo cho ba vai trò chính:
 
@@ -18,7 +18,7 @@ ConferenceSpace cung cấp đầy đủ chức năng phục vụ toàn bộ vòn
 
 Hệ thống đáp ứng các yêu cầu phi chức năng quan trọng: thời gian phản hồi API trung bình 51,8 ms (p95 ≤ 117,6 ms) với throughput 369–572 request/giây trên dataset 15.000 bài nộp (theo kết quả benchmark k6); bảo mật qua JWT + RBAC tại từng endpoint; giao diện responsive, hỗ trợ dark mode và đa ngôn ngữ (Tiếng Anh, Tiếng Việt); triển khai hoàn chỉnh trên VPS với Docker Compose và HTTPS tự động qua Caddy.
 
-### 6.1.2. Thuật toán đối sánh phản biện và phát hiện xung đột lợi ích
+### 5.1.2. Thuật toán đối sánh phản biện và phát hiện xung đột lợi ích
 
 **Gợi ý phản biện tự động:** Hệ thống triển khai thuật toán gợi ý phản biện dựa trên **Domain Jaccard Similarity** — tính toán độ tương đồng giữa lĩnh vực chuyên môn của phản biện (lấy từ hồ sơ Semantic Scholar) và chủ đề bài nộp — kết hợp thuật toán gán tham lam (Greedy Matching) có xét ràng buộc cân bằng tải. Thuật toán hoạt động xác định, không phụ thuộc LLM, có khả năng giải thích kết quả (hiển thị điểm phù hợp và lý do). Kết quả benchmark cho thấy thời gian thực thi ở mức micro-giây đến mili-giây (từ 131 µs với dataset nhỏ đến 56 ms với dataset lớn), phù hợp cho tương tác real-time.
 
@@ -29,38 +29,38 @@ Hệ thống đáp ứng các yêu cầu phi chức năng quan trọng: thời g
 
 Thiết kế theo **Composite pattern** cho phép hệ thống hoạt động linh hoạt: hai lớp đầu luôn sẵn sàng, lớp Neo4j tự động bật/tắt tùy thuộc cấu hình (graceful degradation). Thời gian thực thi COI detection ở mức 14,9 µs (dataset nhỏ) đến 653 µs (dataset lớn).
 
-### 6.1.3. Sáu workflow AI phục vụ ba vai trò
+### 5.1.3. Sáu workflow AI phục vụ ba vai trò
 
-Bên cạnh Chatbot (Conference Agent) được trình bày riêng ở mục 6.1.4, hệ thống còn tích hợp sáu workflow AI xử lý trực tiếp trên nội dung bài nộp và phiếu đánh giá, triển khai trên Python AI Service (FastAPI) độc lập, sử dụng Google Gemini 3.1 Flash-Lite thông qua LiteLLM:
+Hệ thống tích hợp sáu workflow AI phục vụ trực tiếp ba vai trò chính, triển khai trên Python AI Service (FastAPI) độc lập và sử dụng `gemini-3.1-flash-lite` thông qua model router/OpenRouter:
 
 | Workflow | Vai trò phục vụ | Kết quả đạt được |
 |---|---|---|
-| **Submission Autofill** | Author | Trích xuất tự động tiêu đề, tóm tắt, từ khóa, tác giả từ PDF. Đánh giá trên 1.127 bài báo: **91,22%** khớp tiêu đề chính xác, ROUGE-1/ROUGE-L abstract đạt **83,6%/83,3%**, Keyword F1 đạt **92,77%** |
-| **Track Recommendation** | Author | Gợi ý track phù hợp dựa trên nội dung bài nộp và danh sách track hội nghị |
-| **Submission Gating (Desk Rejection)** | Author/Chair | Kiểm tra tự động định dạng, số trang, section bắt buộc, kết hợp LLM đánh giá sự phù hợp nội dung |
+| **Submission Autofill** | Author | Trích xuất tự động tiêu đề, tóm tắt, từ khóa, tác giả từ PDF và tạo `track_rankings` trong cùng luồng nộp bài. Đánh giá trên 1.127 bài báo: **91,22%** khớp tiêu đề chính xác, ROUGE-1/ROUGE-L abstract đạt **83,6%/83,3%**, Keyword F1 đạt **92,77%** |
+| **Submission Gating** | Author/Chair | Kiểm tra định dạng, section bắt buộc, policy hội nghị và các điểm cần Chair xem lại trước khi submission được gửi chính thức |
 | **Reviewer Initial Analysis** | Reviewer | Tạo briefing tổng quan và chú thích chi tiết từng đoạn (phương pháp luận, điểm mạnh/yếu, câu hỏi gợi ý) — hỗ trợ phản biện chuẩn bị đánh giá |
-| **Review Quality Auditor** | Chair | Đánh giá chất lượng và tính nhất quán của phiếu nhận xét trước khi Chair tham khảo |
-| **Chair Decision Copilot** | Chair | Tổng hợp toàn bộ nhận xét, rebuttal và thảo luận; đề xuất quyết định có căn cứ |
+| **Review Quality Auditor** | Reviewer/Chair | Kiểm tra chất lượng, mức độ cụ thể và tính nhất quán của bản nháp phản biện trước khi gửi chính thức |
+| **Chair Decision Copilot** | Chair | Tổng hợp toàn bộ nhận xét, rebuttal và thảo luận thành evidence map để Chair đối chiếu khi ra quyết định |
+| **Chatbot Agent** | Author/Reviewer/Chair | Trả lời câu hỏi thao tác và truy vấn dữ liệu hệ thống trong phạm vi quyền truy cập của người dùng |
 
-Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời gian xử lý trung bình cho Autofill là **10,64 giây**, cho Decision Copilot là **21,68 giây**, và tổng thời gian cho toàn bộ pipeline (song song hóa) là **69,85 giây/bài**. Lượng token tiêu thụ trung bình là **28.481 token/bài** — mức chi phí hợp lý khi sử dụng hạn mức miễn phí của Google Gemini 3.1 Flash-Lite.
+Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời gian xử lý trung bình cho Autofill là **10,64 giây**, cho Decision Copilot là **21,68 giây**, và tổng thời gian cho toàn bộ pipeline (song song hóa) là **69,85 giây/bài**. Lượng token tiêu thụ trung bình là **28.481 token/bài** — mức chi phí hợp lý khi sử dụng hạn mức miễn phí của model `gemini-3.1-flash-lite`.
 
-### 6.1.4. Chatbot AI và thông báo real-time
+### 5.1.4. Chatbot AI và thông báo real-time
 
 - **Conference Agent (Chatbot):** Hỗ trợ 24/7, sử dụng LLM qua OpenRouter kết hợp **Function Calling** để truy vấn dữ liệu hệ thống thực (thông qua AgentQuery Engine ở Go backend). Người dùng có thể hỏi chatbot bằng ngôn ngữ tự nhiên về thông tin hội nghị, trạng thái bài nộp, danh sách phản biện — chatbot tự động chuyển thành truy vấn có cấu trúc và trả kết quả chính xác từ database.
 
 - **Thông báo real-time:** WebSocket hub quản lý kết nối theo email người dùng (hỗ trợ đa tab), đẩy thông báo tức thì khi có sự kiện mới (bài nộp mới, nhận xét hoàn thành, quyết định công bố, lời mời phản biện) — thay thế hoàn toàn cơ chế email-only chậm trễ của các hệ thống truyền thống.
 
-### 6.1.5. Đáp ứng nhu cầu người dùng
+### 5.1.5. Đáp ứng nhu cầu người dùng
 
 Hệ thống đã giải quyết trực tiếp các vấn đề nhức nhối (pain points) lớn nhất được xác định từ khảo sát 71 người dùng ban đầu (mục 2.1), đặc biệt là việc giảm thiểu "tải nhận thức" (cognitive load) trước các giao diện phức tạp (gần 50% bình chọn) và tự động hóa các form nhập liệu dài, lặp lại (gần 48% bình chọn).
 
 Kết quả khảo sát thực nghiệm sau sử dụng (UAT) trên 89 người dùng cho thấy:
 - **Điểm hài lòng trung bình của Tác giả:** 3,89/5,00 (86% hài lòng hoặc rất hài lòng).
-- **Điểm hài lòng trung bình của Phản biện:** 4,29/5,00 (n=7) — cao hơn đáng kể so với vai trò Tác giả, tuy nhiên cỡ mẫu nhỏ nên kết quả chỉ mang tính tham khảo (xem thêm mục 6.2.1).
+- **Điểm hài lòng trung bình của Phản biện:** 4,29/5,00 (n=7) — cao hơn đáng kể so với vai trò Tác giả, tuy nhiên cỡ mẫu nhỏ nên kết quả chỉ mang tính tham khảo (xem thêm mục 5.2.1).
 - **82% người dùng sẵn sàng giới thiệu hệ thống** cho bạn bè/đồng nghiệp.
 - Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**, hoàn toàn khớp với kỳ vọng lớn nhất của người dùng trong khảo sát nhu cầu (mục 2.1.6) về việc áp dụng nguyên tắc thiết kế "Human-in-the-loop" (AI hỗ trợ nhập liệu, con người kiểm soát và xác nhận).
 
-### 6.1.6. Đóng góp chính của đề tài
+### 5.1.6. Đóng góp chính của đề tài
 
 Tổng hợp lại, đóng góp chính của đề tài bao gồm:
 
@@ -72,11 +72,11 @@ Tổng hợp lại, đóng góp chính của đề tài bao gồm:
 
 ---
 
-## 6.2. Các hạn chế
+## 5.2. Các hạn chế
 
-Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn tồn tại một số hạn chế cần được nhận diện rõ ràng. Các hạn chế này bám sát kết quả đánh giá thực nghiệm (Chương 5) và phản hồi người dùng (mục 2.1).
+Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn tồn tại một số hạn chế cần được nhận diện rõ ràng. Các hạn chế này bám sát kết quả đánh giá thực nghiệm (Chương 4) và phản hồi người dùng (mục 2.1).
 
-### 6.2.1. Hạn chế về dữ liệu và quy mô đánh giá
+### 5.2.1. Hạn chế về dữ liệu và quy mô đánh giá
 
 - **Quy mô khảo sát hạn chế:** Khảo sát UAT chỉ thu được 89 phản hồi (76 tác giả, 7 phản biện, 6 Chair), trong đó nhóm phản biện và Chair có số lượng mẫu quá nhỏ (n=7 và n=6) để đưa ra kết luận có ý nghĩa thống kê. Kết quả đánh giá từ hai nhóm này chỉ mang tính tham khảo định tính.
 
@@ -84,33 +84,33 @@ Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn 
 
 - **Benchmark AI trên dữ liệu sẵn có:** Tập dữ liệu 1.127 bài báo được trích xuất từ OpenReview — đều là các bài đã công bố và có ground truth rõ ràng. Hiệu quả thực tế của hệ thống trên bài nộp mới (chưa từng xuất hiện trong dữ liệu huấn luyện của LLM) có thể khác biệt.
 
-### 6.2.2. Hạn chế về workflow AI
+### 5.2.2. Hạn chế về workflow AI
 
 - **Kết quả AI không hoàn toàn nhất quán:** Điểm hài lòng trung bình của tính năng AI ở mức 3,92/5,00 — tốt nhưng chưa xuất sắc. Đặc biệt, AI Autofill đồng thời là tính năng hữu ích nhất **và** cần cải thiện nhất (30/76 tác giả chọn cần cải thiện), phản ánh khoảng cách giữa kỳ vọng cao của người dùng và chất lượng output thực tế. Theo thực nghiệm, trích xuất tác giả có F1 thấp nhất (83,49% trung bình, chỉ 67,71% với bài y khoa MIDL 2023) do định dạng thông tin tác giả phức tạp.
 
-- **Phụ thuộc dịch vụ LLM bên ngoài:** Toàn bộ sáu workflow AI phụ thuộc vào API của Google Gemini 3.1 Flash-Lite (qua LiteLLM). Nếu dịch vụ này thay đổi chính sách miễn phí, tăng giá, hoặc ngừng hoạt động, hệ thống sẽ mất khả năng AI. Mặc dù thiết kế ba lớp cho phép hệ thống vẫn vận hành không có AI, nhưng trải nghiệm người dùng sẽ bị ảnh hưởng đáng kể.
+- **Phụ thuộc dịch vụ LLM bên ngoài:** Toàn bộ sáu workflow AI phụ thuộc vào API của `gemini-3.1-flash-lite` thông qua model router/OpenRouter. Nếu dịch vụ này thay đổi chính sách miễn phí, tăng giá, hoặc ngừng hoạt động, hệ thống sẽ mất khả năng AI. Mặc dù thiết kế ba lớp cho phép hệ thống vẫn vận hành không có AI, nhưng trải nghiệm người dùng sẽ bị ảnh hưởng đáng kể.
 
 - **Lo ngại của người dùng về AI:** 57,9% người dùng có phần không thoải mái khi AI tham gia vào quy trình học thuật. Lý do chính là lo ngại gợi ý sai (32/76 người), sự nhạy cảm của đánh giá học thuật (20/76), và cảm giác bị áp lực bởi phản hồi AI (16/76). Đây không phải là hiện tượng riêng của ConferenceSpace — các nghiên cứu về AI trong quy trình phản biện học thuật nói chung cũng ghi nhận mức độ dè dặt tương tự từ cộng đồng nghiên cứu. Điều này cho thấy việc tích hợp AI vào quy trình phản biện cần cân nhắc kỹ về cách trình bày kết quả và quyền từ chối/bỏ qua.
 
 - **Bảo mật dữ liệu khi sử dụng dịch vụ LLM bên ngoài:** Toàn bộ nội dung bài báo được gửi đến Google Gemini để xử lý, điều này có thể không phù hợp với các hội nghị có yêu cầu bảo mật nghiêm ngặt, đặc biệt trong các lĩnh vực nhạy cảm hoặc khi bài báo chứa dữ liệu chưa công bố. Mặc dù hệ thống đảm bảo chỉ gửi thông tin cần thiết và không lưu trữ dữ liệu đầu vào trên phía AI service, việc phụ thuộc vào dịch vụ bên thứ ba vẫn tiềm ẩn rủi ro về quyền riêng tư dữ liệu. Kiến trúc tách AI Service thành microservice độc lập (mục 2.3.2, 2.3.3) đã tính đến khả năng thay thế nhà cung cấp LLM, nên hướng giải quyết khả thi là chuyển sang các mô hình mã nguồn mở (như DeepSeek, Llama) triển khai on-premise trong tương lai, đảm bảo dữ liệu không rời khỏi máy chủ của tổ chức.
 
-### 6.2.3. Hạn chế về hệ thống
+### 5.2.3. Hạn chế về hệ thống
 
 - **Chưa hỗ trợ bidding:** ConferenceSpace hiện chưa triển khai cơ chế bidding — tính năng cho phép phản biện nêu ưu tiên đánh giá bài nào. Đây là tính năng có giá trị thực tiễn được HotCRP, OpenReview và CMT hỗ trợ, giúp tăng chất lượng phân công phản biện.
 
-- **Rate limit của LLM ảnh hưởng đến khả năng chịu tải:** Hạn mức miễn phí của Gemini 3.1 Flash-Lite là 15 request/phút và 500 request/ngày. Với sáu workflow AI (Submission Autofill, Track Recommendation, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot) cùng gọi API trong ngày, hạn mức 500 request/ngày có thể nhanh chóng cạn kiệt nếu hội nghị nhận số lượng bài nộp lớn hoặc nhiều người dùng kích hoạt workflow AI đồng thời. Trong khi các hội nghị lớn như NeurIPS có thể nhận tới 30.000 bài nộp, ước tính hệ thống hiện tại chỉ phù hợp với hội nghị quy mô vừa và nhỏ (dưới vài trăm bài nộp mỗi kỳ). Để mở rộng quy mô, cần triển khai cơ chế hàng đợi (message queue), xử lý bất đồng bộ các workflow AI, và cân nhắc nâng cấp lên gói trả phí khi cần.
+- **Rate limit của LLM ảnh hưởng đến khả năng chịu tải:** Hạn mức miễn phí của `gemini-3.1-flash-lite` là 15 request/phút và 500 request/ngày. Với sáu workflow AI (Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent) cùng gọi API trong ngày, hạn mức 500 request/ngày có thể nhanh chóng cạn kiệt nếu hội nghị nhận số lượng bài nộp lớn hoặc nhiều người dùng kích hoạt workflow AI đồng thời. Trong khi các hội nghị lớn như NeurIPS có thể nhận tới 30.000 bài nộp, ước tính hệ thống hiện tại chỉ phù hợp với hội nghị quy mô vừa và nhỏ (dưới vài trăm bài nộp mỗi kỳ). Để mở rộng quy mô, cần triển khai cơ chế hàng đợi (message queue), xử lý bất đồng bộ các workflow AI, và cân nhắc nâng cấp lên gói trả phí khi cần.
 
 - **Thiếu cơ chế backup dữ liệu tự động:** Hiện tại, backup dữ liệu PostgreSQL và Neo4j được thực hiện thủ công bằng lệnh CLI trên server. Chưa có pipeline backup tự động theo lịch với kiểm tra tính toàn vẹn.
 
-- **Một số phần đánh giá chưa hoàn chỉnh:** Như đã trình bày ở mục 5.4 và 5.5 (Chương 5), các phần đánh giá chi tiết về thuật toán Greedy Matching (độ phủ, chất lượng phân công so với phân công thủ công), chất lượng audit phản biện (LLM-as-a-judge), và mức độ đồng thuận của Decision Copilot chưa có đủ dữ liệu thực nghiệm để kết luận đầy đủ — cần bổ sung ở giai đoạn sau.
+- **Một số phần đánh giá chưa hoàn chỉnh:** Như đã trình bày ở mục 4.4 và 4.5 (Chương 4), các phần đánh giá chi tiết về thuật toán Greedy Matching (độ phủ, chất lượng phân công so với phân công thủ công), chất lượng audit phản biện (LLM-as-a-judge), và mức độ đồng thuận của Decision Copilot chưa có đủ dữ liệu thực nghiệm để kết luận đầy đủ — cần bổ sung ở giai đoạn sau.
 
 ---
 
-## 6.3. Hướng phát triển trong tương lai
+## 5.3. Hướng phát triển trong tương lai
 
 Dựa trên các hạn chế đã nhận diện và phản hồi từ người dùng, nhóm đề xuất các hướng phát triển sau đây, được chia thành ba nhóm theo mức độ ưu tiên.
 
-### 6.3.1. Cải thiện ngắn hạn (khả thi trong 1–2 tháng)
+### 5.3.1. Cải thiện ngắn hạn (khả thi trong 1–2 tháng)
 
 **a) Nâng cao chất lượng AI Autofill và Trích xuất:**
 - Ứng dụng công nghệ **OCR tiên tiến và xử lý layout** để tăng độ chính xác khi đọc các chuẩn file PDF phức tạp (như biểu đồ, cột kép lạ, tài liệu scan).
@@ -124,12 +124,12 @@ Dựa trên các hạn chế đã nhận diện và phản hồi từ người d
 **c) Backup tự động:**
 - Thiết lập pipeline backup định kỳ cho PostgreSQL và Neo4j (ví dụ: pg_dump hàng ngày, neo4j-admin backup hàng tuần) với lưu trữ offsite và kiểm tra tính toàn vẹn.
 
-### 6.3.2. Mở rộng trung hạn (3–6 tháng)
+### 5.3.2. Mở rộng trung hạn (3–6 tháng)
 
 Theo xu hướng từ các hội nghị hàng đầu như ICLR 2025 và AAAI-26, AI-assisted review đang được thí điểm và dần trở thành tiêu chuẩn mới. Hướng phát triển của ConferenceSpace sẽ bám sát các bài học thực tiễn từ những thí điểm này, đặc biệt về cách thiết kế AI ở vai trò "hỗ trợ" thay vì "thay thế" — một nguyên tắc đã được định hình từ thiết kế ban đầu của hệ thống.
 
 **a) Giảm phụ thuộc vào dịch vụ LLM bên ngoài và tăng cường bảo mật dữ liệu:**
-- Nghiên cứu khả năng sử dụng các mô hình mã nguồn mở (open-weight) như DeepSeek-R1 hoặc Llama cho các workflow chỉ xử lý text (Review Auditor, Decision Copilot) — vừa giảm chi phí và tăng tính tự chủ, vừa giải quyết trực tiếp hạn chế về bảo mật dữ liệu đã nêu ở mục 6.2.2 khi triển khai on-premise.
+- Nghiên cứu khả năng sử dụng các mô hình mã nguồn mở (open-weight) như DeepSeek-R1 hoặc Llama cho các workflow chỉ xử lý text (Review Auditor, Decision Copilot) — vừa giảm chi phí và tăng tính tự chủ, vừa giải quyết trực tiếp hạn chế về bảo mật dữ liệu đã nêu ở mục 5.2.2 khi triển khai on-premise.
 - Triển khai cơ chế **fallback** tự động: nếu provider LLM chính (Gemini) không khả dụng, hệ thống tự chuyển sang provider dự phòng qua OpenRouter mà không cần can thiệp thủ công.
 
 **b) Mở rộng cơ chế phát hiện COI:**
@@ -140,7 +140,7 @@ Theo xu hướng từ các hội nghị hàng đầu như ICLR 2025 và AAAI-26,
 - Hoàn thiện các phần đánh giá còn thiếu: benchmark Greedy Matching so với phân công thủ công, đánh giá LLM-as-a-judge cho Review Auditor và Decision Copilot.
 - Mở rộng khảo sát UAT với quy mô lớn hơn, đặc biệt tăng số lượng mẫu cho nhóm Reviewer và Chair.
 
-### 6.3.3. Phát triển dài hạn (6–12 tháng)
+### 5.3.3. Phát triển dài hạn (6–12 tháng)
 
 **a) Mở rộng quy mô và hiệu năng:**
 - Chuyển từ monolith backend sang kiến trúc microservices đầy đủ nếu cần hỗ trợ hội nghị quy mô lớn (hàng nghìn bài nộp đồng thời).

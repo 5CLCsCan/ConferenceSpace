@@ -46,16 +46,15 @@ Nói cách khác, đóng góp chính của đề tài không nằm ở việc t�
 
 ## 1.4. Cấu trúc luận văn
 
-Báo cáo được tổ chức thành sáu chương, theo mạch triển khai từ khảo sát nhu cầu đến xây dựng, đánh giá và tổng kết hệ thống [file:100].
+Báo cáo được tổ chức thành năm chương, theo mạch triển khai từ khảo sát nhu cầu đến xây dựng, đánh giá và tổng kết hệ thống.
 
 - **Chương 1 – Mở đầu:** trình bày bối cảnh thực tế và rào cản liêm chính học thuật khi đưa AI vào quy trình xét duyệt, mục tiêu, phạm vi đề tài và cấu trúc tổng thể của luận văn.
 - **Chương 2 – Khảo sát nhu cầu:** trình bày khảo sát nhu cầu người dùng theo ba vai trò (mục tiêu, đối tượng, phương pháp, kết quả theo từng tính năng), khảo sát hiện trạng các nền tảng tương tự (EasyChair, HotCRP, CMT, OpenReview) và phân tích khoảng trống nghiên cứu làm cơ sở cho giải pháp và công nghệ được lựa chọn.
-- **Chương 3 – Xây dựng hệ thống:** trình bày tổng quan hệ thống, use case theo từng tác nhân, thiết kế kỹ thuật (kiến trúc, backend, dữ liệu, luồng xử lý), giải pháp AI theo từng workflow và tích hợp AI vào kiến trúc, cùng môi trường triển khai thực tế.
-- **Chương 4 – Công nghệ sử dụng:** trình bày các công nghệ được lựa chọn ở từng lớp của hệ thống — giao diện, máy chủ, cơ sở dữ liệu/lưu trữ, AI/ML và công nghệ triển khai vận hành — cùng lý do lựa chọn gắn với các workflow đã trình bày ở Chương 3.
-- **Chương 5 – Thiết lập thực nghiệm và đánh giá:** trình bày mục tiêu và kịch bản thực nghiệm, đối chiếu kết quả với khảo sát nhu cầu ở Chương 2, đánh giá triển khai thực tế, đánh giá riêng từng workflow AI (bao gồm so sánh với quy trình không dùng AI) và phân tích tính khả thi về chi phí, token và khả năng mở rộng.
-- **Chương 6 – Kết luận:** tổng hợp kết quả đạt được so với mục tiêu đề ra ở Chương 1, nêu rõ các hạn chế bám sát kết quả đánh giá ở Chương 5, và đề xuất hướng phát triển trong tương lai.
+- **Chương 3 – Xây dựng hệ thống:** trình bày tổng quan hệ thống, use case theo từng tác nhân, thiết kế kỹ thuật, các cơ chế nghiệp vụ và thuật toán xác định, giải pháp AI theo từng workflow, cùng môi trường triển khai thực tế. Chương này đồng thời giải thích vai trò và lý do lựa chọn các công nghệ chính trong ngữ cảnh thiết kế tương ứng.
+- **Chương 4 – Thiết lập thực nghiệm và đánh giá:** trình bày mục tiêu và kịch bản thực nghiệm, đối chiếu kết quả với khảo sát nhu cầu ở Chương 2, đánh giá lớp nghiệp vụ cốt lõi, lớp thuật toán xác định, từng workflow AI và tính khả thi vận hành.
+- **Chương 5 – Kết luận:** tổng hợp kết quả đạt được so với mục tiêu đề ra ở Chương 1, nêu rõ các hạn chế bám sát kết quả đánh giá ở Chương 4, và đề xuất hướng phát triển trong tương lai.
 
-Mối liên hệ xuyên suốt các chương là: nhu cầu và khoảng trống được xác định ở Chương 1–2 định hình trực tiếp các quyết định thiết kế và lựa chọn công nghệ ở Chương 3–4, rồi được kiểm chứng lại bằng dữ liệu thực nghiệm ở Chương 5, trước khi được tổng kết ở Chương 6 — khép kín vòng lặp từ vấn đề đến bằng chứng.
+Mối liên hệ xuyên suốt các chương là: nhu cầu và khoảng trống được xác định ở Chương 1–2 định hình trực tiếp các quyết định thiết kế ở Chương 3, rồi được kiểm chứng lại bằng dữ liệu thực nghiệm ở Chương 4, trước khi được tổng kết ở Chương 5 — khép kín vòng lặp từ vấn đề đến bằng chứng.
 
 ---
 
