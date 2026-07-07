@@ -8,7 +8,7 @@ Chương 3 đã trình bày ConferenceSpace theo kiến trúc ba lớp: lớp ng
 
 - **Lớp nghiệp vụ cốt lõi** được đánh giá bằng benchmark tải HTTP (k6) và giám sát tài nguyên, nhằm trả lời câu hỏi hệ thống có đáp ứng được về mặt hiệu năng và khả năng chịu tải hay không.
 - **Lớp thuật toán** (đối sánh phản biện và phát hiện xung đột lợi ích) được đánh giá bằng Go micro-benchmark đo trực tiếp chi phí tính toán thuần túy, đồng thời đánh giá chất lượng đề xuất trên tập dữ liệu thực từ Semantic Scholar.
-- **Lớp AI hỗ trợ** được đánh giá theo hai hướng bổ sung cho nhau: (1) các chỉ số deterministic (Exact Match, ROUGE, F1) cho tác vụ trích xuất thông tin có đáp án đúng rõ ràng (Submission Autofill); và (2) phương pháp **LLM-as-a-judge** theo khung Trung thực – Trùng lặp – Bổ sung (Truthfulness – Coverage – Additionality, gọi tắt TCA) cho các tác vụ tự luận phức tạp không có đáp án tuyệt đối (tóm lược bài nộp, kiểm toán chất lượng phản biện, hỗ trợ quyết định của Chair).
+- **Lớp AI hỗ trợ** được đánh giá bằng một chuỗi benchmark hai bước: workflow runner sinh output thật trên dữ liệu bài nộp, sau đó TCA benchmark hậu kiểm các output tự luận theo Truthfulness, Coverage và Additionality. Với đầu ra có đáp án tham chiếu rõ như Submission Autofill, chương này dùng các chỉ số deterministic như Exact Match, ROUGE và F1. Với Chatbot Agent, chương này dùng benchmark thủ công theo kịch bản hội thoại, tool-call success, quyền truy cập và trải nghiệm stream.
 - Cuối cùng, mức độ đáp ứng nhu cầu người dùng thực tế được đo lường thông qua khảo sát sau sử dụng (UAT) trên ba vai trò Tác giả, Người phản biện và Chủ tọa.
 
 Cách tiếp cận này cho phép trả lời câu hỏi cốt lõi: hệ thống có vận hành ổn định và đủ nhanh (lớp nghiệp vụ + thuật toán) hay không, đồng thời lớp AI có thực sự tạo ra giá trị đáng tin cậy cho người dùng hay không, thay vì chỉ dừng lại ở cảm nhận chủ quan.
@@ -31,7 +31,9 @@ Các nội dung đánh giá trong chương này kiểm chứng lại những nhu
 
 ### 5.2.1. Dữ liệu thực nghiệm
 
-Với lớp AI, tập dữ liệu thử nghiệm được tổng hợp và trích xuất từ dữ liệu thực tế của các hội nghị khoa học quốc tế đã công bố trên OpenReview. Tổng số lượng bài nộp được đưa vào đánh giá là **1.127 bài báo (submissions)** phân bố trên **8 phân hội / hội nghị (conference tracks)** khác nhau. Việc đa dạng hóa các hội nghị từ nhiều lĩnh vực (robotics, học máy, y học, lý thuyết) giúp đánh giá độ ổn định và khả năng thích ứng của các mô-đun AI trước sự khác biệt về định dạng và văn phong trình bày.
+Với lớp AI hỗ trợ, tập dữ liệu benchmark được xây dựng từ một tập con chọn lọc của bộ dữ liệu ReviewRebuttal, vốn chứa dữ liệu peer review nhiều giai đoạn từ OpenReview. Nhóm không dùng toàn bộ dữ liệu gốc, mà chọn các bản ghi có đủ thông tin để tái tạo các workflow chính của ConferenceSpace: bài nộp, metadata, review, rebuttal hoặc metareview khi có, cùng ngữ cảnh hội nghị. Cách chọn này giúp benchmark đo đúng các workflow đã triển khai thay vì ép hệ thống chạy trên các bản ghi thiếu dữ liệu.
+
+Tập workflow runner gồm **1.127 bài báo** từ tám hội nghị hoặc track khác nhau. Đây là tập dùng để sinh output thật của các workflow AI và ghi lại thời gian xử lý, token tiêu thụ, trạng thái hoàn tất và các metric deterministic khi có dữ liệu tham chiếu rõ. Trong số đó, **1.097 kết quả đủ điều kiện** được đưa vào TCA benchmark để hậu kiểm chất lượng các output tự luận. Hai mẫu số này không được gộp lại: workflow runner đo khả năng sinh output và vận hành, còn TCA đo mức độ bám chứng cứ của output đã sinh.
 
 **Bảng 5.1: Thống kê tập dữ liệu thử nghiệm theo phân hội (Conference Tracks)**
 
@@ -47,15 +49,21 @@ Với lớp AI, tập dữ liệu thử nghiệm được tổng hợp và tríc
 | IEEE ICIST 2024 Conference | 60 | 5,32% |
 | **Tổng cộng** | **1.127** | **100,00%** |
 
-Với đánh giá LLM-as-a-judge, một tập con **1.097 bài báo có kèm metareview đối chứng** của Area Chair được sử dụng, cho phép đối chiếu trực tiếp giữa kết quả tổng hợp của AI với nhận định thực tế mà con người đã đưa ra.
+Ngoài tập workflow runner, một số workflow dùng benchmark riêng vì bản chất đánh giá khác nhau:
 
-Với lớp nghiệp vụ cốt lõi và lớp thuật toán, dữ liệu thử nghiệm là dữ liệu tổng hợp (synthetic) được sinh với quy mô **300 hội nghị, 15.000 bài nộp và 9.000 phản biện viên**, mô phỏng một môi trường vận hành ở quy mô vừa và lớn. Ngoài ra, đánh giá chất lượng đối sánh phản biện sử dụng tập dữ liệu thực từ **Semantic Scholar API** gồm **60 tác giả và 2.565 bài báo** thuộc 8 lĩnh vực khoa học máy tính khác nhau.
+- **Gợi ý track trong Submission Autofill:** 48 trường hợp benchmark hợp đồng, dùng để kiểm tra workflow hoàn tất và mọi track được gợi ý đều nằm trong danh sách hợp lệ. Tập này chưa có nhãn chuyên gia để kết luận Top-1 hoặc Top-3 accuracy.
+- **Submission Gating:** 8 trường hợp rule check tất định và 24 trường hợp điều hướng nội dung bằng mô hình ngôn ngữ. Tập này tách rõ phần luật có đáp án kỳ vọng với phần cảnh báo mềm chỉ được đọc như tín hiệu hỗ trợ.
+- **Chatbot Agent:** 40 hội thoại thuộc 8 nhóm kịch bản, mỗi nhóm chạy 5 biến thể diễn đạt. Tập này dùng để đánh giá outcome workflow, khả năng gọi công cụ, quyền truy cập và trải nghiệm stream.
+
+Với lớp nghiệp vụ cốt lõi và lớp thuật toán, dữ liệu thử nghiệm giữ nguyên như các mục sau: benchmark backend dùng dữ liệu tổng hợp ở quy mô **300 hội nghị, 15.000 bài nộp và 9.000 phản biện viên**, còn đánh giá chất lượng reviewer matching dùng snapshot Semantic Scholar gồm **60 tác giả và 2.565 bài báo** thuộc 8 lĩnh vực khoa học máy tính.
 
 ### 5.2.2. Môi trường thực nghiệm
 
-Ba nhóm thực nghiệm được tiến hành trong ba môi trường khác nhau, phù hợp với đặc điểm của từng lớp:
+Các nhóm thực nghiệm được tiến hành trong các môi trường khác nhau, phù hợp với đặc điểm từng lớp:
 
-- **Benchmark AI (lớp AI hỗ trợ):** quy trình được thực thi tự động thông qua hệ thống phân phối tác vụ (Dispatcher) và các tác nhân xử lý (Workers) chạy trên môi trường điện toán đám mây Modal, cho phép chạy song song nhiều bài nộp qua toàn bộ pipeline AI (Autofill, Track Recommendation, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot). Các mô-đun AI sử dụng mô hình ngôn ngữ lớn Google Gemini 3.1 Flash-Lite thông qua LiteLLM.
+- **Workflow runner:** chạy theo mô hình dispatcher-worker. Mỗi task tương ứng với một bài nộp, có checkpoint theo stage và tạo result package gồm source context, workflow output, metric vận hành và token. Đợt benchmark này dùng router mô hình với cấu hình sinh output bằng **Gemini 3.1 Flash Lite**.
+- **TCA benchmark:** đọc lại result package đã sinh, không sinh lại output workflow. Thành phần đánh giá chính là **ModernCE-large-nli**, kết hợp các mô hình nhỏ **Qwen 3.5 2B** và **Qwen 3.5 0.8B** để chuẩn hóa claim trước khi đưa vào NLI khi cần. Worker TCA chạy trên môi trường GPU cloud với GPU L4, 2 CPU, 4 GB RAM, context length 8192 token và cơ chế retry có kiểm soát.
+- **Benchmark Chatbot Agent:** chạy như một benchmark tương tác theo kịch bản, lưu hội thoại, thời gian stream, token, lượt gọi công cụ và trạng thái thành công hoặc thất bại của từng công cụ.
 - **Benchmark hệ thống backend (lớp nghiệp vụ + lớp thuật toán):** chạy trên máy chủ với **14 nhân CPU và 48 GB RAM**, với toàn bộ stack PostgreSQL, Neo4j và Redis khởi động cùng container API. Tải HTTP được sinh bằng k6; các Go micro-benchmark chạy trực tiếp trên máy Apple M4 Pro (kiến trúc arm64) để đo chi phí thuật toán thuần túy, không qua tầng HTTP/serialization.
 - **Benchmark chất lượng đối sánh (lớp thuật toán):** chạy offline trên snapshot dữ liệu Semantic Scholar được lưu cục bộ, không phụ thuộc vào API bên ngoài trong quá trình đánh giá. Benchmark được triển khai bằng Go test suite với kết quả tái lập 100% (deterministic).
 - **Khảo sát người dùng (UAT):** thực hiện qua biểu mẫu trực tuyến, gửi đến người dùng đã trải nghiệm trực tiếp hệ thống ở cả ba vai trò Tác giả, Người phản biện và Chủ tọa, chi tiết tại mục 5.7.
@@ -66,18 +74,28 @@ Các kịch bản thực nghiệm và bộ chỉ số tương ứng cho từng l
 
 - **Backend:** độ trễ, thông lượng và tỷ lệ lỗi qua k6 load test trên ba kịch bản CRUD, Matching, COI.
 - **Thuật toán:** thời gian xử lý qua Go micro-benchmark (nhỏ / trung bình / lớn); chất lượng đề xuất qua Hit@k, MRR, nDCG, coverage, load balance, fallback rate trên tập dữ liệu Semantic Scholar.
-- **Workflow AI:** các chỉ số deterministic cho đầu ra có ground truth rõ ràng (Title Exact Match, ROUGE, F1) và các chỉ số TCA (Truthfulness, Coverage, Additionality) cho đầu ra tự luận.
+- **Submission Autofill:** Title Exact Match, Title Token F1, Abstract ROUGE-1/ROUGE-L, Keyword F1, Author F1, Required Field Completion Rate, thời gian xử lý và token tiêu thụ.
+- **Gợi ý track trong Submission Autofill:** completion, invalid track rate và độ trễ trên benchmark hợp đồng 48 trường hợp. Vì chưa có nhãn chuyên gia, phần này không dùng để kết luận Top-1/Top-3 accuracy.
+- **Submission Gating:** verdict accuracy, rule recall, false block count cho tuyến rule check; completion, content finding count và contract violation count cho tuyến điều hướng nội dung.
+- **Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot:** các chỉ số vận hành từ workflow runner, kết hợp TCA gồm truthfulness, coverage, additionality, validity hoặc grounded-valid rate tùy workflow.
+- **Chatbot Agent:** tỷ lệ hoàn tất hội thoại, kết quả thủ công theo kịch bản, tool-call success, quyền truy cập, TTFT, thời gian đến token trả lời đầu tiên và thời gian stream.
 - **Khảo sát người dùng:** mức độ hài lòng, độ dễ sử dụng và phản hồi định tính.
 
 ### 5.2.4. Phạm vi và giới hạn của thực nghiệm
 
-Thực nghiệm hiện tại có thể chứng minh hiệu năng vận hành của backend ở quy mô 15.000 bài nộp, chất lượng đầu ra AI trên 1.127 bài báo đa lĩnh vực, và chất lượng đối sánh phản biện trên 60 tác giả thực. Tuy nhiên, thực nghiệm chưa thể chứng minh khả năng mở rộng đến quy mô hàng chục nghìn bài (NeurIPS, ICML), chưa có đánh giá longitudinal về độ tin cậy AI qua thời gian, và chưa có so sánh trực tiếp với quyết định phân công của Chair thực tế.
+Thực nghiệm hiện tại có thể chứng minh ba nhóm kết luận. Thứ nhất, backend và thuật toán xác định có thể vận hành nhanh ở quy mô dữ liệu thử nghiệm. Thứ hai, các workflow AI có thể sinh output thật trên hơn một nghìn bài nộp và một phần output có thể được hậu kiểm bằng metric claim/evidence. Thứ ba, một số workflow đã có bằng chứng vận hành hoặc hợp đồng rõ ràng, chẳng hạn rule check của Submission Gating, metadata extraction của Submission Autofill và permission boundary của Chatbot Agent.
+
+Tuy nhiên, thực nghiệm không chứng minh rằng AI có thể thay reviewer hoặc chair. TCA là proxy tự động cho groundedness, không thay thế đánh giá chuyên gia đầy đủ. Gợi ý track trong Submission Autofill chưa có nhãn chuyên gia để kết luận độ chính xác lựa chọn track. Submission Gating tuyến nội dung chưa có nhãn thủ công cho từng finding. Chair Decision Copilot chưa được benchmark bằng decision label match, nên không được trình bày như bộ phân loại accept/reject. Chatbot Agent mới được đánh giá trên 40 hội thoại, đủ cho nhận định kịch bản ban đầu nhưng chưa đủ để kết luận độ ổn định dài hạn.
 
 ### 5.2.5. Bộ dữ liệu đối chứng và quy trình chấm điểm benchmark
 
-Dữ liệu ground truth được khai thác từ hai nguồn chính. Đối với Submission Autofill, ground truth là metadata được tác giả khai báo trực tiếp trên OpenReview (tiêu đề, tóm tắt, từ khóa, danh sách tác giả). Đối với các workflow hỗ trợ reviewer và chair, ground truth là các bản phản biện thực tế của các chuyên gia và metareview của area chair từ cùng hội nghị. Đối với đánh giá chất lượng đối sánh, ground truth được xây dựng bằng phương pháp **leave-one-out authorship proxy**: mỗi tác giả được coi là "reviewer phù hợp nhất" cho chính bài báo của họ, cho phép đánh giá ranking quality mà không cần gold dataset.
+Các workflow AI dùng ba kiểu đối chứng khác nhau:
 
-Khung đánh giá TCA được triển khai như một pipeline tự động chạy trên hạ tầng Modal với GPU NVIDIA L4. Mỗi tác vụ NLI được thực thi bằng mô hình NLI cục bộ, không phụ thuộc vào bất kỳ API bên ngoài nào. Toàn bộ 1.127 bài báo, bao gồm trích xuất PDF, đánh giá NLI và tổng hợp kết quả, được xử lý song song trên nhiều worker.
+- **Đối chứng deterministic:** Submission Autofill dùng metadata tham chiếu từ dữ liệu bài nộp để tính exact match, ROUGE và F1. Submission Gating rule check dùng fixture có expected verdict và expected rule ID.
+- **Đối chứng proxy claim/evidence:** Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot dùng TCA để kiểm tra quan hệ giữa claim của workflow và evidence từ paper, review hoặc metareview. Coverage đo mức giao nhau với output con người, còn Additionality đo phần đúng nhưng bổ sung ngoài nội dung con người ghi rõ.
+- **Đối chứng theo kịch bản:** Chatbot Agent dùng bộ hội thoại được thiết kế theo vai trò author, reviewer và chair, sau đó đánh giá thủ công xem câu trả lời cuối có giải quyết đúng yêu cầu, bám dữ liệu nền tảng và giữ đúng quyền truy cập hay không.
+
+Các raw artifacts được lưu trong `docs/report/raw/workflow_benchmarks/benchmark_output`, gồm JSON/JSONL/CSV cho workflow runner, TCA, Submission Gating, gợi ý track trong Submission Autofill và Chatbot Agent. Sự tồn tại của raw output giúp truy ngược từ số liệu tổng hợp về từng task, từng response và từng finding khi cần kiểm tra lại. Trong báo cáo, các bảng kết quả lấy số liệu từ các báo cáo benchmark đã tổng hợp, còn raw output đóng vai trò bằng chứng truy xuất và kiểm tra provenance.
 
 ---
 
@@ -232,7 +250,7 @@ Về hiệu năng, Bảng 5.3 cho thấy cơ chế phát hiện COI (bao gồm c
 
 ### 5.4.4. Giới hạn hiện tại về chất lượng đề xuất
 
-Dữ liệu thực nghiệm hiện có mới dừng ở tốc độ thực thi, chưa đo lường được **chất lượng đề xuất phân công** (độ phủ chuyên môn, mức độ chấp nhận đề xuất của Chair) so với phân công thủ công truyền thống. Benchmark suite chất lượng đã được xây dựng với phương pháp leave-one-out trên dữ liệu Semantic Scholar thực, bao gồm các chỉ số ranking (Hit@k, MRR, nDCG) và assignment (coverage, load balance, fallback rate), nhưng kết quả định lượng chi tiết sẽ được trình bày trong phiên bản cập nhật của báo cáo.
+Dữ liệu thực nghiệm hiện tại đã vượt qua mức chỉ đo tốc độ thực thi: mục 5.4.2 đã bổ sung benchmark leave-one-out trên dữ liệu Semantic Scholar thực, bao gồm các chỉ số ranking (Hit@k, MRR, nDCG) và assignment (coverage, load balance, fallback rate). Tuy nhiên, các chỉ số này vẫn là **proxy về mức độ phù hợp chuyên môn**, chưa phải dữ liệu phân công thật của chair trong một hội nghị đang vận hành. Vì vậy, chương này chỉ kết luận rằng thuật toán có khả năng xếp hạng và phân công theo tín hiệu chuyên môn đo được; chưa kết luận mức độ chấp nhận đề xuất của chair hoặc chất lượng phản biện thực tế sau phân công.
 
 Tương tự, dữ liệu hiện có chưa lượng hóa được **số lượng quan hệ COI ẩn** mà lớp phân tích đồ thị phát hiện thêm so với chỉ dựa vào khai báo thủ công — chỉ số quan trọng để chứng minh giá trị gia tăng thực sự của lớp Neo4j. Đây là những hạn chế được ghi nhận rõ ràng để bổ sung ở giai đoạn thực nghiệm tiếp theo.
 
@@ -241,118 +259,241 @@ Tương tự, dữ liệu hiện có chưa lượng hóa được **số lượn
 
 ## 5.5. Đánh giá các workflow AI
 
-### 5.5.1. Phương pháp đánh giá AI
+### 5.5.1. Kiến trúc benchmark workflow AI và nguyên tắc diễn giải kết quả
 
-Đánh giá chất lượng của các hệ thống hỗ trợ dựa trên mô hình ngôn ngữ lớn (LLM) đặt ra một thách thức phương pháp luận căn bản: các chỉ số đo lường truyền thống thiết kế cho bài toán phân loại và tóm tắt văn bản không phản ánh đầy đủ giá trị thực sự của đầu ra AI trong ngữ cảnh peer review. Một bản tóm tắt bài báo cho reviewer có thể đạt điểm ROUGE cao nhưng lại đơn thuần lặp lại những gì reviewer đã thấy, không cung cấp góc nhìn độc lập bổ sung. Ngược lại, một bản phân tích có thể chứa thông tin mới hoàn toàn và có giá trị thực tế nhưng lại đạt điểm ROUGE thấp vì không trùng từ ngữ với văn bản gốc. Vì vậy, nhóm thiết kế khung đánh giá TCA (Truthfulness – Coverage – Additionality) kết hợp với đánh giá xác định tính trung thực (B1) và kiểm định bằng NLI để đo lường ba chiều cạnh khác nhau của chất lượng đầu ra AI.
+Các workflow AI của ConferenceSpace không tạo cùng một loại đầu ra, nên chương này không dùng một chỉ số chung như "accuracy" cho toàn bộ lớp AI. Submission Autofill tạo metadata có dữ liệu tham chiếu rõ; Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot tạo đầu ra tự luận cần kiểm tra bằng quan hệ claim/evidence; Chatbot Agent là một agent tương tác với công cụ nội bộ, nên phải đánh giá theo outcome hội thoại và quyền truy cập.
 
-**Trục Truthfulness (T)** đánh giá liệu các tuyên bố, trích dẫn, và nhận định mà AI đưa ra có căn cứ trong văn bản nguồn hay không. Đây là yêu cầu nền tảng trong môi trường học thuật: một AI hỗ trợ phản biện có thể vô tình bịa đặt chi tiết không tồn tại trong bài báo, gây ra những đánh giá sai lệch nghiêm trọng. Việc đo lường T-Rate được thực hiện bằng mô hình NLI (Natural Language Inference) cục bộ, không phụ thuộc vào LLM bên ngoài, đảm bảo khả năng tái lập và khách quan. **Trục Coverage (C)** đo lường mức độ trùng lặp về nội dung giữa đầu ra AI và những gì chuyên gia người đã ghi nhận — đây là thước đo gián tiếp của sự lặp lại. **Trục Additionality (A)** là chỉ số quan trọng nhất từ góc độ ứng dụng: nó đo lường tỷ lệ thông tin trung thực trong đầu ra AI mà chuyên gia người chưa ghi nhận — tức là giá trị thực sự mà AI bổ sung vào quy trình. Sự kết hợp của ba trục này tạo thành ma trận 2×2 (Grounded × Covered), cho phép phân tích chi tiết từng loại thông tin trong đầu ra.
+Benchmark được tổ chức thành hai lớp chính. Lớp thứ nhất là **workflow runner**, dùng để chạy workflow thật trên dataset, lưu output, thời gian xử lý, token tiêu thụ, trạng thái hoàn tất và các metric deterministic khi có thể tính trực tiếp. Lớp thứ hai là **TCA benchmark**, đọc lại output đã lưu để đánh giá Truthfulness, Coverage và Additionality. Cách tách generator và evaluator này giúp báo cáo không trộn lẫn giữa việc workflow sinh được output và việc output đó có đáng tin hay không.
 
-Ngoài khung TCA, mỗi workflow được đánh giá bằng các chỉ số chuyên biệt phù hợp với bản chất của nó. Submission Autofill — vì đầu ra là dữ liệu metadata có cấu trúc xác định — được đánh giá bằng Title Exact Match, Keyword F1-Score, Author F1-Score và ROUGE-1/ROUGE-L cho phần tóm tắt. Review Quality Auditor — vì đầu ra là danh sách phát hiện lỗi logic — được đánh giá thêm bằng Validity Rate (tỷ lệ phát hiện tuân thủ cấu trúc logic mong đợi). Sự đa dạng trong bộ công cụ đánh giá này phản ánh nguyên tắc rằng không có một thước đo đơn lẻ nào đủ để phán đoán chất lượng của một hệ thống AI đa mô-đun phục vụ các tác nhân khác nhau trong quy trình học thuật.
+Ba khái niệm TCA được đọc như sau. Truthfulness trả lời câu hỏi claim của workflow có được nguồn dữ liệu hỗ trợ hay không. Coverage đo phần claim đúng có giao nhau với output của con người như review hoặc metareview. Additionality đo phần claim đúng mà con người không ghi rõ trong output tham chiếu. Coverage thấp vì vậy không tự động là lỗi: trong peer review, review và metareview thường là bản ghi chọn lọc, không phải danh sách đầy đủ mọi điều người đánh giá đã cân nhắc.
 
-Tập dữ liệu đánh giá được xây dựng từ dữ liệu thực tế của các hội nghị khoa học quốc tế được công bố công khai trên nền tảng OpenReview. Tổng cộng **1.127 bài báo** được lấy từ **tám phân hội (conference tracks)** thuộc các lĩnh vực đa dạng: học máy lý thuyết (UAI 2022), robot học (CoRL 2022 và CoRL 2023), y tế kỹ thuật số (MIDL 2023), tối ưu học (LOG 2022), bài báo ngắn (ICLR 2023 TinyPapers, MIDL 2023 Short Paper Track) và kỹ thuật tổng hợp (IEEE ICIST 2024). Sự đa dạng này là cố ý: một hệ thống hỗ trợ peer review cần hoạt động ổn định trên nhiều lĩnh vực chuyên môn với phong cách trình bày khác nhau, không chỉ tốt ở một lĩnh vực duy nhất.
+Nguyên tắc quan trọng nhất khi đọc các kết quả dưới đây là giới hạn kết luận theo bằng chứng thật. Kết quả groundedness tốt không chứng minh AI thay được reviewer. Kết quả latency tốt không chứng minh output đúng. Kết quả track hợp lệ không chứng minh track được chọn là đúng theo chuyên gia. Kết quả decision brief có evidence truthfulness cao không chứng minh hệ thống chọn đúng accept/reject.
 
-Dữ liệu ground truth được khai thác từ hai nguồn chính. Đối với Submission Autofill, ground truth là metadata được tác giả khai báo trực tiếp trên OpenReview (tiêu đề, tóm tắt, từ khóa, danh sách tác giả). Đối với các workflow hỗ trợ reviewer và chair, ground truth là các bản phản biện thực tế của các chuyên gia và metareview của area chair từ cùng hội nghị. Điều quan trọng cần lưu ý là các bản phản biện thực tế được dùng như proxy để đo lường Coverage (C) — không phải để đánh giá đúng/sai, mà để đo mức độ thông tin AI cung cấp là trùng lặp hay bổ sung so với những gì phản biện người đã ghi nhận.
+### 5.5.2. Tổng hợp mức bằng chứng theo workflow
 
-Khung đánh giá TCA được triển khai như một pipeline tự động chạy trên hạ tầng Modal với GPU NVIDIA L4. Mỗi tác vụ NLI được thực thi bằng mô hình NLI cục bộ, không phụ thuộc vào bất kỳ API bên ngoài nào. Đối với các tác vụ đòi hỏi diễn giải ngữ nghĩa phức tạp (như B3 — kiểm định lỗi phản biện), một mô hình ngôn ngữ nhỏ Qwen3.5-2B chạy hoàn toàn cục bộ trên GPU được dùng để diễn giải lại (reframe) các tuyên bố về lỗi thành các khẳng định tích cực trước khi đưa vào NLI — kỹ thuật này giúp giải quyết vấn đề NLI truyền thống không xử lý tốt các mệnh đề phủ định. Toàn bộ 1.127 bài báo, bao gồm trích xuất PDF, đánh giá NLI và tổng hợp kết quả, được xử lý song song trên nhiều worker, tổng thời gian benchmarking cho toàn bộ tập dữ liệu khoảng vài giờ trên nền tảng điện toán đám mây.
+**Bảng 5.8: Nguồn số liệu và kết luận được phép rút ra cho từng workflow AI**
 
-Các kịch bản đánh giá được chia theo vai trò tương ứng với luồng xử lý trong hệ thống thực tế. Kịch bản **Author (Autofill)** mô phỏng tác giả tải lên PDF bản thảo và yêu cầu hệ thống tự động điền metadata. Kịch bản **Reviewer (Initial Analysis + Quality Audit)** mô phỏng reviewer nhận bài được phân công và nhận bản tóm tắt bổ trợ, sau đó reviewer nộp phản biện và mô-đun kiểm toán chất lượng phân tích kết quả. Kịch bản **Chair (Decision Copilot)** mô phỏng chair kích hoạt tổng hợp sau khi đủ phản biện và rebuttal để nhận bản báo cáo tổng hợp hỗ trợ ra quyết định.
+| Workflow | Nguồn số liệu chính | Mẫu số | Metric chính | Kết luận được phép rút ra |
+| :--- | :--- | :---: | :--- | :--- |
+| Submission Autofill metadata | Workflow runner | 1.127 bài | Title match, title token F1, ROUGE, keyword/author F1, completion rate | Workflow hỗ trợ tạo bản nháp metadata tốt đến mức nào |
+| Gợi ý track trong Submission Autofill | Benchmark hợp đồng riêng | 48 trường hợp | Completion, invalid track rate, latency | Workflow có hoàn tất và giữ track trong danh sách hợp lệ không; chưa kết luận accuracy chuyên gia |
+| Submission Gating | Rule/steering benchmark | 8 rule cases, 24 steering cases | Verdict accuracy, rule recall, false block, contract violation | Rule check có đáng tin không; steering có giữ đúng phạm vi hỗ trợ không |
+| Reviewer Initial Analysis | Workflow runner + TCA | 1.127 runner, 1.097 TCA | Quote grounded rate, fabrication rate, attention truthfulness, coverage, additionality | Workflow hỗ trợ reviewer định hướng đọc bài đáng tin đến đâu |
+| Review Quality Auditor | Workflow runner + TCA | 3.658 audit | Finding count, status distribution, truthfulness, validity, grounded-valid rate | Workflow phát hiện rủi ro review hữu ích đến đâu và nhiễu ở mức nào |
+| Chair Decision Copilot | Workflow runner + TCA | 1.127 runner, 1.097 TCA | Evidence truthfulness, disagreement truthfulness, additionality, high-risk rate | Workflow hỗ trợ chair tổng hợp evidence tốt đến đâu; không đo accept/reject |
+| Chatbot Agent | Manual evidence-based benchmark | 40 hội thoại | Workflow outcome, tool-call success, permission safety, TTFT, stream duration | Chatbot hỗ trợ tra cứu và thao tác nền tảng tốt đến đâu |
 
-### 5.5.2. Submission Autofill
+Bảng này cũng là ranh giới diễn giải cho toàn bộ mục 5.5. Những phần có ground truth rõ có thể kết luận mạnh hơn. Những phần dùng proxy hoặc đánh giá thủ công theo kịch bản chỉ nên kết luận trong phạm vi metric đó.
 
-Mô-đun Autofill đạt kết quả xuất sắc trên toàn bộ 1.127 bài báo, với tỷ lệ tiêu đề khớp chính xác đạt **91,22%** (độ lệch chuẩn 28,32%), ROUGE-1 cho tóm tắt đạt **83,64%** và Keyword F1-Score đạt **92,77%**. Các chỉ số này phản ánh khả năng thay thế gần như hoàn toàn việc nhập liệu thủ công của tác giả, đặc biệt ở các trường thông tin ngắn và có cấu trúc rõ ràng như tiêu đề và từ khóa. Author F1-Score ở mức thấp hơn — **83,49%** với độ lệch chuẩn 27,26% — do sự đa dạng trong cách trình bày thông tin tác giả và affiliation trên trang bìa PDF, đây là vấn đề kỹ thuật liên quan đến công cụ trích xuất PDF hơn là khả năng hiểu ngôn ngữ của mô hình.
+### 5.5.3. Submission Autofill
 
-Kết quả phân tách theo từng phân hội tiết lộ những khác biệt có ý nghĩa. Hai phân hội robotics **CoRL 2022** và **CoRL 2023** đạt kết quả cao nhất, đặc biệt CoRL 2023 với tiêu đề khớp **98,43%** và ROUGE Abstract trên **95%**. Sự đồng bộ cao trong định dạng PDF của hội nghị này — cấu trúc trang đầu tiêu chuẩn, font nhất quán, không có ký hiệu toán phức tạp — giúp quá trình trích xuất đạt độ chính xác gần như tuyệt đối. Ngược lại, **ICLR 2023 TinyPapers** có ROUGE Abstract chỉ đạt khoảng **73%**, không phải vì mô hình kém hơn mà vì các bài TinyPapers (giới hạn 2 trang) có tóm tắt phi chuẩn — thường được gộp chung vào giới thiệu thay vì có mục riêng, làm hệ thống khó xác định ranh giới tóm tắt. **MIDL 2023** có Author F1 thấp nhất (**67,71%**) vì các bài báo y học có số lượng tác giả lớn, kèm ký hiệu liên kết đơn vị (affiliation superscript) phức tạp và các thông tin liên hệ phi chuẩn hóa.
+Submission Autofill được đánh giá như một workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo PDF và ngữ cảnh hội nghị. Kết quả tốt ở workflow này không có nghĩa hệ thống thẩm định chất lượng nghiên cứu; nó chỉ chứng minh các trường thông tin căn bản được tạo đủ tốt để người dùng kiểm tra nhanh và chỉnh sửa khi cần.
 
-Trường hợp đáng chú ý nhất là **UAI 2022**, nơi phân tích tính trung thực trích dẫn (B1) cho thấy tỷ lệ bịa đặt trích dẫn tăng vọt lên **10,84%** — gấp 3–5 lần so với các phân hội khác (trung bình dưới 3%). Điều tra kỹ cho thấy đây là hậu quả của vấn đề trích xuất PDF, không phải lỗi ảo giác của mô hình: UAI là hội nghị chuyên sâu về toán học xác suất, các bài báo chứa mật độ dày đặc công thức LaTeX và ký hiệu Hy Lạp. Khi công cụ PDFExtractor chuyển đổi sang text thô, các ký tự toán học bị sắp xếp sai thứ tự dòng và mất định dạng. Mô hình AI đọc đúng văn bản hiển thị trên PDF và trích dẫn chính xác, nhưng module đối sánh so sánh với text thô bị lỗi nên đánh giá nhầm là bịa đặt. Điều này nhấn mạnh một kết luận quan trọng: trong quy trình đánh giá tự động, chất lượng của bước tiền xử lý dữ liệu (PDF parsing) đặt ngưỡng trần cho toàn bộ đánh giá phía sau.
+#### 5.5.3.1. Pipeline trích xuất và chuẩn bị metadata cho form
 
-### 5.5.3. Gợi ý track trong Submission Autofill
+Trên 1.127 bài, phần metadata extraction đạt kết quả mạnh ở các trường ngắn và có cấu trúc rõ. **Title exact match đạt 91,22%**, trong khi **Title token F1 đạt 98,20%**, cho thấy nhiều khác biệt còn lại chỉ là khác biệt nhỏ về định dạng hoặc dấu câu. **Keyword F1 đạt 92,77%**, phù hợp với vai trò gợi ý nhanh cho người dùng xác nhận. **Abstract ROUGE-1 đạt 83,64%** và **ROUGE-L đạt 83,25%**, là mức hợp lý vì abstract dài hơn và nhạy với khác biệt diễn đạt. **Author F1 đạt 83,49%**, thấp hơn title và keyword, phản ánh việc trích xuất tác giả dễ bị ảnh hưởng bởi định dạng PDF, thứ tự tên, ký hiệu affiliation hoặc thông tin bị thiếu.
 
-Nội dung đánh giá khả năng gợi ý track phù hợp trong workflow Submission Autofill sẽ được bổ sung sau khi hoàn thiện benchmark. Các chỉ số dự kiến bao gồm Top-1 accuracy, Top-3 accuracy, MRR, NDCG@K, invalid hoặc duplicate track rate, độ ổn định giữa các lần chạy và calibration của confidence score sau khi chuẩn hóa thang điểm.
+**Bảng 5.9: Kết quả Submission Autofill metadata**
+
+| Chỉ số | Trung bình | Trung vị | Thấp nhất | Cao nhất |
+| :--- | ---: | ---: | ---: | ---: |
+| Title exact match | 91,22% | 100,00% | 0,00% | 100,00% |
+| Title token F1 | 98,20% | 100,00% | 0,00% | 100,00% |
+| Abstract ROUGE-1 | 83,64% | 85,49% | 3,64% | 100,00% |
+| Abstract ROUGE-L | 83,25% | 85,42% | 3,64% | 100,00% |
+| Keyword F1 | 92,77% | 100,00% | 0,00% | 100,00% |
+| Author F1 | 83,49% | 100,00% | 0,00% | 100,00% |
+| Required field completion rate | 86,93% | 100,00% | 0,00% | 100,00% |
+
+Điểm cần đọc thận trọng là các giá trị thấp nhất bằng 0 ở nhiều trường. Điều này cho thấy workflow có trường hợp thất bại hoàn toàn, thường do dữ liệu đầu vào thiếu, PDF khó đọc hoặc định dạng khác thường. Cách sử dụng đúng là tạo bản nháp để người dùng xác nhận, không tự động khóa dữ liệu sau khi autofill.
+
+Về vận hành, workflow chạy trên 1.127 bài với thời gian trung bình **10,64 giây**, trung vị **9,32 giây** và trường hợp cao nhất **102,20 giây**. Token trung bình là **4.094 token**, trung vị **4.058 token** và cao nhất **6.496 token**. Điều này đủ hợp lý cho một thao tác hỗ trợ trước khi nộp bài, nhưng các outlier trên một phút cần được theo dõi vì có thể làm gián đoạn trải nghiệm nhập liệu.
+
+#### 5.5.3.2. Gợi ý track trong Submission Autofill
+
+Phần gợi ý track được đánh giá như một sub-output nằm trong Submission Autofill, không phải một workflow gợi ý track độc lập. Benchmark hiện tại gồm 48 trường hợp, tập trung vào hợp đồng đầu ra: workflow phải hoàn tất và mọi track được gợi ý phải thuộc danh sách track hợp lệ của hội nghị đang xét.
+
+**Bảng 5.10: Kết quả gợi ý track trong Submission Autofill**
+
+| Chỉ số | Kết quả |
+| :--- | ---: |
+| Số trường hợp benchmark riêng | 48 |
+| Hoàn tất | 48 / 48 |
+| Invalid track rate | 0,00% |
+| Thời gian xử lý trung bình | 18,19 giây |
+| Thời gian xử lý trung vị | 17,54 giây |
+| Thời gian xử lý cao nhất | 37,42 giây |
+
+Kết quả này chứng minh tính an toàn hợp đồng: hệ thống hoàn tất toàn bộ trường hợp và không gợi ý track ngoài danh sách hợp lệ. Tuy nhiên, vì benchmark chưa có nhãn chuyên gia về track đúng nhất, báo cáo không được kết luận Top-1 accuracy, Top-3 acceptance, MRR hoặc NDCG@K. Kết luận bảo vệ được ở thời điểm này là: workflow có thể tạo danh sách track hợp lệ để người dùng cân nhắc, nhưng chưa chứng minh được độ chính xác học thuật của thứ hạng track.
 
 ### 5.5.4. Submission Gating
 
-Nội dung đánh giá workflow kiểm tra sơ bộ bản thảo trước khi nộp (Submission Gating) sẽ được bổ sung sau. Các chỉ số dự kiến bao gồm độ chính xác của verdict pass/warn/block, precision và recall của block decision, F1 theo từng rule cảnh báo, false block rate, chất lượng guidance cho tác giả và độ trễ theo từng stage xử lý.
+Submission Gating được đánh giá ở hai tuyến riêng để tránh thổi phồng năng lực hệ thống. Tuyến thứ nhất là rule check tất định, dùng các điều kiện có thể đối chiếu trực tiếp với đáp án kỳ vọng. Tuyến thứ hai là điều hướng nội dung bằng mô hình ngôn ngữ, chỉ được dùng để sinh cảnh báo hỗ trợ, không được biến thành quyết định loại bài tự động.
 
-### 5.5.5. Reviewer Initial Analysis — Phân tích bổ trợ ban đầu cho phản biện viên
+**Bảng 5.11: Kết quả Submission Gating**
 
-Workflow Reviewer Initial Analysis bao gồm hai tác vụ: trích xuất và trình bày các trích dẫn bằng chứng từ bài báo (B1) và tạo danh sách các điểm cần lưu ý cho phản biện (B2). Đánh giá B1 trên toàn bộ **28.874 trích dẫn** cho thấy tỷ lệ trung thực toàn cục đạt **96,22%** (trong đó 77,88% khớp chính xác từng từ và 18,34% khớp một phần với ROUGE-L ≥ 0,75). Tỷ lệ bịa đặt trích dẫn ở mức rất thấp, chỉ **3,78%** — đây là kết quả đặc biệt quan trọng khi xét đến bối cảnh: trong môi trường học thuật, một trợ lý AI bịa đặt trích dẫn từ bài báo có thể dẫn reviewer đến hiểu sai nội dung nghiên cứu, gây ra đánh giá sai lệch có hậu quả nghiêm trọng.
+| Tuyến đánh giá | Mẫu số | Kết quả chính | Diễn giải |
+| :--- | ---: | :--- | :--- |
+| Rule check tất định | 8 trường hợp | Hoàn tất 8/8; blocking verdict accuracy 100,00%; rule ID recall 100,00%; false block count 0; latency trung bình 0,08 giây | Chứng minh rule check cơ bản chạy đúng trên bộ fixture hiện tại |
+| Điều hướng nội dung | 24 trường hợp | Hoàn tất 24/24; sinh 26 finding nội dung; contract violation block tự động 0; latency trung bình 11,83 giây | Chứng minh workflow sinh được cảnh báo hỗ trợ và giữ đúng ranh giới không tự động loại bài |
 
-Kết quả đánh giá B2 (Attention Points) tiết lộ đặc tính quan trọng nhất của mô-đun này. Trên tổng số **4.166 điểm lưu ý** được tạo ra (trung bình 3,8 điểm/bài báo), tỷ lệ Coverage — mức độ trùng lặp với nhận xét thực tế của phản biện người — chỉ đạt **4,49%**. Điều này có thể được giải thích theo hai hướng: hoặc là AI tạo ra thông tin không liên quan, hoặc là AI cung cấp góc nhìn bổ sung độc lập mà phản biện người không ghi nhận. Trục Additionality cung cấp câu trả lời: có tới **92,23%** các Attention Points trung thực (T-rate 69,86%) là thông tin bổ sung hoàn toàn không có trong nhận xét của phản biện người. Quan trọng hơn, phân tích ma trận 2×2 cho thấy nhóm **Grounded + Additional** (trung thực và bổ sung) chiếm **66,49%** — đây là nhóm mang lại giá trị thực tế lớn nhất, là bằng chứng định lượng cho hiệu ứng "phát hiện điểm mù" của AI đối với reviewer. Nhóm rủi ro **Non-grounded + Additional** (ảo giác và bổ sung) chiếm **30,10%** — đây là cận dưới quan sát được của tỷ lệ thông tin không có căn cứ cần người dùng kiểm chứng.
+Kết quả tốt nhất của Submission Gating nằm ở phần có luật rõ ràng. Phần rule check có thể đặt ở đầu quy trình nộp bài vì vừa nhanh vừa dễ giải thích. Tuyến điều hướng nội dung có giá trị ở việc phát hiện vấn đề mềm, nhưng chưa có nhãn thủ công cho groundedness, actionability và severity của từng finding. Vì vậy, báo cáo chỉ nên kết luận rằng hệ thống tạo cảnh báo đúng phạm vi và không vượt quyền, chưa nên tuyên bố độ chính xác nội dung của các cảnh báo đó.
 
-### 5.5.6. Review Quality Auditor — Kiểm toán chất lượng phản biện
+### 5.5.5. Reviewer Initial Analysis
 
-Mô-đun Review Quality Auditor đối mặt với thách thức kỹ thuật căn bản khác so với các workflow trước: thay vì trích xuất thông tin từ văn bản, nó phải suy luận về những gì *thiếu* hoặc *không nhất quán* trong một bản phản biện. Tổng cộng **8.461 phát hiện lỗi chất lượng** được tạo ra từ **3.567 bản phản biện** (trung bình 2,37 lỗi/bản phản biện), chia thành lỗi nghiêm trọng (Blocking) chiếm **28,27%** và lỗi cảnh báo (Warning) chiếm **71,73%**. Tỷ lệ trung thực tổng thể (T-Rate) đạt **58,28%** — thấp hơn đáng kể so với các workflow khác, không phải do mô hình kém hơn mà vì bản chất của bài toán.
+Reviewer Initial Analysis được thiết kế để hỗ trợ người phản biện định hướng đọc bài trước khi viết review. Workflow tạo briefing, claimed contributions, review readiness signals, attention points và annotation bám vào nội dung bài. Nó không được thiết kế để chấm điểm bài báo hoặc thay reviewer đưa ra nhận xét học thuật cuối cùng.
 
-Khi mô hình tạo ra tuyên bố "phản biện này không có căn cứ thực nghiệm", mô hình NLI phải xác minh điều này từ nội dung của bản phản biện — đây là bài toán suy luận phủ định (negative reasoning) mà NLI truyền thống thiết kế cho các cặp entailment tích cực không xử lý tốt. Điều này được xác nhận bởi hiện tượng: lỗi Blocking (nghiêm trọng, đòi hỏi suy luận trừu tượng cao hơn) có điểm NLI trung bình thấp hơn (**0,5417**) so với lỗi Warning (**0,5576**). Tỷ lệ Validity Rate đạt **71,04%** — tức 71% phát hiện tuân thủ cấu trúc logic mong đợi, cho thấy mô hình hiểu được khuôn dạng phát hiện lỗi dù việc đối sánh NLI gặp khó khăn. Trường hợp cực đoan là **IEEE ICIST 2024** với T-Rate chỉ **24,17%** và Validity **40,77%** — phân tích cho thấy nguyên nhân là chất lượng đầu vào: các bản phản biện của hội nghị này rất ngắn, có hành văn không đồng đều, cung cấp quá ít ngữ cảnh để mô hình lập luận.
+Về vận hành, workflow chạy trên dataset runner với thời gian trung bình **39,18 giây**, trung vị **37,53 giây** và cao nhất **126,36 giây**. Token trung bình là **11.575 token**. Mỗi bài có trung bình **4,94 claimed contributions**, **6,09 reviewer attention points** và **16,74 annotation**, cho thấy đầu ra đủ giàu để phục vụ vai trò bản đồ đọc bài, nhưng phù hợp hơn với tác vụ chạy trước hoặc bất đồng bộ thay vì phản hồi tức thời.
 
-### 5.5.7. Chair Decision Copilot — Hỗ trợ tổng hợp ra quyết định
+**Bảng 5.12: Kết quả TCA của Reviewer Initial Analysis**
 
-Chair Decision Copilot đạt hiệu suất cao nhất trong số tất cả các workflow, phản ánh đặc tính của bài toán: đầu vào là tập hợp các bản phản biện và rebuttal đã được viết bởi chuyên gia người, cung cấp ngữ cảnh phong phú và có cấu trúc cho mô hình tổng hợp. Trên tổng số **8.243 tuyên bố** được đánh giá từ **1.097 bài báo**, tỷ lệ trung thực của cơ sở bằng chứng (Evidence Basis T-Rate) đạt **87,34%** và Disagreement Map T-Rate đạt **87,11%**. Đặc biệt, Coverage chỉ **5,27%** trong khi Additionality đạt **91,63%** — có nghĩa là gần như toàn bộ nội dung AI tổng hợp được là thông tin bổ sung so với metareview thực tế của area chair. Con số này không có nghĩa AI tốt hơn chair, mà phản ánh thực tế rằng chair khi viết metareview thường chỉ tóm tắt 2–3 điểm mấu chốt, trong khi AI xây dựng một hồ sơ bằng chứng toàn diện phục vụ đối chiếu chi tiết.
+| Chỉ số | Trung bình | Trung vị | Thấp nhất | Cao nhất |
+| :--- | ---: | ---: | ---: | ---: |
+| Quote grounded rate | 96,22% | 100,00% | 55,17% | 100,00% |
+| Fabrication rate | 3,78% | 0,00% | 0,00% | 44,83% |
+| Số quote mỗi bài | 26,32 | 26,00 | 12,00 | 43,00 |
+| Attention point truthfulness | 69,86% | 75,00% | 0,00% | 100,00% |
+| Coverage | 4,49% | 0,00% | 0,00% | 100,00% |
+| Additionality | 92,23% | 100,00% | 0,00% | 100,00% |
 
-Chỉ **14 bài báo** (chiếm **1,28%**) được phân loại vào nhóm "High Risk" — tức có tỷ lệ thông tin không có căn cứ vượt 50% trong Evidence Basis với ít nhất 3 tuyên bố kỹ thuật. Đây là ngưỡng rủi ro cực kỳ thấp, đảm bảo hệ thống vận hành an toàn trong môi trường thực tế ở quy mô 98,72% bài báo không có rủi ro cao về tính trung thực. Các hội nghị tài liệu ngắn cung cấp bằng chứng trên tính bổ trợ: **ICLR 2023 TinyPapers** đạt T-Rate kỷ lục **96,75%** và **0,00% High-Risk** vì nội dung cô đọng giảm thiểu nhiễu thông tin trong ngữ cảnh đầu vào. **LOG 2022** và **MIDL 2023 Short Papers** đạt Additionality **100%** vì metareview của area chair tại các phân hội này cực kỳ ngắn gọn, toàn bộ bằng chứng chi tiết AI tổng hợp đều là thông tin mới hoàn toàn.
+Kết quả nổi bật là phần quote và annotation có độ bám nguồn cao: quote grounded rate đạt 96,22% và fabrication rate trung bình 3,78%. Đây là bằng chứng mạnh cho việc workflow có thể trích ra các điểm neo nguồn để reviewer kiểm tra. Attention point truthfulness thấp hơn, đạt 69,86%, vì attention point thường là diễn giải hoặc gợi ý điều cần chú ý, khó kiểm chứng trực tiếp hơn trích dẫn.
 
+Coverage chỉ 4,49% nhưng không nên đọc đơn giản là workflow kém. Reviewer Initial Analysis được tạo trước khi reviewer viết review, còn review của con người thường chỉ ghi một số vấn đề nổi bật sau khi đọc sâu. Additionality 92,23% cho thấy các điểm đúng của workflow thường khác với những gì reviewer cuối cùng ghi lại. Kết luận đúng phạm vi là workflow hữu ích để định hướng đọc và gợi ý điểm cần kiểm tra, nhưng mọi attention point quan trọng vẫn cần reviewer xác nhận.
+
+### 5.5.6. Review Quality Auditor
+
+Review Quality Auditor kiểm tra bản review sau khi reviewer viết, nhằm hỗ trợ chair phát hiện các rủi ro như nhận xét thiếu căn cứ, khuyến nghị không khớp lập luận, bỏ sót điểm quan trọng hoặc review quá chung chung. Đây là workflow nhạy cảm nhất về diễn giải, vì nó đánh giá chất lượng một đầu ra vốn đòi hỏi suy luận học thuật rộng.
+
+Workflow chạy trên **1.127 bài**, tạo **3.658 lượt audit** với trung bình **2,39 finding mỗi audit**. Thời gian xử lý trung bình mỗi audit là **15,55 giây**, trung vị **14,63 giây** và cao nhất **123,67 giây**; token trung bình là **7.874 token**. Phân bố trạng thái gồm **1.913 block**, **1.650 warn** và **95 pass**, cho thấy auditor khá nghiêm khắc. Nếu dùng trong sản phẩm thật, kết quả này cần giao diện ưu tiên finding để tránh quá tải cảnh báo cho chair.
+
+**Bảng 5.13: Kết quả TCA của Review Quality Auditor**
+
+| Chỉ số | Trung bình | Trung vị | Thấp nhất | Cao nhất |
+| :--- | ---: | ---: | ---: | ---: |
+| Truthfulness per review | 58,28% | 50,00% | 0,00% | 100,00% |
+| Validity rate | 71,04% | 100,00% | 0,00% | 100,00% |
+| Grounded-valid rate | 46,99% | 50,00% | 0,00% | 100,00% |
+| Findings per review trong TCA | 2,37 | - | - | - |
+
+Kết quả cho thấy auditor có giá trị nhưng còn nhiễu. Validity rate 71,04% nghĩa là phần lớn finding phù hợp với tiêu chí audit. Tuy nhiên, grounded-valid rate chỉ 46,99% và truthfulness trung bình 58,28%, nghĩa là nhiều finding cần chair hoặc người phụ trách xác minh trước khi dùng để đưa ra hành động. Vì vậy, workflow này chỉ nên được trình bày như danh sách kiểm tra hỗ trợ chair, không phải bộ lọc tự động chấm review đạt hay không đạt.
+
+### 5.5.7. Chair Decision Copilot
+
+Chair Decision Copilot hỗ trợ chủ tọa tổng hợp review, rebuttal và các tín hiệu đồng thuận hoặc bất đồng trước khi ra quyết định. Output gồm evidence basis, điểm mạnh, điểm yếu, câu hỏi cần làm rõ, areas of agreement, areas of disagreement và unresolved concerns. Workflow này nằm gần điểm quyết định cuối cùng, nên phần diễn giải phải đặc biệt rõ: hệ thống hỗ trợ tổng hợp evidence, không tự động quyết định accept/reject.
+
+Về vận hành, workflow có thời gian xử lý trung bình **21,68 giây**, trung vị **20,59 giây** và cao nhất **116,74 giây**. Token trung bình là **6.242 token**. Mỗi bài có trung bình **6,18 evidence basis items**, **4,30 strengths**, **5,13 weaknesses**, **4,62 questions**, **3,79 areas of agreement**, **3,18 areas of disagreement** và **4,32 unresolved concerns**. Đây là cấu trúc phù hợp với tác vụ hỗ trợ chair đọc nhanh và kiểm tra các điểm cần cân nhắc.
+
+**Bảng 5.14: Kết quả TCA của Chair Decision Copilot**
+
+| Chỉ số | Trung bình | Trung vị | Thấp nhất | Cao nhất |
+| :--- | ---: | ---: | ---: | ---: |
+| Evidence basis truthfulness | 87,34% | 100,00% | 0,00% | 100,00% |
+| Evidence basis coverage | 5,27% | 0,00% | 0,00% | 100,00% |
+| Evidence basis additionality | 91,63% | 100,00% | 0,00% | 100,00% |
+| High-risk rate | 1,28% | - | - | - |
+| Disagreement map truthfulness | 87,11% | 100,00% | 0,00% | 100,00% |
+| Disagreement map coverage | 13,82% | 0,00% | 0,00% | 100,00% |
+
+Evidence basis truthfulness 87,34% và disagreement map truthfulness 87,11% là bằng chứng tốt cho vai trò tổng hợp evidence. Additionality 91,63% cho thấy workflow thường đưa thêm các luận điểm đúng và hữu ích thay vì chỉ sao chép metareview. Coverage thấp cần được đọc đúng bối cảnh: decision brief không cần lặp lại toàn bộ metareview, mà cần tổ chức evidence theo hướng chair có thể kiểm tra và cân nhắc.
+
+High-risk rate 1,28% tương đương khoảng 14 bài trong tập TCA. Con số này thấp nhưng không bằng 0, và vì workflow nằm gần điểm ra quyết định, các trường hợp high-risk cần được đánh dấu rõ. Kết luận bảo vệ được là Chair Decision Copilot giúp chair đọc nhanh và có cơ sở hơn, nhưng benchmark hiện tại không đo decision label match, nên không có cơ sở để nói hệ thống dự đoán đúng quyết định cuối cùng.
 
 ### 5.5.8. Chatbot Agent của nền tảng
 
-Nội dung đánh giá chatbot như một agent có khả năng dùng công cụ truy vấn dữ liệu hệ thống sẽ được bổ sung sau. Các chỉ số dự kiến bao gồm độ chính xác của câu trả lời so với dữ liệu trong hệ thống, mức độ groundedness, tỷ lệ gọi tool thành công, tỷ lệ không tiết lộ dữ liệu vượt quyền, TTFT, stream duration, timeout rate và khả năng tiếp tục phiên hội thoại.
+Chatbot Agent được đánh giá như trợ lý nền tảng có khả năng gọi công cụ nội bộ, không phải chatbot trò chuyện tự do hay agent nghiên cứu. Benchmark gồm 8 nhóm kịch bản, mỗi nhóm chạy 5 biến thể, tổng cộng **40 hội thoại**. Các kịch bản bao gồm tra cứu trạng thái bài nộp, track và metadata, tổng quan hội nghị, workload reviewer, thông tin công khai, ranh giới quyền truy cập, yêu cầu ngoài phạm vi và báo cáo vận hành nhiều bước.
 
-### 5.5.9. Các workflow chưa đánh giá đầy đủ
+**Bảng 5.15: Kết quả tổng quan Chatbot Agent**
 
-Ngoài các workflow đã được đánh giá chi tiết ở các mục trên, hệ thống ConferenceSpace còn bao gồm một số workflow AI khác chưa có thực nghiệm định lượng đầy đủ trong phạm vi đề tài:
+| Chỉ số | Kết quả |
+| :--- | ---: |
+| Số nhóm kịch bản | 8 |
+| Số lượt hội thoại | 40 |
+| Số lượt hoàn tất hội thoại | 40 / 40 |
+| Số lượt đạt | 25 |
+| Số lượt đạt một phần | 12 |
+| Số lượt không đạt | 3 |
+| Tổng lượt gọi công cụ | 128 |
+| Lượt gọi công cụ thành công | 97 |
+| Lượt gọi công cụ thất bại | 31 |
+| Tỷ lệ gọi công cụ thành công | 75,78% |
+| Thời gian hoàn tất trung bình | 26,53 giây |
+| TTFT trung bình | 2,36 giây |
+| Thời gian đến token trả lời đầu tiên trung bình | 23,02 giây |
+| Thời gian stream trung bình | 24,17 giây |
+| Số lượng token | 14.420 token |
 
-- **Track Recommendation độc lập:** Khả năng gợi ý track dựa trên nội dung bài báo và danh mục track của hội nghị đã được đánh giá trong ngữ cảnh Autofill (mục 5.5.3) nhưng chưa có benchmark độc lập.
-- **Chatbot Agent:** Tính năng chatbot với khả năng gọi tool truy vấn dữ liệu hệ thống đã được triển khai nhưng chưa có đánh giá định lượng về độ chính xác câu trả lời và tỷ lệ gọi tool thành công.
-- **Rebuttal Assistant:** Workflow hỗ trợ tác giả chuẩn bị rebuttal dựa trên phản biện đã nhận được đã được thiết kế nhưng chưa được đánh giá trong benchmark.
+Kết quả cho thấy chatbot đã đủ dùng ở mức cơ bản đến trung bình. Hệ thống hoàn tất 40/40 hội thoại, trong đó 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt. Kịch bản reviewer workload đạt ổn định 5/5 lượt; các kịch bản author và chair cho thấy chatbot có thể lấy dữ liệu nền tảng, tổng hợp và trả lời theo vai trò.
 
-Các hạn chế chung của lớp AI đã được phát hiện qua benchmark bao gồm: (1) chất lượng trích xuất PDF là điểm nghẽn đối với bài báo có công thức toán học phức tạp, (2) NLI truyền thống gặp khó khăn với suy luận phủ định trong kiểm toán phản biện, (3) tỷ lệ ảo giác 30,10% trong Reviewer Analysis đòi hỏi cơ chế đánh dấu độ tin cậy trong giao diện, và (4) giới hạn rate limit của free tier cần được tính toán khi triển khai ở quy mô lớn. Phân tích chi tiết các hạn chế này và đối chiếu với quy trình thủ công sẽ được trình bày trong mục 5.8.
+Tỷ lệ tool-call success 75,78% không nên được đọc như tỷ lệ workflow success, vì một số lượt gọi công cụ thất bại nhưng chatbot vẫn tự điều chỉnh để trả lời đúng hướng. Tuy nhiên, 31 lượt gọi công cụ thất bại vẫn là vấn đề cần cải thiện vì làm tăng độ trễ và tạo câu trả lời đạt một phần. Về trải nghiệm, TTFT 2,36 giây là tốt, nhưng thời gian đến token trả lời đầu tiên 23,02 giây cho thấy người dùng thường phải chờ khá lâu trước khi thấy câu trả lời cuối. Hệ thống nên hiển thị trạng thái đang tra cứu hoặc đang tổng hợp để giảm cảm giác chờ không rõ nguyên nhân.
+
+Về an toàn quyền truy cập, benchmark không ghi nhận lộ dữ liệu riêng tư trong kịch bản permission boundary. Điểm yếu nằm ở cách diễn đạt: một số lượt trả lời giống lỗi truy vấn kỹ thuật thay vì giải thích rõ người dùng không có quyền xem dữ liệu đó. Ngoài ra, kịch bản yêu cầu ngoài phạm vi vẫn có một lượt chatbot viết báo cáo thị trường, cho thấy cần siết vai trò trợ lý nền tảng.
+
+### 5.5.9. Các giới hạn chung của lớp AI
+
+Các workflow AI hiện có đủ bằng chứng để chứng minh hướng tích hợp có kiểm soát, nhưng chưa đủ để tuyên bố tự động hóa peer review. Các giới hạn cần giữ xuyên suốt báo cáo gồm:
+
+- **Thiếu nhãn chuyên gia cho một số đầu ra.** Gợi ý track trong Submission Autofill chỉ có bằng chứng completion và invalid track rate, chưa có nhãn chair hoặc domain expert để đo accuracy.
+- **TCA là proxy, không thay thế chuyên gia.** Truthfulness, coverage và additionality giúp đo groundedness và xu hướng bổ sung thông tin, nhưng không thể xác định toàn bộ chất lượng học thuật của một nhận xét.
+- **Một số workflow còn nhiễu.** Review Quality Auditor có grounded-valid rate 46,99%, nên mọi finding quan trọng phải được chair xác nhận.
+- **Độ trễ phù hợp với tác vụ bất đồng bộ hơn là tức thời.** Reviewer Initial Analysis và Review Quality Auditor có trường hợp vượt 2 phút, phù hợp để chạy nền hoặc chạy trước khi người dùng mở màn hình.
+- **Chatbot Agent chưa ổn định ở mức sản phẩm hoàn chỉnh.** Tool-call failure và cách diễn đạt permission boundary cần cải thiện trước khi dùng trong demo hoặc triển khai thật.
+
+Những giới hạn này không phủ định giá trị của lớp AI. Ngược lại, chúng củng cố luận điểm thiết kế của đề tài: AI trong ConferenceSpace nên được dùng như lớp hỗ trợ có kiểm soát, luôn cho người dùng xem lại, xác nhận và chịu trách nhiệm cuối cùng.
 
 
 ## 5.6. Phân tích tính khả thi vận hành
 
-Bên cạnh chất lượng đầu ra, một hệ thống AI trong môi trường hội nghị học thuật cần đáp ứng các yêu cầu vận hành về thời gian phản hồi, chi phí và khả năng mở rộng. Phần này phân tích các yếu tố vận hành dựa trên kết quả đo đạc thực nghiệm từ cả hai benchmark.
+Bên cạnh chất lượng đầu ra, một hệ thống AI trong môi trường hội nghị học thuật phải đáp ứng các yêu cầu vận hành về thời gian phản hồi, chi phí quan sát được và khả năng mở rộng. Phần này đọc các workflow theo góc nhìn sản phẩm: tác vụ nào có thể trả kết quả trực tiếp cho người dùng, tác vụ nào nên chạy nền, và rủi ro vận hành nào cần được xử lý trước khi triển khai thật.
 
-### 5.6.1. Độ trễ và throughput
+### 5.6.1. Độ trễ và token tiêu thụ
 
-Độ trễ trung bình của các tác vụ AI được đo trên cơ sở 1.127 bài báo từ các hội nghị thực tế, với mô hình Gemini 2.0 Flash qua OpenRouter API.
+Các số liệu dưới đây lấy từ benchmark workflow AI mới. Với các workflow trong runner, thời gian xử lý phản ánh thời gian hoàn tất workflow trên một bài hoặc một audit. Với Chatbot Agent, thời gian phản ánh toàn bộ hội thoại theo kịch bản, không phải một lần gọi mô hình đơn lẻ.
 
-| Tác vụ | Độ trễ trung bình (s) | Độ trễ trung vị (s) | P95 (s) | P99 (s) |
-|--------|----------------------|---------------------|---------|---------|
-| Autofill (PDF → metadata) | 6,82 | 6,55 | 10,12 | 13,45 |
-| Reviewer Analysis (PDF → Attention Points) | 18,47 | 17,23 | 28,91 | 36,72 |
-| Audit (NLI verification) | 5,23 | 4,89 | 8,34 | 10,67 |
-| Chair Synthesis (metareview) | 39,33 | 37,45 | 55,18 | 68,92 |
+**Bảng 5.16: Độ trễ và token theo workflow AI**
 
-Nhận xét: Tác vụ Chair Synthesis có độ trễ cao nhất vì phải xử lý nhiều bản phản biện và rebuttal cùng lúc, tạo output dài (metareview đầy đủ). Tuy nhiên, tác vụ này được kích hoạt một lần duy nhất tại cuối vòng đời xét duyệt, không ảnh hưởng đến trải nghiệm người dùng hàng ngày. Tác vụ Reviewer Analysis có độ trễ thứ hai cao nhất nhưng cũng là tác vụ có giá trị nhất (Additionality 66,49%), và được chạy song song với các tác vụ khác.
+| Workflow | Thời gian TB | Trung vị | Cao nhất | Token TB | Cách vận hành phù hợp |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| Submission Autofill metadata | 10,64s | 9,32s | 102,20s | 4.094 | Có thể chạy trực tiếp, nhưng cần trạng thái loading và xử lý outlier |
+| Gợi ý track trong Submission Autofill | 18,19s | 17,54s | 37,42s | - | Có thể chạy cùng Autofill hoặc sau khi metadata đã sẵn sàng |
+| Submission Gating rule check | 0,08s | 0,09s | 0,14s | - | Phù hợp phản hồi tức thời |
+| Submission Gating steering | 11,83s | 11,47s | 19,64s | - | Nên hiển thị như cảnh báo hỗ trợ, không chặn tự động |
+| Reviewer Initial Analysis | 39,18s | 37,53s | 126,36s | 11.575 | Nên chạy nền hoặc chạy trước khi reviewer mở bài |
+| Review Quality Auditor | 15,55s/audit | 14,63s | 123,67s | 7.874 | Nên chạy sau khi review được nộp, có cơ chế ưu tiên finding |
+| Chair Decision Copilot | 21,68s | 20,59s | 116,74s | 6.242 | Nên chạy trước khi chair mở màn hình quyết định |
+| Chatbot Agent | 26,53s/hội thoại | - | 43,92s theo nhóm chậm nhất | 14.420 | Cần stream trạng thái tra cứu và giảm tool-call failure |
 
-Về throughput, toàn bộ chu trình AI cho một bài báo (Autofill + Reviewer Analysis + Audit + Chair Synthesis) hoàn thành trong thời gian wall-clock **69,85 giây** nhờ xử lý song song các vai trò. Điều này có nghĩa nếu một hội nghị nhận 300 bài báo trong cùng một ngày, và mỗi bài báo cần chạy toàn bộ pipeline, thì với 15 request/phút (free tier) sẽ cần khoảng 300 × 5 = 1.500 request, tương đương giới hạn ngày. Trong thực tế, các bài báo được nộp rải rác trong nhiều tuần, và các tác vụ được kích hoạt tại các thời điểm khác nhau (Autofill khi nộp, Reviewer Analysis khi phân công, Chair Synthesis khi có đủ phản biện), nên tải thực tế được phân tán tự nhiên.
+Kết quả cho thấy các workflow có hai nhóm vận hành khác nhau. Nhóm có thể phản hồi gần tức thời gồm rule check của Submission Gating và một phần Autofill trong trường hợp bình thường. Nhóm nên chạy nền gồm Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot, vì các workflow này có độ trễ trung bình từ 15 đến gần 40 giây và có outlier vượt 100 giây.
+
+Với Chatbot Agent, TTFT trung bình 2,36 giây cho thấy hệ thống bắt đầu stream sớm, nhưng thời gian đến token trả lời đầu tiên trung bình 23,02 giây cho thấy người dùng có thể cảm thấy chờ lâu nếu giao diện không hiển thị trạng thái đang tra cứu. Đây là vấn đề trải nghiệm chứ không chỉ là vấn đề mô hình: chatbot đang gọi công cụ nội bộ và tổng hợp dữ liệu trước khi trả lời.
 
 ### 5.6.2. Chi phí token và ước tính tài chính
 
-Chi phí token được tính dựa trên giá công khai của Gemini 2.0 Flash qua OpenRouter: $0,075/1M input token và $0,30/1M output token (giá tại thời điểm benchmark, tháng 7/2025).
+Benchmark mới ghi nhận token tiêu thụ cho các workflow chính, nhưng chương này không nên tiếp tục dùng bảng chi phí cũ vì giá, model và provider có thể thay đổi. Thay vào đó, báo cáo nên trình bày token như một chỉ số vận hành có thể kiểm tra và chỉ ước tính chi phí khi đã chốt bảng giá ở thời điểm nộp báo cáo.
 
-| Tác vụ | Input trung bình (token) | Output trung bình (token) | Chi phí/bài báo |
-|--------|-------------------------|--------------------------|-----------------|
-| Autofill | 3.500 | 250 | $0,00034 |
-| Reviewer Analysis | 12.000 | 800 | $0,00114 |
-| Audit | 4.200 | 150 | $0,00036 |
-| Chair Synthesis | 18.500 | 2.000 | $0,00199 |
-| **Tổng toàn pipeline** | **38.200** | **3.200** | **$0,00383** |
+Trong kết quả hiện tại, Submission Autofill dùng trung bình 4.094 token, Reviewer Initial Analysis dùng 11.575 token, Review Quality Auditor dùng 7.874 token mỗi audit, Chair Decision Copilot dùng 6.242 token và Chatbot Agent dùng 14.420 token trong bộ benchmark hội thoại. Các con số này cho thấy chi phí chính không nằm ở Autofill, mà ở các workflow cần đọc nhiều ngữ cảnh hoặc nhiều lượt gọi công cụ.
 
-Với giả định một hội nghị nhỏ (100 bài báo, mỗi bài 1 vòng phản biện), tổng chi phí AI cho toàn bộ quy trình xét duyệt là **$0,383**. Với hội nghị trung bình (300 bài): **$1,149**. Với hội nghị lớn (1.000 bài): **$3,83**. Con số này không bao gồm chi phí cơ sở hạ tầng (server, database, lưu trữ) nhưng cho thấy chi phí AI marginal là rất thấp so với các chi phí vận hành truyền thống của hội nghị.
+Khi đưa vào báo cáo cuối, công thức ước tính chi phí nên được viết theo dạng có thể thay bảng giá:
 
-So sánh với chi phí lao động: một chair dành 5 giờ để đọc và tổng hợp phản biện cho 20 bài báo (15 phút/bài) có giá trị lao động ước tính $500–$1.000 (tùy mức lương). AI tự động hóa phần lớn khâu chuẩn bị này với chi phí vật chất gần như không đáng kể, giải phóng thời gian chair cho các quyết định chiến lược.
+```text
+Chi phí workflow = input_tokens * giá_input_per_token + output_tokens * giá_output_per_token
+Chi phí hội nghị = tổng chi phí workflow theo số bài, số review, số lượt chatbot và số lần chạy lại
+```
+
+Cách trình bày này tránh gắn báo cáo vào một bảng giá có thể lỗi thời, đồng thời vẫn cho thấy hệ thống đã đo được token ở từng workflow để phục vụ tính toán chi phí vận hành.
 
 ### 5.6.3. Khả năng mở rộng và giới hạn
 
-Hệ thống được thiết kế theo kiến trúc microservice với các tác vụ AI chạy độc lập, cho phép mở rộng theo chiều ngang. Các giới hạn chính:
+Thiết kế dispatcher-worker và result package giúp các workflow AI có thể chạy độc lập, checkpoint theo stage và truy ngược output sau benchmark. Đây là điểm mạnh khi mở rộng, vì một lỗi ở một workflow không nên làm mất toàn bộ bối cảnh đánh giá của một bài.
 
-**Giới hạn rate API:** Free tier Gemini 2.0 Flash giới hạn 15 request/phút và 1.500 request/ngày. Với hội nghị nhỏ đến vừa (50–300 bài), lượng request được phân tán theo thời gian nên free tier đủ dùng. Hội nghị lớn (1.000+ bài) cần chuyển sang paid tier hoặc triển khai cơ chế hàng đợi có ưu tiên.
+Các giới hạn chính hiện tại gồm:
 
-**Giới hạn bộ nhớ:** Các tác vụ xử lý PDF dài (>100 trang) có thể vượt quá context window của Gemini 2.0 Flash (1M token). Giải pháp là chia PDF thành các đoạn và xử lý từng đoạn, hoặc sử dụng model có context window lớn hơn (Gemini 1.5 Pro: 2M token).
+- **Outlier độ trễ:** Autofill, Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot đều có trường hợp cao nhất vượt 100 giây. Hệ thống cần timeout, retry, trạng thái tiến độ và cơ chế chạy nền cho các workflow dài.
+- **Chất lượng dữ liệu đầu vào:** Các workflow phụ thuộc vào trích xuất PDF và dữ liệu review. Khi PDF khó đọc hoặc review quá ngắn, chất lượng output và chất lượng benchmark đều giảm.
+- **Tool-call failure của Chatbot Agent:** 31/128 tool calls thất bại trong benchmark. Dù nhiều hội thoại vẫn hoàn tất, tỷ lệ này cần giảm trước khi chatbot được xem là ổn định ở mức sản phẩm.
+- **TCA không thay thế kiểm duyệt chuyên gia:** TCA giúp hậu kiểm trên quy mô lớn, nhưng các trường hợp high-risk hoặc finding quan trọng vẫn cần người dùng xác nhận.
+- **Thiếu nhãn chuyên gia ở một số bài toán:** Gợi ý track trong Submission Autofill và nội dung mềm của Submission Gating cần nhãn chair/domain expert nếu muốn nâng từ benchmark hợp đồng lên benchmark chất lượng chuyên môn.
 
-**Giới hạn độ tin cậy:** Như đã phân tích ở 5.5.5, tỷ lệ Non-grounded + Additional 30,10% trong Reviewer Analysis và T-Rate 58,28% trong Audit đặt ra yêu cầu về giao diện người dùng: mọi output AI phải được đánh dấu mức độ tin cậy và người dùng phải có khả năng xem lại nguồn gốc của mỗi khẳng định.
-
-**Giới hạn về ngôn ngữ:** Benchmark được thực hiện trên bài báo tiếng Anh. Hiệu quả với bài báo tiếng Việt hoặc đa ngôn ngữ chưa được đánh giá, mặc dù Gemini 2.0 Flash hỗ trợ đa ngôn ngữ.
+Vì vậy, tính khả thi vận hành của ConferenceSpace không nên được trình bày như "AI chạy tự động từ đầu đến cuối". Kết luận đúng là hệ thống có nền tảng vận hành để đưa AI vào các điểm hỗ trợ cụ thể, miễn là giao diện thể hiện rõ trạng thái, nguồn chứng cứ, mức rủi ro và quyền xác nhận cuối cùng của con người.
 
 
 ## 5.7. Khảo sát người dùng
@@ -390,47 +531,49 @@ Các câu hỏi chính bao gồm: (1) mức độ hài lòng tổng thể với 
 
 ## 5.8. Tổng hợp kết quả đánh giá
 
-Chương này đã trình bày toàn diện các kết quả đánh giá thực nghiệm của ConferenceSpace. Phần này tổng hợp các kết luận chính theo hướng trả lời lại các câu hỏi đánh giá đã nêu ở mục 5.1 và đối chiếu với nhu cầu người dùng đã khảo sát ở Chương 2.
+Chương này đánh giá ConferenceSpace theo chuỗi bằng chứng từ hệ thống, thuật toán xác định, workflow AI đến phản hồi người dùng. Kết luận quan trọng nhất không phải là "AI thay thế con người", mà là: hệ thống có thể đưa AI vào các điểm hỗ trợ cụ thể của quy trình peer review nếu mỗi output được giới hạn đúng vai trò, có bằng chứng vận hành, có chỉ số chất lượng phù hợp và có cơ chế để con người xác nhận trước khi ra quyết định học thuật.
 
 ### 5.8.1. Mức độ đáp ứng nhu cầu ban đầu
 
-Đối chiếu kết quả hệ thống sau khi xây dựng với nhu cầu và ưu tiên đã khảo sát ở Chương 2 cho thấy:
+Đối chiếu với mục tiêu ở Chương 1 và nhu cầu ở Chương 2, các kết quả thực nghiệm cho thấy hệ thống đáp ứng được bốn nhóm yêu cầu chính ở các mức độ khác nhau.
 
-**Nhu cầu về hiệu năng hệ thống (yêu cầu phi chức năng 2.4.2):** Hệ thống backend đáp ứng tốt các yêu cầu hiệu năng cho hội nghị quy mô vừa và nhỏ. Thời gian phản hồi trung bình dưới 200ms cho các API thông thường và dưới 2 giây cho các tác vụ phức tạp. Hệ thống xử lý được 1.000 concurrent users với tỷ lệ lỗi dưới 0,1%. Cơ sở dữ liệu PostgreSQL và Neo4j hoạt động ổn định với thời gian truy vấn trung bình dưới 50ms.
+**Nhu cầu về nền tảng nghiệp vụ ổn định:** Backend đạt 0% lỗi request trong ba kịch bản CRUD, Matching và COI trên dữ liệu 300 hội nghị, 15.000 bài nộp và 9.000 phản biện viên. Độ trễ p95 dưới 120 ms ở cả ba kịch bản cho thấy lớp nghiệp vụ cốt lõi đủ nhanh cho quy mô thử nghiệm hiện tại. Điểm nghẽn chính nằm ở PostgreSQL khi dữ liệu quan hệ lớn, không phải ở tầng ứng dụng.
 
-**Nhu cầu về phân công phản biện công bằng (yêu cầu chức năng 2.4.1):** Thuật toán phân công phản biện đạt hiệu quả vượt trội so với baseline ngẫu nhiên trên tập dữ liệu thực từ Semantic Scholar. Với 60 tác giả và 2.565 bài báo, thuật toán xếp hạng đạt MRR 0,392 (gấp 5 lần random), Hit@5 = 55% và Hit@10 = 65%. Thuật toán phân công đạt điểm phù hợp trung bình gấp 2,75 lần baseline, không vi phạm COI, với coverage 65,9% theo thiết kế ưu tiên chất lượng và fallback rate 23,3% cho các trường hợp không có reviewer phù hợp.
+**Nhu cầu về thuật toán xác định, có thể giải thích:** Reviewer matching được giữ ở lớp thuật toán xác định thay vì giao cho AI tạo sinh. Trên tập Semantic Scholar gồm 60 tác giả và 2.565 bài báo, thuật toán xếp hạng đạt MRR 0,392, Hit@5 = 55% và Hit@10 = 65%, cao hơn rõ rệt so với baseline ngẫu nhiên. Thuật toán phân công đạt điểm phù hợp trung bình cao hơn baseline, không ghi nhận COI violation trong benchmark, nhưng coverage 65,9% và fallback rate 23,3% cho thấy vẫn cần chair xử lý các trường hợp khó hoặc không có reviewer phù hợp.
 
-**Nhu cầu về hỗ trợ AI (yêu cầu chức năng 2.4.1):** Các workflow AI đã được triển khai và đánh giá trên 1.127 bài báo thực tế. Autofill đạt độ chính xác 91,22% (tiêu đề) và 92,77% (từ khóa), giảm thiểu đáng kể thao tác nhập liệu thủ công. Reviewer Analysis cung cấp 66,49% thông tin bổ sung có căn cứ giúp reviewer chuẩn bị tốt hơn. Chair Synthesis đạt T-Rate 87,34% và Additionality 91,63%, cung cấp hồ sơ bằng chứng toàn diện hỗ trợ chair ra quyết định.
+**Nhu cầu về AI hỗ trợ có kiểm soát:** Các workflow AI đã được đánh giá trên tập runner 1.127 bài và nhiều benchmark riêng. Submission Autofill có bằng chứng mạnh nhất ở metadata: title token F1 98,20%, keyword F1 92,77% và required field completion rate 86,93%. Reviewer Initial Analysis có quote grounded rate 96,22%, giúp reviewer có điểm neo nguồn khi đọc bài. Chair Decision Copilot đạt evidence basis truthfulness 87,34% và disagreement map truthfulness 87,11%, phù hợp với vai trò tổng hợp evidence cho chair. Tuy nhiên, các workflow này đều phải giữ vai trò hỗ trợ: gợi ý track trong Submission Autofill chưa có nhãn chuyên gia, attention point truthfulness mới đạt 69,86%, Review Quality Auditor có grounded-valid rate 46,99%, và Chair Decision Copilot chưa được đo bằng decision label match.
 
-**Nhu cầu về tính khả thi vận hành (yêu cầu phi chức năng 2.4.2):** Chi phí AI marginal rất thấp (khoảng $0,004/bài báo cho toàn pipeline) và thời gian xử lý wall-clock dưới 70 giây/bài báo. Free tier đủ cho hội nghị quy mô nhỏ đến vừa (50–300 bài).
+**Nhu cầu về trải nghiệm và vận hành:** Một số tác vụ có thể phản hồi trực tiếp, như Submission Gating rule check với thời gian trung bình 0,08 giây. Các workflow AI dài hơn như Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot phù hợp hơn với mô hình chạy nền hoặc chạy trước. Chatbot Agent hoàn tất 40/40 hội thoại và không ghi nhận lộ dữ liệu riêng tư trong kịch bản permission boundary, nhưng tỷ lệ tool-call success 75,78% và thời gian đến token trả lời đầu tiên 23,02 giây cho thấy cần cải thiện trước khi xem là ổn định ở mức sản phẩm.
 
-So sánh với quy trình không sử dụng AI, hệ thống ConferenceSpace mang lại lợi ích rõ rệt ở các khâu chuẩn bị và tổng hợp. Ở khâu nộp bài, Autofill thay thế gần như hoàn toàn việc nhập liệu thủ công với độ chính xác trên 90%. Ở khâu chuẩn bị phản biện, reviewer nhận được danh sách ~3,8 Attention Points có căn cứ, trong đó 66,49% là thông tin bổ sung mà reviewer có thể chưa chú ý đến. Ở khâu tổng hợp quyết định, chair có được hồ sơ bằng chứng đầy đủ hơn nhiều lần so với metareview thủ công. Toàn bộ chu trình AI hoàn thành trong 69,85 giây wall-clock nhờ xử lý song song, trong khi chuyên gia người cần ít nhất vài giờ cho cùng khối lượng công việc.
+Nhìn chung, ConferenceSpace đáp ứng được mục tiêu cốt lõi của đề tài: xây dựng một nền tảng có nghiệp vụ đầy đủ, tách rõ lớp thuật toán xác định và lớp AI hỗ trợ, đồng thời cung cấp bằng chứng thực nghiệm cho giá trị của AI ở các điểm giảm thao tác thủ công, hỗ trợ đọc hiểu, kiểm tra và tổng hợp. Điểm chưa được chứng minh là tự động hóa quyết định học thuật, và đây là giới hạn đúng với phạm vi đề tài chứ không phải thiếu sót cần che giấu.
 
 ### 5.8.2. Các phát hiện nhất quán giữa benchmark và khảo sát người dùng
 
-Phân tích đối chiếu giữa dữ liệu kỹ thuật và phản hồi người dùng cho thấy một số phát hiện nhất quán quan trọng:
+Phân tích đối chiếu giữa dữ liệu kỹ thuật và phản hồi người dùng cho thấy một số phát hiện nhất quán quan trọng.
 
-**Về Autofill:** Benchmark cho thấy độ chính xác 91,22% (tiêu đề) và 92,77% (từ khóa), trong khi khảo sát người dùng cho thấy 80% đánh giá là "hữu ích" hoặc "rất hữu ích" với điểm hài lòng 4,1/5. Cả hai nguồn đều xác nhận Autofill giảm thiểu đáng kể thao tác nhập liệu. Điểm nhất quán đáng chú ý là vấn đề công thức toán học: benchmark cho thấy UAI 2022 có vấn đề trích xuất PDF do công thức LaTeX phức tạp, và khảo sát người dùng cũng ghi nhận 20% người dùng gặp vấn đề tương tự.
+**Autofill là workflow có bằng chứng định lượng trực tiếp nhất.** Benchmark metadata cho thấy hệ thống điền tốt các trường ngắn và có cấu trúc rõ, trong khi phản hồi người dùng ở mục 5.7 cũng đánh giá cao việc giảm thao tác nhập liệu. Cả hai nguồn đều chỉ ra cùng một giới hạn: các tài liệu có định dạng phức tạp, nhiều tác giả hoặc ký hiệu toán học vẫn cần người dùng kiểm tra kỹ.
 
-**Về Reviewer Analysis:** Benchmark cho thấy Additionality 66,49% (thông tin bổ sung có giá trị), trong khi khảo sát cho thấy 60% reviewer đánh giá "hữu ích" và 40% "rất hữu ích" với điểm 3,8/5. Cả hai nguồn đều xác nhận workflow cung cấp góc nhìn bổ sung giúp reviewer không bỏ sót điểm quan trọng. Tuy nhiên, cả benchmark (Non-grounded + Additional 30,10%) và khảo sát (lo ngại về độ dài, muốn tùy chỉnh số lượng) đều chỉ ra cần cơ chế đánh dấu độ tin cậy và tùy chỉnh output.
+**Reviewer Initial Analysis có giá trị ở vai trò định hướng, không phải kết luận.** Benchmark cho thấy quote grounded rate cao, nhưng attention point truthfulness chưa đủ để dùng không kiểm tra. Phản hồi reviewer trong khảo sát cũng đi cùng hướng: workflow hữu ích để định hướng đọc bài, nhưng người dùng vẫn muốn kiểm soát độ dài, số lượng điểm gợi ý và khả năng xem nguồn của từng nhận định.
 
-**Về Chair Synthesis:** Benchmark cho thấy T-Rate 87,34% và Additionality 91,63%, trong khi khảo sát cho thấy 100% chair đánh giá "rất hữu ích" với điểm 4,4/5. Đây là workflow có sự nhất quán cao nhất giữa đánh giá định lượng và định tính. Cả hai nguồn đều nhấn mạnh AI không nên và không thể thay thế quyết định cuối cùng của chair.
+**Chair Decision Copilot là workflow mạnh ở tác vụ tổng hợp evidence.** Benchmark cho thấy evidence basis và disagreement map có truthfulness khoảng 87%, còn khảo sát cho thấy chair đánh giá cao khả năng chuẩn bị hồ sơ quyết định. Hai nguồn cùng củng cố một nguyên tắc: AI giúp chair đọc nhanh và có cơ sở hơn, nhưng chair vẫn giữ quyền quyết định cuối cùng.
 
-**Về tính khả thi:** Benchmark cho thấy chi phí $0,004/bài và thời gian 69,85 giây/bài, trong khi khảo sát cho thấy người dùng ước tính tiết kiệm 3–45 phút/bài tùy vai trò. Sự nhất quán này xác nhận lợi ích thời gian thực tế của hệ thống AI.
+**Các điểm nghẽn vận hành cũng xuất hiện nhất quán.** Benchmark cho thấy một số workflow có outlier latency cao, Chatbot Agent có tool-call failure đáng kể, và Review Quality Auditor có tỷ lệ finding nhiễu. Đây đều là các điểm cần phản ánh vào giao diện: hiển thị trạng thái xử lý, đánh dấu mức tin cậy, gom nhóm finding và cho phép người dùng kiểm tra nguồn.
 
 ### 5.8.3. Hạn chế cần chuyển sang Chương 6
 
-Các hạn chế chính đã được phát hiện qua thực nghiệm và khảo sát, cần được phân tích đầy đủ hơn ở Chương 6:
+Các hạn chế chính đã được phát hiện qua thực nghiệm và benchmark cần được chuyển sang Chương 6 như phần tiếp nối tự nhiên của bằng chứng, không phải phần phụ lục rời rạc.
 
-**Về tầng trích xuất PDF:** Công cụ PDFExtractor là điểm yếu hệ thống đối với bài báo có công thức LaTeX phức tạp, cột đôi và layout phi tuyến. Vấn đề này được xác nhận cả trong benchmark (UAI 2022: tỷ lệ bịa đặt trích dẫn tăng vọt do lỗi parsing) và khảo sát người dùng (20% gặp vấn đề với công thức toán học). Hướng cải thiện là sử dụng model multimodal đọc PDF trực tiếp.
+**Thiếu nhãn chuyên gia cho một số workflow.** Gợi ý track trong Submission Autofill mới chứng minh được completion và invalid track rate 0,00%, chưa chứng minh top-k accuracy. Submission Gating tuyến nội dung chưa có nhãn thủ công cho groundedness, actionability và severity của từng finding. Chair Decision Copilot chưa có decision label match nên không được dùng để kết luận accept/reject.
 
-**Về tầng kiểm toán phản biện (B3):** Tỷ lệ T-Rate 58,28% phản ánh giới hạn cơ bản của NLI truyền thống khi đối mặt với suy luận phủ định. Trường hợp IEEE ICIST (T-Rate 24,17%) cho thấy chất lượng đầu vào ảnh hưởng trực tiếp đến kết quả audit. Hướng cải thiện gồm fine-tune NLI cho tác vụ audit học thuật và áp dụng bộ lọc chất lượng đầu vào tối thiểu.
+**Một số workflow còn nhiễu và cần giao diện kiểm soát.** Review Quality Auditor có truthfulness 58,28% và grounded-valid rate 46,99%, nên mọi finding quan trọng phải được chair xác nhận. Reviewer Initial Analysis có attention point truthfulness 69,86%, đủ dùng như gợi ý đọc bài nhưng chưa đủ để trở thành nhận xét học thuật.
 
-**Về rủi ro ảo giác:** Nhóm Non-grounded + Additional trong B2 chiếm 30,10% — thông tin AI tạo ra không có căn cứ trong bài báo. Quan điểm thiết kế là không giảm thiểu bằng cách làm AI thận trọng hơn, mà tăng cường giao diện với cơ chế đánh dấu "High Confidence" / "Verify Required".
+**TCA là proxy tự động, không thay thế chuyên gia.** NLI có thể bỏ sót claim đúng nhưng diễn đạt khác, hoặc đánh giá thấp các suy luận kỹ thuật phức tạp. Vì vậy, các chỉ số truthfulness, coverage và additionality nên được đọc như tín hiệu hậu kiểm quy mô lớn, không phải phán quyết cuối cùng về chất lượng học thuật.
 
-**Về giới hạn rate limit:** Free tier Gemini 2.0 Flash giới hạn 15 request/phút và 1.500 request/ngày. Đủ cho hội nghị nhỏ đến vừa nhưng cần chuyển sang paid tier hoặc cơ chế hàng đợi có ưu tiên cho quy mô lớn.
+**Độ trễ và khả năng vận hành cần được sản phẩm hóa.** Một số workflow có outlier vượt 100 giây. Chatbot Agent có 31/128 tool calls thất bại và thời gian đến token trả lời đầu tiên trung bình 23,02 giây. Hệ thống cần hàng đợi, retry, trạng thái tiến độ, và cách diễn đạt lỗi/quyền truy cập thân thiện hơn với người dùng.
 
-**Về phạm vi đánh giá:** Một số workflow (Track Recommendation độc lập, Submission Gating, Chatbot Agent, Rebuttal Assistant) chưa có benchmark định lượng đầy đủ. Các chỉ số chất lượng đối sánh phản biện (MRR 0,392, Hit@5 55%, mean score 0,011) thiết lập baseline đo lường được cho phương pháp dựa trên từ khóa, nhưng chưa so sánh trực tiếp với phân công thủ công của chair thực tế.
+**Reviewer matching vẫn cần dữ liệu thực tế từ chair.** Benchmark leave-one-out authorship chứng minh thuật toán nắm bắt tương đồng chủ đề tốt hơn random, nhưng chưa thay thế được đánh giá bằng dữ liệu phân công thật của chair hoặc tỷ lệ chấp nhận đề xuất trong vận hành thực tế.
 
-**Về ngôn ngữ:** Benchmark được thực hiện trên bài báo tiếng Anh. Hiệu quả với bài báo tiếng Việt hoặc đa ngôn ngữ chưa được đánh giá.
+**Phạm vi ngôn ngữ và bối cảnh còn hẹp.** Benchmark chủ yếu dựa trên bài báo tiếng Anh và dữ liệu hội nghị từ OpenReview. Hiệu quả với bài tiếng Việt, hội nghị nhỏ không dùng OpenReview, hoặc quy trình review có chính sách khác vẫn cần được đánh giá thêm.
+
+Tóm lại, Chương 5 chứng minh được phần quan trọng nhất của đề tài: ConferenceSpace có thể tích hợp AI vào peer review theo cách có kiểm soát và có bằng chứng, miễn là hệ thống giữ ranh giới rõ giữa hỗ trợ và quyết định. Những gì chưa chứng minh được cũng phải được nói thẳng: AI chưa thay thế reviewer, chưa thay chair, và chưa tự động hóa toàn bộ quy trình học thuật.
 
