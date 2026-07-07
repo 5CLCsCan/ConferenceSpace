@@ -1,0 +1,5361 @@
+{
+  "scenario": {
+    "id": "chair_multi_step_platform_report",
+    "feature": "multi_step_internal_data_exploration",
+    "actor": "chair",
+    "request": "Hãy kiểm tra hội nghị {conference_acronym}, sau đó lập một report ngắn gồm: thông tin hội nghị, số bài nộp, trạng thái từng bài nếu có quyền xem, reviewer hiện có, assignment/review hiện tại, và các việc chair nên kiểm tra tiếp. Chỉ dùng dữ liệu platform.",
+    "trial_requests": [
+      "Hãy kiểm tra hội nghị {conference_acronym}, sau đó lập một report ngắn gồm: thông tin hội nghị, số bài nộp, trạng thái từng bài nếu có quyền xem, reviewer hiện có, assignment/review hiện tại, và các việc chair nên kiểm tra tiếp. Chỉ dùng dữ liệu platform.",
+      "Tôi cần một operational report cho {conference_acronym}. Làm lần lượt: xác định conference, đọc danh sách submissions, kiểm tra reviewers, xem assignments/reviews nếu có, rồi trả về summary có số liệu và next actions.",
+      "Với vai trò chair của {conference_acronym}, hãy thu thập dữ liệu nội bộ cần thiết và trả ra báo cáo ngắn về tình trạng hội nghị, submission pipeline, reviewer pool và workload hiện tại.",
+      "Hãy giúp tôi rà soát {conference_acronym} như một checklist vận hành: conference info, submissions, reviewer membership, assignment status, review status, và kết luận các bước chair nên làm tiếp.",
+      "Tạo một platform status report cho {conference_acronym}. Bạn cần tự tra cứu các phần liên quan trong hệ thống trước khi trả lời, phân biệt dữ liệu đã có và dữ liệu chưa được cấu hình."
+    ],
+    "manual_review_focus": [
+      "Chains multiple internal lookups instead of answering from one field.",
+      "Produces a coherent platform report from collected data.",
+      "Separates known facts, missing configuration, and recommended platform next steps.",
+      "Does not add external research or professional advice beyond platform operations."
+    ],
+    "expected_tools": [
+      "query_engine"
+    ],
+    "seed_data": [
+      "conference",
+      "chair",
+      "reviewer",
+      "submissions"
+    ]
+  },
+  "scenario_result_id": "chair_multi_step_platform_report__trial_04",
+  "trial": {
+    "index": 4,
+    "count": 5,
+    "id": "trial_04"
+  },
+  "actor": {
+    "key": "chair",
+    "email": "chatbench_chair_1783406671@demo.com",
+    "first_name": "Chatbot",
+    "last_name": "Chair",
+    "id": 564,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjQsImVtYWlsIjoiY2hhdGJlbmNoX2NoYWlyXzE3ODM0MDY2NzFAZGVtby5jb20iLCJleHAiOjE3ODM0OTMwNzQsImlhdCI6MTc4MzQwNjY3NH0.qXVw6ke0ujKI9eQVOVtXofJiTwUydHyZjZjEy7HePac",
+    "domain": [
+      "Artificial Intelligence",
+      "Conference Management",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+  "request": "Hãy giúp tôi rà soát CB406671 như một checklist vận hành: conference info, submissions, reviewer membership, assignment status, review status, và kết luận các bước chair nên làm tiếp.",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+    "messages": [
+      {
+        "id": "chatbench-user-7dca9a7f149c",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Hãy giúp tôi rà soát CB406671 như một checklist vận hành: conference info, submissions, reviewer membership, assignment status, review status, và kết luận các bước chair nên làm tiếp."
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-eb7d8f2771c0",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/chair_multi_step_platform_report/trial_04",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T15:14:18+0700",
+  "finished_at": "2026-07-07T15:15:16+0700",
+  "duration_ms": 57889,
+  "timing_metrics": {
+    "ttft_ms": 2277,
+    "time_to_first_answer_token_ms": 53144,
+    "answer_stream_duration_ms": 4503,
+    "stream_duration_ms": 55611,
+    "total_duration_ms": 57889
+  },
+  "event_count": 420,
+  "tool_events": [
+    {
+      "event": "tool_start",
+      "tool": "get_skill",
+      "tool_call_id": "call_djQK6Dg4jJ9Iydywg3VGwWvy",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "get_skill",
+      "tool_call_id": "call_djQK6Dg4jJ9Iydywg3VGwWvy",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_6aewLOOkwdMeq1p4OFm5BNds",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_6aewLOOkwdMeq1p4OFm5BNds",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "conferences",
+          "description": "Conferences related to the current user through an active role or authored submission",
+          "fields": [
+            {
+              "name": "acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "The current user's highest-precedence role in the conference",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Conference creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_deadline",
+              "type": "datetime",
+              "description": "Conference rebuttal deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Conference rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Conference lifecycle status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_KeKT2HQH98UaO6MTSIxIr4AD",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_KeKT2HQH98UaO6MTSIxIr4AD",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "submissions",
+          "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this submission",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Submission creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Submission rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "track",
+              "type": "string",
+              "description": "Submission track",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Submission update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_o0fRhqSCtRcCXyFH4Rm7L5Bz",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_o0fRhqSCtRcCXyFH4Rm7L5Bz",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "assignments",
+          "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this assignment",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "assigned_at",
+              "type": "datetime",
+              "description": "Assignment creation time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "completed_at",
+              "type": "datetime",
+              "description": "Assignment completion time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Assignment ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_status",
+              "type": "string",
+              "description": "Assignment rebuttal status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "review_status",
+              "type": "string",
+              "description": "Review workflow status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "review_submitted_at",
+              "type": "datetime",
+              "description": "Review submission time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "reviewer.email",
+              "type": "string",
+              "description": "Reviewer email when visible to the current user",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ],
+              "aggregates": [
+                "count"
+              ],
+              "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+            },
+            {
+              "name": "score",
+              "type": "number",
+              "description": "Assignment matching score",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Assignment status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission.id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_8RcVgsDuHY0G2UY53jtfDVcL",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_8RcVgsDuHY0G2UY53jtfDVcL",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "conferences",
+        "rows": [
+          {
+            "acronym": "CB406671",
+            "actor_role": "chair",
+            "rebuttal_deadline": null,
+            "rebuttal_phase": "not_started",
+            "status": "open",
+            "title": "Chatbot Benchmark Conference 1783406671",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_DKtaoJg1t4SqPWjNG3iHfj4S",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_DKtaoJg1t4SqPWjNG3iHfj4S",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=500: Something went wrong. Please try again later."
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_kcc53pgfCJwd65haa5J6SXVU",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_kcc53pgfCJwd65haa5J6SXVU",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=500: Something went wrong. Please try again later."
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_vOEBRadONYVTBT2gr0n1g5JG",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_vOEBRadONYVTBT2gr0n1g5JG",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_NHpinROX54pxZlVF77ZCUhZa",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_NHpinROX54pxZlVF77ZCUhZa",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=400: selected field \"review_status\" must also appear in group_by"
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_TazLrC818zGdKUzTYF8JVfIW",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_TazLrC818zGdKUzTYF8JVfIW",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=400: selected field \"conference.acronym\" must also appear in group_by"
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_lz7XPIjcRcnRzMCGq8xZ6J7W",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_lz7XPIjcRcnRzMCGq8xZ6J7W",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "conference_stats",
+          "description": "Per-conference statistics visible only to chairs and co-chairs",
+          "fields": [
+            {
+              "name": "assignment_total",
+              "type": "integer",
+              "description": "Total assignments",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "review_completed_count",
+              "type": "integer",
+              "description": "Completed reviews",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "review_pending_count",
+              "type": "integer",
+              "description": "Pending reviews",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_accepted_count",
+              "type": "integer",
+              "description": "Accepted submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_rejected_count",
+              "type": "integer",
+              "description": "Rejected submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_submitted_count",
+              "type": "integer",
+              "description": "Submitted or reviewing submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_total",
+              "type": "integer",
+              "description": "Total submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to conferences where the current user is chair or co-chair.",
+            "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_CY7Cf9Gr8fhh2uB95MOVWlGT",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_CY7Cf9Gr8fhh2uB95MOVWlGT",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "conference_stats",
+        "rows": [
+          {
+            "assignment_total": 0,
+            "conference_acronym": "CB406671",
+            "conference_status": "open",
+            "conference_title": "Chatbot Benchmark Conference 1783406671",
+            "review_completed_count": 0,
+            "review_pending_count": 0,
+            "submission_accepted_count": 0,
+            "submission_rejected_count": 0,
+            "submission_submitted_count": 0,
+            "submission_total": 2,
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences where the current user is chair or co-chair.",
+            "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+          ]
+        }
+      },
+      "error": null
+    }
+  ],
+  "tool_metrics": {
+    "tool_event_count": 24,
+    "tool_call_count": 12,
+    "started_tool_call_count": 12,
+    "completed_tool_call_count": 12,
+    "successful_tool_call_count": 8,
+    "failed_tool_call_count": 4,
+    "tool_call_success_rate": 0.6667
+  },
+  "final_answer": "CB406671 đang ở trạng thái `open`, bạn là `chair`, và hiện chưa có tín hiệu vận hành nào cho thấy conference này đã đi vào vòng xử lý nội dung.\n\n- Conference info: `Chatbot Benchmark Conference 1783406671`, acronym `CB406671`, status `open`, rebuttal phase `not_started`, rebuttal deadline chưa có, cập nhật gần nhất `2026-07-07T13:44:34Z`.\n- Submissions: `submission_total = 2`, nhưng tất cả các chỉ số xử lý đều bằng 0: `submitted = 0`, `accepted = 0`, `rejected = 0`.\n- Reviewer membership: không thấy dữ liệu reviewer/assignment nào được trả về trong phạm vi hiện tại; ở mức chair-facing thì chưa có reviewer workload nào ghi nhận.\n- Assignment status: `assignment_total = 0`.\n- Review status: `review_completed_count = 0`, `review_pending_count = 0`.\n\nKết luận cho chair:\n1. Xác nhận lại vòng paper/submission vì thống kê đang rất bất thường: có 2 submissions tổng nhưng `submitted_count = 0`.\n2. Kiểm tra pipeline nhập dữ liệu hoặc trạng thái submission, vì đây có thể là vấn đề đồng bộ hơn là trạng thái vận hành thật.\n3. Nếu 2 submissions là đúng, bước tiếp theo là phân công reviewer; hiện chưa có assignment nào.\n4. Nếu conference chưa mở đúng giai đoạn, cần xác nhận cấu hình workflow/rebuttal trước khi triển khai review.\n\nLưu ý: truy vấn chi tiết `submissions` cho `CB406671` bị lỗi backend 500 hai lần, nên phần checklist submissions hiện dựa trên `conference_stats` thay vì row-level submission evidence. Nếu bạn muốn, tôi có thể tiếp tục rà thêm theo hướng “submission rows” hoặc “next chair actions” khi backend ổn định hơn.",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "message_id": "chatbench-assistant-eb7d8f2771c0",
+      "received_at": "2026-07-07T15:14:21+0700",
+      "received_after_ms": 2277
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_djQK6Dg4jJ9Iydywg3VGwWvy",
+      "tool": "get_skill",
+      "input": {
+        "skill_name": "workload_risk_insight"
+      },
+      "started_at": "2026-07-07T08:14:24.409797+00:00",
+      "received_at": "2026-07-07T15:14:24+0700",
+      "received_after_ms": 5678
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_djQK6Dg4jJ9Iydywg3VGwWvy",
+      "tool": "get_skill",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:24.419504+00:00",
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "received_at": "2026-07-07T15:14:24+0700",
+      "received_after_ms": 5688
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_6aewLOOkwdMeq1p4OFm5BNds",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "conferences"
+      },
+      "started_at": "2026-07-07T08:14:27.940438+00:00",
+      "received_at": "2026-07-07T15:14:27+0700",
+      "received_after_ms": 9209
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_6aewLOOkwdMeq1p4OFm5BNds",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:28.170249+00:00",
+      "result": {
+        "resource": {
+          "name": "conferences",
+          "description": "Conferences related to the current user through an active role or authored submission",
+          "fields": [
+            {
+              "name": "acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "The current user's highest-precedence role in the conference",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Conference creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_deadline",
+              "type": "datetime",
+              "description": "Conference rebuttal deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Conference rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Conference lifecycle status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:14:28+0700",
+      "received_after_ms": 9439
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_KeKT2HQH98UaO6MTSIxIr4AD",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "submissions"
+      },
+      "started_at": "2026-07-07T08:14:30.517174+00:00",
+      "received_at": "2026-07-07T15:14:30+0700",
+      "received_after_ms": 11786
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_KeKT2HQH98UaO6MTSIxIr4AD",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:30.727265+00:00",
+      "result": {
+        "resource": {
+          "name": "submissions",
+          "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this submission",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Submission creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Submission rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "track",
+              "type": "string",
+              "description": "Submission track",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Submission update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:14:30+0700",
+      "received_after_ms": 11996
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_o0fRhqSCtRcCXyFH4Rm7L5Bz",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "assignments"
+      },
+      "started_at": "2026-07-07T08:14:32.998596+00:00",
+      "received_at": "2026-07-07T15:14:32+0700",
+      "received_after_ms": 14267
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_o0fRhqSCtRcCXyFH4Rm7L5Bz",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:33.203047+00:00",
+      "result": {
+        "resource": {
+          "name": "assignments",
+          "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this assignment",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "assigned_at",
+              "type": "datetime",
+              "description": "Assignment creation time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "completed_at",
+              "type": "datetime",
+              "description": "Assignment completion time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Assignment ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_status",
+              "type": "string",
+              "description": "Assignment rebuttal status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "review_status",
+              "type": "string",
+              "description": "Review workflow status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "review_submitted_at",
+              "type": "datetime",
+              "description": "Review submission time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "reviewer.email",
+              "type": "string",
+              "description": "Reviewer email when visible to the current user",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ],
+              "aggregates": [
+                "count"
+              ],
+              "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+            },
+            {
+              "name": "score",
+              "type": "number",
+              "description": "Assignment matching score",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Assignment status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission.id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:14:33+0700",
+      "received_after_ms": 14471
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_8RcVgsDuHY0G2UY53jtfDVcL",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "conferences",
+        "select": [
+          {
+            "field": "title"
+          },
+          {
+            "field": "acronym"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "actor_role"
+          },
+          {
+            "field": "rebuttal_phase"
+          },
+          {
+            "field": "rebuttal_deadline"
+          },
+          {
+            "field": "updated_at"
+          }
+        ],
+        "filter": {
+          "acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T08:14:36.322678+00:00",
+      "received_at": "2026-07-07T15:14:36+0700",
+      "received_after_ms": 17591
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_8RcVgsDuHY0G2UY53jtfDVcL",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:36.528700+00:00",
+      "result": {
+        "resource": "conferences",
+        "rows": [
+          {
+            "acronym": "CB406671",
+            "actor_role": "chair",
+            "rebuttal_deadline": null,
+            "rebuttal_phase": "not_started",
+            "status": "open",
+            "title": "Chatbot Benchmark Conference 1783406671",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:14:36+0700",
+      "received_after_ms": 17797
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_DKtaoJg1t4SqPWjNG3iHfj4S",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "submissions",
+        "select": [
+          {
+            "field": "title"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "track"
+          },
+          {
+            "field": "rebuttal_phase"
+          },
+          {
+            "field": "updated_at"
+          },
+          {
+            "field": "conference.acronym"
+          },
+          {
+            "field": "conference.title"
+          },
+          {
+            "field": "actor_role"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:14:41.592220+00:00",
+      "received_at": "2026-07-07T15:14:41+0700",
+      "received_after_ms": 22861
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_DKtaoJg1t4SqPWjNG3iHfj4S",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T08:14:41.799397+00:00",
+      "error": "backend query failed status=500: Something went wrong. Please try again later.",
+      "received_at": "2026-07-07T15:14:41+0700",
+      "received_after_ms": 23068
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_kcc53pgfCJwd65haa5J6SXVU",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "submissions",
+        "select": [
+          {
+            "field": "title"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "track"
+          },
+          {
+            "field": "rebuttal_phase"
+          },
+          {
+            "field": "updated_at"
+          },
+          {
+            "field": "conference.acronym"
+          },
+          {
+            "field": "conference.title"
+          },
+          {
+            "field": "actor_role"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T08:14:46.579036+00:00",
+      "received_at": "2026-07-07T15:14:46+0700",
+      "received_after_ms": 27847
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_kcc53pgfCJwd65haa5J6SXVU",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T08:14:46.784711+00:00",
+      "error": "backend query failed status=500: Something went wrong. Please try again later.",
+      "received_at": "2026-07-07T15:14:46+0700",
+      "received_after_ms": 28053
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_vOEBRadONYVTBT2gr0n1g5JG",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "submission.title"
+          },
+          {
+            "field": "submission.status"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "review_status"
+          },
+          {
+            "field": "review_submitted_at"
+          },
+          {
+            "field": "completed_at"
+          },
+          {
+            "field": "assigned_at"
+          },
+          {
+            "field": "actor_role"
+          },
+          {
+            "field": "conference.acronym"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:14:49.852121+00:00",
+      "received_at": "2026-07-07T15:14:49+0700",
+      "received_after_ms": 31121
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_vOEBRadONYVTBT2gr0n1g5JG",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:14:50.061270+00:00",
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:14:50+0700",
+      "received_after_ms": 31330
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_NHpinROX54pxZlVF77ZCUhZa",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "status"
+          },
+          {
+            "field": "review_status"
+          },
+          {
+            "field": "review_submitted_at"
+          },
+          {
+            "field": "completed_at"
+          },
+          {
+            "field": "actor_role"
+          },
+          {
+            "field": "conference.acronym"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "group_by": [
+          {
+            "field": "status",
+            "as": "status"
+          }
+        ],
+        "aggregates": [
+          {
+            "fn": "count",
+            "field": "id",
+            "as": "assignment_count"
+          }
+        ],
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:14:55.829110+00:00",
+      "received_at": "2026-07-07T15:14:55+0700",
+      "received_after_ms": 37098
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_NHpinROX54pxZlVF77ZCUhZa",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T08:14:56.037035+00:00",
+      "error": "backend query failed status=400: selected field \"review_status\" must also appear in group_by",
+      "received_at": "2026-07-07T15:14:56+0700",
+      "received_after_ms": 37305
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_TazLrC818zGdKUzTYF8JVfIW",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "status"
+          },
+          {
+            "field": "review_status"
+          },
+          {
+            "field": "conference.acronym"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "group_by": [
+          {
+            "field": "status",
+            "as": "status"
+          },
+          {
+            "field": "review_status",
+            "as": "review_status"
+          }
+        ],
+        "aggregates": [
+          {
+            "fn": "count",
+            "field": "id",
+            "as": "assignment_count"
+          }
+        ],
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:14:59.140896+00:00",
+      "received_at": "2026-07-07T15:14:59+0700",
+      "received_after_ms": 40409
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_TazLrC818zGdKUzTYF8JVfIW",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T08:14:59.351184+00:00",
+      "error": "backend query failed status=400: selected field \"conference.acronym\" must also appear in group_by",
+      "received_at": "2026-07-07T15:14:59+0700",
+      "received_after_ms": 40619
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_lz7XPIjcRcnRzMCGq8xZ6J7W",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "conference_stats"
+      },
+      "started_at": "2026-07-07T08:15:03.697098+00:00",
+      "received_at": "2026-07-07T15:15:03+0700",
+      "received_after_ms": 44965
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_lz7XPIjcRcnRzMCGq8xZ6J7W",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:15:03.907002+00:00",
+      "result": {
+        "resource": {
+          "name": "conference_stats",
+          "description": "Per-conference statistics visible only to chairs and co-chairs",
+          "fields": [
+            {
+              "name": "assignment_total",
+              "type": "integer",
+              "description": "Total assignments",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "review_completed_count",
+              "type": "integer",
+              "description": "Completed reviews",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "review_pending_count",
+              "type": "integer",
+              "description": "Pending reviews",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_accepted_count",
+              "type": "integer",
+              "description": "Accepted submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_rejected_count",
+              "type": "integer",
+              "description": "Rejected submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_submitted_count",
+              "type": "integer",
+              "description": "Submitted or reviewing submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "submission_total",
+              "type": "integer",
+              "description": "Total submissions",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ],
+              "aggregates": [
+                "sum",
+                "avg",
+                "max",
+                "min"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to conferences where the current user is chair or co-chair.",
+            "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:15:03+0700",
+      "received_after_ms": 45175
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_CY7Cf9Gr8fhh2uB95MOVWlGT",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "conference_stats",
+        "select": [
+          {
+            "field": "conference.title"
+          },
+          {
+            "field": "conference.acronym"
+          },
+          {
+            "field": "conference.status"
+          },
+          {
+            "field": "submission_total"
+          },
+          {
+            "field": "submission_submitted_count"
+          },
+          {
+            "field": "submission_accepted_count"
+          },
+          {
+            "field": "submission_rejected_count"
+          },
+          {
+            "field": "assignment_total"
+          },
+          {
+            "field": "review_completed_count"
+          },
+          {
+            "field": "review_pending_count"
+          },
+          {
+            "field": "updated_at"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T08:15:07.885137+00:00",
+      "received_at": "2026-07-07T15:15:07+0700",
+      "received_after_ms": 49154
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "tool_call_id": "call_CY7Cf9Gr8fhh2uB95MOVWlGT",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:15:08.128500+00:00",
+      "result": {
+        "resource": "conference_stats",
+        "rows": [
+          {
+            "assignment_total": 0,
+            "conference_acronym": "CB406671",
+            "conference_status": "open",
+            "conference_title": "Chatbot Benchmark Conference 1783406671",
+            "review_completed_count": 0,
+            "review_pending_count": 0,
+            "submission_accepted_count": 0,
+            "submission_rejected_count": 0,
+            "submission_submitted_count": 0,
+            "submission_total": 2,
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences where the current user is chair or co-chair.",
+            "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:15:08+0700",
+      "received_after_ms": 49397
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53144
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53145
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53154
+    },
+    {
+      "type": "token",
+      "content": " đang",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53154
+    },
+    {
+      "type": "token",
+      "content": " ở",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53154
+    },
+    {
+      "type": "token",
+      "content": " trạng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53158
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53158
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53165
+    },
+    {
+      "type": "token",
+      "content": "open",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53225
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53225
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53225
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": "chair",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " và",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " hiện",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " tín",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53227
+    },
+    {
+      "type": "token",
+      "content": " hiệu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " vận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " hành",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " thấy",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " này",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53228
+    },
+    {
+      "type": "token",
+      "content": " đã",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53233
+    },
+    {
+      "type": "token",
+      "content": " đi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53236
+    },
+    {
+      "type": "token",
+      "content": " vào",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53242
+    },
+    {
+      "type": "token",
+      "content": " vòng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53245
+    },
+    {
+      "type": "token",
+      "content": " xử",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53253
+    },
+    {
+      "type": "token",
+      "content": " lý",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53254
+    },
+    {
+      "type": "token",
+      "content": " nội",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53254
+    },
+    {
+      "type": "token",
+      "content": " dung",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53257
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53262
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:11+0700",
+      "received_after_ms": 53262
+    },
+    {
+      "type": "token",
+      "content": " Conference",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53269
+    },
+    {
+      "type": "token",
+      "content": " info",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53269
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53273
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53276
+    },
+    {
+      "type": "token",
+      "content": "Chat",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53279
+    },
+    {
+      "type": "token",
+      "content": "bot",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53279
+    },
+    {
+      "type": "token",
+      "content": " Benchmark",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53279
+    },
+    {
+      "type": "token",
+      "content": " Conference",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53311
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53319
+    },
+    {
+      "type": "token",
+      "content": "178",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53319
+    },
+    {
+      "type": "token",
+      "content": "340",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53329
+    },
+    {
+      "type": "token",
+      "content": "667",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53358
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53375
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53376
+    },
+    {
+      "type": "token",
+      "content": " acronym",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53376
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53381
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53389
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53389
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53392
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53397
+    },
+    {
+      "type": "token",
+      "content": " status",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53398
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53411
+    },
+    {
+      "type": "token",
+      "content": "open",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53411
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53412
+    },
+    {
+      "type": "token",
+      "content": " rebut",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53412
+    },
+    {
+      "type": "token",
+      "content": "tal",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53416
+    },
+    {
+      "type": "token",
+      "content": " phase",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53425
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53437
+    },
+    {
+      "type": "token",
+      "content": "not",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53437
+    },
+    {
+      "type": "token",
+      "content": "_started",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53437
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53443
+    },
+    {
+      "type": "token",
+      "content": " rebut",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53454
+    },
+    {
+      "type": "token",
+      "content": "tal",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53454
+    },
+    {
+      "type": "token",
+      "content": " deadline",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53456
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53481
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53481
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53485
+    },
+    {
+      "type": "token",
+      "content": " cập",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53515
+    },
+    {
+      "type": "token",
+      "content": " nhật",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53516
+    },
+    {
+      "type": "token",
+      "content": " gần",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53530
+    },
+    {
+      "type": "token",
+      "content": " nhất",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53531
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53532
+    },
+    {
+      "type": "token",
+      "content": "202",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53548
+    },
+    {
+      "type": "token",
+      "content": "6",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53548
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53555
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53565
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53565
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53581
+    },
+    {
+      "type": "token",
+      "content": "T",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53581
+    },
+    {
+      "type": "token",
+      "content": "13",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53581
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53590
+    },
+    {
+      "type": "token",
+      "content": "44",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53604
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53609
+    },
+    {
+      "type": "token",
+      "content": "34",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53618
+    },
+    {
+      "type": "token",
+      "content": "Z",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53618
+    },
+    {
+      "type": "token",
+      "content": "`.\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53618
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53647
+    },
+    {
+      "type": "token",
+      "content": " Sub",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53658
+    },
+    {
+      "type": "token",
+      "content": "missions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53658
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53658
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53670
+    },
+    {
+      "type": "token",
+      "content": "submission",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53683
+    },
+    {
+      "type": "token",
+      "content": "_total",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53687
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53687
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53703
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53703
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53729
+    },
+    {
+      "type": "token",
+      "content": " nhưng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53748
+    },
+    {
+      "type": "token",
+      "content": " tất",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53758
+    },
+    {
+      "type": "token",
+      "content": " cả",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53782
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53795
+    },
+    {
+      "type": "token",
+      "content": " chỉ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53815
+    },
+    {
+      "type": "token",
+      "content": " số",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53815
+    },
+    {
+      "type": "token",
+      "content": " xử",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53815
+    },
+    {
+      "type": "token",
+      "content": " lý",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53843
+    },
+    {
+      "type": "token",
+      "content": " đều",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53860
+    },
+    {
+      "type": "token",
+      "content": " bằng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53872
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53872
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53885
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53885
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53923
+    },
+    {
+      "type": "token",
+      "content": "submitted",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53957
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53957
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53957
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53957
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53961
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 53999
+    },
+    {
+      "type": "token",
+      "content": "accepted",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54006
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54006
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54018
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54029
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54029
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54029
+    },
+    {
+      "type": "token",
+      "content": "re",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54029
+    },
+    {
+      "type": "token",
+      "content": "jected",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54043
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54043
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54059
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54059
+    },
+    {
+      "type": "token",
+      "content": "`.\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54059
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54059
+    },
+    {
+      "type": "token",
+      "content": " Reviewer",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54059
+    },
+    {
+      "type": "token",
+      "content": " membership",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54075
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54087
+    },
+    {
+      "type": "token",
+      "content": " không",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54105
+    },
+    {
+      "type": "token",
+      "content": " thấy",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54115
+    },
+    {
+      "type": "token",
+      "content": " dữ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54141
+    },
+    {
+      "type": "token",
+      "content": " liệu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54146
+    },
+    {
+      "type": "token",
+      "content": " reviewer",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54188
+    },
+    {
+      "type": "token",
+      "content": "/",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54193
+    },
+    {
+      "type": "token",
+      "content": "assignment",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54193
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54223
+    },
+    {
+      "type": "token",
+      "content": " được",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54258
+    },
+    {
+      "type": "token",
+      "content": " trả",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54258
+    },
+    {
+      "type": "token",
+      "content": " về",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:12+0700",
+      "received_after_ms": 54260
+    },
+    {
+      "type": "token",
+      "content": " trong",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54273
+    },
+    {
+      "type": "token",
+      "content": " phạm",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54286
+    },
+    {
+      "type": "token",
+      "content": " vi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54304
+    },
+    {
+      "type": "token",
+      "content": " hiện",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54319
+    },
+    {
+      "type": "token",
+      "content": " tại",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54353
+    },
+    {
+      "type": "token",
+      "content": ";",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54388
+    },
+    {
+      "type": "token",
+      "content": " ở",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54388
+    },
+    {
+      "type": "token",
+      "content": " mức",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54401
+    },
+    {
+      "type": "token",
+      "content": " chair",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54414
+    },
+    {
+      "type": "token",
+      "content": "-facing",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54414
+    },
+    {
+      "type": "token",
+      "content": " thì",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54418
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54432
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54457
+    },
+    {
+      "type": "token",
+      "content": " reviewer",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54480
+    },
+    {
+      "type": "token",
+      "content": " workload",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54509
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54531
+    },
+    {
+      "type": "token",
+      "content": " ghi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54550
+    },
+    {
+      "type": "token",
+      "content": " nhận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54550
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54550
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54559
+    },
+    {
+      "type": "token",
+      "content": " Assignment",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54580
+    },
+    {
+      "type": "token",
+      "content": " status",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54583
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54594
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54594
+    },
+    {
+      "type": "token",
+      "content": "assignment",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54594
+    },
+    {
+      "type": "token",
+      "content": "_total",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54618
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54626
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54649
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54659
+    },
+    {
+      "type": "token",
+      "content": "`.\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54660
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54681
+    },
+    {
+      "type": "token",
+      "content": " Review",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54693
+    },
+    {
+      "type": "token",
+      "content": " status",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54711
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54725
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54739
+    },
+    {
+      "type": "token",
+      "content": "review",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54755
+    },
+    {
+      "type": "token",
+      "content": "_completed",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54770
+    },
+    {
+      "type": "token",
+      "content": "_count",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54772
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54803
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54827
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54827
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54839
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54845
+    },
+    {
+      "type": "token",
+      "content": "review",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54864
+    },
+    {
+      "type": "token",
+      "content": "_pending",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54883
+    },
+    {
+      "type": "token",
+      "content": "_count",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54896
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54897
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54920
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54927
+    },
+    {
+      "type": "token",
+      "content": "`.\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54942
+    },
+    {
+      "type": "token",
+      "content": "K",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54966
+    },
+    {
+      "type": "token",
+      "content": "ết",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54981
+    },
+    {
+      "type": "token",
+      "content": " luận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54996
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 54996
+    },
+    {
+      "type": "token",
+      "content": " chair",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55013
+    },
+    {
+      "type": "token",
+      "content": ":\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55027
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55043
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55057
+    },
+    {
+      "type": "token",
+      "content": " X",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55085
+    },
+    {
+      "type": "token",
+      "content": "ác",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55114
+    },
+    {
+      "type": "token",
+      "content": " nhận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55114
+    },
+    {
+      "type": "token",
+      "content": " lại",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55127
+    },
+    {
+      "type": "token",
+      "content": " vòng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55135
+    },
+    {
+      "type": "token",
+      "content": " paper",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55149
+    },
+    {
+      "type": "token",
+      "content": "/sub",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55167
+    },
+    {
+      "type": "token",
+      "content": "mission",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55196
+    },
+    {
+      "type": "token",
+      "content": " vì",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55196
+    },
+    {
+      "type": "token",
+      "content": " thống",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55196
+    },
+    {
+      "type": "token",
+      "content": " kê",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55210
+    },
+    {
+      "type": "token",
+      "content": " đang",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55224
+    },
+    {
+      "type": "token",
+      "content": " rất",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55241
+    },
+    {
+      "type": "token",
+      "content": " bất",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:13+0700",
+      "received_after_ms": 55257
+    },
+    {
+      "type": "token",
+      "content": " thường",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55278
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55296
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55296
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55306
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55320
+    },
+    {
+      "type": "token",
+      "content": " submissions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55336
+    },
+    {
+      "type": "token",
+      "content": " tổng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55358
+    },
+    {
+      "type": "token",
+      "content": " nhưng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55369
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55393
+    },
+    {
+      "type": "token",
+      "content": "submitted",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55393
+    },
+    {
+      "type": "token",
+      "content": "_count",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55402
+    },
+    {
+      "type": "token",
+      "content": " =",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55420
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55441
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55460
+    },
+    {
+      "type": "token",
+      "content": "`.\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55473
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55497
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55497
+    },
+    {
+      "type": "token",
+      "content": " Ki",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55502
+    },
+    {
+      "type": "token",
+      "content": "ểm",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55521
+    },
+    {
+      "type": "token",
+      "content": " tra",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55548
+    },
+    {
+      "type": "token",
+      "content": " pipeline",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55558
+    },
+    {
+      "type": "token",
+      "content": " nhập",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55569
+    },
+    {
+      "type": "token",
+      "content": " dữ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55591
+    },
+    {
+      "type": "token",
+      "content": " liệu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55603
+    },
+    {
+      "type": "token",
+      "content": " hoặc",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55603
+    },
+    {
+      "type": "token",
+      "content": " trạng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55630
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55641
+    },
+    {
+      "type": "token",
+      "content": " submission",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55653
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55669
+    },
+    {
+      "type": "token",
+      "content": " vì",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55685
+    },
+    {
+      "type": "token",
+      "content": " đây",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55685
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55696
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55717
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55733
+    },
+    {
+      "type": "token",
+      "content": " vấn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55749
+    },
+    {
+      "type": "token",
+      "content": " đề",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55764
+    },
+    {
+      "type": "token",
+      "content": " đồng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55789
+    },
+    {
+      "type": "token",
+      "content": " bộ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55789
+    },
+    {
+      "type": "token",
+      "content": " hơn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55811
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55811
+    },
+    {
+      "type": "token",
+      "content": " trạng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55823
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55851
+    },
+    {
+      "type": "token",
+      "content": " vận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55854
+    },
+    {
+      "type": "token",
+      "content": " hành",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55868
+    },
+    {
+      "type": "token",
+      "content": " thật",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55889
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55902
+    },
+    {
+      "type": "token",
+      "content": "3",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55921
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55924
+    },
+    {
+      "type": "token",
+      "content": " Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55936
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55952
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55967
+    },
+    {
+      "type": "token",
+      "content": " submissions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55980
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 55999
+    },
+    {
+      "type": "token",
+      "content": " đúng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56013
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56041
+    },
+    {
+      "type": "token",
+      "content": " bước",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56042
+    },
+    {
+      "type": "token",
+      "content": " tiếp",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56056
+    },
+    {
+      "type": "token",
+      "content": " theo",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56063
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56091
+    },
+    {
+      "type": "token",
+      "content": " phân",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56098
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56143
+    },
+    {
+      "type": "token",
+      "content": " reviewer",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56143
+    },
+    {
+      "type": "token",
+      "content": ";",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56144
+    },
+    {
+      "type": "token",
+      "content": " hiện",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56155
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56208
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56208
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56208
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56213
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56226
+    },
+    {
+      "type": "token",
+      "content": "4",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56246
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56246
+    },
+    {
+      "type": "token",
+      "content": " Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:14+0700",
+      "received_after_ms": 56257
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56278
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56294
+    },
+    {
+      "type": "token",
+      "content": " mở",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56307
+    },
+    {
+      "type": "token",
+      "content": " đúng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56334
+    },
+    {
+      "type": "token",
+      "content": " g",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56334
+    },
+    {
+      "type": "token",
+      "content": "iai",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56340
+    },
+    {
+      "type": "token",
+      "content": " đoạn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56357
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56374
+    },
+    {
+      "type": "token",
+      "content": " cần",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56387
+    },
+    {
+      "type": "token",
+      "content": " xác",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56406
+    },
+    {
+      "type": "token",
+      "content": " nhận",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56419
+    },
+    {
+      "type": "token",
+      "content": " cấu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56439
+    },
+    {
+      "type": "token",
+      "content": " hình",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56445
+    },
+    {
+      "type": "token",
+      "content": " workflow",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56454
+    },
+    {
+      "type": "token",
+      "content": "/re",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56471
+    },
+    {
+      "type": "token",
+      "content": "but",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56486
+    },
+    {
+      "type": "token",
+      "content": "tal",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56532
+    },
+    {
+      "type": "token",
+      "content": " trước",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56532
+    },
+    {
+      "type": "token",
+      "content": " khi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56535
+    },
+    {
+      "type": "token",
+      "content": " triển",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56548
+    },
+    {
+      "type": "token",
+      "content": " khai",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56548
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56565
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56585
+    },
+    {
+      "type": "token",
+      "content": "L",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56602
+    },
+    {
+      "type": "token",
+      "content": "ưu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56617
+    },
+    {
+      "type": "token",
+      "content": " ý",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56634
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56634
+    },
+    {
+      "type": "token",
+      "content": " truy",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56650
+    },
+    {
+      "type": "token",
+      "content": " vấn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56666
+    },
+    {
+      "type": "token",
+      "content": " chi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56697
+    },
+    {
+      "type": "token",
+      "content": " tiết",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56713
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56713
+    },
+    {
+      "type": "token",
+      "content": "sub",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56732
+    },
+    {
+      "type": "token",
+      "content": "missions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56753
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56753
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56758
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56778
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56793
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56810
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56824
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56849
+    },
+    {
+      "type": "token",
+      "content": " bị",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56849
+    },
+    {
+      "type": "token",
+      "content": " lỗi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56866
+    },
+    {
+      "type": "token",
+      "content": " backend",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56881
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56890
+    },
+    {
+      "type": "token",
+      "content": "500",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56907
+    },
+    {
+      "type": "token",
+      "content": " hai",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56927
+    },
+    {
+      "type": "token",
+      "content": " lần",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56959
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56959
+    },
+    {
+      "type": "token",
+      "content": " nên",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56969
+    },
+    {
+      "type": "token",
+      "content": " phần",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56978
+    },
+    {
+      "type": "token",
+      "content": " checklist",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 56987
+    },
+    {
+      "type": "token",
+      "content": " submissions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57005
+    },
+    {
+      "type": "token",
+      "content": " hiện",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57033
+    },
+    {
+      "type": "token",
+      "content": " dự",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57040
+    },
+    {
+      "type": "token",
+      "content": "a",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57067
+    },
+    {
+      "type": "token",
+      "content": " trên",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57067
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57067
+    },
+    {
+      "type": "token",
+      "content": "conference",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57091
+    },
+    {
+      "type": "token",
+      "content": "_stats",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57170
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57170
+    },
+    {
+      "type": "token",
+      "content": " thay",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57177
+    },
+    {
+      "type": "token",
+      "content": " vì",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57177
+    },
+    {
+      "type": "token",
+      "content": " row",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57177
+    },
+    {
+      "type": "token",
+      "content": "-level",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57177
+    },
+    {
+      "type": "token",
+      "content": " submission",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57182
+    },
+    {
+      "type": "token",
+      "content": " evidence",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57207
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57224
+    },
+    {
+      "type": "token",
+      "content": " Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57231
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:15+0700",
+      "received_after_ms": 57247
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57269
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57269
+    },
+    {
+      "type": "token",
+      "content": " tôi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57281
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57296
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57316
+    },
+    {
+      "type": "token",
+      "content": " tiếp",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57332
+    },
+    {
+      "type": "token",
+      "content": " tục",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57351
+    },
+    {
+      "type": "token",
+      "content": " rà",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57351
+    },
+    {
+      "type": "token",
+      "content": " thêm",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57368
+    },
+    {
+      "type": "token",
+      "content": " theo",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57379
+    },
+    {
+      "type": "token",
+      "content": " hướng",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57409
+    },
+    {
+      "type": "token",
+      "content": " “",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57412
+    },
+    {
+      "type": "token",
+      "content": "submission",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57426
+    },
+    {
+      "type": "token",
+      "content": " rows",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57458
+    },
+    {
+      "type": "token",
+      "content": "”",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57458
+    },
+    {
+      "type": "token",
+      "content": " hoặc",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57459
+    },
+    {
+      "type": "token",
+      "content": " “",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57478
+    },
+    {
+      "type": "token",
+      "content": "next",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57494
+    },
+    {
+      "type": "token",
+      "content": " chair",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57522
+    },
+    {
+      "type": "token",
+      "content": " actions",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57534
+    },
+    {
+      "type": "token",
+      "content": "”",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57534
+    },
+    {
+      "type": "token",
+      "content": " khi",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57550
+    },
+    {
+      "type": "token",
+      "content": " backend",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57567
+    },
+    {
+      "type": "token",
+      "content": " ổ",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57579
+    },
+    {
+      "type": "token",
+      "content": "n",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57592
+    },
+    {
+      "type": "token",
+      "content": " định",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57610
+    },
+    {
+      "type": "token",
+      "content": " hơn",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57648
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57648
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-chair_multi_step_platform_report-trial_04",
+      "received_at": "2026-07-07T15:15:16+0700",
+      "received_after_ms": 57889
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 183,
+    "output_chars": 1541,
+    "input_tokens": 58,
+    "output_tokens": 554,
+    "total_tokens": 612
+  }
+}

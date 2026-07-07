@@ -1,0 +1,3822 @@
+{
+  "scenario": {
+    "id": "reviewer_assignment_check",
+    "feature": "reviewer_workload_lookup",
+    "actor": "reviewer",
+    "request": "Tôi có assignment hoặc review nào cần xử lý trong hội nghị {conference_acronym} không?",
+    "trial_requests": [
+      "Tôi có assignment hoặc review nào cần xử lý trong hội nghị {conference_acronym} không?",
+      "Kiểm tra workload của tôi ở {conference_acronym}: hiện có bài nào được giao review chưa?",
+      "Trong vai trò reviewer của {conference_acronym}, tôi cần biết có nhiệm vụ review nào đang chờ xử lý không.",
+      "Hãy xem hệ thống và cho biết tôi có assignment hoặc review visible nào tại {conference_acronym}.",
+      "Tôi muốn kiểm tra nhanh danh sách việc review của mình trong {conference_acronym}; nếu chưa có thì nói rõ."
+    ],
+    "manual_review_focus": [
+      "Looks up reviewer-visible work.",
+      "Clearly says if no assignment exists.",
+      "Does not expose chair-only data."
+    ],
+    "expected_tools": [
+      "query_engine"
+    ],
+    "seed_data": [
+      "conference",
+      "reviewer"
+    ]
+  },
+  "scenario_result_id": "reviewer_assignment_check__trial_02",
+  "trial": {
+    "index": 2,
+    "count": 5,
+    "id": "trial_02"
+  },
+  "actor": {
+    "key": "reviewer",
+    "email": "chatbench_reviewer_1783406671@demo.com",
+    "first_name": "Benchmark",
+    "last_name": "Reviewer",
+    "id": 567,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjcsImVtYWlsIjoiY2hhdGJlbmNoX3Jldmlld2VyXzE3ODM0MDY2NzFAZGVtby5jb20iLCJleHAiOjE3ODM0OTMwNzQsImlhdCI6MTc4MzQwNjY3NH0.w_vqqWrfvqeV_9_-9uwjiyt2Shc-PCkdXSku649gBrE",
+    "domain": [
+      "AI Systems",
+      "Machine Learning",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+  "request": "Kiểm tra workload của tôi ở CB406671: hiện có bài nào được giao review chưa?",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+    "messages": [
+      {
+        "id": "chatbench-user-e9e516904324",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Kiểm tra workload của tôi ở CB406671: hiện có bài nào được giao review chưa?"
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-88d25504b9ae",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/reviewer_assignment_check/trial_02",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T15:05:54+0700",
+  "finished_at": "2026-07-07T15:06:18+0700",
+  "duration_ms": 24020,
+  "timing_metrics": {
+    "ttft_ms": 2271,
+    "time_to_first_answer_token_ms": 21195,
+    "answer_stream_duration_ms": 2582,
+    "stream_duration_ms": 21749,
+    "total_duration_ms": 24020
+  },
+  "event_count": 131,
+  "tool_events": [
+    {
+      "event": "tool_start",
+      "tool": "get_skill",
+      "tool_call_id": "call_ItUo1YMjkGV4QjBiH4tqmk1N",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "get_skill",
+      "tool_call_id": "call_ItUo1YMjkGV4QjBiH4tqmk1N",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_B8GcWBFVxDOFNLN0LwKm5xEu",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_B8GcWBFVxDOFNLN0LwKm5xEu",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resources": [
+          {
+            "name": "conferences",
+            "description": "Conferences related to the current user through an active role or authored submission",
+            "fields": [
+              {
+                "name": "acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "The current user's highest-precedence role in the conference",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Conference creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_deadline",
+                "type": "datetime",
+                "description": "Conference rebuttal deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "rebuttal_phase",
+                "type": "string",
+                "description": "Conference rebuttal phase",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Conference lifecycle status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to conferences related to the current user.",
+              "Conference access is scoped through active conference roles or authored submissions."
+            ]
+          },
+          {
+            "name": "public_conferences",
+            "description": "Public conference information visible in platform exploration and discovery flows",
+            "fields": [
+              {
+                "name": "abstract_submission_deadline",
+                "type": "datetime",
+                "description": "Abstract submission deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "camera_ready_deadline",
+                "type": "datetime",
+                "description": "Camera ready deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "cfp_text",
+                "type": "string",
+                "description": "Call for papers text",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "chair",
+                "type": "string",
+                "description": "Conference chair",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "co_chairs",
+                "type": "array",
+                "description": "Conference co-chairs",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Conference creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "description": "Conference description",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "domain",
+                "type": "array",
+                "description": "Conference domains",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "end_date",
+                "type": "datetime",
+                "description": "Conference end date",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "format",
+                "type": "string",
+                "description": "Conference format",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "full_paper_submission_deadline",
+                "type": "datetime",
+                "description": "Full paper submission deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "maximum_pages",
+                "type": "integer",
+                "description": "Maximum pages per submission",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "review_type",
+                "type": "string",
+                "description": "Conference review type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "start_date",
+                "type": "datetime",
+                "description": "Conference start date",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Conference lifecycle status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "submission_type",
+                "type": "string",
+                "description": "Conference submission type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "tracks",
+                "type": "array",
+                "description": "Conference tracks",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "venue",
+                "type": "string",
+                "description": "Conference venue",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to non-draft conferences.",
+              "Only public conference fields are exposed; private operational settings remain hidden."
+            ]
+          },
+          {
+            "name": "submissions",
+            "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+            "fields": [
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "How the current user can see this submission",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.status",
+                "type": "string",
+                "description": "Conference status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Submission creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Submission ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_phase",
+                "type": "string",
+                "description": "Submission rebuttal phase",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Submission status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Submission title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "track",
+                "type": "string",
+                "description": "Submission track",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Submission update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to submissions related to the current user.",
+              "Author identity is not exposed through this resource."
+            ]
+          },
+          {
+            "name": "assignments",
+            "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+            "fields": [
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "How the current user can see this assignment",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "assigned_at",
+                "type": "datetime",
+                "description": "Assignment creation time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "completed_at",
+                "type": "datetime",
+                "description": "Assignment completion time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt",
+                  "is_null"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Assignment ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_status",
+                "type": "string",
+                "description": "Assignment rebuttal status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "review_status",
+                "type": "string",
+                "description": "Review workflow status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "review_submitted_at",
+                "type": "datetime",
+                "description": "Review submission time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt",
+                  "is_null"
+                ]
+              },
+              {
+                "name": "reviewer.email",
+                "type": "string",
+                "description": "Reviewer email when visible to the current user",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in",
+                  "like",
+                  "ilike"
+                ],
+                "aggregates": [
+                  "count"
+                ],
+                "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+              },
+              {
+                "name": "score",
+                "type": "number",
+                "description": "Assignment matching score",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Assignment status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "submission.id",
+                "type": "integer",
+                "description": "Submission ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "submission.status",
+                "type": "string",
+                "description": "Submission status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "submission.title",
+                "type": "string",
+                "description": "Submission title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to assignments related to the current user.",
+              "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+            ]
+          },
+          {
+            "name": "conference_stats",
+            "description": "Per-conference statistics visible only to chairs and co-chairs",
+            "fields": [
+              {
+                "name": "assignment_total",
+                "type": "integer",
+                "description": "Total assignments",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.status",
+                "type": "string",
+                "description": "Conference status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "review_completed_count",
+                "type": "integer",
+                "description": "Completed reviews",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "review_pending_count",
+                "type": "integer",
+                "description": "Pending reviews",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_accepted_count",
+                "type": "integer",
+                "description": "Accepted submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_rejected_count",
+                "type": "integer",
+                "description": "Rejected submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_submitted_count",
+                "type": "integer",
+                "description": "Submitted or reviewing submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_total",
+                "type": "integer",
+                "description": "Total submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to conferences where the current user is chair or co-chair.",
+              "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+            ]
+          },
+          {
+            "name": "notifications",
+            "description": "Notifications belonging to the current user",
+            "fields": [
+              {
+                "name": "action_url",
+                "type": "string",
+                "description": "Notification action URL",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Notification creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Notification ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "Notification body",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "read",
+                "type": "boolean",
+                "description": "Read state",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Notification title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "description": "Notification type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to notifications belonging to the current user."
+            ]
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_FnwPkSagENJIuqe6vLhL6ONQ",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_FnwPkSagENJIuqe6vLhL6ONQ",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_AxGU1lOxcBdu9LS5EEKeeiuZ",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_AxGU1lOxcBdu9LS5EEKeeiuZ",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "conferences",
+        "rows": [
+          {
+            "actor_role": "reviewer",
+            "conference_acronym": "CB406671",
+            "conference_status": "open",
+            "conference_title": "Chatbot Benchmark Conference 1783406671",
+            "rebuttal_deadline": null,
+            "rebuttal_phase": "not_started",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "error": null
+    }
+  ],
+  "tool_metrics": {
+    "tool_event_count": 8,
+    "tool_call_count": 4,
+    "started_tool_call_count": 4,
+    "completed_tool_call_count": 4,
+    "successful_tool_call_count": 4,
+    "failed_tool_call_count": 0,
+    "tool_call_success_rate": 1.0
+  },
+  "final_answer": "Hiện chưa thấy bài review nào được giao cho bạn ở `CB406671`.\n\n- Trong `assignments`, không có bản ghi nào liên quan đến bạn cho conference này.\n- Conference `CB406671` đang ở trạng thái `open`, vai trò của bạn là `reviewer`.\n- `rebuttal_phase` là `not_started` và chưa có `rebuttal_deadline`.\n\nNếu bạn muốn, tôi có thể kiểm tra thêm:\n1. tổng workload review của bạn ở các conference khác\n2. các notification/review invitation gần đây liên quan đến `CB406671`",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "message_id": "chatbench-assistant-88d25504b9ae",
+      "received_at": "2026-07-07T15:05:56+0700",
+      "received_after_ms": 2271
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_ItUo1YMjkGV4QjBiH4tqmk1N",
+      "tool": "get_skill",
+      "input": {
+        "skill_name": "workload_risk_insight"
+      },
+      "started_at": "2026-07-07T08:05:59.269004+00:00",
+      "received_at": "2026-07-07T15:05:59+0700",
+      "received_after_ms": 4835
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_ItUo1YMjkGV4QjBiH4tqmk1N",
+      "tool": "get_skill",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:05:59.278615+00:00",
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "received_at": "2026-07-07T15:05:59+0700",
+      "received_after_ms": 4844
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_B8GcWBFVxDOFNLN0LwKm5xEu",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe"
+      },
+      "started_at": "2026-07-07T08:06:01.128528+00:00",
+      "received_at": "2026-07-07T15:06:01+0700",
+      "received_after_ms": 6694
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_B8GcWBFVxDOFNLN0LwKm5xEu",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:06:01.344864+00:00",
+      "result": {
+        "resources": [
+          {
+            "name": "conferences",
+            "description": "Conferences related to the current user through an active role or authored submission",
+            "fields": [
+              {
+                "name": "acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "The current user's highest-precedence role in the conference",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Conference creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_deadline",
+                "type": "datetime",
+                "description": "Conference rebuttal deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "rebuttal_phase",
+                "type": "string",
+                "description": "Conference rebuttal phase",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Conference lifecycle status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to conferences related to the current user.",
+              "Conference access is scoped through active conference roles or authored submissions."
+            ]
+          },
+          {
+            "name": "public_conferences",
+            "description": "Public conference information visible in platform exploration and discovery flows",
+            "fields": [
+              {
+                "name": "abstract_submission_deadline",
+                "type": "datetime",
+                "description": "Abstract submission deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "camera_ready_deadline",
+                "type": "datetime",
+                "description": "Camera ready deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "cfp_text",
+                "type": "string",
+                "description": "Call for papers text",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "chair",
+                "type": "string",
+                "description": "Conference chair",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "co_chairs",
+                "type": "array",
+                "description": "Conference co-chairs",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Conference creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "description": "Conference description",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "domain",
+                "type": "array",
+                "description": "Conference domains",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "end_date",
+                "type": "datetime",
+                "description": "Conference end date",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "format",
+                "type": "string",
+                "description": "Conference format",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "full_paper_submission_deadline",
+                "type": "datetime",
+                "description": "Full paper submission deadline",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "maximum_pages",
+                "type": "integer",
+                "description": "Maximum pages per submission",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "review_type",
+                "type": "string",
+                "description": "Conference review type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "start_date",
+                "type": "datetime",
+                "description": "Conference start date",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Conference lifecycle status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "submission_type",
+                "type": "string",
+                "description": "Conference submission type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "tracks",
+                "type": "array",
+                "description": "Conference tracks",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "venue",
+                "type": "string",
+                "description": "Conference venue",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to non-draft conferences.",
+              "Only public conference fields are exposed; private operational settings remain hidden."
+            ]
+          },
+          {
+            "name": "submissions",
+            "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+            "fields": [
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "How the current user can see this submission",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.status",
+                "type": "string",
+                "description": "Conference status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Submission creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Submission ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_phase",
+                "type": "string",
+                "description": "Submission rebuttal phase",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Submission status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Submission title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "track",
+                "type": "string",
+                "description": "Submission track",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Submission update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to submissions related to the current user.",
+              "Author identity is not exposed through this resource."
+            ]
+          },
+          {
+            "name": "assignments",
+            "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+            "fields": [
+              {
+                "name": "actor_role",
+                "type": "string",
+                "description": "How the current user can see this assignment",
+                "selectable": true,
+                "filterable": false,
+                "groupable": false,
+                "sortable": false
+              },
+              {
+                "name": "assigned_at",
+                "type": "datetime",
+                "description": "Assignment creation time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "completed_at",
+                "type": "datetime",
+                "description": "Assignment completion time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt",
+                  "is_null"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Assignment ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "rebuttal_status",
+                "type": "string",
+                "description": "Assignment rebuttal status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "review_status",
+                "type": "string",
+                "description": "Review workflow status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "review_submitted_at",
+                "type": "datetime",
+                "description": "Review submission time",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt",
+                  "is_null"
+                ]
+              },
+              {
+                "name": "reviewer.email",
+                "type": "string",
+                "description": "Reviewer email when visible to the current user",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in",
+                  "like",
+                  "ilike"
+                ],
+                "aggregates": [
+                  "count"
+                ],
+                "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+              },
+              {
+                "name": "score",
+                "type": "number",
+                "description": "Assignment matching score",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "Assignment status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "submission.id",
+                "type": "integer",
+                "description": "Submission ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "submission.status",
+                "type": "string",
+                "description": "Submission status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "submission.title",
+                "type": "string",
+                "description": "Submission title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to assignments related to the current user.",
+              "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+            ]
+          },
+          {
+            "name": "conference_stats",
+            "description": "Per-conference statistics visible only to chairs and co-chairs",
+            "fields": [
+              {
+                "name": "assignment_total",
+                "type": "integer",
+                "description": "Total assignments",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.status",
+                "type": "string",
+                "description": "Conference status",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "conference.title",
+                "type": "string",
+                "description": "Conference title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "review_completed_count",
+                "type": "integer",
+                "description": "Completed reviews",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "review_pending_count",
+                "type": "integer",
+                "description": "Pending reviews",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_accepted_count",
+                "type": "integer",
+                "description": "Accepted submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_rejected_count",
+                "type": "integer",
+                "description": "Rejected submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_submitted_count",
+                "type": "integer",
+                "description": "Submitted or reviewing submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "submission_total",
+                "type": "integer",
+                "description": "Total submissions",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ],
+                "aggregates": [
+                  "sum",
+                  "avg",
+                  "max",
+                  "min"
+                ]
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "Conference update timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to conferences where the current user is chair or co-chair.",
+              "All fields are pre-aggregated per conference and can be re-aggregated in the DSL."
+            ]
+          },
+          {
+            "name": "notifications",
+            "description": "Notifications belonging to the current user",
+            "fields": [
+              {
+                "name": "action_url",
+                "type": "string",
+                "description": "Notification action URL",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "conference.acronym",
+                "type": "string",
+                "description": "Conference acronym",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike",
+                  "in"
+                ]
+              },
+              {
+                "name": "conference.id",
+                "type": "integer",
+                "description": "Conference ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ]
+              },
+              {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "Notification creation timestamp",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "gte",
+                  "lte",
+                  "gt",
+                  "lt"
+                ]
+              },
+              {
+                "name": "id",
+                "type": "integer",
+                "description": "Notification ID",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "Notification body",
+                "selectable": true,
+                "filterable": true,
+                "groupable": false,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "read",
+                "type": "boolean",
+                "description": "Read state",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "Notification title",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "like",
+                  "ilike"
+                ]
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "description": "Notification type",
+                "selectable": true,
+                "filterable": true,
+                "groupable": true,
+                "sortable": true,
+                "operators": [
+                  "eq",
+                  "in"
+                ],
+                "aggregates": [
+                  "count"
+                ]
+              }
+            ],
+            "policy_notes": [
+              "Rows are limited to notifications belonging to the current user."
+            ]
+          }
+        ]
+      },
+      "received_at": "2026-07-07T15:06:01+0700",
+      "received_after_ms": 6911
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_FnwPkSagENJIuqe6vLhL6ONQ",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "conference.acronym",
+            "as": "conference_acronym"
+          },
+          {
+            "field": "conference.title",
+            "as": "conference_title"
+          },
+          {
+            "field": "submission.title",
+            "as": "submission_title"
+          },
+          {
+            "field": "status",
+            "as": "assignment_status"
+          },
+          {
+            "field": "review_status",
+            "as": "review_status"
+          },
+          {
+            "field": "assigned_at",
+            "as": "assigned_at"
+          },
+          {
+            "field": "completed_at",
+            "as": "completed_at"
+          },
+          {
+            "field": "review_submitted_at",
+            "as": "review_submitted_at"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "sort": [
+          {
+            "field": "assigned_at",
+            "dir": "desc"
+          }
+        ],
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:06:06.815974+00:00",
+      "received_at": "2026-07-07T15:06:06+0700",
+      "received_after_ms": 12382
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_FnwPkSagENJIuqe6vLhL6ONQ",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:06:07.026096+00:00",
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:06:07+0700",
+      "received_after_ms": 12592
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_AxGU1lOxcBdu9LS5EEKeeiuZ",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "conferences",
+        "select": [
+          {
+            "field": "acronym",
+            "as": "conference_acronym"
+          },
+          {
+            "field": "title",
+            "as": "conference_title"
+          },
+          {
+            "field": "actor_role",
+            "as": "actor_role"
+          },
+          {
+            "field": "status",
+            "as": "conference_status"
+          },
+          {
+            "field": "rebuttal_phase",
+            "as": "rebuttal_phase"
+          },
+          {
+            "field": "rebuttal_deadline",
+            "as": "rebuttal_deadline"
+          },
+          {
+            "field": "updated_at",
+            "as": "updated_at"
+          }
+        ],
+        "filter": {
+          "acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T08:06:11.047832+00:00",
+      "received_at": "2026-07-07T15:06:11+0700",
+      "received_after_ms": 16614
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "tool_call_id": "call_AxGU1lOxcBdu9LS5EEKeeiuZ",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:06:11.263028+00:00",
+      "result": {
+        "resource": "conferences",
+        "rows": [
+          {
+            "actor_role": "reviewer",
+            "conference_acronym": "CB406671",
+            "conference_status": "open",
+            "conference_title": "Chatbot Benchmark Conference 1783406671",
+            "rebuttal_deadline": null,
+            "rebuttal_phase": "not_started",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to conferences related to the current user.",
+            "Conference access is scoped through active conference roles or authored submissions."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:06:11+0700",
+      "received_after_ms": 16829
+    },
+    {
+      "type": "token",
+      "content": "Hi",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21195
+    },
+    {
+      "type": "token",
+      "content": "ện",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21231
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21285
+    },
+    {
+      "type": "token",
+      "content": " thấy",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21294
+    },
+    {
+      "type": "token",
+      "content": " bài",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21294
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21294
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21351
+    },
+    {
+      "type": "token",
+      "content": " được",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21352
+    },
+    {
+      "type": "token",
+      "content": " giao",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21362
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21387
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21387
+    },
+    {
+      "type": "token",
+      "content": " ở",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21450
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21450
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21451
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21488
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21521
+    },
+    {
+      "type": "token",
+      "content": "`.\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21521
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21542
+    },
+    {
+      "type": "token",
+      "content": " Trong",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21554
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21554
+    },
+    {
+      "type": "token",
+      "content": "assign",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:15+0700",
+      "received_after_ms": 21554
+    },
+    {
+      "type": "token",
+      "content": "ments",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21587
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21635
+    },
+    {
+      "type": "token",
+      "content": " không",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21656
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21753
+    },
+    {
+      "type": "token",
+      "content": " bản",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21777
+    },
+    {
+      "type": "token",
+      "content": " ghi",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21783
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21801
+    },
+    {
+      "type": "token",
+      "content": " liên",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21811
+    },
+    {
+      "type": "token",
+      "content": " quan",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21815
+    },
+    {
+      "type": "token",
+      "content": " đến",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21815
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21842
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21923
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21948
+    },
+    {
+      "type": "token",
+      "content": " này",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21961
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 21961
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22000
+    },
+    {
+      "type": "token",
+      "content": " Conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22017
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22017
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22018
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22077
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22090
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22092
+    },
+    {
+      "type": "token",
+      "content": " đang",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22106
+    },
+    {
+      "type": "token",
+      "content": " ở",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22118
+    },
+    {
+      "type": "token",
+      "content": " trạng",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22122
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22127
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22161
+    },
+    {
+      "type": "token",
+      "content": "open",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22168
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22267
+    },
+    {
+      "type": "token",
+      "content": " vai",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22280
+    },
+    {
+      "type": "token",
+      "content": " trò",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22281
+    },
+    {
+      "type": "token",
+      "content": " của",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22282
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22332
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22342
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22345
+    },
+    {
+      "type": "token",
+      "content": "review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22354
+    },
+    {
+      "type": "token",
+      "content": "er",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22380
+    },
+    {
+      "type": "token",
+      "content": "`.\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22385
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22385
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22393
+    },
+    {
+      "type": "token",
+      "content": "re",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22434
+    },
+    {
+      "type": "token",
+      "content": "but",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22445
+    },
+    {
+      "type": "token",
+      "content": "tal",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22447
+    },
+    {
+      "type": "token",
+      "content": "_phase",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22448
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22495
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22511
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22511
+    },
+    {
+      "type": "token",
+      "content": "not",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:16+0700",
+      "received_after_ms": 22511
+    },
+    {
+      "type": "token",
+      "content": "_started",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22568
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22568
+    },
+    {
+      "type": "token",
+      "content": " và",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22568
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22607
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22615
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22620
+    },
+    {
+      "type": "token",
+      "content": "re",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22621
+    },
+    {
+      "type": "token",
+      "content": "but",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22661
+    },
+    {
+      "type": "token",
+      "content": "tal",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22690
+    },
+    {
+      "type": "token",
+      "content": "_dead",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22690
+    },
+    {
+      "type": "token",
+      "content": "line",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22717
+    },
+    {
+      "type": "token",
+      "content": "`.\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22777
+    },
+    {
+      "type": "token",
+      "content": "Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22788
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22789
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22793
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22836
+    },
+    {
+      "type": "token",
+      "content": " tôi",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22853
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22853
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22853
+    },
+    {
+      "type": "token",
+      "content": " kiểm",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22898
+    },
+    {
+      "type": "token",
+      "content": " tra",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 22961
+    },
+    {
+      "type": "token",
+      "content": " thêm",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23012
+    },
+    {
+      "type": "token",
+      "content": ":\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23020
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23022
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23023
+    },
+    {
+      "type": "token",
+      "content": " tổng",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23074
+    },
+    {
+      "type": "token",
+      "content": " workload",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23084
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23164
+    },
+    {
+      "type": "token",
+      "content": " của",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23168
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23169
+    },
+    {
+      "type": "token",
+      "content": " ở",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23195
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23209
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23259
+    },
+    {
+      "type": "token",
+      "content": " khác",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23269
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23275
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23275
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23319
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23384
+    },
+    {
+      "type": "token",
+      "content": " notification",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23398
+    },
+    {
+      "type": "token",
+      "content": "/re",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23398
+    },
+    {
+      "type": "token",
+      "content": "view",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23446
+    },
+    {
+      "type": "token",
+      "content": " invitation",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:17+0700",
+      "received_after_ms": 23508
+    },
+    {
+      "type": "token",
+      "content": " gần",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23571
+    },
+    {
+      "type": "token",
+      "content": " đây",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23637
+    },
+    {
+      "type": "token",
+      "content": " liên",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23644
+    },
+    {
+      "type": "token",
+      "content": " quan",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23698
+    },
+    {
+      "type": "token",
+      "content": " đến",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23711
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23716
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23718
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23765
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23775
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 23778
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_02",
+      "received_at": "2026-07-07T15:06:18+0700",
+      "received_after_ms": 24020
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 76,
+    "output_chars": 459,
+    "input_tokens": 29,
+    "output_tokens": 161,
+    "total_tokens": 190
+  }
+}

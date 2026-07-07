@@ -47,11 +47,11 @@ class SubmissionGatingRunner:
         if state.verdict_bundle and state.verdict_bundle.verdict == "block":
             return await self._finalize_blocked_or_failed(state, run_started_at=run_started_at)
 
-        state = await self._execute(state, "format_compliance", format_compliance.run, file_bytes=file_bytes)
-
         state = await self._execute(state, "document_extraction", document_extraction.run, file_bytes=file_bytes)
         if state.verdict_bundle and state.verdict_bundle.verdict == "block":
             return await self._finalize_blocked_or_failed(state, run_started_at=run_started_at)
+
+        state = await self._execute(state, "format_compliance", format_compliance.run, file_bytes=file_bytes)
 
         state = await self._execute(state, "fact_derivation", fact_derivation.run)
 

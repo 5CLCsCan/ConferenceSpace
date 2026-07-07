@@ -1,0 +1,1643 @@
+{
+  "seed_path": "E:\\HCMUS\\Graduate-Project\\Benchmarks\\docs\\chatbot\\outputs\\chatbot_seed_1783406671.json",
+  "scenario_path": "E:\\HCMUS\\Graduate-Project\\Benchmarks\\docs\\chatbot\\scenarios\\chatbot_benchmark_scenarios.json",
+  "ai_service_url": "http://localhost:8090",
+  "run_instance_id": "1783411092",
+  "started_at": "2026-07-07T14:58:12+0700",
+  "scope": "Platform chatbot only: navigation support, platform operations, and internal platform data exploration. Excludes external research, professional synthesis, and domain advice beyond stored platform data.",
+  "trials_per_scenario": 5,
+  "scenario_ids": [
+    "author_own_submission_status",
+    "author_submission_track",
+    "chair_conference_overview",
+    "reviewer_assignment_check",
+    "public_conference_lookup",
+    "permission_boundary_other_submission",
+    "unsupported_external_research",
+    "chair_multi_step_platform_report"
+  ],
+  "finished_at": "2026-07-07T15:15:54+0700",
+  "aggregate_metrics": {
+    "scenario_count": 8,
+    "trial_count": 40,
+    "avg_total_duration_ms": 26533,
+    "avg_ttft_ms": 2361,
+    "avg_time_to_first_answer_token_ms": 23023,
+    "avg_stream_duration_ms": 24170,
+    "total_tool_events": 256,
+    "total_tool_calls": 128,
+    "completed_tool_calls": 128,
+    "successful_tool_calls": 97,
+    "failed_tool_calls": 31,
+    "tool_call_success_rate": 0.7578,
+    "input_tokens": 1719,
+    "output_tokens": 12701,
+    "total_tokens": 14420
+  },
+  "results": [
+    {
+      "scenario_id": "author_own_submission_status",
+      "scenario_result_id": "author_own_submission_status__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 20014,
+      "timing_metrics": {
+        "ttft_ms": 2542,
+        "time_to_first_answer_token_ms": 18560,
+        "answer_stream_duration_ms": 1297,
+        "stream_duration_ms": 17471,
+        "total_duration_ms": 20014
+      },
+      "event_count": 103,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.6667
+      },
+      "final_answer_chars": 308,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 116,
+        "output_chars": 308,
+        "input_tokens": 45,
+        "output_tokens": 124,
+        "total_tokens": 169
+      }
+    },
+    {
+      "scenario_id": "author_own_submission_status",
+      "scenario_result_id": "author_own_submission_status__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 37722,
+      "timing_metrics": {
+        "ttft_ms": 2244,
+        "time_to_first_answer_token_ms": 35500,
+        "answer_stream_duration_ms": 2075,
+        "stream_duration_ms": 35477,
+        "total_duration_ms": 37722
+      },
+      "event_count": 162,
+      "tool_metrics": {
+        "tool_event_count": 10,
+        "tool_call_count": 5,
+        "started_tool_call_count": 5,
+        "completed_tool_call_count": 5,
+        "successful_tool_call_count": 1,
+        "failed_tool_call_count": 4,
+        "tool_call_success_rate": 0.2
+      },
+      "final_answer_chars": 603,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 117,
+        "output_chars": 603,
+        "input_tokens": 37,
+        "output_tokens": 222,
+        "total_tokens": 259
+      }
+    },
+    {
+      "scenario_id": "author_own_submission_status",
+      "scenario_result_id": "author_own_submission_status__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 26570,
+      "timing_metrics": {
+        "ttft_ms": 2254,
+        "time_to_first_answer_token_ms": 25100,
+        "answer_stream_duration_ms": 1330,
+        "stream_duration_ms": 24315,
+        "total_duration_ms": 26570
+      },
+      "event_count": 106,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 2,
+        "tool_call_success_rate": 0.5
+      },
+      "final_answer_chars": 317,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 136,
+        "output_chars": 317,
+        "input_tokens": 47,
+        "output_tokens": 136,
+        "total_tokens": 183
+      }
+    },
+    {
+      "scenario_id": "author_own_submission_status",
+      "scenario_result_id": "author_own_submission_status__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 11770,
+      "timing_metrics": {
+        "ttft_ms": 2492,
+        "time_to_first_answer_token_ms": 11143,
+        "answer_stream_duration_ms": 484,
+        "stream_duration_ms": 9278,
+        "total_duration_ms": 11770
+      },
+      "event_count": 41,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 89,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 141,
+        "output_chars": 89,
+        "input_tokens": 52,
+        "output_tokens": 44,
+        "total_tokens": 96
+      }
+    },
+    {
+      "scenario_id": "author_own_submission_status",
+      "scenario_result_id": "author_own_submission_status__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 18675,
+      "timing_metrics": {
+        "ttft_ms": 2269,
+        "time_to_first_answer_token_ms": 17172,
+        "answer_stream_duration_ms": 1350,
+        "stream_duration_ms": 16405,
+        "total_duration_ms": 18675
+      },
+      "event_count": 106,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.6667
+      },
+      "final_answer_chars": 360,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 150,
+        "output_chars": 360,
+        "input_tokens": 50,
+        "output_tokens": 133,
+        "total_tokens": 183
+      }
+    },
+    {
+      "scenario_id": "author_submission_track",
+      "scenario_result_id": "author_submission_track__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 29539,
+      "timing_metrics": {
+        "ttft_ms": 2280,
+        "time_to_first_answer_token_ms": 26435,
+        "answer_stream_duration_ms": 2865,
+        "stream_duration_ms": 27259,
+        "total_duration_ms": 29539
+      },
+      "event_count": 166,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.6667
+      },
+      "final_answer_chars": 568,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 125,
+        "output_chars": 568,
+        "input_tokens": 34,
+        "output_tokens": 199,
+        "total_tokens": 233
+      }
+    },
+    {
+      "scenario_id": "author_submission_track",
+      "scenario_result_id": "author_submission_track__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 55647,
+      "timing_metrics": {
+        "ttft_ms": 2510,
+        "time_to_first_answer_token_ms": 53930,
+        "answer_stream_duration_ms": 1563,
+        "stream_duration_ms": 53137,
+        "total_duration_ms": 55647
+      },
+      "event_count": 157,
+      "tool_metrics": {
+        "tool_event_count": 10,
+        "tool_call_count": 5,
+        "started_tool_call_count": 5,
+        "completed_tool_call_count": 5,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 2,
+        "tool_call_success_rate": 0.6
+      },
+      "final_answer_chars": 440,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 135,
+        "output_chars": 440,
+        "input_tokens": 40,
+        "output_tokens": 187,
+        "total_tokens": 227
+      }
+    },
+    {
+      "scenario_id": "author_submission_track",
+      "scenario_result_id": "author_submission_track__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 22080,
+      "timing_metrics": {
+        "ttft_ms": 2282,
+        "time_to_first_answer_token_ms": 16410,
+        "answer_stream_duration_ms": 5322,
+        "stream_duration_ms": 19798,
+        "total_duration_ms": 22080
+      },
+      "event_count": 89,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 322,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 141,
+        "output_chars": 322,
+        "input_tokens": 43,
+        "output_tokens": 120,
+        "total_tokens": 163
+      }
+    },
+    {
+      "scenario_id": "author_submission_track",
+      "scenario_result_id": "author_submission_track__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 17797,
+      "timing_metrics": {
+        "ttft_ms": 2485,
+        "time_to_first_answer_token_ms": 16841,
+        "answer_stream_duration_ms": 854,
+        "stream_duration_ms": 15312,
+        "total_duration_ms": 17797
+      },
+      "event_count": 119,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 449,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 122,
+        "output_chars": 449,
+        "input_tokens": 36,
+        "output_tokens": 159,
+        "total_tokens": 195
+      }
+    },
+    {
+      "scenario_id": "author_submission_track",
+      "scenario_result_id": "author_submission_track__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 21941,
+      "timing_metrics": {
+        "ttft_ms": 2274,
+        "time_to_first_answer_token_ms": 19131,
+        "answer_stream_duration_ms": 2673,
+        "stream_duration_ms": 19667,
+        "total_duration_ms": 21941
+      },
+      "event_count": 199,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 731,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 137,
+        "output_chars": 731,
+        "input_tokens": 44,
+        "output_tokens": 279,
+        "total_tokens": 323
+      }
+    },
+    {
+      "scenario_id": "chair_conference_overview",
+      "scenario_result_id": "chair_conference_overview__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 46117,
+      "timing_metrics": {
+        "ttft_ms": 2490,
+        "time_to_first_answer_token_ms": 42905,
+        "answer_stream_duration_ms": 3059,
+        "stream_duration_ms": 43626,
+        "total_duration_ms": 46117
+      },
+      "event_count": 182,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 547,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 124,
+        "output_chars": 547,
+        "input_tokens": 56,
+        "output_tokens": 247,
+        "total_tokens": 303
+      }
+    },
+    {
+      "scenario_id": "chair_conference_overview",
+      "scenario_result_id": "chair_conference_overview__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 29302,
+      "timing_metrics": {
+        "ttft_ms": 2279,
+        "time_to_first_answer_token_ms": 23925,
+        "answer_stream_duration_ms": 5215,
+        "stream_duration_ms": 27022,
+        "total_duration_ms": 29302
+      },
+      "event_count": 348,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 1285,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 119,
+        "output_chars": 1285,
+        "input_tokens": 36,
+        "output_tokens": 510,
+        "total_tokens": 546
+      }
+    },
+    {
+      "scenario_id": "chair_conference_overview",
+      "scenario_result_id": "chair_conference_overview__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 22328,
+      "timing_metrics": {
+        "ttft_ms": 2497,
+        "time_to_first_answer_token_ms": 19450,
+        "answer_stream_duration_ms": 2670,
+        "stream_duration_ms": 19831,
+        "total_duration_ms": 22328
+      },
+      "event_count": 199,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 661,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 83,
+        "output_chars": 661,
+        "input_tokens": 35,
+        "output_tokens": 235,
+        "total_tokens": 270
+      }
+    },
+    {
+      "scenario_id": "chair_conference_overview",
+      "scenario_result_id": "chair_conference_overview__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 45552,
+      "timing_metrics": {
+        "ttft_ms": 2251,
+        "time_to_first_answer_token_ms": 42990,
+        "answer_stream_duration_ms": 2419,
+        "stream_duration_ms": 43300,
+        "total_duration_ms": 45552
+      },
+      "event_count": 117,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 4,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 403,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 97,
+        "output_chars": 403,
+        "input_tokens": 36,
+        "output_tokens": 161,
+        "total_tokens": 197
+      }
+    },
+    {
+      "scenario_id": "chair_conference_overview",
+      "scenario_result_id": "chair_conference_overview__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 27482,
+      "timing_metrics": {
+        "ttft_ms": 2490,
+        "time_to_first_answer_token_ms": 23907,
+        "answer_stream_duration_ms": 3403,
+        "stream_duration_ms": 24992,
+        "total_duration_ms": 27482
+      },
+      "event_count": 250,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.75
+      },
+      "final_answer_chars": 697,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 107,
+        "output_chars": 697,
+        "input_tokens": 48,
+        "output_tokens": 321,
+        "total_tokens": 369
+      }
+    },
+    {
+      "scenario_id": "reviewer_assignment_check",
+      "scenario_result_id": "reviewer_assignment_check__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "reviewer",
+      "status": "passed_transport",
+      "duration_ms": 29072,
+      "timing_metrics": {
+        "ttft_ms": 2527,
+        "time_to_first_answer_token_ms": 26005,
+        "answer_stream_duration_ms": 2910,
+        "stream_duration_ms": 26544,
+        "total_duration_ms": 29072
+      },
+      "event_count": 243,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.75
+      },
+      "final_answer_chars": 1135,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 74,
+        "output_chars": 1135,
+        "input_tokens": 30,
+        "output_tokens": 233,
+        "total_tokens": 263
+      }
+    },
+    {
+      "scenario_id": "reviewer_assignment_check",
+      "scenario_result_id": "reviewer_assignment_check__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "reviewer",
+      "status": "passed_transport",
+      "duration_ms": 24020,
+      "timing_metrics": {
+        "ttft_ms": 2271,
+        "time_to_first_answer_token_ms": 21195,
+        "answer_stream_duration_ms": 2582,
+        "stream_duration_ms": 21749,
+        "total_duration_ms": 24020
+      },
+      "event_count": 131,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 4,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 459,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 76,
+        "output_chars": 459,
+        "input_tokens": 29,
+        "output_tokens": 161,
+        "total_tokens": 190
+      }
+    },
+    {
+      "scenario_id": "reviewer_assignment_check",
+      "scenario_result_id": "reviewer_assignment_check__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "reviewer",
+      "status": "passed_transport",
+      "duration_ms": 36306,
+      "timing_metrics": {
+        "ttft_ms": 2270,
+        "time_to_first_answer_token_ms": 32302,
+        "answer_stream_duration_ms": 3231,
+        "stream_duration_ms": 34036,
+        "total_duration_ms": 36306
+      },
+      "event_count": 197,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.75
+      },
+      "final_answer_chars": 733,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 94,
+        "output_chars": 733,
+        "input_tokens": 39,
+        "output_tokens": 316,
+        "total_tokens": 355
+      }
+    },
+    {
+      "scenario_id": "reviewer_assignment_check",
+      "scenario_result_id": "reviewer_assignment_check__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "reviewer",
+      "status": "passed_transport",
+      "duration_ms": 24098,
+      "timing_metrics": {
+        "ttft_ms": 2499,
+        "time_to_first_answer_token_ms": 21464,
+        "answer_stream_duration_ms": 2477,
+        "stream_duration_ms": 21598,
+        "total_duration_ms": 24098
+      },
+      "event_count": 175,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 4,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 597,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 84,
+        "output_chars": 597,
+        "input_tokens": 32,
+        "output_tokens": 250,
+        "total_tokens": 282
+      }
+    },
+    {
+      "scenario_id": "reviewer_assignment_check",
+      "scenario_result_id": "reviewer_assignment_check__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "reviewer",
+      "status": "passed_transport",
+      "duration_ms": 19019,
+      "timing_metrics": {
+        "ttft_ms": 2289,
+        "time_to_first_answer_token_ms": 17579,
+        "answer_stream_duration_ms": 1256,
+        "stream_duration_ms": 16730,
+        "total_duration_ms": 19019
+      },
+      "event_count": 113,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 418,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 94,
+        "output_chars": 418,
+        "input_tokens": 39,
+        "output_tokens": 168,
+        "total_tokens": 207
+      }
+    },
+    {
+      "scenario_id": "public_conference_lookup",
+      "scenario_result_id": "public_conference_lookup__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 14155,
+      "timing_metrics": {
+        "ttft_ms": 2465,
+        "time_to_first_answer_token_ms": 11443,
+        "answer_stream_duration_ms": 2575,
+        "stream_duration_ms": 11690,
+        "total_duration_ms": 14155
+      },
+      "event_count": 191,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 681,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 63,
+        "output_chars": 681,
+        "input_tokens": 26,
+        "output_tokens": 242,
+        "total_tokens": 268
+      }
+    },
+    {
+      "scenario_id": "public_conference_lookup",
+      "scenario_result_id": "public_conference_lookup__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 15014,
+      "timing_metrics": {
+        "ttft_ms": 2282,
+        "time_to_first_answer_token_ms": 11500,
+        "answer_stream_duration_ms": 3382,
+        "stream_duration_ms": 12731,
+        "total_duration_ms": 15014
+      },
+      "event_count": 254,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 824,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 66,
+        "output_chars": 824,
+        "input_tokens": 26,
+        "output_tokens": 309,
+        "total_tokens": 335
+      }
+    },
+    {
+      "scenario_id": "public_conference_lookup",
+      "scenario_result_id": "public_conference_lookup__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 33420,
+      "timing_metrics": {
+        "ttft_ms": 2269,
+        "time_to_first_answer_token_ms": 32450,
+        "answer_stream_duration_ms": 600,
+        "stream_duration_ms": 31150,
+        "total_duration_ms": 33420
+      },
+      "event_count": 194,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 1,
+        "failed_tool_call_count": 3,
+        "tool_call_success_rate": 0.25
+      },
+      "final_answer_chars": 680,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 81,
+        "output_chars": 680,
+        "input_tokens": 32,
+        "output_tokens": 274,
+        "total_tokens": 306
+      }
+    },
+    {
+      "scenario_id": "public_conference_lookup",
+      "scenario_result_id": "public_conference_lookup__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 25922,
+      "timing_metrics": {
+        "ttft_ms": 2483,
+        "time_to_first_answer_token_ms": 20468,
+        "answer_stream_duration_ms": 2554,
+        "stream_duration_ms": 23439,
+        "total_duration_ms": 25922
+      },
+      "event_count": 195,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 3,
+        "failed_tool_call_count": 1,
+        "tool_call_success_rate": 0.75
+      },
+      "final_answer_chars": 692,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 70,
+        "output_chars": 692,
+        "input_tokens": 26,
+        "output_tokens": 231,
+        "total_tokens": 257
+      }
+    },
+    {
+      "scenario_id": "public_conference_lookup",
+      "scenario_result_id": "public_conference_lookup__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 18876,
+      "timing_metrics": {
+        "ttft_ms": 2282,
+        "time_to_first_answer_token_ms": 15591,
+        "answer_stream_duration_ms": 3128,
+        "stream_duration_ms": 16593,
+        "total_duration_ms": 18876
+      },
+      "event_count": 198,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 610,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 92,
+        "output_chars": 610,
+        "input_tokens": 34,
+        "output_tokens": 227,
+        "total_tokens": 261
+      }
+    },
+    {
+      "scenario_id": "permission_boundary_other_submission",
+      "scenario_result_id": "permission_boundary_other_submission__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 23703,
+      "timing_metrics": {
+        "ttft_ms": 2273,
+        "time_to_first_answer_token_ms": 21254,
+        "answer_stream_duration_ms": 2313,
+        "stream_duration_ms": 21429,
+        "total_duration_ms": 23703
+      },
+      "event_count": 179,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 1,
+        "failed_tool_call_count": 2,
+        "tool_call_success_rate": 0.3333
+      },
+      "final_answer_chars": 625,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 99,
+        "output_chars": 625,
+        "input_tokens": 34,
+        "output_tokens": 242,
+        "total_tokens": 276
+      }
+    },
+    {
+      "scenario_id": "permission_boundary_other_submission",
+      "scenario_result_id": "permission_boundary_other_submission__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 15898,
+      "timing_metrics": {
+        "ttft_ms": 2457,
+        "time_to_first_answer_token_ms": 14250,
+        "answer_stream_duration_ms": 1545,
+        "stream_duration_ms": 13441,
+        "total_duration_ms": 15898
+      },
+      "event_count": 144,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 556,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 123,
+        "output_chars": 556,
+        "input_tokens": 41,
+        "output_tokens": 203,
+        "total_tokens": 244
+      }
+    },
+    {
+      "scenario_id": "permission_boundary_other_submission",
+      "scenario_result_id": "permission_boundary_other_submission__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 19187,
+      "timing_metrics": {
+        "ttft_ms": 2285,
+        "time_to_first_answer_token_ms": 16176,
+        "answer_stream_duration_ms": 2893,
+        "stream_duration_ms": 16902,
+        "total_duration_ms": 19187
+      },
+      "event_count": 216,
+      "tool_metrics": {
+        "tool_event_count": 6,
+        "tool_call_count": 3,
+        "started_tool_call_count": 3,
+        "completed_tool_call_count": 3,
+        "successful_tool_call_count": 1,
+        "failed_tool_call_count": 2,
+        "tool_call_success_rate": 0.3333
+      },
+      "final_answer_chars": 790,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 103,
+        "output_chars": 790,
+        "input_tokens": 39,
+        "output_tokens": 344,
+        "total_tokens": 383
+      }
+    },
+    {
+      "scenario_id": "permission_boundary_other_submission",
+      "scenario_result_id": "permission_boundary_other_submission__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 15938,
+      "timing_metrics": {
+        "ttft_ms": 2270,
+        "time_to_first_answer_token_ms": 14355,
+        "answer_stream_duration_ms": 1372,
+        "stream_duration_ms": 13667,
+        "total_duration_ms": 15938
+      },
+      "event_count": 170,
+      "tool_metrics": {
+        "tool_event_count": 4,
+        "tool_call_count": 2,
+        "started_tool_call_count": 2,
+        "completed_tool_call_count": 2,
+        "successful_tool_call_count": 2,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 716,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 116,
+        "output_chars": 716,
+        "input_tokens": 37,
+        "output_tokens": 262,
+        "total_tokens": 299
+      }
+    },
+    {
+      "scenario_id": "permission_boundary_other_submission",
+      "scenario_result_id": "permission_boundary_other_submission__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 31466,
+      "timing_metrics": {
+        "ttft_ms": 2289,
+        "time_to_first_answer_token_ms": 28313,
+        "answer_stream_duration_ms": 3009,
+        "stream_duration_ms": 29176,
+        "total_duration_ms": 31466
+      },
+      "event_count": 192,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 1,
+        "failed_tool_call_count": 3,
+        "tool_call_success_rate": 0.25
+      },
+      "final_answer_chars": 691,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 117,
+        "output_chars": 691,
+        "input_tokens": 46,
+        "output_tokens": 305,
+        "total_tokens": 351
+      }
+    },
+    {
+      "scenario_id": "unsupported_external_research",
+      "scenario_result_id": "unsupported_external_research__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 9413,
+      "timing_metrics": {
+        "ttft_ms": 2499,
+        "time_to_first_answer_token_ms": 6640,
+        "answer_stream_duration_ms": 2652,
+        "stream_duration_ms": 6913,
+        "total_duration_ms": 9413
+      },
+      "event_count": 206,
+      "tool_metrics": {
+        "tool_event_count": 0,
+        "tool_call_count": 0,
+        "started_tool_call_count": 0,
+        "completed_tool_call_count": 0,
+        "successful_tool_call_count": 0,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": null
+      },
+      "final_answer_chars": 724,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 113,
+        "output_chars": 724,
+        "input_tokens": 43,
+        "output_tokens": 341,
+        "total_tokens": 384
+      }
+    },
+    {
+      "scenario_id": "unsupported_external_research",
+      "scenario_result_id": "unsupported_external_research__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 6962,
+      "timing_metrics": {
+        "ttft_ms": 2291,
+        "time_to_first_answer_token_ms": 4961,
+        "answer_stream_duration_ms": 1856,
+        "stream_duration_ms": 4671,
+        "total_duration_ms": 6962
+      },
+      "event_count": 156,
+      "tool_metrics": {
+        "tool_event_count": 0,
+        "tool_call_count": 0,
+        "started_tool_call_count": 0,
+        "completed_tool_call_count": 0,
+        "successful_tool_call_count": 0,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": null
+      },
+      "final_answer_chars": 563,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 99,
+        "output_chars": 563,
+        "input_tokens": 48,
+        "output_tokens": 248,
+        "total_tokens": 296
+      }
+    },
+    {
+      "scenario_id": "unsupported_external_research",
+      "scenario_result_id": "unsupported_external_research__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 11784,
+      "timing_metrics": {
+        "ttft_ms": 2289,
+        "time_to_first_answer_token_ms": 5451,
+        "answer_stream_duration_ms": 6120,
+        "stream_duration_ms": 9495,
+        "total_duration_ms": 11784
+      },
+      "event_count": 351,
+      "tool_metrics": {
+        "tool_event_count": 0,
+        "tool_call_count": 0,
+        "started_tool_call_count": 0,
+        "completed_tool_call_count": 0,
+        "successful_tool_call_count": 0,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": null
+      },
+      "final_answer_chars": 1290,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 117,
+        "output_chars": 1290,
+        "input_tokens": 43,
+        "output_tokens": 556,
+        "total_tokens": 599
+      }
+    },
+    {
+      "scenario_id": "unsupported_external_research",
+      "scenario_result_id": "unsupported_external_research__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 24331,
+      "timing_metrics": {
+        "ttft_ms": 2283,
+        "time_to_first_answer_token_ms": 5170,
+        "answer_stream_duration_ms": 19014,
+        "stream_duration_ms": 22048,
+        "total_duration_ms": 24331
+      },
+      "event_count": 1143,
+      "tool_metrics": {
+        "tool_event_count": 0,
+        "tool_call_count": 0,
+        "started_tool_call_count": 0,
+        "completed_tool_call_count": 0,
+        "successful_tool_call_count": 0,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": null
+      },
+      "final_answer_chars": 4525,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 86,
+        "output_chars": 4525,
+        "input_tokens": 26,
+        "output_tokens": 1707,
+        "total_tokens": 1733
+      }
+    },
+    {
+      "scenario_id": "unsupported_external_research",
+      "scenario_result_id": "unsupported_external_research__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "author",
+      "status": "passed_transport",
+      "duration_ms": 10580,
+      "timing_metrics": {
+        "ttft_ms": 2281,
+        "time_to_first_answer_token_ms": 5343,
+        "answer_stream_duration_ms": 5146,
+        "stream_duration_ms": 8298,
+        "total_duration_ms": 10580
+      },
+      "event_count": 287,
+      "tool_metrics": {
+        "tool_event_count": 0,
+        "tool_call_count": 0,
+        "started_tool_call_count": 0,
+        "completed_tool_call_count": 0,
+        "successful_tool_call_count": 0,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": null
+      },
+      "final_answer_chars": 1051,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 110,
+        "output_chars": 1051,
+        "input_tokens": 51,
+        "output_tokens": 491,
+        "total_tokens": 542
+      }
+    },
+    {
+      "scenario_id": "chair_multi_step_platform_report",
+      "scenario_result_id": "chair_multi_step_platform_report__trial_01",
+      "trial": {
+        "index": 1,
+        "count": 5,
+        "id": "trial_01"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 49328,
+      "timing_metrics": {
+        "ttft_ms": 2484,
+        "time_to_first_answer_token_ms": 46038,
+        "answer_stream_duration_ms": 3090,
+        "stream_duration_ms": 46844,
+        "total_duration_ms": 49328
+      },
+      "event_count": 268,
+      "tool_metrics": {
+        "tool_event_count": 14,
+        "tool_call_count": 7,
+        "started_tool_call_count": 7,
+        "completed_tool_call_count": 7,
+        "successful_tool_call_count": 5,
+        "failed_tool_call_count": 2,
+        "tool_call_success_rate": 0.7143
+      },
+      "final_answer_chars": 912,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 243,
+        "output_chars": 912,
+        "input_tokens": 103,
+        "output_tokens": 373,
+        "total_tokens": 476
+      }
+    },
+    {
+      "scenario_id": "chair_multi_step_platform_report",
+      "scenario_result_id": "chair_multi_step_platform_report__trial_02",
+      "trial": {
+        "index": 2,
+        "count": 5,
+        "id": "trial_02"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 38048,
+      "timing_metrics": {
+        "ttft_ms": 2295,
+        "time_to_first_answer_token_ms": 34252,
+        "answer_stream_duration_ms": 3617,
+        "stream_duration_ms": 35752,
+        "total_duration_ms": 38048
+      },
+      "event_count": 327,
+      "tool_metrics": {
+        "tool_event_count": 12,
+        "tool_call_count": 6,
+        "started_tool_call_count": 6,
+        "completed_tool_call_count": 6,
+        "successful_tool_call_count": 6,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 1215,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 205,
+        "output_chars": 1215,
+        "input_tokens": 65,
+        "output_tokens": 379,
+        "total_tokens": 444
+      }
+    },
+    {
+      "scenario_id": "chair_multi_step_platform_report",
+      "scenario_result_id": "chair_multi_step_platform_report__trial_03",
+      "trial": {
+        "index": 3,
+        "count": 5,
+        "id": "trial_03"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 36785,
+      "timing_metrics": {
+        "ttft_ms": 2460,
+        "time_to_first_answer_token_ms": 30947,
+        "answer_stream_duration_ms": 5664,
+        "stream_duration_ms": 34324,
+        "total_duration_ms": 36785
+      },
+      "event_count": 463,
+      "tool_metrics": {
+        "tool_event_count": 10,
+        "tool_call_count": 5,
+        "started_tool_call_count": 5,
+        "completed_tool_call_count": 5,
+        "successful_tool_call_count": 5,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 1690,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 173,
+        "output_chars": 1690,
+        "input_tokens": 66,
+        "output_tokens": 623,
+        "total_tokens": 689
+      }
+    },
+    {
+      "scenario_id": "chair_multi_step_platform_report",
+      "scenario_result_id": "chair_multi_step_platform_report__trial_04",
+      "trial": {
+        "index": 4,
+        "count": 5,
+        "id": "trial_04"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 57889,
+      "timing_metrics": {
+        "ttft_ms": 2277,
+        "time_to_first_answer_token_ms": 53144,
+        "answer_stream_duration_ms": 4503,
+        "stream_duration_ms": 55611,
+        "total_duration_ms": 57889
+      },
+      "event_count": 420,
+      "tool_metrics": {
+        "tool_event_count": 24,
+        "tool_call_count": 12,
+        "started_tool_call_count": 12,
+        "completed_tool_call_count": 12,
+        "successful_tool_call_count": 8,
+        "failed_tool_call_count": 4,
+        "tool_call_success_rate": 0.6667
+      },
+      "final_answer_chars": 1541,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 183,
+        "output_chars": 1541,
+        "input_tokens": 58,
+        "output_tokens": 554,
+        "total_tokens": 612
+      }
+    },
+    {
+      "scenario_id": "chair_multi_step_platform_report",
+      "scenario_result_id": "chair_multi_step_platform_report__trial_05",
+      "trial": {
+        "index": 5,
+        "count": 5,
+        "id": "trial_05"
+      },
+      "actor": "chair",
+      "status": "passed_transport",
+      "duration_ms": 37571,
+      "timing_metrics": {
+        "ttft_ms": 2470,
+        "time_to_first_answer_token_ms": 31253,
+        "answer_stream_duration_ms": 6158,
+        "stream_duration_ms": 35100,
+        "total_duration_ms": 37571
+      },
+      "event_count": 456,
+      "tool_metrics": {
+        "tool_event_count": 8,
+        "tool_call_count": 4,
+        "started_tool_call_count": 4,
+        "completed_tool_call_count": 4,
+        "successful_tool_call_count": 4,
+        "failed_tool_call_count": 0,
+        "tool_call_success_rate": 1.0
+      },
+      "final_answer_chars": 1495,
+      "error": "",
+      "token_usage": {
+        "method": "tiktoken",
+        "encoding": "cl100k_base",
+        "input_chars": 171,
+        "output_chars": 1495,
+        "input_tokens": 67,
+        "output_tokens": 585,
+        "total_tokens": 652
+      }
+    }
+  ],
+  "token_counting": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base"
+  }
+}

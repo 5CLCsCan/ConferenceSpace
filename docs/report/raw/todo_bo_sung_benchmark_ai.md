@@ -7,15 +7,13 @@ Tai lieu nay ghi lai cac khoang trong thuc nghiem can bo sung cho bao cao. Muc t
 - Chatbot agent dang di theo luong `frontend/app/api/chat/route.ts` -> `ai-service/app/services/agent_runtime.py` -> server tools trong `ai-service/app/services/tool_registry.py` -> query engine cua backend tai `backend/internal/agentquery`. He thong da co metrics runtime nhu request count, error count, tool timeout, resume success rate, TTFT va stream duration, nhung chua co benchmark chuc nang de do do dung cua cau tra loi.
 - Submission Gating nam tai `ai-service/app/workflows/submission_gating`. Runner hien co da chia stage ro rang: intake normalization, binary integrity, format compliance, document extraction, fact derivation, content evaluation, policy evaluation, verdict mapping, guidance rendering va persistence audit. Response da co verdict, score, findings, guidance va stage timings, nhung chua co bo du lieu ground truth de do verdict accuracy hoac rule-level precision/recall.
 - Goi y track can danh gia trong pham vi Submission Autofill tai `ai-service/app/workflows/submission_autofill`, cu the la truong `track_rankings` duoc tao dua tren hoi nghi dang hoat dong, danh sach track cua hoi nghi va thong tin bai nop da trich xuat hoac duoc cung cap trong form. Workflow doc lap `ai-service/app/workflows/track_recommendation` ton tai trong codebase nhung khong phai trong tam cua hang muc benchmark nay.
-- Reviewer matching hien la lop thuat toan xac dinh, khong phai AI sinh. Thanh phan lien quan gom `backend/internal/assignment/scoring/domain_jaccard.go`, `backend/internal/assignment/matching/greedy.go`, COI exclusion trong `backend/internal/assignment/coi`, va reviewer suggestion service tai `backend/internal/service/reviewer_suggestion/service.go`. Benchmark hien co trong `backend/benchmarks` chu yeu do hieu nang va tai nguyen, chua do do chinh xac hoac chat luong phan cong.
 
 ## 2. To-do uu tien
 
 | Uu tien | Hang muc | Muc tieu can dat | Dau ra toi thieu |
 | --- | --- | --- | --- |
-| P0 | Reviewer matching accuracy | Chung minh goi y/phan cong phan bien phu hop chuyen mon va khong vi pham COI | Bang Precision@K, Recall@K, coverage, load balance, COI violation rate |
 | P0 | Submission Gating benchmark | Do do dung cua verdict `pass/warn/block` va cac finding theo rule | Bang verdict accuracy, block precision/recall, warning F1, false block rate, stage latency |
-| P1 | Goi y track trong Submission Autofill | Do kha nang goi y track dung va on dinh dua tren hoi nghi dang hoat dong va input bai nop | Bang Top-1, Top-3, MRR, NDCG@K, invalid/duplicate rate, calibration |
+| P1 | Submission Autofill chi tiet | Do pipeline metadata extraction va phan goi y track trong cung workflow | Bang field accuracy, keyword extraction/enrichment quality, Top-1/Top-3 track accuracy |
 | P1 | Chatbot agent benchmark | Do chatbot tra loi dung du lieu he thong, dung quyen va dung tool | Bang answer accuracy, groundedness, tool success rate, TTFT, stream duration, resume success |
 
 ## 3. Benchmark chatbot agent cua platform
@@ -66,6 +64,18 @@ Moi mau benchmark can co:
 4. Cham diem bang comparator deterministic: so khop fact bat buoc, phat hien fact khong co nguon, phat hien du lieu vuot quyen.
 5. Dua vao bao cao 3 bang: chat quality, tool/runtime reliability va failure examples.
 
+### 3.5 Output can viet vao bao cao
+
+Viet ket qua benchmark nay vao `docs/report/compiled/markdown/chapter_5.AI-danh-gia-thuc-nghiem.md`, trong muc `5.5.7 Chatbot Agent cua nen tang` theo outline hien tai.
+
+Noi dung toi thieu can co:
+
+- Bang dataset benchmark chatbot: so cau hoi, so role, so mau can truy van du lieu he thong, so mau kiem tra vuot quyen.
+- Bang chat quality: answer accuracy, groundedness, unauthorized disclosure rate, tool success rate va tool efficiency.
+- Bang runtime reliability: TTFT, stream duration, timeout/error rate va resume success rate.
+- Bang failure examples: it nhat 3 cau hoi that bai, tool da goi, loi quan sat duoc va cach dien giai trong bao cao.
+- Doan ket luan ngan: chatbot dang du bang chung cho nhom cau hoi nao, nhom cau hoi nao chua nen ket luan manh.
+
 ## 4. Benchmark workflow Submission Gating
 
 ### 4.1 Pham vi can danh gia
@@ -112,16 +122,35 @@ Moi mau can co:
 3. Xuat CSV tong hop theo verdict, rule id, latency va ket qua pass/fail cua comparator.
 4. Dua vao bao cao bang confusion matrix cho verdict va bang top failure cases.
 
-## 5. Benchmark goi y track trong Submission Autofill
+### 4.5 Output can viet vao bao cao
+
+Viet ket qua benchmark nay vao `docs/report/compiled/markdown/chapter_5.AI-danh-gia-thuc-nghiem.md`, trong muc `5.5.3 Submission Gating` theo outline hien tai.
+
+Noi dung toi thieu can co:
+
+- Bang dataset benchmark submission gating: so mau `pass`, `warn`, `block`, so mau edge case va cac policy fixture duoc dung.
+- Confusion matrix cho verdict `pass/warn/block`.
+- Bang rule-level quality: precision/recall/F1 theo nhom rule deterministic va LLM-assisted finding.
+- Bang operational metrics: extraction success rate, text coverage, p50/p95 latency theo stage va repeatability.
+- Bang false block analysis: cac truong hop bi block sai, muc do nghiem trong va tac dong toi tac gia.
+- Doan ket luan ngan: workflow phu hop voi advisory/precheck den muc nao, va dieu gi chua du de dung nhu hard gate.
+
+## 5. Benchmark chi tiet Submission Autofill
 
 ### 5.1 Pham vi can danh gia
 
-Hang muc nay chi danh gia phan suggest tracks nam ben trong Submission Autofill. Dau vao can phan anh dung runtime cua he thong:
+Hang muc nay danh gia Submission Autofill nhu mot workflow nhieu buoc, khong chi la tac vu doc PDF. Dau vao can phan anh dung runtime cua he thong:
 
 - Hoi nghi dang hoat dong ma tac gia dang nop bai.
 - Danh sach track cua hoi nghi, kem ten track va mo ta neu co.
-- Thong tin bai nop duoc trich xuat tu PDF hoac da co trong form, gom title, abstract, keywords va cac metadata lien quan.
+- File PDF ban thao, thong tin tac gia da nhap neu co va extra_details neu tac gia cung cap sua loi/bo sung.
+- Thong tin bai nop duoc trich xuat tu PDF hoac da co trong form, gom title, abstract, authors, keywords va cac metadata lien quan.
 - Output `track_rankings` cua Submission Autofill, gom track name, confidence va rationale.
+
+Can tach hai nhom danh gia chinh:
+
+- Pipeline metadata extraction: trich xuat title, abstract, authors, emails, affiliations, countries va keywords goc tu ban thao; dong thoi chuan hoa truong cho form, xu ly metadata bi thieu/nhieu va mo rong keyword khi co du can cu tu abstract, excerpt, conference domain hoac CFP.
+- Track suggestion: xep hang official tracks cua hoi nghi dang hoat dong trong `track_rankings`.
 
 Workflow `track_recommendation` doc lap khong phai trong tam cua benchmark nay. Chi nen dua workflow do vao bao cao neu can doi chieu nhu mot baseline phu, va khi do phai ghi ro day la thuc nghiem rieng.
 
@@ -131,81 +160,54 @@ Su dung tap paper co track ground truth, uu tien du lieu cong khai tu cac hoi ng
 
 - Toi thieu 8 hoi nghi/track group khac nhau neu co the.
 - Toi thieu 200 paper de Top-K co y nghia; neu thoi gian han che, chon 50-80 paper can bang giua cac track.
-- Moi mau gom active conference id, title, abstract, keywords, selected track, danh sach track cua conference va mo ta track/call for papers neu co.
+- Moi mau gom active conference id, title, abstract, authors, emails, affiliations, keywords goc, selected track, danh sach track cua conference va mo ta track/call for papers neu co.
 - Can co PDF goc neu muon do end-to-end tu file upload den `track_rankings`. Neu chi do logic suggest tracks trong autofill, co the dung metadata da trich xuat de tach loi doc PDF khoi loi goi y track.
+- Nen co nhan rieng cho keyword bo sung hop le, vi keyword enrichment khong the cham nhu exact-copy tu paper goc.
 
 ### 5.3 Chi so can do
 
-- Top-1 accuracy: track dung co dung hang 1 khong.
-- Top-3 accuracy: track dung co nam trong 3 goi y dau khong.
-- MRR va NDCG@K: do chat luong xep hang, khong chi dung/sai.
+- Metadata field accuracy: exact/normalized match cho title, author/email/affiliation F1, ROUGE hoac semantic similarity cho abstract.
+- Extraction coverage: ty le PDF co du text coverage, page_count hop le va khong roi vao `low_text_coverage`.
+- Metadata correction quality: ty le truong bi thieu/sai duoc chuan hoa dung trong pipeline extraction, va ty le viec sua truong lam thay doi sai su that trong manuscript.
+- Keyword extraction F1: do keyword goc trich xuat tu paper.
+- Keyword enrichment quality: precision cua keyword bo sung, ty le keyword qua chung chung, ty le trung lap va muc do huu ich cho track suggestion.
+- Track Top-1 accuracy: track dung co dung hang 1 khong.
+- Track Top-3 accuracy: track dung co nam trong 3 goi y dau khong.
+- Track MRR va NDCG@K: do chat luong xep hang, khong chi dung/sai.
 - Invalid/duplicate track rate: ty le output chua track khong ton tai trong hoi nghi dang hoat dong hoac lap lai.
-- Coverage rate: ty le response xep hang day du cac track duoc cung cap.
 - Confidence calibration: so sanh confidence voi ty le dung thuc te. `AutofillTrackRanking` dung confidence 1-10, can chuan hoa ve 0-1 neu cong cu cham diem yeu cau.
-- Stability: chay lap lai cung input va do bien dong rank cua track dung.
-- Rationale quality: ty le ly do co nhac dung keyword/abstract/track description thay vi noi chung chung.
+- Stability: chay lap lai cung input va do bien dong cua fields, keyword bo sung va rank cua track dung.
 
 ### 5.4 Cach trien khai
 
-1. Chay workflow `submission_autofill` voi active conference context va danh sach track dung nhu luong nop bai that.
-2. Lay `track_rankings` tu response va map track name ve track id hoac canonical track name trong dataset.
-3. Chuan hoa output ve schema chung: paper id, conference id, gold track, ranked tracks, confidence, rationale, latency va model/config.
-4. Cham diem theo gold track va tach loi thanh ba nhom: loi trich xuat metadata, loi mapping track name va loi xep hang track.
-5. Bao cao ket qua cua phan suggest tracks trong Submission Autofill; khong tron voi workflow `track_recommendation` doc lap neu chua co thiet ke so sanh rieng.
+1. Chay workflow `submission_autofill` voi PDF, active conference context va danh sach track dung nhu luong nop bai that.
+2. Luu response day du gom `fields`, `track_rankings`, `authors`, `materials`, `warnings` va `error`.
+3. Chuan hoa output ve schema chung: paper id, conference id, extracted fields, original keywords, enriched keywords, gold track, ranked tracks, confidence, rationale, latency va model/config.
+4. Cham pipeline metadata theo tung truong de khong tron loi doc PDF, loi chuan hoa field va loi lam giau keyword.
+5. Cham keyword theo hai nhom: keyword goc phai khop paper, keyword bo sung phai co ly do chuyen mon va khong duoc qua rong.
+6. Cham track theo gold track va tach loi thanh ba nhom: loi metadata dau vao, loi mapping track name va loi xep hang track.
+7. Bao cao ket qua Submission Autofill nhu mot workflow duy nhat co nhieu nang luc con; khong tron voi workflow `track_recommendation` doc lap neu chua co thiet ke so sanh rieng.
 
-## 6. Benchmark do chinh xac reviewer matching
+### 5.5 Output can viet vao bao cao
 
-### 6.1 Pham vi can danh gia
+Viet ket qua benchmark nay vao `docs/report/compiled/markdown/chapter_5.AI-danh-gia-thuc-nghiem.md`, trong muc `5.5.2 Submission Autofill` theo outline hien tai.
 
-Reviewer matching can duoc danh gia nhu mot pipeline gom scoring, conflict filtering va assignment:
+Noi dung toi thieu can co:
 
-- `DomainJaccardScorer` tinh diem phu hop giua domain/keyword cua paper va reviewer.
-- `GreedyMatcher` chon assignment theo diem, reviewer load, min/max reviewer per paper, score threshold va COI.
-- COI layer dam bao khong gan reviewer co xung dot.
-- Reviewer suggestion service co the duoc danh gia rieng neu bao cao muon noi ve goi y reviewer moi cho committee.
+- Bang dataset benchmark autofill: so paper, so conference/track group, so file PDF end-to-end, so mau chi cham metadata da trich xuat va so mau co nhan keyword bo sung.
+- Bang metadata pipeline quality: title accuracy, abstract similarity, author/email/affiliation F1, keyword extraction F1, keyword enrichment precision va extraction coverage.
+- Bang track suggestion quality: Top-1 accuracy, Top-3 accuracy, MRR, NDCG@K, invalid/duplicate track rate va confidence calibration.
+- Bang error breakdown: loi doc PDF, loi chuan hoa field, loi keyword qua rong, loi mapping track name va loi xep hang track.
+- Bang example outputs: it nhat 3 mau thanh cong va 3 mau that bai, kem title/abstract rut gon, gold track, predicted track ranking va keyword bo sung.
+- Doan ket luan ngan: Submission Autofill giup giam thao tac nao cho tac gia, phan nao van bat buoc can nguoi dung review.
 
-### 6.2 Bo du lieu de xuat
-
-Can co it nhat mot trong ba loai ground truth:
-
-- Historical assignment: paper, reviewer profile va assignment that tu hoi nghi cu hoac du lieu public.
-- Chair-labeled assignment: chair/chuyen gia gan nhan top reviewer phu hop cho mot tap paper nho.
-- Synthetic gold set: tao paper/reviewer voi topic va COI da biet truoc de kiem tra thuat toan trong dieu kien kiem soat.
-
-Moi mau can co:
-
-- Paper id, title, abstract, domains, keywords.
-- Reviewer id, domains, expertise keywords, current load.
-- COI pairs bat buoc loai tru.
-- Gold reviewers hoac gold ranking.
-- Cau hinh min/max reviewer, score threshold va reviewer max load.
-
-### 6.3 Chi so can do
-
-- Precision@K va Recall@K: gold reviewer co nam trong top K goi y hay khong.
-- Assignment coverage: ty le paper dat du so reviewer toi thieu.
-- COI violation rate: phai bang 0.
-- Load balance: do lech chuan load, max-min load va ty le reviewer vuot tai.
-- Average assigned score: diem phu hop trung binh cua assignment da chon.
-- Fallback rate: ty le paper can fallback vi khong dat threshold hoac thieu reviewer.
-- Optimality gap: tren tap nho, so sanh greedy assignment voi baseline toi uu nhu min-cost flow hoac ILP de biet thuat toan mat bao nhieu diem vi chay nhanh/don gian.
-- Chair acceptance rate: neu co UAT, ty le chair giu nguyen goi y cua he thong.
-
-### 6.4 Cach trien khai
-
-1. Tai su dung generator trong `backend/benchmarks` cho data quy mo lon, nhung bo sung fixture co ground truth de cham chat luong.
-2. Chay scorer de tao score matrix, sau do chay matcher voi nhieu cau hinh threshold/load.
-3. Luu assignment output gom reviewer, score, COI status, fallback flag va load.
-4. Bao cao tach hai lop: hieu nang xu ly da co benchmark hien tai, va chat luong phan cong can bo sung bang cac chi so tren.
-
-## 7. Vi tri chen vao bao cao
+## 6. Vi tri chen vao bao cao
 
 - Muc 5.2 can them mot tieu muc rieng ve bo du lieu doi chung va quy trinh cham diem cho AI/algorithm benchmark.
-- Muc 5.4 can tach ro benchmark toc do cua reviewer matching voi benchmark do chinh xac/chat luong reviewer matching.
-- Muc 5.5 can them cac tieu muc rieng cho goi y track trong Submission Autofill, Submission Gating va Chatbot Agent. Khong nen gop cac hang muc nay vao "workflow chua danh gia day du" vi day la cac tinh nang da ton tai trong he thong va co du dau moi de do luong.
+- Muc 5.5 can lam ro Submission Autofill bang hai tieu muc con: pipeline metadata extraction, trong do co chuan hoa field va keyword enrichment, va goi y track trong autofill; dong thoi them cac muc rieng cho Submission Gating va Chatbot Agent. Khong nen dua goi y track thanh workflow ngang hang voi Submission Autofill vi no la mot dau ra con cua workflow nay.
 - Muc 5.8 can tong hop ro: ket qua nao da du bang chung, ket qua nao chi la benchmark ban dau, va ket qua nao van can tap du lieu lon hon.
 
-## 8. Definition of done
+## 7. Definition of done
 
 Mot hang muc benchmark chi nen duoc xem la hoan tat khi co du cac dau ra sau:
 

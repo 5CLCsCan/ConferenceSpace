@@ -220,7 +220,7 @@ Mô tả các kịch bản thực nghiệm và bộ chỉ số tương ứng cho
 Nêu rõ những gì thực nghiệm có thể và không thể chứng minh. Mục này giúp đặt đúng kỳ vọng cho người đọc, tránh diễn giải quá mức từ dữ liệu benchmark hoặc khảo sát có quy mô giới hạn.
 
 #### 5.2.5 Bộ dữ liệu đối chứng và quy trình chấm điểm benchmark
-Trình bày các bộ dữ liệu có ground truth dùng để đánh giá chất lượng các thuật toán và workflow AI, bao gồm dữ liệu đối sánh phản biện, dữ liệu track ground truth, dữ liệu kiểm tra submission gating và bộ câu hỏi chatbot agent. Mục này cần làm rõ cách gán nhãn, cách chuẩn hóa đầu ra, cách chấm điểm tự động hoặc bán tự động và các giới hạn của từng tập dữ liệu.
+Trình bày các bộ dữ liệu và quy trình chấm điểm được dùng cho từng nhóm benchmark. Với lớp thuật toán xác định, cần mô tả dữ liệu dùng để đánh giá reviewer matching và phát hiện xung đột lợi ích. Với lớp AI hỗ trợ, cần nêu rõ dataset workflow runner, tập kết quả được đưa vào TCA benchmark, các benchmark hợp đồng riêng cho Submission Gating và gợi ý track trong Submission Autofill, cùng bộ kịch bản hội thoại của Chatbot Agent. Mục này phải làm rõ mẫu số, nguồn dữ liệu, ground truth hoặc proxy đánh giá, cách chuẩn hóa đầu ra, cách chấm điểm tự động hoặc bán tự động, và giới hạn của từng tập dữ liệu. Nếu một workflow chưa có nhãn chuyên gia, chỉ được kết luận theo metric hiện có, không suy diễn thành độ chính xác chuyên môn.
 
 ### 5.3 Đánh giá lớp nghiệp vụ cốt lõi
 Đánh giá khả năng vận hành của các chức năng backend chính trong điều kiện tải thử nghiệm. Mục này tập trung vào hiệu năng, độ ổn định và tài nguyên tiêu thụ của hệ thống nghiệp vụ, không trộn với đánh giá thuật toán hoặc AI.
@@ -250,16 +250,22 @@ Trình bày cách đánh giá hiệu năng của thuật toán gợi ý hoặc p
 Tổng hợp những chỉ số hoặc thí nghiệm còn thiếu đối với lớp thuật toán, chẳng hạn mức độ phù hợp chuyên môn của gợi ý phản biện, tỷ lệ chấp nhận đề xuất của chủ tọa hoặc số lượng xung đột lợi ích ẩn được phát hiện thêm. Mục này giúp tránh kết luận quá mạnh nếu thực nghiệm hiện tại mới chứng minh tốc độ xử lý.
 
 ### 5.5 Đánh giá các workflow AI
-Đánh giá chất lượng, độ tin cậy và giá trị bổ sung của các workflow AI trong hệ thống. Mục này cần chọn chỉ số phù hợp với từng workflow thay vì dùng một khuôn đánh giá chung cho mọi đầu ra AI.
+Đánh giá chất lượng, độ tin cậy, giá trị bổ sung và giới hạn vận hành của các workflow AI trong hệ thống. Mục này cần chọn chỉ số phù hợp với từng workflow thay vì dùng một khuôn đánh giá chung cho mọi đầu ra AI. Toàn bộ phần này phải giữ đúng nguyên tắc của đề tài: AI hỗ trợ nhập liệu, đọc hiểu, kiểm tra và tổng hợp; AI không thay thế quyết định học thuật cuối cùng của tác giả, phản biện hoặc chủ tọa.
 
-#### 5.5.1 Phương pháp đánh giá AI
-Trình bày khung đánh giá được dùng cho các workflow AI, bao gồm các chỉ số deterministic cho đầu ra có ground truth rõ ràng và các chỉ số đánh giá trung thực, trùng lặp, bổ sung hoặc chất lượng lập luận cho các đầu ra tự luận. Cần giải thích vì sao từng loại chỉ số phù hợp với bản chất của workflow được đánh giá.
+#### 5.5.1 Kiến trúc benchmark workflow AI và nguyên tắc diễn giải kết quả
+Trình bày kiến trúc benchmark hai lớp gồm workflow runner và TCA benchmark. Workflow runner chạy các workflow trên dataset, sinh output thật, lưu thời gian xử lý, token tiêu thụ, trạng thái hoàn tất và các metric deterministic khi có dữ liệu tham chiếu rõ. TCA benchmark đọc lại output đã lưu để đánh giá các đầu ra tự luận theo truthfulness, coverage và additionality. Chatbot Agent được đánh giá riêng theo kịch bản hội thoại, tool-call success, quyền truy cập và trải nghiệm stream. Mục này cần giải thích vì sao generator và evaluator được tách rời, vì sao mỗi workflow cần metric riêng, và vì sao coverage thấp không luôn đồng nghĩa với chất lượng thấp nếu truthfulness và additionality được diễn giải đúng bối cảnh.
 
-#### 5.5.2 Submission Autofill
-Đánh giá workflow tự động trích xuất thông tin bài nộp từ PDF, bao gồm độ chính xác của tiêu đề, tác giả, từ khóa, tóm tắt, các trường metadata liên quan và dữ liệu trung gian được dùng cho bước gợi ý track trong cùng luồng autofill. Mục này cần nhấn mạnh yêu cầu người dùng vẫn xem lại và chỉnh sửa trước khi gửi chính thức.
+#### 5.5.2 Tổng hợp mức bằng chứng theo workflow
+Đặt một bảng tổng hợp trước khi đi vào từng workflow. Bảng này nên gồm: workflow, nguồn số liệu chính, mẫu số, metric chính, kết luận được phép rút ra và giới hạn cần giữ khi viết báo cáo. Mục tiêu là giúp người đọc phân biệt giữa benchmark có ground truth rõ, benchmark dùng proxy claim/evidence, benchmark hợp đồng đầu ra và benchmark thủ công theo kịch bản. Bảng này cũng là chốt kiểm soát để tránh overclaim, ví dụ không biến gợi ý track chưa có nhãn chuyên gia thành top-1 accuracy, không biến Review Quality Auditor thành hệ thống tự động chấm review, và không biến Chair Decision Copilot thành bộ phân loại accept/reject.
 
-#### 5.5.3 Gợi ý track trong Submission Autofill
-Đánh giá khả năng Submission Autofill gợi ý track phù hợp cho bài nộp dựa trên hội nghị đang hoạt động, danh sách track của hội nghị và thông tin bài nộp đã được trích xuất hoặc cung cấp trong form. Mục này không đánh giá workflow track recommendation độc lập, mà tập trung vào `track_rankings` nằm trong kết quả autofill. Các chỉ số nên bao gồm Top-1 accuracy, Top-3 accuracy, MRR, NDCG@K, invalid hoặc duplicate track rate, độ ổn định giữa các lần chạy và calibration của confidence score sau khi chuẩn hóa thang điểm.
+#### 5.5.3 Submission Autofill
+Đánh giá Submission Autofill như một workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo PDF và ngữ cảnh hội nghị. Mục này cần tách rõ hai nhóm đánh giá chính: pipeline metadata dùng để tạo các trường form có thể chỉnh sửa, và phần gợi ý track dựa trên danh sách track chính thức của hội nghị đang hoạt động. Toàn bộ đầu ra vẫn là gợi ý; người dùng phải xem lại trước khi gửi chính thức.
+
+##### 5.5.3.1 Pipeline trích xuất và chuẩn bị metadata cho form
+Đánh giá toàn bộ pipeline tạo metadata cho form nộp bài, bao gồm trích xuất thông tin từ bản thảo, chuẩn hóa giá trị để đưa vào form, xử lý trường bị thiếu hoặc bị nhiễu do quá trình đọc PDF, và mở rộng keyword khi ngữ cảnh bài báo/hội nghị cho phép. Các trường cần đánh giá gồm tiêu đề, tóm tắt, tác giả, email, affiliation, quốc gia, keyword gốc và keyword bổ sung. Các chỉ số nên bao gồm exact match hoặc normalized match cho tiêu đề, ROUGE hoặc semantic similarity cho abstract, F1 cho tác giả và keyword gốc, precision của keyword bổ sung, tỷ lệ keyword quá chung chung, tỷ lệ sửa sai làm thay đổi sự thật trong bản thảo và tỷ lệ file có đủ text coverage để workflow tiếp tục xử lý.
+
+##### 5.5.3.2 Gợi ý track trong Submission Autofill
+Đánh giá phần gợi ý track nằm bên trong Submission Autofill, dựa trên hội nghị đang hoạt động, danh sách track chính thức của hội nghị và thông tin bài nộp đã được trích xuất hoặc phục hồi. Mục này không đánh giá workflow track recommendation độc lập. Với benchmark hiện tại, phần này chỉ nên kết luận về tỷ lệ hoàn tất, invalid track rate, duplicate track rate, độ trễ và khả năng giữ track trong danh sách hợp lệ. Các chỉ số Top-1 accuracy, Top-3 accuracy, MRR hoặc NDCG@K chỉ được đưa vào nếu có nhãn chuyên gia hoặc ground truth track đủ rõ.
 
 #### 5.5.4 Submission Gating
 Đánh giá workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc trước khi publish, bao gồm độ chính xác của verdict pass/warn/block, precision và recall của block decision, F1 theo từng rule cảnh báo, false block rate, chất lượng guidance cho tác giả và độ trễ theo từng stage xử lý. Mục này cần tách rõ rule deterministic với phần đánh giá nội dung có sử dụng LLM.
@@ -268,22 +274,22 @@ Trình bày khung đánh giá được dùng cho các workflow AI, bao gồm cá
 Đánh giá workflow hỗ trợ người phản biện đọc hiểu bài nộp ban đầu, bao gồm mức độ trung thực của các trích dẫn, độ hữu ích của phần tóm tắt và khả năng cung cấp điểm lưu ý có căn cứ. Nội dung cần làm rõ workflow này hỗ trợ reviewer, không thay thế việc đọc và đánh giá học thuật của reviewer.
 
 #### 5.5.6 Review Quality Auditor
-Đánh giá workflow kiểm toán chất lượng phản biện, bao gồm khả năng phát hiện phản biện thiếu căn cứ, thiếu chiều sâu hoặc không nhất quán. Mục này cần phân tích thẳng các giới hạn của việc dùng AI để đánh giá một loại đầu ra vốn đòi hỏi suy luận ngữ cảnh rộng.
+Đánh giá workflow kiểm toán chất lượng phản biện, bao gồm khả năng phát hiện phản biện thiếu căn cứ, thiếu chiều sâu hoặc không nhất quán. Mục này cần phân tích thẳng các giới hạn của việc dùng AI để đánh giá một loại đầu ra vốn đòi hỏi suy luận ngữ cảnh rộng. Nếu benchmark cho thấy grounded-valid rate hoặc truthfulness chưa đủ cao, phải trình bày auditor như danh sách kiểm tra hỗ trợ chair, không phải bộ lọc tự động quyết định review đạt hay không đạt.
 
 #### 5.5.7 Chair Decision Copilot
-Đánh giá workflow hỗ trợ chủ tọa tổng hợp phản biện, rebuttal và các điểm đồng thuận hoặc mâu thuẫn. Nội dung cần nhấn mạnh rằng workflow này cung cấp bằng chứng và tổng hợp thông tin, không tự động quyết định chấp nhận hay từ chối bài báo.
+Đánh giá workflow hỗ trợ chủ tọa tổng hợp phản biện, rebuttal và các điểm đồng thuận hoặc mâu thuẫn. Nội dung cần nhấn mạnh rằng workflow này cung cấp bằng chứng và tổng hợp thông tin, không tự động quyết định chấp nhận hay từ chối bài báo. Nếu chưa có benchmark decision label match, không được kết luận hệ thống dự đoán đúng quyết định accept/reject.
 
 #### 5.5.8 Chatbot Agent của nền tảng
 Đánh giá chatbot như một agent có khả năng dùng công cụ truy vấn dữ liệu hệ thống, không chỉ như một chatbot hội thoại thông thường. Nội dung cần đo độ chính xác của câu trả lời so với dữ liệu trong hệ thống, mức độ groundedness, tỷ lệ gọi tool thành công, tỷ lệ không tiết lộ dữ liệu vượt quyền, TTFT, stream duration, timeout rate và khả năng tiếp tục phiên hội thoại.
 
 #### 5.5.9 Các workflow chưa đánh giá đầy đủ
-Nêu rõ những workflow AI chưa có thực nghiệm định lượng hoặc chưa được đánh giá sâu trong phạm vi đề tài sau khi đã tách riêng Autofill, gợi ý track trong Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent. Mục này giúp giữ tính trung thực học thuật, đồng thời tạo cơ sở hợp lý cho phần hạn chế và hướng phát triển ở Chương 6.
+Nêu rõ những workflow AI chưa có thực nghiệm định lượng hoặc chưa được đánh giá sâu trong phạm vi đề tài sau khi đã tách riêng Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent. Mục này giúp giữ tính trung thực học thuật, đồng thời tạo cơ sở hợp lý cho phần hạn chế và hướng phát triển ở Chương 6.
 
 ### 5.6 Phân tích tính khả thi vận hành
 Phân tích khả năng đưa hệ thống vào vận hành thực tế dựa trên chi phí, độ trễ, giới hạn dịch vụ bên ngoài và khả năng mở rộng. Mục này không chỉ nhìn vào việc hệ thống chạy được trong thực nghiệm, mà xem xét liệu hệ thống có hợp lý khi triển khai cho hội nghị thật hay không.
 
 #### 5.6.1 Độ trễ và token tiêu thụ
-Trình bày thời gian xử lý và lượng token tiêu thụ của các workflow AI hoặc tác vụ có sử dụng mô hình ngôn ngữ. Nội dung cần liên hệ các con số này với trải nghiệm người dùng, đặc biệt là tác vụ cần phản hồi trực tiếp và tác vụ có thể chạy bất đồng bộ.
+Trình bày thời gian xử lý và lượng token tiêu thụ của các workflow AI hoặc tác vụ có sử dụng mô hình ngôn ngữ. Nên có bảng tổng hợp theo workflow, gồm thời gian trung bình, trung vị, cao nhất, token trung bình, token cao nhất khi có, và phân loại tác vụ nên chạy đồng bộ hay bất đồng bộ. Nội dung cần liên hệ các con số này với trải nghiệm người dùng, đặc biệt là tác vụ cần phản hồi trực tiếp như Chatbot Agent hoặc Submission Autofill, và tác vụ có thể chạy nền như Reviewer Initial Analysis, Review Quality Auditor hoặc Chair Decision Copilot.
 
 #### 5.6.2 Chi phí xử lý một bài báo
 Ước tính chi phí cần thiết để xử lý một bài báo hoặc một đơn vị dữ liệu đầu vào. Mục này giúp lượng hóa tính thực tiễn của giải pháp, đồng thời so sánh chi phí AI với quy mô vận hành thường gặp của một hội nghị học thuật.
@@ -310,16 +316,16 @@ Phân tích phản hồi của nhóm Tác giả đối với quy trình nộp b�
 Tổng hợp các phát hiện chung từ ba nhóm người dùng, đặc biệt là các điểm nghẽn lặp lại ở nhiều vai trò như khả năng giải thích của AI, độ dễ sử dụng hoặc mức độ tin tưởng vào gợi ý của hệ thống. Mục này tạo cầu nối trực tiếp sang phần tổng hợp cuối chương.
 
 ### 5.8 Tổng hợp kết quả đánh giá
-Tổng hợp các kết quả chính của chương theo hướng trả lời lại các câu hỏi đánh giá đã nêu ở mục 5.1. Mục này cần kết nối benchmark kỹ thuật, đánh giá AI và khảo sát người dùng thành một kết luận nhất quán, thay vì chỉ liệt kê lại từng nhóm số liệu.
+Tổng hợp các kết quả chính của chương theo hướng trả lời lại các câu hỏi đánh giá đã nêu ở mục 5.1. Mục này cần kết nối benchmark kỹ thuật, đánh giá AI và khảo sát người dùng thành một kết luận nhất quán, thay vì chỉ liệt kê lại từng nhóm số liệu. Kết luận cuối chương phải quay lại luận điểm ở Chương 1: ConferenceSpace chứng minh một cách tích hợp AI có kiểm soát vào quy trình peer review, trong đó AI hỗ trợ các thao tác nhập liệu, kiểm tra, đọc hiểu và tổng hợp, còn quyết định học thuật vẫn thuộc về con người.
 
 #### 5.8.1 Mức độ đáp ứng nhu cầu ban đầu
 Đối chiếu kết quả hệ thống sau khi xây dựng với nhu cầu và ưu tiên đã khảo sát ở Chương 2. Nội dung cần chỉ ra nhu cầu nào đã được đáp ứng tốt, nhu cầu nào mới được đáp ứng một phần và nhu cầu nào còn là khoảng trống.
 
 #### 5.8.2 Các phát hiện nhất quán giữa benchmark và khảo sát người dùng
-Phân tích những điểm mà dữ liệu kỹ thuật và phản hồi người dùng cùng chỉ về một kết luận, chẳng hạn workflow nào có hiệu quả rõ ràng, điểm nghẽn nào người dùng cũng cảm nhận được, hoặc giới hạn nào cần ưu tiên cải thiện.
+Phân tích những điểm mà dữ liệu kỹ thuật và phản hồi người dùng cùng chỉ về một kết luận, chẳng hạn workflow nào có hiệu quả rõ ràng, điểm nghẽn nào người dùng cũng cảm nhận được, hoặc giới hạn nào cần ưu tiên cải thiện. Phần này nên đối chiếu trực tiếp các workflow AI với mục tiêu ở Chương 1: giảm thao tác thủ công cho tác giả, hỗ trợ reviewer đọc bài có định hướng, giúp chair tổng hợp evidence, và giữ ranh giới không để AI ra quyết định thay con người.
 
 #### 5.8.3 Hạn chế cần chuyển sang Chương 6
-Tóm tắt các hạn chế đã được phát hiện qua thực nghiệm và khảo sát, nhưng chỉ ở mức định hướng để Chương 6 tiếp tục trình bày đầy đủ hơn. Mục này giúp Chương 6 không xuất hiện đột ngột mà là phần tiếp nối tự nhiên từ bằng chứng ở Chương 5.
+Tóm tắt các hạn chế đã được phát hiện qua thực nghiệm và khảo sát, nhưng chỉ ở mức định hướng để Chương 6 tiếp tục trình bày đầy đủ hơn. Cần ưu tiên các hạn chế có bằng chứng từ benchmark, như thiếu nhãn chuyên gia cho track recommendation, các finding của Review Quality Auditor còn nhiễu, coverage thấp cần diễn giải thận trọng, tool-call failure của Chatbot Agent, độ trễ cao ở một số workflow và giới hạn của TCA như một proxy tự động thay vì đánh giá chuyên gia đầy đủ. Mục này giúp Chương 6 không xuất hiện đột ngột mà là phần tiếp nối tự nhiên từ bằng chứng ở Chương 5.
 
 ## Chương 6. Kết luận
 

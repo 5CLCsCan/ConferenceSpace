@@ -1,0 +1,2519 @@
+{
+  "scenario": {
+    "id": "reviewer_assignment_check",
+    "feature": "reviewer_workload_lookup",
+    "actor": "reviewer",
+    "request": "Tôi có assignment hoặc review nào cần xử lý trong hội nghị {conference_acronym} không?",
+    "trial_requests": [
+      "Tôi có assignment hoặc review nào cần xử lý trong hội nghị {conference_acronym} không?",
+      "Kiểm tra workload của tôi ở {conference_acronym}: hiện có bài nào được giao review chưa?",
+      "Trong vai trò reviewer của {conference_acronym}, tôi cần biết có nhiệm vụ review nào đang chờ xử lý không.",
+      "Hãy xem hệ thống và cho biết tôi có assignment hoặc review visible nào tại {conference_acronym}.",
+      "Tôi muốn kiểm tra nhanh danh sách việc review của mình trong {conference_acronym}; nếu chưa có thì nói rõ."
+    ],
+    "manual_review_focus": [
+      "Looks up reviewer-visible work.",
+      "Clearly says if no assignment exists.",
+      "Does not expose chair-only data."
+    ],
+    "expected_tools": [
+      "query_engine"
+    ],
+    "seed_data": [
+      "conference",
+      "reviewer"
+    ]
+  },
+  "scenario_result_id": "reviewer_assignment_check__trial_01",
+  "trial": {
+    "index": 1,
+    "count": 5,
+    "id": "trial_01"
+  },
+  "actor": {
+    "key": "reviewer",
+    "email": "chatbench_reviewer_1783406671@demo.com",
+    "first_name": "Benchmark",
+    "last_name": "Reviewer",
+    "id": 567,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjcsImVtYWlsIjoiY2hhdGJlbmNoX3Jldmlld2VyXzE3ODM0MDY2NzFAZGVtby5jb20iLCJleHAiOjE3ODM0OTMwNzQsImlhdCI6MTc4MzQwNjY3NH0.w_vqqWrfvqeV_9_-9uwjiyt2Shc-PCkdXSku649gBrE",
+    "domain": [
+      "AI Systems",
+      "Machine Learning",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+  "request": "Tôi có assignment hoặc review nào cần xử lý trong hội nghị CB406671 không?",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+    "messages": [
+      {
+        "id": "chatbench-user-6270dc8c2d92",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Tôi có assignment hoặc review nào cần xử lý trong hội nghị CB406671 không?"
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-d5a073bb167d",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/reviewer_assignment_check/trial_01",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T15:05:25+0700",
+  "finished_at": "2026-07-07T15:05:54+0700",
+  "duration_ms": 29072,
+  "timing_metrics": {
+    "ttft_ms": 2527,
+    "time_to_first_answer_token_ms": 26005,
+    "answer_stream_duration_ms": 2910,
+    "stream_duration_ms": 26544,
+    "total_duration_ms": 29072
+  },
+  "event_count": 243,
+  "tool_events": [
+    {
+      "event": "tool_start",
+      "tool": "get_skill",
+      "tool_call_id": "call_cGgmdHSOReJLeNd4lBAI4vaq",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "get_skill",
+      "tool_call_id": "call_cGgmdHSOReJLeNd4lBAI4vaq",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_CPJu9YtEbAClTUnErAGVKUzp",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_CPJu9YtEbAClTUnErAGVKUzp",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "assignments",
+          "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this assignment",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "assigned_at",
+              "type": "datetime",
+              "description": "Assignment creation time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "completed_at",
+              "type": "datetime",
+              "description": "Assignment completion time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Assignment ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_status",
+              "type": "string",
+              "description": "Assignment rebuttal status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "review_status",
+              "type": "string",
+              "description": "Review workflow status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "review_submitted_at",
+              "type": "datetime",
+              "description": "Review submission time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "reviewer.email",
+              "type": "string",
+              "description": "Reviewer email when visible to the current user",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ],
+              "aggregates": [
+                "count"
+              ],
+              "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+            },
+            {
+              "name": "score",
+              "type": "number",
+              "description": "Assignment matching score",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Assignment status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission.id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_IpvrFwtBYhPBVs5v8jG5Lj8a",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_IpvrFwtBYhPBVs5v8jG5Lj8a",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=400: filter shorthand for \"conference.acronym\" must map operators to values"
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_wjhs5YN2ZdkFGA9jkerUIV6b",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_wjhs5YN2ZdkFGA9jkerUIV6b",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "error": null
+    }
+  ],
+  "tool_metrics": {
+    "tool_event_count": 8,
+    "tool_call_count": 4,
+    "started_tool_call_count": 4,
+    "completed_tool_call_count": 4,
+    "successful_tool_call_count": 3,
+    "failed_tool_call_count": 1,
+    "tool_call_success_rate": 0.75
+  },
+  "final_answer": "## Overall Risk\n\nI don’t see any visible assignment or review rows for conference `CB406671`, so there’s no current workload or deadline-risk signal to report from the assignment data. That usually means you have no assignments there, or they aren’t visible to your current role.\n\n## Key Signals\n\n- Total open review workload: 0 visible assignments for `CB406671`\n- Deadline or overdue risk: no due-date or completion signals available because no rows were returned\n- Invitation or acceptance backlog: not available from the retrieved assignment data\n- Sparse-data caveat: the query only returns assignments visible to you, so hidden/chair-only items would not appear\n\n## Suggested Mitigations\n\n- If you expected assignments in `CB406671`, verify your role/access in that conference.\n- If you are a reviewer, check whether you have any pending invitations or if assignment visibility is delayed.  \n- If you are a chair/co-chair, re-check the conference-level assignment view for a broader workload picture.  \n- If you want, I can also look for related notifications for `CB406671` to see whether there are review invitations or alerts.",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "message_id": "chatbench-assistant-d5a073bb167d",
+      "received_at": "2026-07-07T15:05:27+0700",
+      "received_after_ms": 2527
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_cGgmdHSOReJLeNd4lBAI4vaq",
+      "tool": "get_skill",
+      "input": {
+        "skill_name": "workload_risk_insight"
+      },
+      "started_at": "2026-07-07T08:05:33.195012+00:00",
+      "received_at": "2026-07-07T15:05:33+0700",
+      "received_after_ms": 7835
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_cGgmdHSOReJLeNd4lBAI4vaq",
+      "tool": "get_skill",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:05:33.204768+00:00",
+      "result": {
+        "status": "output-available",
+        "skill_name": "workload_risk_insight"
+      },
+      "received_at": "2026-07-07T15:05:33+0700",
+      "received_after_ms": 7844
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_CPJu9YtEbAClTUnErAGVKUzp",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "assignments"
+      },
+      "started_at": "2026-07-07T08:05:35.778708+00:00",
+      "received_at": "2026-07-07T15:05:35+0700",
+      "received_after_ms": 10418
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_CPJu9YtEbAClTUnErAGVKUzp",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:05:35.983747+00:00",
+      "result": {
+        "resource": {
+          "name": "assignments",
+          "description": "Assignments visible to the current user as assigned reviewer or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this assignment",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "assigned_at",
+              "type": "datetime",
+              "description": "Assignment creation time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "completed_at",
+              "type": "datetime",
+              "description": "Assignment completion time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Assignment ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_status",
+              "type": "string",
+              "description": "Assignment rebuttal status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "review_status",
+              "type": "string",
+              "description": "Review workflow status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "review_submitted_at",
+              "type": "datetime",
+              "description": "Review submission time",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt",
+                "is_null"
+              ]
+            },
+            {
+              "name": "reviewer.email",
+              "type": "string",
+              "description": "Reviewer email when visible to the current user",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ],
+              "aggregates": [
+                "count"
+              ],
+              "redaction_note": "Only chairs/co-chairs can see other reviewers. Reviewers can only see their own identity."
+            },
+            {
+              "name": "score",
+              "type": "number",
+              "description": "Assignment matching score",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Assignment status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission.id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "submission.title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:05:35+0700",
+      "received_after_ms": 10623
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_IpvrFwtBYhPBVs5v8jG5Lj8a",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "id"
+          },
+          {
+            "field": "conference.acronym"
+          },
+          {
+            "field": "submission.title"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "review_status"
+          },
+          {
+            "field": "completed_at"
+          },
+          {
+            "field": "review_submitted_at"
+          },
+          {
+            "field": "assigned_at"
+          }
+        ],
+        "filter": {
+          "conference.acronym": "CB406671"
+        },
+        "sort": [
+          {
+            "field": "assigned_at",
+            "dir": "desc"
+          }
+        ],
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:05:38.608789+00:00",
+      "received_at": "2026-07-07T15:05:38+0700",
+      "received_after_ms": 13248
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_IpvrFwtBYhPBVs5v8jG5Lj8a",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T08:05:38.820097+00:00",
+      "error": "backend query failed status=400: filter shorthand for \"conference.acronym\" must map operators to values",
+      "received_at": "2026-07-07T15:05:38+0700",
+      "received_after_ms": 13459
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_wjhs5YN2ZdkFGA9jkerUIV6b",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "assignments",
+        "select": [
+          {
+            "field": "id"
+          },
+          {
+            "field": "conference.acronym"
+          },
+          {
+            "field": "submission.title"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "review_status"
+          },
+          {
+            "field": "completed_at"
+          },
+          {
+            "field": "review_submitted_at"
+          },
+          {
+            "field": "assigned_at"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "sort": [
+          {
+            "field": "assigned_at",
+            "dir": "desc"
+          }
+        ],
+        "limit": 20
+      },
+      "started_at": "2026-07-07T08:05:46.782490+00:00",
+      "received_at": "2026-07-07T15:05:46+0700",
+      "received_after_ms": 21422
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "tool_call_id": "call_wjhs5YN2ZdkFGA9jkerUIV6b",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:05:47.003223+00:00",
+      "result": {
+        "resource": "assignments",
+        "rows": [],
+        "meta": {
+          "row_count": 0,
+          "limit": 20,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to assignments related to the current user.",
+            "Reviewer identity is masked unless the current user chairs the conference or the row belongs to them."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:05:47+0700",
+      "received_after_ms": 21642
+    },
+    {
+      "type": "token",
+      "content": "##",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26005
+    },
+    {
+      "type": "token",
+      "content": " Overall",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26006
+    },
+    {
+      "type": "token",
+      "content": " Risk",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26007
+    },
+    {
+      "type": "token",
+      "content": "\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26009
+    },
+    {
+      "type": "token",
+      "content": "I",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26012
+    },
+    {
+      "type": "token",
+      "content": " don",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26014
+    },
+    {
+      "type": "token",
+      "content": "’t",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26016
+    },
+    {
+      "type": "token",
+      "content": " see",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " any",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " visible",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " rows",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " so",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " there",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": "’s",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " no",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " current",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26096
+    },
+    {
+      "type": "token",
+      "content": " workload",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": " deadline",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": "-risk",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": " signal",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": " to",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26097
+    },
+    {
+      "type": "token",
+      "content": " report",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26114
+    },
+    {
+      "type": "token",
+      "content": " from",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26128
+    },
+    {
+      "type": "token",
+      "content": " the",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26144
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26164
+    },
+    {
+      "type": "token",
+      "content": " data",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26181
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26189
+    },
+    {
+      "type": "token",
+      "content": " That",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26212
+    },
+    {
+      "type": "token",
+      "content": " usually",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26239
+    },
+    {
+      "type": "token",
+      "content": " means",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26239
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26242
+    },
+    {
+      "type": "token",
+      "content": " have",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26253
+    },
+    {
+      "type": "token",
+      "content": " no",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26269
+    },
+    {
+      "type": "token",
+      "content": " assignments",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26278
+    },
+    {
+      "type": "token",
+      "content": " there",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26296
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26312
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26336
+    },
+    {
+      "type": "token",
+      "content": " they",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26341
+    },
+    {
+      "type": "token",
+      "content": " aren",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26357
+    },
+    {
+      "type": "token",
+      "content": "’t",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26375
+    },
+    {
+      "type": "token",
+      "content": " visible",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26375
+    },
+    {
+      "type": "token",
+      "content": " to",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26391
+    },
+    {
+      "type": "token",
+      "content": " your",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26406
+    },
+    {
+      "type": "token",
+      "content": " current",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26422
+    },
+    {
+      "type": "token",
+      "content": " role",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26439
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26450
+    },
+    {
+      "type": "token",
+      "content": "##",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26477
+    },
+    {
+      "type": "token",
+      "content": " Key",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26487
+    },
+    {
+      "type": "token",
+      "content": " Signals",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26499
+    },
+    {
+      "type": "token",
+      "content": "\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26526
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26526
+    },
+    {
+      "type": "token",
+      "content": " Total",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26529
+    },
+    {
+      "type": "token",
+      "content": " open",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26542
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26563
+    },
+    {
+      "type": "token",
+      "content": " workload",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26575
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26589
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26609
+    },
+    {
+      "type": "token",
+      "content": "0",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26620
+    },
+    {
+      "type": "token",
+      "content": " visible",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:51+0700",
+      "received_after_ms": 26635
+    },
+    {
+      "type": "token",
+      "content": " assignments",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26654
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26665
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26696
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26696
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26696
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26709
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26726
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26740
+    },
+    {
+      "type": "token",
+      "content": " Deadline",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26760
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26771
+    },
+    {
+      "type": "token",
+      "content": " overdue",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26787
+    },
+    {
+      "type": "token",
+      "content": " risk",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26802
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26823
+    },
+    {
+      "type": "token",
+      "content": " no",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26837
+    },
+    {
+      "type": "token",
+      "content": " due",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26851
+    },
+    {
+      "type": "token",
+      "content": "-date",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26860
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26867
+    },
+    {
+      "type": "token",
+      "content": " completion",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26881
+    },
+    {
+      "type": "token",
+      "content": " signals",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26897
+    },
+    {
+      "type": "token",
+      "content": " available",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26909
+    },
+    {
+      "type": "token",
+      "content": " because",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26932
+    },
+    {
+      "type": "token",
+      "content": " no",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26940
+    },
+    {
+      "type": "token",
+      "content": " rows",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26957
+    },
+    {
+      "type": "token",
+      "content": " were",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26979
+    },
+    {
+      "type": "token",
+      "content": " returned",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26999
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 26999
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27002
+    },
+    {
+      "type": "token",
+      "content": " Invitation",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27022
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27038
+    },
+    {
+      "type": "token",
+      "content": " acceptance",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27053
+    },
+    {
+      "type": "token",
+      "content": " backlog",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27066
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27079
+    },
+    {
+      "type": "token",
+      "content": " not",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27096
+    },
+    {
+      "type": "token",
+      "content": " available",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27111
+    },
+    {
+      "type": "token",
+      "content": " from",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27125
+    },
+    {
+      "type": "token",
+      "content": " the",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27145
+    },
+    {
+      "type": "token",
+      "content": " retrieved",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27145
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27158
+    },
+    {
+      "type": "token",
+      "content": " data",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27175
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27189
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27205
+    },
+    {
+      "type": "token",
+      "content": " Sparse",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27219
+    },
+    {
+      "type": "token",
+      "content": "-data",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27243
+    },
+    {
+      "type": "token",
+      "content": " cave",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27250
+    },
+    {
+      "type": "token",
+      "content": "at",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27266
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27285
+    },
+    {
+      "type": "token",
+      "content": " the",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27298
+    },
+    {
+      "type": "token",
+      "content": " query",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27312
+    },
+    {
+      "type": "token",
+      "content": " only",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27312
+    },
+    {
+      "type": "token",
+      "content": " returns",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27325
+    },
+    {
+      "type": "token",
+      "content": " assignments",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27344
+    },
+    {
+      "type": "token",
+      "content": " visible",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27356
+    },
+    {
+      "type": "token",
+      "content": " to",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27379
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27389
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27402
+    },
+    {
+      "type": "token",
+      "content": " so",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27420
+    },
+    {
+      "type": "token",
+      "content": " hidden",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27435
+    },
+    {
+      "type": "token",
+      "content": "/ch",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27451
+    },
+    {
+      "type": "token",
+      "content": "air",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27472
+    },
+    {
+      "type": "token",
+      "content": "-only",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27475
+    },
+    {
+      "type": "token",
+      "content": " items",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27485
+    },
+    {
+      "type": "token",
+      "content": " would",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27494
+    },
+    {
+      "type": "token",
+      "content": " not",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27510
+    },
+    {
+      "type": "token",
+      "content": " appear",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27525
+    },
+    {
+      "type": "token",
+      "content": "\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27545
+    },
+    {
+      "type": "token",
+      "content": "##",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27556
+    },
+    {
+      "type": "token",
+      "content": " Suggested",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27571
+    },
+    {
+      "type": "token",
+      "content": " Mit",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27586
+    },
+    {
+      "type": "token",
+      "content": "ig",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27601
+    },
+    {
+      "type": "token",
+      "content": "ations",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27629
+    },
+    {
+      "type": "token",
+      "content": "\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:52+0700",
+      "received_after_ms": 27631
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27640
+    },
+    {
+      "type": "token",
+      "content": " If",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27655
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27672
+    },
+    {
+      "type": "token",
+      "content": " expected",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27690
+    },
+    {
+      "type": "token",
+      "content": " assignments",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27690
+    },
+    {
+      "type": "token",
+      "content": " in",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27705
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27720
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27736
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27750
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27764
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27779
+    },
+    {
+      "type": "token",
+      "content": " verify",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27806
+    },
+    {
+      "type": "token",
+      "content": " your",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27810
+    },
+    {
+      "type": "token",
+      "content": " role",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27826
+    },
+    {
+      "type": "token",
+      "content": "/access",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27848
+    },
+    {
+      "type": "token",
+      "content": " in",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27848
+    },
+    {
+      "type": "token",
+      "content": " that",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27858
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27879
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27890
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27905
+    },
+    {
+      "type": "token",
+      "content": " If",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27923
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27938
+    },
+    {
+      "type": "token",
+      "content": " are",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27951
+    },
+    {
+      "type": "token",
+      "content": " a",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27977
+    },
+    {
+      "type": "token",
+      "content": " reviewer",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27978
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 27991
+    },
+    {
+      "type": "token",
+      "content": " check",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28002
+    },
+    {
+      "type": "token",
+      "content": " whether",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28016
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28037
+    },
+    {
+      "type": "token",
+      "content": " have",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28053
+    },
+    {
+      "type": "token",
+      "content": " any",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28080
+    },
+    {
+      "type": "token",
+      "content": " pending",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28080
+    },
+    {
+      "type": "token",
+      "content": " invitations",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28088
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28099
+    },
+    {
+      "type": "token",
+      "content": " if",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28113
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28138
+    },
+    {
+      "type": "token",
+      "content": " visibility",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28143
+    },
+    {
+      "type": "token",
+      "content": " is",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28163
+    },
+    {
+      "type": "token",
+      "content": " delayed",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28175
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28189
+    },
+    {
+      "type": "token",
+      "content": "  \n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28205
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28220
+    },
+    {
+      "type": "token",
+      "content": " If",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28241
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28244
+    },
+    {
+      "type": "token",
+      "content": " are",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28251
+    },
+    {
+      "type": "token",
+      "content": " a",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28265
+    },
+    {
+      "type": "token",
+      "content": " chair",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28282
+    },
+    {
+      "type": "token",
+      "content": "/co",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28297
+    },
+    {
+      "type": "token",
+      "content": "-chair",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28311
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28325
+    },
+    {
+      "type": "token",
+      "content": " re",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28342
+    },
+    {
+      "type": "token",
+      "content": "-check",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28360
+    },
+    {
+      "type": "token",
+      "content": " the",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28372
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28388
+    },
+    {
+      "type": "token",
+      "content": "-level",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28388
+    },
+    {
+      "type": "token",
+      "content": " assignment",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28402
+    },
+    {
+      "type": "token",
+      "content": " view",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28420
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28435
+    },
+    {
+      "type": "token",
+      "content": " a",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28450
+    },
+    {
+      "type": "token",
+      "content": " broader",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28527
+    },
+    {
+      "type": "token",
+      "content": " workload",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28527
+    },
+    {
+      "type": "token",
+      "content": " picture",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28527
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28527
+    },
+    {
+      "type": "token",
+      "content": "  \n",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28527
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28546
+    },
+    {
+      "type": "token",
+      "content": " If",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28546
+    },
+    {
+      "type": "token",
+      "content": " you",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28558
+    },
+    {
+      "type": "token",
+      "content": " want",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28576
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28589
+    },
+    {
+      "type": "token",
+      "content": " I",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28616
+    },
+    {
+      "type": "token",
+      "content": " can",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28626
+    },
+    {
+      "type": "token",
+      "content": " also",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:53+0700",
+      "received_after_ms": 28638
+    },
+    {
+      "type": "token",
+      "content": " look",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28654
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28699
+    },
+    {
+      "type": "token",
+      "content": " related",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28702
+    },
+    {
+      "type": "token",
+      "content": " notifications",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28703
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28719
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28719
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28733
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28749
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28762
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28777
+    },
+    {
+      "type": "token",
+      "content": " to",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28794
+    },
+    {
+      "type": "token",
+      "content": " see",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28808
+    },
+    {
+      "type": "token",
+      "content": " whether",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28814
+    },
+    {
+      "type": "token",
+      "content": " there",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28826
+    },
+    {
+      "type": "token",
+      "content": " are",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28850
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28855
+    },
+    {
+      "type": "token",
+      "content": " invitations",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28874
+    },
+    {
+      "type": "token",
+      "content": " or",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28894
+    },
+    {
+      "type": "token",
+      "content": " alerts",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28916
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 28916
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-reviewer_assignment_check-trial_01",
+      "received_at": "2026-07-07T15:05:54+0700",
+      "received_after_ms": 29071
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 74,
+    "output_chars": 1135,
+    "input_tokens": 30,
+    "output_tokens": 233,
+    "total_tokens": 263
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "case_count": 8,
+  "completed_count": 8,
+  "failed_count": 0,
+  "correct_verdict_count": 8,
+  "correct_rules_count": 8,
+  "false_block_count": 0,
+  "blocking_verdict_accuracy": 1.0,
+  "rule_id_recall": 1.0,
+  "error_breakdown": {}
+}

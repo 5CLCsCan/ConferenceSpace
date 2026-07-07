@@ -1,0 +1,1440 @@
+{
+  "scenario": {
+    "id": "author_own_submission_status",
+    "feature": "submission_lookup",
+    "actor": "author",
+    "request": "Trong hội nghị {conference_acronym}, bài nộp '{own_submission_title}' của tôi đang ở trạng thái nào?",
+    "trial_requests": [
+      "Trong hội nghị {conference_acronym}, bài nộp '{own_submission_title}' của tôi đang ở trạng thái nào?",
+      "Kiểm tra giúp tôi trạng thái hiện tại của submission '{own_submission_title}' ở {conference_acronym}.",
+      "Bài '{own_submission_title}' của tôi trong hội nghị {conference_acronym} đã được publish hay vẫn đang ở trạng thái khác?",
+      "Tôi muốn biết status của bài nộp '{own_submission_title}' thuộc {conference_acronym}. Trả lời ngắn gọn theo dữ liệu hệ thống.",
+      "Hãy xem trong hệ thống xem submission '{own_submission_title}' của tôi tại {conference_acronym} hiện đang được ghi nhận trạng thái gì."
+    ],
+    "manual_review_focus": [
+      "Answers from platform data, not generic advice.",
+      "Mentions the correct owned submission.",
+      "Does not expose other authors' private submissions."
+    ],
+    "expected_tools": [
+      "query_engine"
+    ],
+    "seed_data": [
+      "conference",
+      "author",
+      "own_submission"
+    ]
+  },
+  "scenario_result_id": "author_own_submission_status__trial_03",
+  "trial": {
+    "index": 3,
+    "count": 5,
+    "id": "trial_03"
+  },
+  "actor": {
+    "key": "author",
+    "email": "chatbench_author_1783406671@demo.com",
+    "first_name": "Chatbot",
+    "last_name": "Author",
+    "id": 565,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjUsImVtYWlsIjoiY2hhdGJlbmNoX2F1dGhvcl8xNzgzNDA2NjcxQGRlbW8uY29tIiwiZXhwIjoxNzgzNDkzMDc0LCJpYXQiOjE3ODM0MDY2NzR9.M3RrKBTIXkdLEw_6OzSKeXX3DuJyt0R6nQy9u_OeNzQ",
+    "domain": [
+      "AI Systems",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+  "request": "Bài 'Grounded Chatbot Systems for Conference Operations' của tôi trong hội nghị CB406671 đã được publish hay vẫn đang ở trạng thái khác?",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+    "messages": [
+      {
+        "id": "chatbench-user-fca9b0ec6286",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Bài 'Grounded Chatbot Systems for Conference Operations' của tôi trong hội nghị CB406671 đã được publish hay vẫn đang ở trạng thái khác?"
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-3621f2f9937a",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/author_own_submission_status/trial_03",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T14:59:10+0700",
+  "finished_at": "2026-07-07T14:59:37+0700",
+  "duration_ms": 26570,
+  "timing_metrics": {
+    "ttft_ms": 2254,
+    "time_to_first_answer_token_ms": 25100,
+    "answer_stream_duration_ms": 1330,
+    "stream_duration_ms": 24315,
+    "total_duration_ms": 26570
+  },
+  "event_count": 106,
+  "tool_events": [
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_oBSddFVZtJmswVEgpYqYTpNR",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_oBSddFVZtJmswVEgpYqYTpNR",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=400: filter shorthand for \"conference_acronym\" must map operators to values"
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_Z7ap88GXwy743feHhimCPcys",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_Z7ap88GXwy743feHhimCPcys",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": "backend query failed status=400: field \"conference_acronym\" is not selectable for resource \"submissions\""
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_MYFyolRZOmrsM1jY9DUZ9wUL",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_MYFyolRZOmrsM1jY9DUZ9wUL",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "submissions",
+          "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this submission",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Submission creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Submission rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "track",
+              "type": "string",
+              "description": "Submission track",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Submission update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_SucRuN5Pyr09f43MATfXgUP1",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_SucRuN5Pyr09f43MATfXgUP1",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "submissions",
+        "rows": [
+          {
+            "conference_acronym": "CB406671",
+            "status": "published",
+            "title": "Grounded Chatbot Systems for Conference Operations",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "error": null
+    }
+  ],
+  "tool_metrics": {
+    "tool_event_count": 8,
+    "tool_call_count": 4,
+    "started_tool_call_count": 4,
+    "completed_tool_call_count": 4,
+    "successful_tool_call_count": 2,
+    "failed_tool_call_count": 2,
+    "tool_call_success_rate": 0.5
+  },
+  "final_answer": "Bài của bạn đã được publish rồi.\n\n- `Grounded Chatbot Systems for Conference Operations`\n- Hội nghị: `CB406671`\n- Trạng thái: `published`\n- Cập nhật gần nhất: `2026-07-07T13:44:34Z`\n\nNếu bạn muốn, tôi có thể kiểm tra thêm xem nó đã vào vòng nào khác chưa, hoặc tóm tắt tình trạng các bài nộp khác trong cùng hội nghị.",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "message_id": "chatbench-assistant-3621f2f9937a",
+      "received_at": "2026-07-07T14:59:12+0700",
+      "received_after_ms": 2254
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_oBSddFVZtJmswVEgpYqYTpNR",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "submissions",
+        "select": [
+          {
+            "field": "title",
+            "as": "title"
+          },
+          {
+            "field": "status",
+            "as": "status"
+          },
+          {
+            "field": "updated_at",
+            "as": "updated_at"
+          },
+          {
+            "field": "conference_acronym",
+            "as": "conference_acronym"
+          }
+        ],
+        "filter": {
+          "conference_acronym": "CB406671",
+          "title": "Grounded Chatbot Systems for Conference Operations"
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T07:59:16.380041+00:00",
+      "received_at": "2026-07-07T14:59:16+0700",
+      "received_after_ms": 5844
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_oBSddFVZtJmswVEgpYqYTpNR",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T07:59:16.590515+00:00",
+      "error": "backend query failed status=400: filter shorthand for \"conference_acronym\" must map operators to values",
+      "received_at": "2026-07-07T14:59:16+0700",
+      "received_after_ms": 6054
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_Z7ap88GXwy743feHhimCPcys",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "submissions",
+        "select": [
+          {
+            "field": "title",
+            "as": "title"
+          },
+          {
+            "field": "status",
+            "as": "status"
+          },
+          {
+            "field": "updated_at",
+            "as": "updated_at"
+          },
+          {
+            "field": "conference_acronym",
+            "as": "conference_acronym"
+          }
+        ],
+        "filter": {
+          "conference_acronym": {
+            "eq": "CB406671"
+          },
+          "title": {
+            "eq": "Grounded Chatbot Systems for Conference Operations"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T07:59:28.302324+00:00",
+      "received_at": "2026-07-07T14:59:28+0700",
+      "received_after_ms": 17766
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_Z7ap88GXwy743feHhimCPcys",
+      "tool": "query_engine",
+      "status": "output-error",
+      "finished_at": "2026-07-07T07:59:28.509854+00:00",
+      "error": "backend query failed status=400: field \"conference_acronym\" is not selectable for resource \"submissions\"",
+      "received_at": "2026-07-07T14:59:28+0700",
+      "received_after_ms": 17974
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_MYFyolRZOmrsM1jY9DUZ9wUL",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "submissions"
+      },
+      "started_at": "2026-07-07T07:59:30.561611+00:00",
+      "received_at": "2026-07-07T14:59:30+0700",
+      "received_after_ms": 20026
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_MYFyolRZOmrsM1jY9DUZ9wUL",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T07:59:30.767814+00:00",
+      "result": {
+        "resource": {
+          "name": "submissions",
+          "description": "Submissions visible to the current user as author, assigned reviewer, or chair/co-chair",
+          "fields": [
+            {
+              "name": "actor_role",
+              "type": "string",
+              "description": "How the current user can see this submission",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "conference.acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.status",
+              "type": "string",
+              "description": "Conference status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "conference.title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Submission creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Submission ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "rebuttal_phase",
+              "type": "string",
+              "description": "Submission rebuttal phase",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Submission status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Submission title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "track",
+              "type": "string",
+              "description": "Submission track",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Submission update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T14:59:30+0700",
+      "received_after_ms": 20232
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_SucRuN5Pyr09f43MATfXgUP1",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "submissions",
+        "select": [
+          {
+            "field": "title",
+            "as": "title"
+          },
+          {
+            "field": "status",
+            "as": "status"
+          },
+          {
+            "field": "updated_at",
+            "as": "updated_at"
+          },
+          {
+            "field": "conference.acronym",
+            "as": "conference_acronym"
+          }
+        ],
+        "filter": {
+          "conference.acronym": {
+            "eq": "CB406671"
+          },
+          "title": {
+            "eq": "Grounded Chatbot Systems for Conference Operations"
+          }
+        },
+        "limit": 5
+      },
+      "started_at": "2026-07-07T07:59:33.935837+00:00",
+      "received_at": "2026-07-07T14:59:33+0700",
+      "received_after_ms": 23400
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "tool_call_id": "call_SucRuN5Pyr09f43MATfXgUP1",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T07:59:34.146552+00:00",
+      "result": {
+        "resource": "submissions",
+        "rows": [
+          {
+            "conference_acronym": "CB406671",
+            "status": "published",
+            "title": "Grounded Chatbot Systems for Conference Operations",
+            "updated_at": "2026-07-07T13:44:34Z"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 5,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to submissions related to the current user.",
+            "Author identity is not exposed through this resource."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T14:59:34+0700",
+      "received_after_ms": 23610
+    },
+    {
+      "type": "token",
+      "content": "B",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25100
+    },
+    {
+      "type": "token",
+      "content": "ài",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25110
+    },
+    {
+      "type": "token",
+      "content": " của",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25147
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25147
+    },
+    {
+      "type": "token",
+      "content": " đã",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25148
+    },
+    {
+      "type": "token",
+      "content": " được",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25164
+    },
+    {
+      "type": "token",
+      "content": " publish",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25194
+    },
+    {
+      "type": "token",
+      "content": " rồi",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25214
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25226
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25263
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25286
+    },
+    {
+      "type": "token",
+      "content": "Ground",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25300
+    },
+    {
+      "type": "token",
+      "content": "ed",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25300
+    },
+    {
+      "type": "token",
+      "content": " Chat",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25306
+    },
+    {
+      "type": "token",
+      "content": "bot",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25309
+    },
+    {
+      "type": "token",
+      "content": " Systems",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25312
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25320
+    },
+    {
+      "type": "token",
+      "content": " Conference",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25337
+    },
+    {
+      "type": "token",
+      "content": " Operations",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25352
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25367
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25384
+    },
+    {
+      "type": "token",
+      "content": " Hội",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25400
+    },
+    {
+      "type": "token",
+      "content": " nghị",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25415
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25416
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25432
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:35+0700",
+      "received_after_ms": 25445
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25464
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25475
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25492
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25512
+    },
+    {
+      "type": "token",
+      "content": " Tr",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25522
+    },
+    {
+      "type": "token",
+      "content": "ạng",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25537
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25554
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25567
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25568
+    },
+    {
+      "type": "token",
+      "content": "published",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25584
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25602
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25613
+    },
+    {
+      "type": "token",
+      "content": " C",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25630
+    },
+    {
+      "type": "token",
+      "content": "ập",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25651
+    },
+    {
+      "type": "token",
+      "content": " nhật",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25674
+    },
+    {
+      "type": "token",
+      "content": " gần",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25674
+    },
+    {
+      "type": "token",
+      "content": " nhất",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25682
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25696
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25709
+    },
+    {
+      "type": "token",
+      "content": "202",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25725
+    },
+    {
+      "type": "token",
+      "content": "6",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25744
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25760
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25775
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25791
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25802
+    },
+    {
+      "type": "token",
+      "content": "T",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25825
+    },
+    {
+      "type": "token",
+      "content": "13",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25825
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25834
+    },
+    {
+      "type": "token",
+      "content": "44",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25855
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25865
+    },
+    {
+      "type": "token",
+      "content": "34",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25884
+    },
+    {
+      "type": "token",
+      "content": "Z",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25899
+    },
+    {
+      "type": "token",
+      "content": "`\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25913
+    },
+    {
+      "type": "token",
+      "content": "Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25930
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25947
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25947
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25964
+    },
+    {
+      "type": "token",
+      "content": " tôi",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25977
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 25994
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26009
+    },
+    {
+      "type": "token",
+      "content": " kiểm",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26022
+    },
+    {
+      "type": "token",
+      "content": " tra",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26037
+    },
+    {
+      "type": "token",
+      "content": " thêm",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26059
+    },
+    {
+      "type": "token",
+      "content": " xem",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26082
+    },
+    {
+      "type": "token",
+      "content": " nó",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26094
+    },
+    {
+      "type": "token",
+      "content": " đã",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26105
+    },
+    {
+      "type": "token",
+      "content": " vào",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26105
+    },
+    {
+      "type": "token",
+      "content": " vòng",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26119
+    },
+    {
+      "type": "token",
+      "content": " nào",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26142
+    },
+    {
+      "type": "token",
+      "content": " khác",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26148
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26164
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26180
+    },
+    {
+      "type": "token",
+      "content": " hoặc",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26196
+    },
+    {
+      "type": "token",
+      "content": " t",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26211
+    },
+    {
+      "type": "token",
+      "content": "óm",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26213
+    },
+    {
+      "type": "token",
+      "content": " t",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26228
+    },
+    {
+      "type": "token",
+      "content": "ắt",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26245
+    },
+    {
+      "type": "token",
+      "content": " tình",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26256
+    },
+    {
+      "type": "token",
+      "content": " trạng",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26273
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26288
+    },
+    {
+      "type": "token",
+      "content": " bài",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26309
+    },
+    {
+      "type": "token",
+      "content": " n",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26320
+    },
+    {
+      "type": "token",
+      "content": "ộ",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26340
+    },
+    {
+      "type": "token",
+      "content": "p",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26340
+    },
+    {
+      "type": "token",
+      "content": " khác",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26351
+    },
+    {
+      "type": "token",
+      "content": " trong",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26369
+    },
+    {
+      "type": "token",
+      "content": " cùng",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26386
+    },
+    {
+      "type": "token",
+      "content": " hội",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26402
+    },
+    {
+      "type": "token",
+      "content": " nghị",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26415
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:36+0700",
+      "received_after_ms": 26431
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-author_own_submission_status-trial_03",
+      "received_at": "2026-07-07T14:59:37+0700",
+      "received_after_ms": 26569
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 136,
+    "output_chars": 317,
+    "input_tokens": 47,
+    "output_tokens": 136,
+    "total_tokens": 183
+  }
+}

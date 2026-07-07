@@ -4,8 +4,10 @@ import logging
 
 import pytest
 
+from app.workflows.submission_gating.models.facts import ExtractedDocument, FormatFacts
 from app.workflows.submission_gating.runner import SubmissionGatingRunner
 from app.workflows.submission_gating.schemas import GatingRunRequest
+from app.workflows.submission_gating.stages import document_extraction
 
 from tests.submission_gating_helpers import MINIMAL_PDF_BYTES, make_request_payload
 
@@ -77,6 +79,53 @@ async def test_runner_persists_blocked_run_with_stage_timings() -> None:
 
 
 @pytest.mark.asyncio
+async def test_runner_applies_format_compliance_after_document_extraction(monkeypatch: pytest.MonkeyPatch) -> None:
+    payload = make_request_payload(enabled=False)
+    payload["policy"]["format_config"] = {"min_body_font_pt": 10.0}
+    request = GatingRunRequest.model_validate(payload)
+
+    class _FakePDFExtractor:
+        def extract(self, *_args, **_kwargs):
+            return ExtractedDocument(
+                format="pdf",
+                raw_text="Abstract\nIntroduction\nConclusion\nReferences\n[1] Ref",
+                sections=["Abstract", "Introduction", "Conclusion", "References"],
+                title="Deterministic AI Pipelines",
+                abstract="Abstract",
+                authors=[],
+                metadata={},
+                table_count=0,
+                figure_count=0,
+                page_count=1,
+                text_coverage_ratio=1.0,
+                core_properties={},
+                format_facts=FormatFacts(
+                    body_font_pt=9.0,
+                    left_margin_in=1.0,
+                    right_margin_in=1.0,
+                    top_margin_in=1.0,
+                    bottom_margin_in=1.0,
+                    column_count=1,
+                    paper_size="letter",
+                    pages_analyzed=1,
+                ),
+            )
+
+    monkeypatch.setitem(document_extraction.EXTRACTORS, "pdf", _FakePDFExtractor())
+    repo = _FakeRepo()
+    runner = SubmissionGatingRunner(repo=repo, llm_client=_NoopLLM())
+
+    response = await runner.run(
+        request=request,
+        file_bytes=MINIMAL_PDF_BYTES,
+        filename="submission.pdf",
+    )
+
+    assert response.verdict == "block"
+    assert any(finding.rule_id == "font_size_violation" for finding in response.findings)
+
+
+@pytest.mark.asyncio
 async def test_runner_get_run_returns_persisted_state() -> None:
     request = GatingRunRequest.model_validate(make_request_payload(enabled=False))
     repo = _FakeRepo()
@@ -136,8 +185,8 @@ async def test_runner_logs_stage_lifecycle(caplog: pytest.LogCaptureFixture) -> 
     assert started_stages == [
         "intake_normalization",
         "binary_integrity",
-        "format_compliance",
         "document_extraction",
+        "format_compliance",
         "fact_derivation",
         "verdict_mapping",
         "guidance_rendering",
