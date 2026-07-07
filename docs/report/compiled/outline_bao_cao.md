@@ -134,19 +134,25 @@ Giải thích AI được đưa vào hệ thống để hỗ trợ công đoạn
 #### 3.5.2 Các workflow có sử dụng AI
 Giới thiệu tổng quan các quy trình trong hệ thống mà AI tham gia xử lý, sau đó phân nhóm theo vai trò người dùng và vị trí của workflow trong quy trình hội nghị. Phần này cần nhấn mạnh rằng mỗi workflow tạo đầu ra hỗ trợ để người dùng kiểm tra lại, không tự động thay thế quyết định học thuật.
 
-##### 3.5.2.1 Submission Autofill và Submission Gating
-Trình bày nhóm workflow hỗ trợ tác giả ở giai đoạn nộp bài, gồm tự động trích xuất metadata từ bản thảo, tạo `track_rankings` trong ngữ cảnh Submission Autofill và kiểm tra sơ bộ bản thảo bằng Submission Gating. Mục này cần làm rõ đầu vào, đầu ra, điểm người dùng xác nhận và giới hạn của từng workflow.
+##### 3.5.2.1 Submission Autofill
+Trình bày workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo, gồm trích xuất metadata, chuẩn hóa thông tin, gợi ý keyword và tạo `track_rankings` trong ngữ cảnh Submission Autofill. Mục này cần làm rõ đầu vào, đầu ra, điểm tác giả xác nhận và giới hạn của việc tự động điền thông tin.
 
-##### 3.5.2.2 Reviewer Initial Analysis, Paper Annotation và Review Quality Auditor
-Trình bày nhóm workflow hỗ trợ người phản biện đọc bài và kiểm soát chất lượng bản nháp phản biện. Nội dung cần nhấn mạnh AI giúp reviewer định hướng đọc, ghi chú và tự kiểm tra phản biện, nhưng reviewer vẫn chịu trách nhiệm đọc bài và viết đánh giá chuyên môn.
+##### 3.5.2.2 Submission Gating
+Trình bày workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc trước khi publish, gồm kiểm tra luật nộp bài, cảnh báo lỗi hình thức và hỗ trợ điều hướng nội dung cần xem lại. Mục này cần tách rõ phần rule deterministic với phần cảnh báo hỗ trợ dùng AI, đồng thời nhấn mạnh workflow không tự động thay Chair loại bài vì nhận định nội dung.
 
-##### 3.5.2.3 Chair Decision Copilot
+##### 3.5.2.3 Reviewer Initial Analysis
+Trình bày workflow hỗ trợ người phản biện đọc hiểu bài nộp ban đầu, gồm tóm tắt trung lập, nhận diện điểm cần kiểm tra kỹ và tổ chức các ghi chú ban đầu. Nội dung cần nhấn mạnh AI giúp reviewer định hướng đọc, nhưng reviewer vẫn chịu trách nhiệm đọc bài và viết đánh giá chuyên môn.
+
+##### 3.5.2.4 Review Quality Auditor
+Trình bày workflow kiểm tra chất lượng bản nháp phản biện, gồm phát hiện phản biện thiếu căn cứ, thiếu chiều sâu, không nhất quán hoặc có nguy cơ không đáp ứng yêu cầu biểu mẫu. Mục này cần nhấn mạnh auditor là công cụ hỗ trợ tự kiểm tra hoặc hỗ trợ Chair, không phải bộ lọc tự động quyết định review đạt hay không đạt.
+
+##### 3.5.2.5 Chair Decision Copilot
 Trình bày workflow hỗ trợ Chair tổng hợp review, rebuttal, điểm đồng thuận, điểm mâu thuẫn và bằng chứng liên quan trước khi ra quyết định. Mục này cần khẳng định workflow chỉ hỗ trợ tổng hợp evidence, không sinh quyết định accept/reject thay Chair.
 
-##### 3.5.2.4 Chatbot Agent của nền tảng
+##### 3.5.2.6 Chatbot Agent của nền tảng
 Trình bày Chatbot Agent như một workflow hội thoại có khả năng gọi công cụ truy vấn dữ liệu hệ thống trong phạm vi quyền được cấp. Nội dung cần làm rõ cơ chế kiểm soát quyền, tool-call, streaming response và giới hạn dữ liệu mà agent được phép truy cập.
 
-##### 3.5.2.5 Các kiểm soát chung cho workflow AI
+##### 3.5.2.7 Các kiểm soát chung cho workflow AI
 Tổng hợp các kiểm soát chung như structured output, validation schema, artifact fingerprint, trạng thái run, stage record, logging, timeout, retry có kiểm soát và fallback thủ công. Mục này giúp tránh lặp lại cùng một cơ chế kiểm soát trong từng workflow riêng lẻ.
 
 #### 3.5.3 AI Service, model router và structured output

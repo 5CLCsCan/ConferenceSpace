@@ -65,11 +65,13 @@ Vì số lượng workflow AI khá nhiều, mục `3.5.2. Các workflow có sử
 
 | Mục | Nội dung |
 |---|---|
-| 3.5.2.1. Submission Autofill và Submission Gating | Nhóm workflow hỗ trợ tác giả ở giai đoạn nộp bài |
-| 3.5.2.2. Reviewer Initial Analysis, Paper Annotation và Review Quality Auditor | Nhóm workflow hỗ trợ người phản biện đọc bài và kiểm soát chất lượng review |
-| 3.5.2.3. Chair Decision Copilot | Workflow hỗ trợ Chair tổng hợp evidence trước quyết định |
-| 3.5.2.4. Chatbot Agent của nền tảng | Workflow hội thoại có tool-call và kiểm soát quyền |
-| 3.5.2.5. Các kiểm soát chung cho workflow AI | Structured output, schema validation, artifact fingerprint, stage record, timeout và fallback |
+| 3.5.2.1. Submission Autofill | Workflow hỗ trợ tác giả chuẩn bị form nộp bài và tạo `track_rankings` trong ngữ cảnh Submission Autofill |
+| 3.5.2.2. Submission Gating | Workflow kiểm tra sơ bộ bản thảo và sinh cảnh báo hỗ trợ trước khi nộp/publish |
+| 3.5.2.3. Reviewer Initial Analysis | Workflow hỗ trợ người phản biện đọc hiểu bài nộp ban đầu |
+| 3.5.2.4. Review Quality Auditor | Workflow kiểm tra chất lượng bản nháp phản biện |
+| 3.5.2.5. Chair Decision Copilot | Workflow hỗ trợ Chair tổng hợp evidence trước quyết định |
+| 3.5.2.6. Chatbot Agent của nền tảng | Workflow hội thoại có tool-call và kiểm soát quyền |
+| 3.5.2.7. Các kiểm soát chung cho workflow AI | Structured output, schema validation, artifact fingerprint, stage record, timeout và fallback |
 
 Phân mục theo cách này giúp Chương 3 mô tả workflow ở mức thiết kế, còn Chương 4 mới đi sâu vào metric benchmark của từng workflow.
 
