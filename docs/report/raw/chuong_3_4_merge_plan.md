@@ -14,7 +14,7 @@ Sau merge, cấu trúc báo cáo mục tiêu là:
 |---|---|
 | Chương 1. Mở đầu | Đặt vấn đề, mục tiêu, phạm vi và narrative chính |
 | Chương 2. Khảo sát nhu cầu, hiện trạng và khoảng trống nghiên cứu | Cơ sở yêu cầu và nguyên tắc thiết kế |
-| Chương 3. Xây dựng hệ thống | Use case, thiết kế kỹ thuật, cơ chế non-AI, workflow AI và triển khai |
+| Chương 3. Xây dựng hệ thống | Use case, thiết kế kỹ thuật, cơ chế nghiệp vụ và thuật toán xác định, workflow AI và triển khai |
 | Chương 4. Thiết lập thực nghiệm và đánh giá hệ thống | Evidence chain: backend, thuật toán xác định, AI benchmark, vận hành và UAT |
 | Chương 5. Kết luận | Kết quả, hạn chế và hướng phát triển |
 
@@ -38,7 +38,7 @@ Mục này trình bày kiến trúc tổng thể, frontend, backend, API, phân 
 | Go, Gin, JWT, API contract, WebSocket | 3.3.3. Thiết kế backend, API và phân quyền |
 | PostgreSQL, Neo4j, Redis, file storage | 3.3.4. Thiết kế dữ liệu |
 
-### 3.4. Cơ chế xử lý không sử dụng AI
+### 3.4. Cơ chế nghiệp vụ và thuật toán xác định
 
 Đây là section mới và cần thiết. Reviewer matching, COI và một số workflow nghiệp vụ có tính thuật toán hoặc rule-based, nhưng không phải workflow AI sinh nội dung. Đưa chúng vào section riêng giúp báo cáo tránh ba lỗi:
 
@@ -50,7 +50,7 @@ Nội dung nên gồm:
 
 | Mục | Vai trò |
 |---|---|
-| 3.4.1. Vai trò của các cơ chế xác định | Định nghĩa lớp non-AI trong hệ thống |
+| 3.4.1. Vai trò của các cơ chế xác định | Định nghĩa lớp nghiệp vụ và thuật toán xác định trong hệ thống |
 | 3.4.2. Reviewer matching | Giải thích matching, scoring, load/ràng buộc và giới hạn |
 | 3.4.3. Phát hiện xung đột lợi ích | Giải thích self-author, declared COI, co-author graph, severity và evidence |
 | 3.4.4. Các cơ chế nghiệp vụ hỗ trợ vận hành | RBAC theo hội nghị, notification, rebuttal, discussion, audit event |
@@ -59,7 +59,19 @@ Section này nên đứng **sau Thiết kế kỹ thuật và trước Giải ph
 
 ### 3.5. Giải pháp AI
 
-Mục này giữ nội dung AI nhưng cần cập nhật để không gánh những phần non-AI. Nội dung nên tập trung vào vai trò AI, các workflow AI, AI service, model router, structured output, Semantic Scholar integration và giới hạn của AI.
+Mục này giữ nội dung AI nhưng cần cập nhật để không gánh những phần nghiệp vụ và thuật toán xác định. Nội dung nên tập trung vào vai trò AI, các workflow AI, AI service, model router, structured output, Semantic Scholar integration và giới hạn của AI.
+
+Vì số lượng workflow AI khá nhiều, mục `3.5.2. Các workflow có sử dụng AI` nên được phân mục con thay vì viết thành một mục dài. Cách phân mục tốt nhất là theo vai trò trong quy trình:
+
+| Mục | Nội dung |
+|---|---|
+| 3.5.2.1. Submission Autofill và Submission Gating | Nhóm workflow hỗ trợ tác giả ở giai đoạn nộp bài |
+| 3.5.2.2. Reviewer Initial Analysis, Paper Annotation và Review Quality Auditor | Nhóm workflow hỗ trợ người phản biện đọc bài và kiểm soát chất lượng review |
+| 3.5.2.3. Chair Decision Copilot | Workflow hỗ trợ Chair tổng hợp evidence trước quyết định |
+| 3.5.2.4. Chatbot Agent của nền tảng | Workflow hội thoại có tool-call và kiểm soát quyền |
+| 3.5.2.5. Các kiểm soát chung cho workflow AI | Structured output, schema validation, artifact fingerprint, stage record, timeout và fallback |
+
+Phân mục theo cách này giúp Chương 3 mô tả workflow ở mức thiết kế, còn Chương 4 mới đi sâu vào metric benchmark của từng workflow.
 
 Lưu ý bắt buộc: toàn bộ thao tác LLM trong hệ thống dùng `gemini-3.1-flash-lite`, kể cả khi gọi qua OpenRouter hoặc model router của nhóm bằng OpenAI-compatible client.
 
@@ -83,13 +95,13 @@ Mục này cần đóng vai trò cầu nối sang Chương 4 mới. Kết luận
 1. Cập nhật `outline_bao_cao.md` theo cấu trúc 5 chương.
 2. Gộp nội dung `03-xay-dung-he-thong.md` và `04-cong-nghe.md` thành Chương 3 mới.
 3. Di chuyển phần công nghệ vào đúng section thay vì giữ nguyên thứ tự Chương 4 cũ.
-4. Tạo section `3.4. Cơ chế xử lý không sử dụng AI`.
+4. Tạo section `3.4. Cơ chế nghiệp vụ và thuật toán xác định`.
 5. Cập nhật toàn bộ tham chiếu từ "Chương 3 và Chương 4" thành "Chương 3".
 6. Đổi Chương 5 hiện tại thành Chương 4 và Chương 6 thành Chương 5 ở outline, phần giới thiệu cấu trúc luận văn và các tham chiếu nội bộ.
 7. Kiểm tra không còn mô tả reviewer matching/COI như workflow AI.
 8. Kiểm tra `track_rankings` vẫn nằm trong Submission Autofill, không bị viết thành workflow độc lập.
 9. Kiểm tra toàn bộ model LLM được ghi nhất quán là `gemini-3.1-flash-lite`.
-10. Đọc lại Chương 3 sau merge theo vai trò reviewer hội đồng: có mạch từ use case đến thiết kế, non-AI, AI và deployment hay không.
+10. Đọc lại Chương 3 sau merge theo vai trò reviewer hội đồng: có mạch từ use case đến thiết kế, cơ chế nghiệp vụ và thuật toán xác định, AI và deployment hay không.
 
 ## 4. Rủi ro cần kiểm soát
 
@@ -103,9 +115,9 @@ Rủi ro thứ ba là làm mờ ranh giới AI. Section 3.4 cần được viế
 
 Sau khi merge nội dung thật, cần chạy một vòng validation:
 
-1. Đọc lại Chương 3 từ đầu đến cuối và kiểm tra mạch: tổng quan -> use case -> thiết kế kỹ thuật -> non-AI -> AI -> triển khai -> tổng kết.
+1. Đọc lại Chương 3 từ đầu đến cuối và kiểm tra mạch: tổng quan -> use case -> thiết kế kỹ thuật -> cơ chế nghiệp vụ và thuật toán xác định -> AI -> triển khai -> tổng kết.
 2. Kiểm tra mọi claim kỹ thuật đều có evidence từ repo, cấu hình hoặc benchmark tương ứng.
 3. Kiểm tra các thuật ngữ nhạy cảm: reviewer matching, COI, `track_rankings`, Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot, Chatbot Agent.
 4. Kiểm tra không còn tham chiếu sai chương sau khi renumber.
 5. Kiểm tra Chương 4 mới vẫn đánh giá đúng các lớp đã trình bày ở Chương 3.
-6. Nếu Chương 3 quá dài, cắt phần giải thích công nghệ lặp lại trước; không cắt các sơ đồ kiến trúc, luồng xử lý hoặc nội dung phân biệt non-AI/AI.
+6. Nếu Chương 3 quá dài, cắt phần giải thích công nghệ lặp lại trước; không cắt các sơ đồ kiến trúc, luồng xử lý hoặc nội dung phân biệt cơ chế xác định với workflow AI.

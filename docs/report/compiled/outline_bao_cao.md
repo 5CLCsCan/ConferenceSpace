@@ -73,7 +73,7 @@ Nêu các nguyên tắc giới hạn vai trò của AI trong hệ thống, chẳ
 ## Chương 3. Xây dựng hệ thống
 
 ### 3.1 Tổng quan hệ thống
-Giới thiệu mục tiêu xây dựng ConferenceSpace, các nhóm người dùng chính, phạm vi nghiệp vụ được hệ thống hỗ trợ và cách chương này nối trực tiếp với các yêu cầu đã rút ra ở Chương 2. Phần này giúp người đọc hình dung bức tranh chung trước khi đi vào use case, thiết kế kỹ thuật, cơ chế non-AI, workflow AI và môi trường triển khai.
+Giới thiệu mục tiêu xây dựng ConferenceSpace, các nhóm người dùng chính, phạm vi nghiệp vụ được hệ thống hỗ trợ và cách chương này nối trực tiếp với các yêu cầu đã rút ra ở Chương 2. Phần này giúp người đọc hình dung bức tranh chung trước khi đi vào use case, thiết kế kỹ thuật, cơ chế nghiệp vụ và thuật toán xác định, workflow AI và môi trường triển khai.
 
 #### 3.1.1 Mô hình phân lớp của hệ thống
 Trình bày cách hệ thống được chia thành các lớp trách nhiệm chính, bao gồm lớp nghiệp vụ cốt lõi, lớp cơ chế xác định và lớp AI hỗ trợ. Mục này cần làm rõ vì sao việc phân lớp giúp hệ thống vừa đáp ứng nhu cầu nghiệp vụ, vừa kiểm soát được rủi ro khi đưa AI vào quy trình học thuật.
@@ -112,10 +112,10 @@ Trình bày mô hình dữ liệu chính của hệ thống, bao gồm dữ li�
 #### 3.3.5 Luồng xử lý hệ thống
 Mô tả dòng chảy của dữ liệu và thao tác từ lúc hệ thống nhận đầu vào đến khi trả đầu ra cho người dùng. Nội dung này nên làm rõ từng bước xử lý chính, các điểm chuyển giao giữa frontend, backend, database, AI service và các thành phần hạ tầng.
 
-### 3.4 Cơ chế xử lý không sử dụng AI
+### 3.4 Cơ chế nghiệp vụ và thuật toán xác định
 
 #### 3.4.1 Vai trò của các cơ chế xác định
-Giải thích các thành phần xử lý không sử dụng AI nhưng có vai trò quan trọng trong hệ thống, đặc biệt là những cơ chế có kết quả nhất quán, có thể giải thích và có thể kiểm thử bằng benchmark deterministic. Phần này giúp tách rõ reviewer matching, COI, phân quyền, thông báo và workflow nghiệp vụ khỏi các workflow AI.
+Giải thích các thành phần xử lý nghiệp vụ và thuật toán xác định có vai trò quan trọng trong hệ thống, đặc biệt là những cơ chế có kết quả nhất quán, có thể giải thích và có thể kiểm thử bằng benchmark deterministic. Phần này giúp tách rõ reviewer matching, COI, phân quyền, thông báo và workflow nghiệp vụ khỏi các workflow AI.
 
 #### 3.4.2 Reviewer matching
 Trình bày cơ chế gợi ý hoặc phân công người phản biện dựa trên thông tin bài nộp, lĩnh vực chuyên môn, hồ sơ học thuật, tải công việc và các ràng buộc nghiệp vụ. Nội dung cần nhấn mạnh reviewer matching là cơ chế thuật toán xác định hoặc bán xác định, không phải workflow sinh nội dung bằng AI.
@@ -124,7 +124,7 @@ Trình bày cơ chế gợi ý hoặc phân công người phản biện dựa t
 Mô tả các lớp phát hiện COI như tự phản biện, khai báo thủ công, trùng tác giả, quan hệ đồng tác giả và quan hệ học thuật nhiều bậc. Mục này cần làm rõ nguồn dữ liệu, cách tạo bằng chứng, mức độ nghiêm trọng và vai trò kiểm tra cuối cùng của Chair.
 
 #### 3.4.4 Các cơ chế nghiệp vụ hỗ trợ vận hành
-Trình bày các cơ chế non-AI khác như phân quyền theo hội nghị, notification realtime, rebuttal workflow, discussion thread, audit event và kiểm soát trạng thái. Phần này giúp hội đồng thấy hệ thống không phụ thuộc vào AI để vận hành các quy trình cốt lõi.
+Trình bày các cơ chế nghiệp vụ khác như phân quyền theo hội nghị, notification realtime, rebuttal workflow, discussion thread, audit event và kiểm soát trạng thái. Phần này giúp hội đồng thấy hệ thống không phụ thuộc vào AI để vận hành các quy trình cốt lõi.
 
 ### 3.5 Giải pháp AI
 
@@ -132,7 +132,22 @@ Trình bày các cơ chế non-AI khác như phân quyền theo hội nghị, no
 Giải thích AI được đưa vào hệ thống để hỗ trợ công đoạn nào, giải quyết hạn chế gì của quy trình hiện tại và mang lại lợi ích gì so với cách xử lý thông thường. Phần này cần gắn trực tiếp với nhu cầu đã khảo sát ở Chương 2 để tránh cảm giác AI chỉ được thêm vào cho có.
 
 #### 3.5.2 Các workflow có sử dụng AI
-Trình bày các quy trình trong hệ thống mà AI tham gia xử lý. Với mỗi workflow, cần mô tả mục tiêu, dữ liệu đầu vào, các bước xử lý, vai trò cụ thể của AI và kết quả đầu ra mà workflow tạo ra.
+Giới thiệu tổng quan các quy trình trong hệ thống mà AI tham gia xử lý, sau đó phân nhóm theo vai trò người dùng và vị trí của workflow trong quy trình hội nghị. Phần này cần nhấn mạnh rằng mỗi workflow tạo đầu ra hỗ trợ để người dùng kiểm tra lại, không tự động thay thế quyết định học thuật.
+
+##### 3.5.2.1 Submission Autofill và Submission Gating
+Trình bày nhóm workflow hỗ trợ tác giả ở giai đoạn nộp bài, gồm tự động trích xuất metadata từ bản thảo, tạo `track_rankings` trong ngữ cảnh Submission Autofill và kiểm tra sơ bộ bản thảo bằng Submission Gating. Mục này cần làm rõ đầu vào, đầu ra, điểm người dùng xác nhận và giới hạn của từng workflow.
+
+##### 3.5.2.2 Reviewer Initial Analysis, Paper Annotation và Review Quality Auditor
+Trình bày nhóm workflow hỗ trợ người phản biện đọc bài và kiểm soát chất lượng bản nháp phản biện. Nội dung cần nhấn mạnh AI giúp reviewer định hướng đọc, ghi chú và tự kiểm tra phản biện, nhưng reviewer vẫn chịu trách nhiệm đọc bài và viết đánh giá chuyên môn.
+
+##### 3.5.2.3 Chair Decision Copilot
+Trình bày workflow hỗ trợ Chair tổng hợp review, rebuttal, điểm đồng thuận, điểm mâu thuẫn và bằng chứng liên quan trước khi ra quyết định. Mục này cần khẳng định workflow chỉ hỗ trợ tổng hợp evidence, không sinh quyết định accept/reject thay Chair.
+
+##### 3.5.2.4 Chatbot Agent của nền tảng
+Trình bày Chatbot Agent như một workflow hội thoại có khả năng gọi công cụ truy vấn dữ liệu hệ thống trong phạm vi quyền được cấp. Nội dung cần làm rõ cơ chế kiểm soát quyền, tool-call, streaming response và giới hạn dữ liệu mà agent được phép truy cập.
+
+##### 3.5.2.5 Các kiểm soát chung cho workflow AI
+Tổng hợp các kiểm soát chung như structured output, validation schema, artifact fingerprint, trạng thái run, stage record, logging, timeout, retry có kiểm soát và fallback thủ công. Mục này giúp tránh lặp lại cùng một cơ chế kiểm soát trong từng workflow riêng lẻ.
 
 #### 3.5.3 AI Service, model router và structured output
 Mô tả cách AI service được xây dựng bằng FastAPI/Pydantic, cách hệ thống gọi `gemini-3.1-flash-lite` qua model router hoặc OpenAI-compatible client của nhóm, cách validate structured output, lưu artifact và xử lý lỗi. Phần này cần làm rõ AI service là lớp hỗ trợ có hợp đồng đầu ra, không phải nơi quyết định nghiệp vụ cuối cùng.
@@ -164,7 +179,7 @@ Trình bày pipeline build, push và deploy qua GitHub Actions, bao gồm việc
 Phân tích cách triển khai tách public gateway khỏi data network, dùng volume bền vững cho PostgreSQL/Redis/Neo4j/uploads/Caddy, giới hạn truy cập service nội bộ và quản lý secret qua environment/server configuration. Mục này giúp liên kết yêu cầu bảo mật và khả năng vận hành với triển khai thực tế.
 
 ### 3.7 Tổng kết chương
-Tổng hợp lại cách hệ thống được xây dựng từ yêu cầu người dùng ở Chương 2: use case xác định chức năng, thiết kế kỹ thuật hiện thực hóa chức năng, cơ chế non-AI xử lý các quy trình cần tính nhất quán, AI hỗ trợ các tác vụ cần đọc hiểu/tổng hợp, và môi trường triển khai chứng minh hệ thống có thể vận hành thực tế. Phần này cần tạo cầu nối trực tiếp sang chương đánh giá thực nghiệm.
+Tổng hợp lại cách hệ thống được xây dựng từ yêu cầu người dùng ở Chương 2: use case xác định chức năng, thiết kế kỹ thuật hiện thực hóa chức năng, cơ chế nghiệp vụ và thuật toán xác định xử lý các quy trình cần tính nhất quán, AI hỗ trợ các tác vụ cần đọc hiểu/tổng hợp, và môi trường triển khai chứng minh hệ thống có thể vận hành thực tế. Phần này cần tạo cầu nối trực tiếp sang chương đánh giá thực nghiệm.
 
 ## Chương 4. Thiết lập thực nghiệm và đánh giá hệ thống
 
