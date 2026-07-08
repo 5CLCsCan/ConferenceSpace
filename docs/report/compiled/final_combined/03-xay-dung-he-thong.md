@@ -149,10 +149,14 @@ flowchart TD
     C -- "Có" --> E["LLM tạo metadata và track_rankings"]
     E --> F["Validate schema output"]
     F --> G["Tác giả kiểm tra và chỉnh sửa"]
-    G --> H["Khai báo COI và gửi bài"]
+    G --> H["Lưu draft submission"]
+    H --> I["Submission Gating kiểm tra draft"]
+    I --> J{"Pass / Warn / Block"}
+    J -- "Block" --> K["Trả cảnh báo và yêu cầu sửa trước khi gửi"]
+    J -- "Pass/Warn" --> L["Khai báo COI và gửi bài chính thức"]
 ```
 
-Workflow này không tự động gửi bài thay tác giả. Output từ AI chỉ là bản nháp gồm tiêu đề, tóm tắt, keyword, thông tin liên quan và `track_rankings`. Tác giả vẫn phải xem lại, chỉnh sửa và xác nhận trước khi gửi. Thiết kế này giải quyết vấn đề biểu mẫu dài ở Chương 2 nhưng vẫn giữ quyền kiểm soát của người dùng.
+Workflow này không tự động gửi bài thay tác giả. Output từ AI chỉ là bản nháp gồm tiêu đề, tóm tắt, keyword, thông tin liên quan và `track_rankings`. Tác giả vẫn phải xem lại, chỉnh sửa và xác nhận trước khi gửi. Trước khi submission được gửi chính thức, Submission Gating đóng vai trò như một lớp kiểm tra draft ở cổng nộp bài: hệ thống có thể cảnh báo hoặc chặn các bản nộp không đáp ứng policy/hình thức rõ ràng, nhưng không đưa ra kết luận học thuật thay Chair hoặc reviewer. Thiết kế này giải quyết vấn đề biểu mẫu dài và phát hiện lỗi muộn ở Chương 2 nhưng vẫn giữ quyền kiểm soát của người dùng.
 
 Các trường hợp lỗi được xử lý rõ: nếu file không đọc được, text extraction thấp hoặc dữ liệu không đủ căn cứ, workflow trả lỗi thay vì tạo metadata thiếu cơ sở. Đây là điểm quan trọng vì một hệ thống AI trong bối cảnh học thuật không được “đoán cho đủ form” khi bản thảo đầu vào không đủ tin cậy.
 
@@ -401,11 +405,17 @@ sequenceDiagram
     AI-->>BE: Metadata và track_rankings
     BE-->>FE: Trả bản nháp cho tác giả
     Author->>FE: Kiểm tra, chỉnh sửa, xác nhận
-    FE->>BE: Gửi submission chính thức
+    FE->>BE: Lưu draft và yêu cầu kiểm tra nộp bài
+    BE->>AI: Yêu cầu Submission Gating trên draft
+    AI->>AI: Kiểm tra policy, format, section và nội dung cần rà soát
+    AI-->>BE: Kết quả pass/warn/block và guidance
+    BE-->>FE: Hiển thị cảnh báo hoặc cho phép gửi chính thức
+    Author->>FE: Sửa nếu cần và xác nhận gửi
+    FE->>BE: Gửi submission chính thức sau gating
     BE->>DB: Lưu submission, authors, files, COI declarations
 ```
 
-Luồng này thể hiện đúng ranh giới trách nhiệm: AI giúp tạo bản nháp, backend giữ quyền ghi dữ liệu chính thức, tác giả xác nhận trước khi lưu. Nếu AI lỗi, form thủ công vẫn phải hoạt động.
+Luồng này thể hiện đúng ranh giới trách nhiệm: AI giúp tạo bản nháp và kiểm tra draft ở cổng nộp bài, backend giữ quyền ghi dữ liệu chính thức, tác giả xác nhận trước khi lưu. Submission Gating đóng vai trò tương tự desk reject ở tầng nộp draft đối với lỗi policy/hình thức hoặc dấu hiệu cần rà soát, nhưng không thay thế đánh giá học thuật sau khi bài được phân công phản biện. Nếu AI lỗi, form thủ công và quy trình nộp bài cơ bản vẫn phải hoạt động.
 
 #### Luồng agent truy vấn dữ liệu hệ thống
 
@@ -516,7 +526,7 @@ Ranh giới kiểm soát là tác giả. Hệ thống không tự động gửi 
 
 Submission Gating kiểm tra bản thảo trước khi gửi chính thức theo policy hội nghị. Workflow có thể phát hiện thiếu section bắt buộc, nội dung không phù hợp track, hoặc dấu hiệu cần Chair kiểm tra thêm. Output nên được diễn giải theo ba mức: `pass`, `warn` và `block`.
 
-Điểm cần nhấn mạnh là Submission Gating không phải desk rejection tự động. Nếu workflow trả `block`, hệ thống chỉ ngăn một bản nộp không đáp ứng điều kiện hình thức hoặc policy cấu hình rõ ràng; các kết luận học thuật vẫn thuộc về Chair và reviewer.
+Điểm cần nhấn mạnh là Submission Gating đóng vai trò như một desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Nếu workflow trả `block`, hệ thống chỉ ngăn một bản nộp không đáp ứng điều kiện hình thức hoặc policy cấu hình rõ ràng; các kết luận học thuật vẫn thuộc về Chair và reviewer.
 
 #### 3.5.2.3. Reviewer Initial Analysis
 
