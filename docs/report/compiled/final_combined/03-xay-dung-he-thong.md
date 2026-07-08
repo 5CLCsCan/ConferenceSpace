@@ -518,55 +518,271 @@ Nhóm thứ ba là **hỗ trợ tổng hợp và truy vấn ngữ cảnh hệ th
 
 #### 3.5.2.1. Submission Autofill
 
-Submission Autofill nhận bản thảo, conference context và danh sách track để tạo metadata nháp cho form nộp bài. Output chính gồm tiêu đề, tóm tắt, keyword, thông tin tác giả khi trích xuất được và gợi ý track phù hợp trong danh sách track hợp lệ của hội nghị. Giá trị của workflow này là giảm nhập liệu lặp lại, đặc biệt với các trường đã có trong PDF, đồng thời giảm thao tác dò/chọn track thủ công.
+Submission Autofill là workflow đầu tiên tác giả gặp trong luồng nộp bài. Thay vì yêu cầu tác giả tự nhập lại những thông tin đã có trong bản thảo, hệ thống đọc file, trích xuất nội dung, tạo bản nháp metadata và gợi ý track phù hợp trong danh sách track hợp lệ của hội nghị. Đây là workflow giảm thao tác nhập liệu, không phải cơ chế tự động nộp bài.
 
-Ranh giới kiểm soát là tác giả. Hệ thống không tự động gửi bài và không khóa các trường do AI tạo. Tác giả phải xem lại, chỉnh sửa và xác nhận trước khi lưu submission chính thức.
+**Hình 3.15. Luồng hoạt động của Submission Autofill**
+
+```mermaid
+flowchart TD
+    A["Tác giả tải bản thảo"] --> B["Backend nhận file và conference context"]
+    B --> C["AI Service trích xuất nội dung tài liệu"]
+    C --> D{"Nội dung đủ căn cứ?"}
+    D -- "Không" --> E["Trả cảnh báo hoặc lỗi đọc file"]
+    D -- "Có" --> F["Tạo metadata nháp từ nội dung bản thảo"]
+    F --> G["Gợi ý track trong danh sách track hợp lệ"]
+    G --> H["Validate schema và chuẩn hóa output"]
+    H --> I["Frontend hiển thị bản nháp có thể chỉnh sửa"]
+    I --> J["Tác giả xác nhận hoặc sửa trước khi lưu"]
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Bản thảo | File PDF hoặc tài liệu nộp chính, kèm tên file, loại nội dung và kích thước |
+| Ngữ cảnh hội nghị | Tên hội nghị, mô tả, domain, CFP và danh sách track đang mở |
+| Ngữ cảnh người dùng | Tác giả đang đăng nhập, hội nghị đang thao tác và thông tin bổ sung nếu có |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Metadata nháp | Tiêu đề, tóm tắt, keyword, loại bài và ghi chú bổ sung nếu trích xuất được |
+| Tác giả nháp | Tên, email, đơn vị và quốc gia khi thông tin xuất hiện rõ trong bản thảo |
+| Gợi ý track | Danh sách track hợp lệ được đề xuất kèm độ tự tin và lý do ngắn |
+| Trạng thái xử lý | Trạng thái thành công/thất bại, cảnh báo đọc file, thông tin material đã xử lý |
+
+Điểm quan trọng của thiết kế là output luôn ở dạng bản nháp. Frontend không khóa các trường do AI tạo và backend chỉ lưu submission chính thức sau khi tác giả xác nhận. Nếu file có độ phủ text thấp hoặc thiếu căn cứ, workflow phải trả cảnh báo thay vì điền thông tin bằng suy đoán. Nhờ vậy, Submission Autofill hỗ trợ tốc độ nhập liệu nhưng vẫn giữ trách nhiệm kiểm tra cuối cùng ở tác giả.
 
 #### 3.5.2.2. Submission Gating
 
-Submission Gating kiểm tra bản thảo trước khi gửi chính thức theo policy hội nghị. Workflow có thể phát hiện thiếu section bắt buộc, nội dung không phù hợp track, hoặc dấu hiệu cần Chair kiểm tra thêm. Output nên được diễn giải theo ba mức: `pass`, `warn` và `block`.
+Submission Gating là lớp kiểm tra trước khi submission được gửi chính thức. Workflow này kết hợp rule xác định và đánh giá hỗ trợ bằng AI để phát hiện lỗi hình thức, thiếu điều kiện policy hoặc rủi ro nội dung cần người dùng xem lại. Vai trò của gating là đưa lỗi về sớm tại thời điểm tác giả còn có thể sửa, thay vì để lỗi xuất hiện muộn sau khi hệ thống đã bước vào giai đoạn phản biện.
 
-Điểm cần nhấn mạnh là Submission Gating đóng vai trò như một desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Nếu workflow trả `block`, hệ thống chỉ ngăn một bản nộp không đáp ứng điều kiện hình thức hoặc policy cấu hình rõ ràng; các kết luận học thuật vẫn thuộc về Chair và reviewer.
+**Hình 3.16. Luồng hoạt động của Submission Gating**
+
+```mermaid
+flowchart TD
+    A["Draft submission và file bản thảo"] --> B["Chuẩn hóa request và policy hội nghị"]
+    B --> C["Kiểm tra file, format và section bắt buộc"]
+    C --> D["Trích xuất facts từ tài liệu"]
+    D --> E["Đánh giá rule deterministic"]
+    D --> F["Đánh giá nội dung mềm bằng AI nếu cần"]
+    E --> G["Gộp findings và tính verdict"]
+    F --> G
+    G --> H{"Verdict"}
+    H -- "pass" --> I["Cho phép tiếp tục gửi"]
+    H -- "warn" --> J["Hiển thị cảnh báo và hướng sửa"]
+    H -- "block" --> K["Chặn gửi cho tới khi lỗi policy/hình thức được sửa"]
+    G --> L["Lưu audit: fingerprint, policy hash, stage timings"]
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Draft submission | Tiêu đề, tóm tắt, track đã chọn, keyword, đồng tác giả, COI khai báo và metadata liên quan |
+| Policy hội nghị | Định dạng submission, số trang tối đa, section bắt buộc, rule desk-check, ngưỡng và prompt bổ sung của Chair |
+| File và nguồn gọi | File metadata, mode `advisory` hoặc `gate`, nguồn gọi như precheck hoặc submit chính thức |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Verdict | `pass`, `warn`, `block` hoặc `error` |
+| Finding | Rule, nguồn phát hiện, mức độ nghiêm trọng, thông điệp, bằng chứng và hướng sửa |
+| Guidance | Danh sách việc tác giả cần chỉnh trước khi gửi hoặc trước khi Chair xem lại |
+| Audit metadata | Input fingerprint, policy hash, summary theo mức độ, thời gian từng stage và dấu hiệu deterministic |
+
+Điểm cần nhấn mạnh là Submission Gating đóng vai trò như desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Chỉ các lỗi có policy rõ ràng, có thể giải thích và tái lập mới nên tạo trạng thái `block`. Các nhận xét nội dung mềm chỉ nên ở dạng cảnh báo hoặc hướng kiểm tra để tác giả và Chair xem lại.
 
 #### 3.5.2.3. Reviewer Initial Analysis
 
-Reviewer Initial Analysis tạo briefing ban đầu cho reviewer: tóm tắt trung lập, đóng góp chính, điểm cần kiểm tra, câu hỏi gợi ý và các tín hiệu về mức độ sẵn sàng của bài để phản biện. Workflow này được thiết kế để hỗ trợ quá trình đọc, không thay thế quá trình đọc.
+Reviewer Initial Analysis tạo briefing ban đầu cho reviewer trước khi reviewer bắt đầu viết phản biện. Workflow này không thay thế việc đọc bài; nó tạo một lớp định hướng gồm snapshot trung lập, đóng góp được claim, điểm đáng chú ý, điểm cần kiểm tra và annotation theo section. Thiết kế này trực tiếp bám với kết quả khảo sát ở Chương 2: reviewer chấp nhận AI tốt hơn khi AI giúp nắm bối cảnh ban đầu, nhưng vẫn cần tự đánh giá chuyên môn.
 
-Luận điểm thiết kế quan trọng là AI có thể giảm số lần reviewer phải đọc lại toàn bộ bài chỉ để truy vết các điểm cần chú ý. Khi các điểm cần kiểm tra được gom lại có cấu trúc, reviewer có thể tập trung nhiều hơn vào đánh giá chuyên môn và chất lượng lập luận của bài.
+**Hình 3.17. Luồng hoạt động của Reviewer Initial Analysis**
+
+```mermaid
+flowchart TD
+    A["Reviewer mở bài được phân công"] --> B["Backend gom submission snapshot và file metadata"]
+    B --> C["Tạo submission state fingerprint"]
+    C --> D{"Artifact còn hợp lệ?"}
+    D -- "Có" --> E["Trả briefing từ cache"]
+    D -- "Không" --> F["AI Service tạo briefing và annotation"]
+    F --> G["Validate structured output"]
+    G --> H["Lưu artifact theo assignment/submission"]
+    E --> I["Reviewer đọc briefing trong giao diện review"]
+    H --> I
+    I --> J["Reviewer đọc bài gốc và viết phản biện"]
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Submission snapshot | Tiêu đề, tóm tắt, keyword, track và trạng thái bản thảo |
+| Ngữ cảnh reviewer | Assignment, reviewer đang đăng nhập và domain tags nếu có |
+| Fingerprint | Dấu vết trạng thái submission để xác định artifact cũ có còn dùng được không |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Briefing | Snapshot bài nộp, tín hiệu sẵn sàng phản biện, đóng góp được claim, điểm đáng chú ý và limitation |
+| Annotation | Nhận xét theo section, gồm strength, weakness, suggestion hoặc question |
+| Cache state | Trạng thái `idle`, `ready`, `stale` hoặc `failed`, kèm run id và fingerprint |
+
+Luận điểm thiết kế quan trọng là AI có thể giảm số lần reviewer phải đọc lại toàn bộ bài chỉ để truy vết các điểm cần chú ý. Khi các điểm cần kiểm tra được gom lại có cấu trúc, reviewer có thể tập trung nhiều hơn vào đánh giá chuyên môn, chất lượng lập luận và bằng chứng trong bài. Vì vậy, giao diện cần trình bày artifact như briefing hỗ trợ đọc, không như kết luận thay reviewer.
 
 #### 3.5.2.4. Review Quality Auditor
 
-Review Quality Auditor kiểm tra bản nháp review trước khi gửi chính thức. Đầu vào gồm review draft, rubric hoặc form đánh giá của hội nghị và một phần ngữ cảnh submission. Output gồm trạng thái `pass`, `warn` hoặc `block`, cùng danh sách vấn đề cần chỉnh sửa.
+Review Quality Auditor kiểm tra chất lượng của bản nháp review trước khi reviewer gửi chính thức. Khác với Reviewer Initial Analysis, workflow này không đọc bài để đánh giá bài báo, mà đọc chính bản phản biện để phát hiện vấn đề về độ cụ thể, tính nhất quán, mức độ bám bằng chứng và độ đầy đủ theo form. Đây là cơ chế giảm rủi ro hệ thống nhận review quá ngắn, quá chung chung hoặc mâu thuẫn giữa điểm số và nhận xét.
 
-Auditor không xác định bài báo tốt hay xấu. Nó kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Đây là cơ chế giúp Chair giảm rủi ro nhận review nghèo thông tin.
+**Hình 3.18. Luồng hoạt động của Review Quality Auditor**
+
+```mermaid
+flowchart TD
+    A["Reviewer lưu hoặc chuẩn bị gửi review draft"] --> B["Backend gom review draft, score và policy"]
+    B --> C["Đính kèm submission context và briefing nếu có"]
+    C --> D["AI Service kiểm tra chất lượng review"]
+    D --> E["Validate finding code, field và severity"]
+    E --> F{"Status"}
+    F -- "pass" --> G["Cho phép reviewer tiếp tục gửi"]
+    F -- "warn" --> H["Gợi ý chỉnh sửa nhưng không kết luận thay reviewer"]
+    F -- "block" --> I["Yêu cầu chỉnh review chưa đạt điều kiện tối thiểu"]
+    H --> J["Reviewer sửa hoặc xác nhận"]
+    I --> J
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Review draft | Điểm theo tiêu chí, summary, strengths, weaknesses, questions, recommendation và confidence |
+| Policy review | Section bắt buộc và chế độ kiểm tra như draft save, submit preflight hoặc enforcement |
+| Ngữ cảnh bài nộp | Tiêu đề, tóm tắt, keyword, track và artifact phân tích ban đầu nếu có |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Status | `pass`, `warn` hoặc `block` |
+| Evaluation | Tóm tắt mức độ cụ thể, mức độ bám bằng chứng, tính nhất quán và trọng tâm cần cải thiện |
+| Finding | Mã vấn đề, severity, field bị ảnh hưởng, rationale, message, suggestion và fingerprint điều kiện |
+
+Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Nếu workflow trả cảnh báo, reviewer vẫn là người sửa, bỏ qua hoặc xác nhận. Nếu hệ thống dùng chế độ enforcement, điều kiện block cần được giới hạn ở lỗi rõ ràng làm review chưa đủ tư cách gửi.
 
 #### 3.5.2.5. Chair Decision Copilot
 
-Chair Decision Copilot tổng hợp review, scores, rebuttal và discussion để tạo bản tóm tắt bằng chứng. Output cần làm rõ điểm đồng thuận, điểm bất đồng, vấn đề còn bỏ ngỏ, phản hồi của tác giả và các rủi ro cần Chair xem lại.
+Chair Decision Copilot hỗ trợ Chair đọc nhanh toàn bộ evidence package của một submission. Ở giai đoạn ra quyết định, Chair phải đối chiếu nhiều nguồn: điểm số, nội dung review, thay đổi sau rebuttal, discussion nội bộ, phản hồi tác giả và trạng thái hội nghị. Copilot gom các nguồn này thành bản tổng hợp có cấu trúc để Chair kiểm tra nhanh hơn.
 
-Workflow này không sinh quyết định accept/reject. Nếu hệ thống trình bày một khuyến nghị như kết luận, nó sẽ làm lệch trách nhiệm học thuật. Vì vậy, output của Copilot được thiết kế như bản tổng hợp để Chair đọc nhanh hơn và đối chiếu với dữ liệu gốc.
+**Hình 3.19. Luồng hoạt động của Chair Decision Copilot**
+
+```mermaid
+flowchart TD
+    A["Chair mở submission detail"] --> B["Backend gom evidence package"]
+    B --> C["Tạo evidence fingerprint và component fingerprints"]
+    C --> D{"Artifact còn hợp lệ?"}
+    D -- "Có" --> E["Trả bản tổng hợp từ cache"]
+    D -- "Không" --> F["AI Service tổng hợp evidence"]
+    F --> G["Validate schema: summary, analytics, disagreement map"]
+    G --> H["Lưu artifact và cache metadata"]
+    E --> I["Chair đọc bản tổng hợp và đối chiếu dữ liệu gốc"]
+    H --> I
+    I --> J["Chair tự ra quyết định trong workflow hội nghị"]
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| CFP và submission | Tên hội nghị, domain, track, tiêu đề bài, trạng thái, keyword và thời điểm cập nhật |
+| Review evidence | Recommendation, confidence, score, summary, strengths, weaknesses, questions và điểm theo tiêu chí |
+| Review analytics | Phân bố recommendation, mix confidence, tiêu chí mạnh/yếu và mức độ đầy đủ của review |
+| Discussion và rebuttal | Thread thảo luận, phản hồi tác giả, trạng thái acknowledgement và điểm còn bỏ ngỏ |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Evidence summary | Overview và danh sách bằng chứng chính mà Chair cần xem |
+| Review synthesis | Tổng hợp điểm mạnh, điểm yếu, câu hỏi và xu hướng phản biện |
+| Disagreement map | Điểm đồng thuận, điểm bất đồng, concern chưa giải quyết và giới hạn độ tin cậy |
+| Chair note nháp | Gợi ý ghi chú tổng hợp để Chair chỉnh sửa, không phải quyết định accept/reject |
+
+Workflow này không sinh quyết định accept/reject. Nếu hệ thống trình bày một khuyến nghị như kết luận, nó sẽ làm lệch trách nhiệm học thuật. Vì vậy, output của Copilot được thiết kế như bản tổng hợp để Chair đọc nhanh hơn và đối chiếu với dữ liệu gốc. Trạng thái cache `stale` cũng quan trọng: khi review, rebuttal hoặc discussion thay đổi, bản tổng hợp cũ phải được đánh dấu không còn hiện hành.
 
 #### 3.5.2.6. Chatbot Agent của nền tảng
 
-Chatbot Agent hỗ trợ người dùng hỏi về trạng thái, thao tác và dữ liệu trong phạm vi quyền truy cập. Khi cần dữ liệu hệ thống, agent gọi backend query endpoint thay vì truy vấn database trực tiếp. Backend kiểm tra user token, service token, resource registry và quyền truy cập trước khi trả dữ liệu.
+Chatbot Agent là trợ lý chung của nền tảng, dùng được bởi tác giả, reviewer và Chair. Khác với các workflow còn lại, agent không gắn với một màn hình duy nhất; nó hỗ trợ hỏi đáp về thao tác, trạng thái và dữ liệu trong phạm vi quyền truy cập của từng người dùng. Khi cần dữ liệu hệ thống, agent không truy vấn database trực tiếp mà gọi backend query endpoint để đi qua cùng lớp phân quyền như phần còn lại của hệ thống.
 
-Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh rủi ro lộ dữ liệu bản thảo hoặc phản biện. Agent chỉ được trả lời dựa trên dữ liệu người dùng có quyền xem.
+**Hình 3.20. Luồng hoạt động của Chatbot Agent**
+
+```mermaid
+flowchart TD
+    A["Người dùng gửi câu hỏi"] --> B["AI Service nhận thread, message và page context"]
+    B --> C["Agent xác định có cần gọi tool hay không"]
+    C -- "Không cần dữ liệu hệ thống" --> D["Trả lời theo ngữ cảnh hội thoại"]
+    C -- "Cần dữ liệu hệ thống" --> E["Gọi query_engine với resource, select, filter, sort"]
+    E --> F["Backend kiểm tra user token và service token"]
+    F --> G["Resource registry kiểm tra field và policy"]
+    G --> H["Backend trả rows và policy notes"]
+    H --> I["Agent tổng hợp câu trả lời có giới hạn"]
+    D --> J["Frontend hiển thị trong chatbot"]
+    I --> J
+```
+
+**Dạng đầu vào chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Hội thoại | Thread id, lịch sử message, trigger và message id khi regenerate |
+| Ngữ cảnh giao diện | Đường dẫn hiện tại, client metadata và trạng thái trang nếu frontend cung cấp |
+| Tool request | Resource cần truy vấn, field được chọn, filter, group by, aggregate, sort, limit và offset |
+
+**Dạng đầu ra chính**
+
+| Nhóm dữ liệu | Nội dung |
+|---|---|
+| Câu trả lời | Nội dung trả lời cho người dùng, có thể gồm hướng dẫn thao tác hoặc tóm tắt trạng thái |
+| Tool result | Rows được backend cho phép trả về, meta về số dòng, limit/offset và policy notes |
+| Trạng thái tool | `output-available`, `output-error` hoặc `timeout` để frontend/agent xử lý tiếp |
+
+Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh rủi ro lộ dữ liệu bản thảo hoặc phản biện. Agent chỉ được trả lời dựa trên dữ liệu người dùng có quyền xem. Backend giữ quyền kiểm soát resource, field và filter; AI chỉ đề xuất truy vấn ở mức ý định, không được bỏ qua RBAC hoặc đọc database trực tiếp.
 
 #### 3.5.2.7. Các kiểm soát chung cho workflow AI
 
-Các workflow AI dùng chung một số kiểm soát:
+Các workflow AI khác nhau về vai trò và dữ liệu, nhưng dùng chung một số kiểm soát kiến trúc. Các kiểm soát này là phần giúp hệ thống giữ được nguyên tắc "AI hỗ trợ, con người quyết định" xuyên suốt Chương 1 và Chương 2.
 
-- **Schema validation**: output phải đúng cấu trúc trước khi trả về frontend hoặc lưu artifact.
-- **Input fingerprint**: artifact gắn với trạng thái dữ liệu tại thời điểm sinh.
-- **Timeout và error handling**: lỗi provider không được biến thành dữ liệu giả hợp lệ.
-- **Human override**: người dùng có thẩm quyền phải có khả năng chỉnh sửa, bỏ qua hoặc xác nhận output.
-- **Audit trail**: trạng thái, thời gian xử lý và lỗi cần được lưu để phục vụ benchmark ở Chương 4.
+**Hình 3.21. Kiểm soát chung quanh output AI**
+
+```mermaid
+flowchart LR
+    A["Input nghiệp vụ"] --> B["Fingerprint / policy hash"]
+    B --> C["Workflow AI"]
+    C --> D["Schema validation"]
+    D --> E{"Output hợp lệ?"}
+    E -- "Không" --> F["Trả lỗi rõ ràng, không tạo dữ liệu giả"]
+    E -- "Có" --> G["Lưu artifact và audit metadata"]
+    G --> H["Frontend hiển thị như draft/advisory"]
+    H --> I["Human review, override hoặc xác nhận"]
+```
+
+| Kiểm soát | Vai trò trong hệ thống |
+|---|---|
+| Schema validation | Output phải đúng cấu trúc trước khi trả về frontend hoặc lưu artifact |
+| Input fingerprint | Artifact gắn với trạng thái dữ liệu tại thời điểm sinh; khi dữ liệu đổi, artifact có thể bị stale |
+| Policy hash | Các workflow có policy như Submission Gating phải biết output được tạo theo cấu hình nào |
+| Timeout và error handling | Lỗi provider không được biến thành dữ liệu giả hợp lệ |
+| Human override | Người dùng có thẩm quyền phải có khả năng chỉnh sửa, bỏ qua hoặc xác nhận output |
+| Audit trail | Trạng thái, thời gian xử lý, lỗi và stage timings cần được lưu để phục vụ benchmark ở Chương 4 |
+
+Nhờ các kiểm soát này, AI không trở thành một lớp quyết định ẩn trong hệ thống. Mỗi workflow đều có hợp đồng dữ liệu, trạng thái lỗi và điểm can thiệp của con người. Đây là điều kiện cần để các kết quả benchmark ở Chương 4 có thể được diễn giải đúng: benchmark đo chất lượng của output hỗ trợ, không chứng minh rằng hệ thống có quyền thay người dùng ra quyết định học thuật.
 
 ### 3.5.3. AI Service, model router và structured output
 
 AI service được triển khai như một service FastAPI độc lập. Trong repo, service đăng ký các router workflow riêng: submission autofill, submission gating, reviewer initial analysis, review quality audit, chair decision copilot và agent/status router. Cách tách router này giúp mỗi workflow có schema, prompt, runner và validation riêng thay vì gom tất cả vào một endpoint chung.
 
-**Hình 3.15. Luồng tích hợp AI service**
+**Hình 3.22. Luồng tích hợp AI service**
 
 ```mermaid
 flowchart TD
@@ -617,7 +833,7 @@ Các giới hạn chính gồm: phụ thuộc chất lượng file đầu vào, 
 
 ConferenceSpace được đóng gói thành các service độc lập: Caddy gateway, Next.js web, Go backend, backend migration job, FastAPI AI service, PostgreSQL, Redis và Neo4j. Cách triển khai này giúp nhóm chứng minh hệ thống không chỉ chạy ở môi trường development mà có thể vận hành như một stack thực tế.
 
-**Hình 3.16. Topology triển khai production**
+**Hình 3.23. Topology triển khai production**
 
 ```mermaid
 flowchart LR
@@ -711,7 +927,7 @@ Pipeline `.github/workflows/deploy.yml` có bốn nhóm bước chính:
 3. Build và push image AI service lên GHCR.
 4. SSH vào VPS, cập nhật `.env.production`, pull image, chạy migration và `docker compose up -d`.
 
-**Hình 3.17. Luồng CI/CD production**
+**Hình 3.24. Luồng CI/CD production**
 
 ```mermaid
 flowchart TD
