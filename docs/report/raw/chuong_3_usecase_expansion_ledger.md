@@ -404,4 +404,3 @@ Không lặp lại shape input/output chi tiết của các workflow AI ở mụ
 5. Viết UC-08 Discussion và UC-10 Chatbot Agent như hai luồng xuyên vai trò.
 6. Cập nhật các liên kết ngắn ở mục 3.3, 3.4, 3.5 và tổng kết 3.7.
 7. Đọc lại toàn bộ Chương 3 để loại trùng lặp, kiểm tra số hình/bảng và xác minh mọi capability với code.
-
