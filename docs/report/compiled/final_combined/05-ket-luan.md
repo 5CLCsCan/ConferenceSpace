@@ -1,166 +1,260 @@
 # Chương 5. Kết luận
 
+> Trạng thái hiện tại: bản định hướng viết lại.
+>
+> Nội dung cũ của chương này đã được loại bỏ vì không còn đồng bộ với Chương 3 và Chương 4 sau khi báo cáo được tái cấu trúc. File này xác định rõ vai trò, cấu trúc, trọng tâm lập luận và các giới hạn diễn giải cho bản Chương 5 hoàn chỉnh sẽ được viết ở bước tiếp theo.
+
+---
+
+## 5.0. Vai trò của Chương 5 trong toàn bộ báo cáo
+
+Chương 5 không nên lặp lại Chương 3 dưới dạng danh sách tính năng, cũng không nên lặp lại Chương 4 dưới dạng danh sách số liệu. Vai trò đúng của chương này là tổng kết chuỗi lập luận đã được xây dựng qua bốn chương trước:
+
+- Chương 1 xác định vấn đề, mục tiêu và phạm vi: xây dựng một nền tảng hỗ trợ quy trình xét duyệt bài báo, trong đó AI chỉ đóng vai trò hỗ trợ và không thay thế quyết định học thuật.
+- Chương 2 chuyển vấn đề thành nhu cầu, khoảng trống và yêu cầu hệ thống: giảm thao tác thủ công, giảm tải nhận thức, tăng kiểm soát rủi ro và giữ AI minh bạch, có thể kiểm tra lại.
+- Chương 3 trình bày giải pháp: hệ thống được tổ chức theo ba lớp gồm nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ; các use case, workflow và ranh giới trách nhiệm được mô tả theo vai trò.
+- Chương 4 cung cấp bằng chứng đánh giá: hệ thống được kiểm thử theo lớp nghiệp vụ, thuật toán xác định, workflow AI, tính khả thi vận hành và phản hồi người dùng.
+
+Vì vậy, Chương 5 phải trả lời bốn câu hỏi mà hội đồng sẽ quan tâm:
+
+1. Đề tài đã hoàn thành được gì so với mục tiêu ban đầu?
+2. Bằng chứng nào trong Chương 4 cho phép rút ra các kết luận đó?
+3. Những gì chưa được chứng minh hoặc còn giới hạn là gì?
+4. Nếu tiếp tục phát triển, hướng nào có giá trị cao nhất và xuất phát trực tiếp từ các hạn chế đã được chứng minh?
+
+Nguyên tắc viết của Chương 5:
+
+- Viết theo hướng tổng hợp và phán đoán học thuật, không viết như phần giới thiệu sản phẩm.
+- Mọi kết luận phải bám vào Chương 1, Chương 2 và bằng chứng ở Chương 4.
+- Không dùng số liệu không còn xuất hiện trong Chương 4 hiện tại.
+- Không mô tả reviewer matching là AI tạo sinh; đây là thuật toán xác định.
+- Không tách "gợi ý track" thành workflow riêng; đây là một khả năng bên trong Submission Autofill.
+- Không nói AI thay reviewer, thay Chair hoặc dự đoán đúng quyết định accept/reject.
+- Không dùng các cụm quảng bá như "toàn diện", "vượt xa", "thay thế hoàn toàn", "chính xác tuyệt đối", "chi phí hợp lý" nếu không có bằng chứng trực tiếp.
+
+Nếu đóng vai trò thành viên hội đồng, điều cần thấy ở Chương 5 là một kết luận tỉnh táo: nhóm đã xây dựng được một hệ thống có phạm vi rõ, có kiến trúc hợp lý, có bằng chứng thực nghiệm cho một số giá trị cốt lõi, đồng thời hiểu rõ phần nào chưa được chứng minh và không đẩy claim vượt quá dữ liệu.
+
 ---
 
 ## 5.1. Kết quả đạt được
 
-Đề tài đã hoàn thành việc xây dựng hệ thống **ConferenceSpace** — một nền tảng web hỗ trợ quy trình xét duyệt bài báo khoa học tại các hội nghị học thuật. So với mục tiêu đề ra ban đầu (Chương 1), hệ thống đã đạt được các kết quả cụ thể trên cả ba lớp kiến trúc: lớp nghiệp vụ cốt lõi, lớp thuật toán, và lớp hỗ trợ AI.
+### Trọng tâm của mục 5.1
 
-### 5.1.1. Hệ thống quản lý hội nghị toàn diện
+Mục này cần tổng hợp kết quả theo mức độ đóng góp, không theo danh sách màn hình hoặc endpoint. Cấu trúc nên đi từ kết quả hệ thống đến kết quả đánh giá, sau đó kết lại bằng đóng góp chính của đề tài.
 
-ConferenceSpace cung cấp đầy đủ chức năng phục vụ toàn bộ vòng đời xét duyệt bài báo cho ba vai trò chính:
+### 5.1.1. Hoàn thành nền tảng nghiệp vụ cốt lõi theo phạm vi đề tài
 
-- **Tác giả (Author):** Tìm kiếm hội nghị phù hợp, nộp bài báo với quy trình nhiều bước có hướng dẫn, theo dõi trạng thái bài nộp theo thời gian thực, đọc nhận xét phản biện, gửi phản hồi rebuttal (tổng hợp và theo từng điểm), và nộp bản hoàn chỉnh camera-ready sau khi bài được chấp nhận.
+Nội dung cần viết:
 
-- **Người phản biện (Reviewer):** Nhận và phản hồi lời mời phản biện, xem danh sách bài được phân công, đọc phân tích sơ bộ từ AI, viết nhận xét với phiếu đánh giá chuẩn hóa (bao gồm điểm tiêu chí, mức độ tự tin, khuyến nghị), lưu nháp, đọc và phản hồi rebuttal của tác giả, và tham gia thảo luận nội bộ.
+- Khẳng định ConferenceSpace đã hiện thực các vòng đời nghiệp vụ chính của quy trình xét duyệt bài báo trong phạm vi đề tài: cấu hình hội nghị, nộp bài, phân công phản biện, kiểm tra xung đột lợi ích, thu thập đánh giá, rebuttal, Discussion, hỗ trợ ra quyết định và theo dõi trạng thái.
+- Liên hệ với Chương 3: mười use case đại diện đã bao phủ vòng đời Author, Reviewer, Chair và các luồng xuyên vai trò như Discussion và Chatbot Agent.
+- Liên hệ với Chương 2: các chức năng này phản hồi trực tiếp bốn nhóm nhu cầu nền tảng gồm giảm thao tác thủ công, giảm tải nhận thức, tăng kiểm soát rủi ro và giữ AI có thể kiểm tra lại.
+- Nêu đúng giới hạn: hệ thống bao phủ quy trình xét duyệt bài báo, không bao phủ quản lý sự kiện hội nghị theo nghĩa rộng; camera-ready và Discussion còn một số giới hạn triển khai đã nêu ở Chương 3.
 
-- **Trưởng ban (Chair/Co-Chair):** Tạo và cấu hình hội nghị (wizard sáu bước hoặc từ template), quản lý trạng thái hội nghị qua nhiều giai đoạn (Draft → Open → Reviewing → Decision → Closed), mời phản biện từ trong và ngoài hệ thống, phân công phản biện với hỗ trợ gợi ý AI, kiểm tra xung đột lợi ích, theo dõi tiến độ qua dashboard, quản lý giai đoạn rebuttal, và ra quyết định cuối cùng với hỗ trợ tổng hợp từ AI.
+Không nên viết:
 
-Hệ thống đáp ứng các yêu cầu phi chức năng quan trọng: thời gian phản hồi API trung bình 51,8 ms (p95 ≤ 117,6 ms) với throughput 369–572 request/giây trên dataset 15.000 bài nộp (theo kết quả benchmark k6); bảo mật qua JWT + RBAC tại từng endpoint; giao diện responsive, hỗ trợ dark mode và đa ngôn ngữ (Tiếng Anh, Tiếng Việt); triển khai hoàn chỉnh trên VPS với Docker Compose và HTTPS tự động qua Caddy.
+- Không gọi hệ thống là "toàn diện" theo nghĩa bao phủ mọi nghiệp vụ hội nghị.
+- Không nói các workflow đã hoàn thiện ở mức sản phẩm thương mại.
+- Không nói real-time notification thay thế hoàn toàn email nếu báo cáo chưa chứng minh đầy đủ.
 
-### 5.1.2. Thuật toán đối sánh phản biện và phát hiện xung đột lợi ích
+### 5.1.2. Thiết kế được ranh giới giữa nghiệp vụ, thuật toán xác định và AI hỗ trợ
 
-**Gợi ý phản biện tự động:** Hệ thống triển khai thuật toán gợi ý phản biện dựa trên **Domain Jaccard Similarity** — tính toán độ tương đồng giữa lĩnh vực chuyên môn của phản biện (lấy từ hồ sơ Semantic Scholar) và chủ đề bài nộp — kết hợp thuật toán gán tham lam (Greedy Matching) có xét ràng buộc cân bằng tải. Thuật toán hoạt động xác định, không phụ thuộc LLM, có khả năng giải thích kết quả (hiển thị điểm phù hợp và lý do). Kết quả benchmark cho thấy thời gian thực thi ở mức micro-giây đến mili-giây (từ 131 µs với dataset nhỏ đến 56 ms với dataset lớn), phù hợp cho tương tác real-time.
+Nội dung cần viết:
 
-**Phát hiện COI đa tầng:** ConferenceSpace triển khai cơ chế phát hiện xung đột lợi ích ba lớp:
-1. **Kiểm tra tự phản biện (Self-Author):** Phát hiện trường hợp phản biện chính là tác giả bài nộp.
-2. **Khai báo thủ công (Declared Conflict):** Cho phép người dùng tự khai báo các mối quan hệ xung đột.
-3. **Phân tích đồ thị đồng tác giả (Neo4j):** Tự động quét mạng lưới đồng tác giả từ Semantic Scholar, phát hiện cả các mối quan hệ gián tiếp (1–3 bậc) trong cửa sổ thời gian cấu hình được — vượt xa khả năng của phương pháp khai báo thủ công truyền thống.
+- Tổng kết nguyên tắc thiết kế quan trọng nhất của đề tài: tách hệ thống thành ba lớp trách nhiệm.
+- Lớp nghiệp vụ cốt lõi chịu trách nhiệm về trạng thái, quyền truy cập, workflow và dữ liệu bền vững.
+- Lớp thuật toán xác định xử lý các tác vụ cần nhất quán và có thể giải thích, đặc biệt là reviewer matching và COI.
+- Lớp AI hỗ trợ xử lý các tác vụ đọc hiểu, trích xuất, kiểm tra và tổng hợp, nhưng không giữ quyền quyết định học thuật.
+- Giải thích vì sao ranh giới này là đóng góp thiết kế: nó giúp hệ thống đưa AI vào đúng điểm nghẽn nhưng vẫn bảo vệ trách nhiệm của Author, Reviewer và Chair.
 
-Thiết kế theo **Composite pattern** cho phép hệ thống hoạt động linh hoạt: hai lớp đầu luôn sẵn sàng, lớp Neo4j tự động bật/tắt tùy thuộc cấu hình (graceful degradation). Thời gian thực thi COI detection ở mức 14,9 µs (dataset nhỏ) đến 653 µs (dataset lớn).
+Kết luận được phép rút ra:
 
-### 5.1.3. Sáu workflow AI phục vụ ba vai trò
+- Hệ thống chứng minh được một cách tổ chức AI có kiểm soát trong quy trình peer review.
+- AI trong đề tài là công cụ hỗ trợ thao tác và hỗ trợ đọc hiểu, không phải cơ chế tự động hóa quyết định.
 
-Hệ thống tích hợp sáu workflow AI phục vụ trực tiếp ba vai trò chính, triển khai trên Python AI Service (FastAPI) độc lập và sử dụng `gemini-3.1-flash-lite` thông qua model router/OpenRouter:
+### 5.1.3. Kết quả thực nghiệm theo chuỗi bằng chứng
 
-| Workflow | Vai trò phục vụ | Kết quả đạt được |
-|---|---|---|
-| **Submission Autofill** | Author | Trích xuất tự động tiêu đề, tóm tắt, từ khóa, tác giả từ PDF và gợi ý track trong cùng luồng nộp bài. Đánh giá trên 1.127 bài báo: **91,22%** khớp tiêu đề chính xác, ROUGE-1/ROUGE-L abstract đạt **83,6%/83,3%**, Keyword F1 đạt **92,77%** |
-| **Submission Gating** | Author/Chair | Kiểm tra định dạng, section bắt buộc, policy hội nghị và các điểm cần Chair xem lại trước khi submission được gửi chính thức |
-| **Reviewer Initial Analysis** | Reviewer | Tạo briefing tổng quan và chú thích chi tiết từng đoạn (phương pháp luận, điểm mạnh/yếu, câu hỏi gợi ý) — hỗ trợ phản biện chuẩn bị đánh giá |
-| **Review Quality Auditor** | Reviewer/Chair | Kiểm tra chất lượng, mức độ cụ thể và tính nhất quán của bản nháp phản biện trước khi gửi chính thức |
-| **Chair Decision Copilot** | Chair | Tổng hợp toàn bộ nhận xét, rebuttal và thảo luận thành evidence map để Chair đối chiếu khi ra quyết định |
-| **Chatbot Agent** | Author/Reviewer/Chair | Trả lời câu hỏi thao tác và truy vấn dữ liệu hệ thống trong phạm vi quyền truy cập của người dùng |
+Nội dung cần viết:
 
-Kết quả đánh giá hiệu năng AI trên 1.127 bài báo cho thấy: thời gian xử lý trung bình cho Autofill là **10,64 giây**, cho Decision Copilot là **21,68 giây**, và tổng thời gian cho toàn bộ pipeline (song song hóa) là **69,85 giây/bài**. Lượng token tiêu thụ trung bình là **28.481 token/bài** — mức chi phí hợp lý khi sử dụng hạn mức miễn phí của model `gemini-3.1-flash-lite`.
+- Không cần lặp lại toàn bộ bảng số liệu ở Chương 4.
+- Chỉ chọn các kết quả có vai trò kết luận và liên hệ trực tiếp với mục tiêu đề tài.
 
-### 5.1.4. Chatbot AI và thông báo real-time
+Các điểm nên đưa vào:
 
-- **Conference Agent (Chatbot):** Hỗ trợ 24/7, sử dụng LLM qua OpenRouter kết hợp **Function Calling** để truy vấn dữ liệu hệ thống thực (thông qua AgentQuery Engine ở Go backend). Người dùng có thể hỏi chatbot bằng ngôn ngữ tự nhiên về thông tin hội nghị, trạng thái bài nộp, danh sách phản biện — chatbot tự động chuyển thành truy vấn có cấu trúc và trả kết quả chính xác từ database.
+- Lớp nghiệp vụ cốt lõi: backend đạt 0% lỗi request trong các kịch bản benchmark chính; p95 dưới 120 ms ở quy mô thử nghiệm hiện tại; điểm nghẽn chính nằm ở PostgreSQL khi dữ liệu quan hệ lớn.
+- Lớp thuật toán xác định: reviewer matching có bằng chứng tốt hơn baseline ngẫu nhiên trên tập Semantic Scholar; assignment không ghi nhận COI violation trong benchmark; tuy nhiên coverage và fallback rate cho thấy Chair vẫn cần xử lý trường hợp khó.
+- Submission Autofill: là workflow có bằng chứng định lượng mạnh nhất ở metadata; title token F1, keyword F1 và required field completion rate là các chỉ số nên được nhắc lại ngắn gọn.
+- Reviewer Initial Analysis: quote grounded rate cao, phù hợp với vai trò tạo điểm neo nguồn cho reviewer; attention point truthfulness chưa đủ để dùng như nhận xét học thuật không kiểm tra.
+- Chair Decision Copilot: evidence basis truthfulness và disagreement map truthfulness ở mức tốt cho tác vụ tổng hợp evidence; không đo decision label match nên không kết luận về quyết định accept/reject.
+- Chatbot Agent: hoàn tất toàn bộ hội thoại benchmark nhưng tool-call failure còn đáng kể; đây là bằng chứng cho tiềm năng sử dụng, không phải bằng chứng sản phẩm đã ổn định.
+- Khảo sát người dùng sau sử dụng: chỉ dùng đúng mẫu số và kết quả đang có trong Chương 4 hiện tại. Không dùng lại số liệu UAT cũ nếu chưa được cập nhật lại ở Chương 4.
 
-- **Thông báo real-time:** WebSocket hub quản lý kết nối theo email người dùng (hỗ trợ đa tab), đẩy thông báo tức thì khi có sự kiện mới (bài nộp mới, nhận xét hoàn thành, quyết định công bố, lời mời phản biện) — thay thế hoàn toàn cơ chế email-only chậm trễ của các hệ thống truyền thống.
+Kết luận tổng hợp nên hướng tới:
 
-### 5.1.5. Đáp ứng nhu cầu người dùng
+ConferenceSpace đáp ứng được mục tiêu cốt lõi ở mức thử nghiệm: xây dựng nền tảng nghiệp vụ vận hành được, tách rõ cơ chế xác định và AI hỗ trợ, đồng thời cung cấp bằng chứng cho giá trị của AI ở các tác vụ nhập liệu, đọc hiểu, kiểm tra và tổng hợp. Những gì chưa được chứng minh là tự động hóa quyết định học thuật, độ chính xác chuyên gia của một số gợi ý, và độ ổn định sản phẩm ở quy mô lớn.
 
-Hệ thống đã giải quyết trực tiếp các vấn đề nhức nhối (pain points) lớn nhất được xác định từ khảo sát 71 người dùng ban đầu (mục 2.1), đặc biệt là việc giảm thiểu "tải nhận thức" (cognitive load) trước các giao diện phức tạp (gần 50% bình chọn) và tự động hóa các form nhập liệu dài, lặp lại (gần 48% bình chọn).
+### 5.1.4. Đóng góp chính của đề tài
 
-Kết quả khảo sát thực nghiệm sau sử dụng (UAT) trên 89 người dùng cho thấy:
-- **Điểm hài lòng trung bình của Tác giả:** 3,89/5,00 (86% hài lòng hoặc rất hài lòng).
-- **Điểm hài lòng trung bình của Phản biện:** 4,29/5,00 (n=7) — cao hơn đáng kể so với vai trò Tác giả, tuy nhiên cỡ mẫu nhỏ nên kết quả chỉ mang tính tham khảo (xem thêm mục 5.2.1).
-- **82% người dùng sẵn sàng giới thiệu hệ thống** cho bạn bè/đồng nghiệp.
-- Tính năng AI Autofill được 47/76 tác giả (62%) đánh giá là **tính năng hữu ích nhất**, hoàn toàn khớp với kỳ vọng lớn nhất của người dùng trong khảo sát nhu cầu (mục 2.1.6) về việc áp dụng nguyên tắc thiết kế "Human-in-the-loop" (AI hỗ trợ nhập liệu, con người kiểm soát và xác nhận).
+Mục này nên ngắn, sắc và không lặp lại chi tiết kỹ thuật. Có thể trình bày 4 nhóm đóng góp:
 
-### 5.1.6. Đóng góp chính của đề tài
+1. **Đóng góp về hệ thống:** xây dựng nền tảng quản lý quy trình xét duyệt bài báo theo nhiều vai trò, có môi trường triển khai và bằng chứng vận hành.
+2. **Đóng góp về thiết kế:** đề xuất cách tổ chức ba lớp trách nhiệm, giúp phân biệt rõ phần nào cần deterministic, phần nào có thể dùng AI hỗ trợ và phần nào phải thuộc quyền con người.
+3. **Đóng góp về cơ chế nghiệp vụ:** triển khai reviewer matching, COI và các cơ chế phân quyền/trạng thái như nền tảng đáng tin cậy cho quy trình học thuật.
+4. **Đóng góp về đánh giá AI workflow:** xây dựng cách đánh giá theo từng workflow, gồm workflow runner, TCA benchmark, benchmark hợp đồng và benchmark hội thoại, qua đó tránh dùng một chỉ số chung không phù hợp cho mọi đầu ra AI.
 
-Tổng hợp lại, đóng góp chính của đề tài bao gồm:
-
-1. Xây dựng một nền tảng quản lý hội nghị hoàn chỉnh với kiến trúc ba lớp rõ ràng (nghiệp vụ cốt lõi — thuật toán — hỗ trợ AI), phục vụ đầy đủ vòng đời xét duyệt cho cả ba vai trò Author, Reviewer và Chair.
-2. Đề xuất và triển khai thuật toán đối sánh phản biện dựa trên Domain Jaccard Similarity kết hợp thuật toán gán tham lam có xét ràng buộc cân bằng tải.
-3. Xây dựng cơ chế phát hiện xung đột lợi ích đa tầng, trong đó lớp phân tích đồ thị đồng tác giả trên Neo4j cho phép phát hiện quan hệ gián tiếp (1–3 bậc) mà các hệ thống hiện có (kể cả CMT với DBLP) chưa khai thác đầy đủ.
-4. Tích hợp sáu workflow AI phục vụ cả ba vai trò, cùng chatbot hội thoại và cơ chế thông báo real-time qua WebSocket.
-5. Cung cấp bộ đánh giá thực nghiệm trên 1.127 bài báo (chất lượng trích xuất AI) và khảo sát 89 người dùng thực tế (UAT), làm cơ sở dữ liệu tham khảo cho các nghiên cứu tiếp theo về ứng dụng AI trong quy trình phản biện học thuật.
+Không nên biến mục này thành danh sách tính năng dài. Hội đồng cần thấy nhóm đóng góp gì về mặt thiết kế, hiện thực và đánh giá, không chỉ thấy hệ thống có bao nhiêu màn hình.
 
 ---
 
 ## 5.2. Các hạn chế
 
-Mặc dù đạt được các kết quả đáng khích lệ, đề tài vẫn tồn tại một số hạn chế cần được nhận diện rõ ràng. Các hạn chế này bám sát kết quả đánh giá thực nghiệm (Chương 4) và phản hồi người dùng (mục 2.1).
+### Trọng tâm của mục 5.2
 
-### 5.2.1. Hạn chế về dữ liệu và quy mô đánh giá
+Mục này phải viết thẳng và bám vào bằng chứng. Hạn chế không phải phần làm yếu đề tài; ngược lại, đây là nơi cho thấy nhóm hiểu đúng phạm vi kết luận và không overclaim.
 
-- **Quy mô khảo sát hạn chế:** Khảo sát UAT chỉ thu được 89 phản hồi (76 tác giả, 7 phản biện, 6 Chair), trong đó nhóm phản biện và Chair có số lượng mẫu quá nhỏ (n=7 và n=6) để đưa ra kết luận có ý nghĩa thống kê. Kết quả đánh giá từ hai nhóm này chỉ mang tính tham khảo định tính.
+### 5.2.1. Hạn chế về dữ liệu và phạm vi đánh giá
 
-- **Dữ liệu đồ thị đồng tác giả phụ thuộc Semantic Scholar:** Độ phủ của mạng lưới đồng tác giả phụ thuộc hoàn toàn vào dữ liệu có sẵn trên Semantic Scholar API. Một số lĩnh vực chuyên biệt (y học, khoa học xã hội) có thể không được phủ đầy đủ, dẫn đến khả năng bỏ sót COI trong những lĩnh vực này.
+Nội dung cần viết:
 
-- **Benchmark AI trên dữ liệu sẵn có:** Tập dữ liệu 1.127 bài báo được trích xuất từ OpenReview — đều là các bài đã công bố và có ground truth rõ ràng. Hiệu quả thực tế của hệ thống trên bài nộp mới (chưa từng xuất hiện trong dữ liệu huấn luyện của LLM) có thể khác biệt.
+- Benchmark chủ yếu dựa trên bài báo tiếng Anh và dữ liệu từ OpenReview hoặc nguồn học thuật được chuẩn hóa; hiệu quả với hội nghị nhỏ, bài tiếng Việt hoặc chính sách review khác chưa được đánh giá đầy đủ.
+- Một số workflow chưa có nhãn chuyên gia: gợi ý track trong Submission Autofill, tuyến nội dung mềm của Submission Gating, và decision label match cho Chair Decision Copilot.
+- Reviewer matching vẫn cần dữ liệu phân công thật hoặc tỷ lệ chấp nhận đề xuất của Chair trong vận hành thực tế để đánh giá chất lượng nghiệp vụ sâu hơn.
+- Khảo sát sau sử dụng cần được trình bày đúng mẫu số hiện có và không khái quát thành kết luận thống kê mạnh nếu cỡ mẫu nhỏ.
 
 ### 5.2.2. Hạn chế về workflow AI
 
-- **Kết quả AI không hoàn toàn nhất quán:** Điểm hài lòng trung bình của tính năng AI ở mức 3,92/5,00 — tốt nhưng chưa xuất sắc. Đặc biệt, AI Autofill đồng thời là tính năng hữu ích nhất **và** cần cải thiện nhất (30/76 tác giả chọn cần cải thiện), phản ánh khoảng cách giữa kỳ vọng cao của người dùng và chất lượng output thực tế. Theo thực nghiệm, trích xuất tác giả có F1 thấp nhất (83,49% trung bình, chỉ 67,71% với bài y khoa MIDL 2023) do định dạng thông tin tác giả phức tạp.
+Nội dung cần viết:
 
-- **Phụ thuộc dịch vụ LLM bên ngoài:** Toàn bộ sáu workflow AI phụ thuộc vào API của `gemini-3.1-flash-lite` thông qua model router/OpenRouter. Nếu dịch vụ này thay đổi chính sách miễn phí, tăng giá, hoặc ngừng hoạt động, hệ thống sẽ mất khả năng AI. Mặc dù thiết kế ba lớp cho phép hệ thống vẫn vận hành không có AI, nhưng trải nghiệm người dùng sẽ bị ảnh hưởng đáng kể.
+- Review Quality Auditor là workflow nhạy cảm và còn nhiễu; grounded-valid rate hiện tại chưa đủ để biến finding thành quyết định tự động.
+- Reviewer Initial Analysis có quote grounded tốt nhưng attention point vẫn là gợi ý cần kiểm tra.
+- Chair Decision Copilot hỗ trợ tổng hợp evidence nhưng không chứng minh khả năng ra quyết định accept/reject.
+- TCA/NLI là proxy hậu kiểm tự động, không thay thế đánh giá chuyên gia.
+- Output AI có thể hallucinate hoặc diễn giải quá mạnh, đặc biệt trong các workflow gần điểm quyết định như Review Quality Auditor và Chair Decision Copilot.
 
-- **Lo ngại của người dùng về AI:** 57,9% người dùng có phần không thoải mái khi AI tham gia vào quy trình học thuật. Lý do chính là lo ngại gợi ý sai (32/76 người), sự nhạy cảm của đánh giá học thuật (20/76), và cảm giác bị áp lực bởi phản hồi AI (16/76). Đây không phải là hiện tượng riêng của ConferenceSpace — các nghiên cứu về AI trong quy trình phản biện học thuật nói chung cũng ghi nhận mức độ dè dặt tương tự từ cộng đồng nghiên cứu. Điều này cho thấy việc tích hợp AI vào quy trình phản biện cần cân nhắc kỹ về cách trình bày kết quả và quyền từ chối/bỏ qua.
+Điểm cần nhấn mạnh:
 
-- **Bảo mật dữ liệu khi sử dụng dịch vụ LLM bên ngoài:** Toàn bộ nội dung bài báo được gửi đến Google Gemini để xử lý, điều này có thể không phù hợp với các hội nghị có yêu cầu bảo mật nghiêm ngặt, đặc biệt trong các lĩnh vực nhạy cảm hoặc khi bài báo chứa dữ liệu chưa công bố. Mặc dù hệ thống đảm bảo chỉ gửi thông tin cần thiết và không lưu trữ dữ liệu đầu vào trên phía AI service, việc phụ thuộc vào dịch vụ bên thứ ba vẫn tiềm ẩn rủi ro về quyền riêng tư dữ liệu. Kiến trúc tách AI Service thành microservice độc lập (mục 2.3.2, 2.3.3) đã tính đến khả năng thay thế nhà cung cấp LLM, nên hướng giải quyết khả thi là chuyển sang các mô hình mã nguồn mở (như DeepSeek, Llama) triển khai on-premise trong tương lai, đảm bảo dữ liệu không rời khỏi máy chủ của tổ chức.
+Giới hạn của AI không phủ nhận giá trị của AI trong đề tài. Nó chỉ xác định cách sử dụng đúng: AI tạo bản nháp, cảnh báo, điểm neo và bản tổng hợp; người dùng có thẩm quyền vẫn kiểm tra, chỉnh sửa và quyết định.
 
-### 5.2.3. Hạn chế về hệ thống
+### 5.2.3. Hạn chế về vận hành và khả năng mở rộng
 
-- **Chưa hỗ trợ bidding:** ConferenceSpace hiện chưa triển khai cơ chế bidding — tính năng cho phép phản biện nêu ưu tiên đánh giá bài nào. Đây là tính năng có giá trị thực tiễn được HotCRP, OpenReview và CMT hỗ trợ, giúp tăng chất lượng phân công phản biện.
+Nội dung cần viết:
 
-- **Rate limit của LLM ảnh hưởng đến khả năng chịu tải:** Hạn mức miễn phí của `gemini-3.1-flash-lite` là 15 request/phút và 500 request/ngày. Với sáu workflow AI (Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent) cùng gọi API trong ngày, hạn mức 500 request/ngày có thể nhanh chóng cạn kiệt nếu hội nghị nhận số lượng bài nộp lớn hoặc nhiều người dùng kích hoạt workflow AI đồng thời. Trong khi các hội nghị lớn như NeurIPS có thể nhận tới 30.000 bài nộp, ước tính hệ thống hiện tại chỉ phù hợp với hội nghị quy mô vừa và nhỏ (dưới vài trăm bài nộp mỗi kỳ). Để mở rộng quy mô, cần triển khai cơ chế hàng đợi (message queue), xử lý bất đồng bộ các workflow AI, và cân nhắc nâng cấp lên gói trả phí khi cần.
+- Một số workflow AI có outlier độ trễ vượt 100 giây; vì vậy cần queue, retry, progress state, timeout rõ ràng và cơ chế chạy nền.
+- Chatbot Agent còn tool-call failure đáng kể; cần cải thiện reliability, observability và cách báo lỗi/quyền truy cập.
+- Token và số lượt gọi model đã được đo để phục vụ ước tính chi phí, nhưng không nên gắn kết luận vào một bảng giá hoặc hạn mức miễn phí có thể thay đổi.
+- Hệ thống phụ thuộc provider/model bên ngoài cho thao tác LLM; điều này tạo rủi ro về chi phí, chính sách dịch vụ, độ ổn định và bảo mật dữ liệu.
 
-- **Thiếu cơ chế backup dữ liệu tự động:** Hiện tại, backup dữ liệu PostgreSQL và Neo4j được thực hiện thủ công bằng lệnh CLI trên server. Chưa có pipeline backup tự động theo lịch với kiểm tra tính toàn vẹn.
+### 5.2.4. Hạn chế về độ hoàn thiện sản phẩm
 
-- **Một số phần đánh giá chưa hoàn chỉnh:** Như đã trình bày ở mục 4.4 và 4.5 (Chương 4), các phần đánh giá chi tiết về thuật toán Greedy Matching (độ phủ, chất lượng phân công so với phân công thủ công), chất lượng audit phản biện (LLM-as-a-judge), và mức độ đồng thuận của Decision Copilot chưa có đủ dữ liệu thực nghiệm để kết luận đầy đủ — cần bổ sung ở giai đoạn sau.
+Nội dung cần viết:
+
+- Discussion hiện đã được đưa vào use case quan trọng, nhưng visibility và quyền theo từng loại thread/message cần hoàn thiện nhất quán hơn.
+- Camera-ready hiện hỗ trợ upload khi bài accepted, nhưng chưa có workflow Chair phê duyệt, yêu cầu nộp lại hoặc cưỡng chế deadline camera-ready ở runtime.
+- Bidding chưa được triển khai, trong khi đây là một cơ chế có giá trị thực tế cho phân công phản biện.
+- Backup tự động và kiểm tra phục hồi dữ liệu cần được bổ sung nếu hệ thống hướng tới vận hành thật.
+- Một số trải nghiệm cần được sản phẩm hóa hơn: trạng thái đang xử lý AI, nguồn evidence cho từng finding/gợi ý, gom nhóm cảnh báo và khả năng bỏ qua/ghi đè.
+
+### 5.2.5. Các kết luận không được rút ra từ đề tài
+
+Mục này nên có một đoạn ngắn để khóa phạm vi học thuật:
+
+- Không kết luận AI có thể thay reviewer đọc bài hoặc viết phản biện.
+- Không kết luận Chair Decision Copilot dự đoán đúng quyết định accept/reject.
+- Không kết luận reviewer matching đã tối ưu như quyết định của Chair trong hội nghị thật.
+- Không kết luận gợi ý track có độ chính xác chuyên gia khi chưa có nhãn chuyên gia.
+- Không kết luận hệ thống sẵn sàng cho hội nghị quy mô lớn nếu chưa có queue, retry, backup và đánh giá tải tương ứng.
 
 ---
 
 ## 5.3. Hướng phát triển trong tương lai
 
-Dựa trên các hạn chế đã nhận diện và phản hồi từ người dùng, nhóm đề xuất các hướng phát triển sau đây, được chia thành ba nhóm theo mức độ ưu tiên.
+### Trọng tâm của mục 5.3
 
-### 5.3.1. Cải thiện ngắn hạn (khả thi trong 1–2 tháng)
+Hướng phát triển phải là câu trả lời trực tiếp cho hạn chế ở mục 5.2. Không nên liệt kê nhiều ý tưởng xa đề tài. Mỗi hướng nên nêu: vấn đề xuất phát, cách cải thiện và giá trị kỳ vọng.
 
-**a) Nâng cao chất lượng AI Autofill và Trích xuất:**
-- Ứng dụng công nghệ **OCR tiên tiến và xử lý layout** để tăng độ chính xác khi đọc các chuẩn file PDF phức tạp (như biểu đồ, cột kép lạ, tài liệu scan).
-- Cải thiện thuật toán trích xuất danh sách tác giả — xử lý tốt hơn các định dạng phức tạp (nhiều affiliation, ký hiệu đặc biệt, bài y khoa có số lượng tác giả lớn).
-- Bổ sung **cơ chế giải thích** (explainability) cho mọi output AI — hiển thị rõ lý do và bằng chứng bên cạnh mỗi gợi ý, giúp người dùng tin tưởng hơn và giảm lo ngại về AI sai.
-- Cho phép người dùng **đánh giá chất lượng** output AI (thumbs up/down) để thu thập dữ liệu cải thiện prompt.
+### 5.3.1. Ưu tiên ngắn hạn: làm kết quả AI đáng kiểm tra hơn
 
-**b) Bổ sung cơ chế bidding:**
-- Triển khai tính năng bidding cho phản biện, tích hợp vào luồng phân công hiện tại — kết hợp điểm bid của reviewer với điểm Jaccard similarity để tạo ra đề xuất phân công chính xác hơn.
+Các hướng nên đưa vào:
 
-**c) Backup tự động:**
-- Thiết lập pipeline backup định kỳ cho PostgreSQL và Neo4j (ví dụ: pg_dump hàng ngày, neo4j-admin backup hàng tuần) với lưu trữ offsite và kiểm tra tính toàn vẹn.
+- Đưa cơ chế hậu kiểm claim-evidence từ benchmark vào runtime ở dạng nhẹ: chuẩn hóa finding/attention point thành claim, ghép với evidence từ review/submission/artifact, dùng NLI hoặc cơ chế tương đương để đánh giá groundedness trước khi giữ mức cảnh báo cao.
+- Với Review Quality Auditor, các finding thiếu groundedness nên bị hạ mức từ block xuống warn hoặc yêu cầu reviewer/Chair xác nhận trước khi chặn gửi chính thức.
+- Hiển thị evidence, nguồn trích dẫn, confidence hoặc mức rủi ro cho các output AI quan trọng.
+- Cho phép người dùng bỏ qua, chỉnh sửa hoặc phản hồi chất lượng output AI để tích lũy dữ liệu cải thiện.
 
-### 5.3.2. Mở rộng trung hạn (3–6 tháng)
+Giá trị kỳ vọng:
 
-Theo xu hướng từ các hội nghị hàng đầu như ICLR 2025 và AAAI-26, AI-assisted review đang được thí điểm và dần trở thành tiêu chuẩn mới. Hướng phát triển của ConferenceSpace sẽ bám sát các bài học thực tiễn từ những thí điểm này, đặc biệt về cách thiết kế AI ở vai trò "hỗ trợ" thay vì "thay thế" — một nguyên tắc đã được định hình từ thiết kế ban đầu của hệ thống.
+Giảm false positive, giảm friction cho reviewer/Chair và làm rõ hơn nguyên tắc "AI hỗ trợ, con người quyết định".
 
-**a) Giảm phụ thuộc vào dịch vụ LLM bên ngoài và tăng cường bảo mật dữ liệu:**
-- Nghiên cứu khả năng sử dụng các mô hình mã nguồn mở (open-weight) như DeepSeek-R1 hoặc Llama cho các workflow chỉ xử lý text (Review Auditor, Decision Copilot) — vừa giảm chi phí và tăng tính tự chủ, vừa giải quyết trực tiếp hạn chế về bảo mật dữ liệu đã nêu ở mục 5.2.2 khi triển khai on-premise.
-- Triển khai cơ chế **fallback** tự động: nếu provider LLM chính (Gemini) không khả dụng, hệ thống tự chuyển sang provider dự phòng qua OpenRouter mà không cần can thiệp thủ công.
+### 5.3.2. Ưu tiên ngắn hạn: ổn định vận hành workflow AI và Chatbot Agent
 
-**b) Mở rộng cơ chế phát hiện COI:**
-- Tích hợp thêm nguồn dữ liệu đồng tác giả từ **DBLP** và **Google Scholar** bên cạnh Semantic Scholar, tăng độ phủ — đặc biệt cho các lĩnh vực mà Semantic Scholar có hạn chế.
-- Bổ sung phân tích **affiliation-based COI** (ví dụ: cùng đơn vị công tác) và **project-based COI** (cùng dự án tài trợ) bên cạnh co-authorship hiện tại.
+Các hướng nên đưa vào:
 
-**c) Cải thiện đánh giá thực nghiệm:**
-- Hoàn thiện các phần đánh giá còn thiếu: benchmark Greedy Matching so với phân công thủ công, đánh giá LLM-as-a-judge cho Review Auditor và Decision Copilot.
-- Mở rộng khảo sát UAT với quy mô lớn hơn, đặc biệt tăng số lượng mẫu cho nhóm Reviewer và Chair.
+- Triển khai queue, retry, timeout theo stage và progress state cho các workflow dài như Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot.
+- Giảm tool-call failure của Chatbot Agent bằng cách cải thiện schema tool, error handling, observability và test theo permission boundary.
+- Tách rõ trạng thái "đang truy vấn dữ liệu", "đang tổng hợp" và "không đủ quyền" trong giao diện chatbot.
+- Chuẩn hóa stale artifact: khi review, rebuttal hoặc Discussion thay đổi, artifact AI cũ phải được đánh dấu không còn hiện hành.
 
-### 5.3.3. Phát triển dài hạn (6–12 tháng)
+Giá trị kỳ vọng:
 
-**a) Mở rộng quy mô và hiệu năng:**
-- Chuyển từ monolith backend sang kiến trúc microservices đầy đủ nếu cần hỗ trợ hội nghị quy mô lớn (hàng nghìn bài nộp đồng thời).
-- Triển khai hàng đợi (message queue) để xử lý bất đồng bộ các workflow AI nặng, tránh nghẽn cổ chai khi nhiều request AI đồng thời.
-- Nghiên cứu cơ chế **prompt caching** và **batch processing** để giảm chi phí token khi xử lý nhiều bài báo liên tiếp.
+Biến các workflow đã có bằng chứng benchmark thành trải nghiệm vận hành đáng tin cậy hơn.
 
-**b) Tích hợp phân tích nâng cao và đa nền tảng:**
-- Phát triển dashboard phân tích xu hướng (trend analytics) cho Chair: phân phối chủ đề bài nộp qua các năm, tỷ lệ chấp nhận theo track, phân tích chất lượng phản biện theo thời gian.
-- Xây dựng hệ thống recommendation cho tác giả: gợi ý hội nghị phù hợp dựa trên hồ sơ nghiên cứu, lịch sử nộp bài và xu hướng lĩnh vực.
-- **Hỗ trợ đa nền tảng (Mobile/Tablet):** Phát triển ứng dụng trên thiết bị di động với các tính năng tinh gọn (như nhận thông báo Push, duyệt nhanh bài báo, check deadline) để giải quyết nhu cầu cập nhật trạng thái mọi lúc mọi nơi của người dùng (như đã phân tích ở mục 2.1).
+### 5.3.3. Ưu tiên trung hạn: bổ sung nhãn chuyên gia và đánh giá thực tế hơn
 
-**c) Tăng cường trải nghiệm làm việc nhóm (Collaborative Tools):**
-- Tích hợp tính năng thảo luận trực tuyến ngay trong trình duyệt tài liệu (In-app annotation) để Author và Reviewer có thể trao đổi chính xác trên từng đoạn văn bản, mang lại trải nghiệm giống với các công cụ hợp tác hiện đại.
+Các hướng nên đưa vào:
 
-**d) Đóng góp cho cộng đồng:**
-- Công bố mã nguồn dưới giấy phép mã nguồn mở, kèm tài liệu hướng dẫn triển khai — cho phép các hội nghị khác tự triển khai ConferenceSpace cho nhu cầu riêng.
-- Chia sẻ bộ benchmark 1.127 bài báo và phương pháp đánh giá workflow AI như một contribution cho cộng đồng nghiên cứu về quản lý hội nghị.
+- Xây dựng bộ nhãn chuyên gia cho gợi ý track trong Submission Autofill để đánh giá Top-K accuracy, MRR hoặc NDCG@K nếu phù hợp.
+- Gắn nhãn actionability, groundedness và severity cho finding của Submission Gating tuyến nội dung mềm.
+- Thu thập dữ liệu phân công thật hoặc dữ liệu Chair-labeled để đánh giá reviewer matching theo chất lượng nghiệp vụ, không chỉ theo proxy Semantic Scholar.
+- Đánh giá Chair Decision Copilot bằng thí nghiệm người dùng có Chair thật: đo thời gian đọc, mức hữu ích, số điểm bất đồng được phát hiện và mức tin tưởng, nhưng vẫn không biến thành bài toán dự đoán quyết định.
+
+Giá trị kỳ vọng:
+
+Nâng các benchmark hiện tại từ mức contract/proxy lên mức gần hơn với đánh giá nghiệp vụ thật.
+
+### 5.3.4. Ưu tiên trung hạn: hoàn thiện nghiệp vụ còn thiếu
+
+Các hướng nên đưa vào:
+
+- Hoàn thiện visibility và quyền trong Discussion theo từng loại thread, từng vai trò và từng trạng thái submission.
+- Hoàn thiện camera-ready workflow: deadline runtime, Chair approval, request revision và lịch sử phiên bản.
+- Bổ sung bidding vào reviewer assignment, sau đó kết hợp bid với điểm phù hợp chuyên môn, tải công việc và COI.
+- Bổ sung backup tự động, kiểm tra restore và tài liệu vận hành.
+
+Giá trị kỳ vọng:
+
+Tăng mức sẵn sàng của hệ thống cho vận hành thật, thay vì chỉ chứng minh prototype có thể chạy.
+
+### 5.3.5. Ưu tiên dài hạn: tăng tính tự chủ và khả năng triển khai thực tế
+
+Các hướng nên đưa vào:
+
+- Đánh giá phương án dùng mô hình open-weight hoặc triển khai on-premise cho các hội nghị có yêu cầu bảo mật cao.
+- Mở rộng nguồn dữ liệu COI ngoài Semantic Scholar nếu có điều kiện, ví dụ DBLP hoặc dữ liệu affiliation do hội nghị tự thu thập.
+- Tối ưu chi phí bằng caching, batching và chỉ chạy workflow khi có sự kiện thật sự cần thiết.
+- Xem xét công bố mã nguồn hoặc bộ benchmark sau khi xử lý quyền dữ liệu, ẩn danh dữ liệu nhạy cảm và mô tả rõ giới hạn sử dụng.
+
+Giá trị kỳ vọng:
+
+Tăng khả năng áp dụng ConferenceSpace ngoài môi trường thử nghiệm, đặc biệt với hội nghị có yêu cầu bảo mật, chi phí và kiểm soát dữ liệu nghiêm ngặt.
+
+### Bảng truy vết hạn chế đến hướng phát triển
+
+| Hạn chế chính | Hướng phát triển tương ứng | Mục tiêu |
+|---|---|---|
+| Finding của AI còn nhiễu | Hậu kiểm claim-evidence/NLI trong runtime | Giảm false positive và tăng groundedness |
+| Một số workflow có độ trễ cao | Queue, retry, progress state, stale artifact | Cải thiện trải nghiệm vận hành |
+| Chatbot còn tool-call failure | Cải thiện schema tool, observability và permission tests | Tăng độ ổn định trợ lý nền tảng |
+| Thiếu nhãn chuyên gia | Bổ sung expert labels và user studies | Nâng chất lượng kết luận học thuật |
+| Reviewer matching cần dữ liệu thật | Thu thập Chair-labeled assignment hoặc historical assignment | Đánh giá chất lượng nghiệp vụ |
+| Discussion/camera-ready còn thiếu workflow hoàn chỉnh | Hoàn thiện permission, deadline, approval và versioning | Tăng độ hoàn thiện sản phẩm |
+| Phụ thuộc provider LLM bên ngoài | Đánh giá open-weight/on-premise, caching và batching | Tăng tự chủ, kiểm soát chi phí và bảo mật |
 
 ---
 
-**Tóm lại,** đề tài đã xây dựng thành công hệ thống ConferenceSpace với ba lớp kiến trúc rõ ràng: lớp nghiệp vụ cốt lõi đảm bảo vận hành ổn định, lớp thuật toán cung cấp gợi ý phản biện và phát hiện COI có thể giải thích, và lớp AI hỗ trợ người dùng ở các khâu tổng hợp và trích xuất thông tin. Kết quả khảo sát thực nghiệm trên 89 người dùng và benchmark trên 1.127 bài báo cho thấy hệ thống đáp ứng được nhu cầu thực tế của cộng đồng nghiên cứu ở quy mô hội nghị vừa và nhỏ. Các hạn chế được nhận diện — đặc biệt về phụ thuộc LLM bên ngoài, bảo mật dữ liệu, quy mô đánh giá, và chất lượng trích xuất trên định dạng phức tạp — đều có hướng cải thiện khả thi và được đề xuất cụ thể trong kế hoạch phát triển.
+## Đoạn kết cuối chương cần đạt
 
-Qua quá trình xây dựng và đánh giá, đề tài cung cấp một quan sát thực nghiệm phù hợp với xu hướng chung của cộng đồng học thuật: trong quy trình xét duyệt bài báo, lớp nghiệp vụ và lớp thuật toán mang lại giá trị nền tảng ổn định và có thể kiểm chứng, trong khi lớp AI có hiệu quả rõ rệt ở các tác vụ tổng hợp và trích xuất thông tin — nhưng cần được thiết kế cẩn thận để đóng vai trò hỗ trợ thay vì thay thế quyết định, phù hợp với bản chất đòi hỏi tính trách nhiệm cao của quy trình phản biện học thuật.
+Đoạn kết cuối cùng của Chương 5 nên khẳng định luận điểm trung tâm của toàn bộ báo cáo:
+
+ConferenceSpace cho thấy AI có thể được tích hợp vào quy trình xét duyệt bài báo theo cách có kiểm soát khi hệ thống giữ rõ ranh giới giữa nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Giá trị chính của AI trong đề tài nằm ở giảm thao tác nhập liệu, tạo điểm neo đọc bài, kiểm tra bản nháp và tổng hợp evidence; giá trị này chỉ có ý nghĩa khi người dùng vẫn có quyền kiểm tra, chỉnh sửa, bỏ qua và chịu trách nhiệm cuối cùng. Vì vậy, kết luận của đề tài không phải là AI có thể thay thế con người trong peer review, mà là một nền tảng được thiết kế đúng ranh giới có thể dùng AI để giảm tải một số điểm nghẽn mà vẫn giữ trách nhiệm học thuật thuộc về con người.
+
+Đoạn này cần viết bằng văn phong khẳng định nhưng thận trọng. Không thêm số liệu mới ở đoạn cuối. Nếu cần nhắc số liệu, số liệu phải đã được phân tích ở 5.1 và có nguồn trực tiếp từ Chương 4.
