@@ -78,7 +78,11 @@ Hệ thống ConferenceSpace xác định sáu tác nhân tương tác trực ti
 
 ### 3.2.2. Các use case chính
 
-Hệ thống ConferenceSpace tổ chức các chức năng thành các nhóm use case theo từng tác nhân, phản ánh trực tiếp nhu cầu đã xác định trong quá trình khảo sát người dùng ở Chương 2.
+Hệ thống ConferenceSpace tổ chức các chức năng thành các nhóm use case theo từng tác nhân, phản ánh trực tiếp nhu cầu đã xác định trong quá trình khảo sát người dùng ở Chương 2. Phần này trình bày theo hai mức: trước tiên là một **sơ đồ rút gọn mang tính đại diện**, chọn ra một use case tiêu biểu cho mỗi lớp trong ba lớp kiến trúc đã mô tả ở mục 3.1 (nghiệp vụ, thuật toán, AI); sau đó là **sơ đồ use case đầy đủ** bao phủ toàn bộ sáu tác nhân đã liệt kê ở mục 3.2.1 và toàn bộ các nhóm chức năng của hệ thống, kể cả các thao tác nền tảng như đăng ký, đăng nhập hay thông báo vốn không "nổi bật" bằng các use case có AI nhưng vẫn là điều kiện tiên quyết để mọi luồng nghiệp vụ khác vận hành được.
+
+#### Sơ đồ use case rút gọn (đại diện ba lớp kiến trúc)
+
+*Sơ đồ dưới đây **không** liệt kê toàn bộ chức năng của hệ thống. Đây là sơ đồ chọn lọc ba use case tiêu biểu — nộp bài (lớp nghiệp vụ), phân công phản biện (lớp thuật toán) và hỗ trợ quyết định bằng AI (lớp AI) — nhằm minh họa trực quan cho sự phân tầng kiến trúc đã trình bày ở mục 3.1. Danh sách đầy đủ các use case còn lại được trình bày ngay sau phần giải thích của sơ đồ này.*
 
 ```mermaid
 graph TD
@@ -127,11 +131,188 @@ Biểu đồ Use Case tổng quát trên biểu diễn mối liên kết giữa 
 2. **Người phản biện (Reviewer):** Nhận bài nộp được phân công, xem bản tóm tắt đóng góp chính của bài viết do AI biên soạn nhằm nắm bắt nhanh nội dung, và tiến hành đánh giá chuyên môn theo mẫu tiêu chí có sẵn của hội nghị.
 3. **Chủ tọa (Chair):** Quản lý toàn bộ cấu hình, tiến hành rà soát xung đột lợi ích (COI), xác nhận phân công reviewer dựa trên gợi ý từ thuật toán matching và sử dụng `Decision Copilot` để có cái nhìn tổng hợp đa chiều trước khi đưa ra quyết định chấp nhận hay từ chối bài viết.
 
+#### Sơ đồ use case đầy đủ — Nhóm chức năng dùng chung
+
+Sáu tác nhân của hệ thống — Author, Reviewer, Chair, PC, Admin và Tác nhân hệ thống — không đồng nhất về việc dùng nhóm chức năng dùng chung: Admin xác thực bằng `X-Admin-Token` riêng và Tác nhân hệ thống (cron/AI callback) không đi qua giao diện người dùng, nên nhóm use case dùng chung dưới đây chỉ áp dụng cho bốn tác nhân đăng nhập qua giao diện web: Author, Reviewer, Chair và PC.
+
+```mermaid
+graph TD
+    User["Người dùng đã đăng nhập (Author / Reviewer / Chair / PC)"]
+
+    subgraph Common_Auth ["Xác thực & Tài khoản"]
+        UC_Register(["Đăng ký, Xác thực Email & Khôi phục mật khẩu"])
+        UC_Login(["Đăng nhập / Đăng xuất"])
+        UC_Role(["Chọn vai trò làm việc"])
+    end
+
+    subgraph Common_Profile ["Hồ sơ & Tiện ích dùng chung"]
+        UC_Profile(["Quản lý hồ sơ & Liên kết Semantic Scholar"])
+        UC_Notify(["Thông báo & Lịch trình"])
+        UC_Discuss(["Discussion Thread theo bài nộp"])
+        UC_Chat(["Chatbot / Agent hỏi đáp"])
+        UC_Onboard(["Hướng dẫn nhanh & Usage Event"])
+    end
+
+    User --> UC_Register
+    User --> UC_Login
+    User --> UC_Role
+    User --> UC_Profile
+    User --> UC_Notify
+    User --> UC_Discuss
+    User --> UC_Chat
+    User --> UC_Onboard
+```
+
+**Bảng đối chiếu use case dùng chung với mã chức năng:**
+
+| Use case | Mã F-code | Đặc tả chi tiết |
+| --- | --- | --- |
+| Đăng ký, Xác thực Email & Khôi phục mật khẩu | F-COM-01, 03, 04 | UC-04 |
+| Đăng nhập / Đăng xuất | F-COM-02 | UC-04 |
+| Chọn vai trò làm việc | F-COM-05 | UC-05 |
+| Quản lý hồ sơ & Liên kết Semantic Scholar | F-COM-06, 07 | UC-05 |
+| Thông báo & Lịch trình | F-COM-08, 09 | UC-06 |
+| Discussion Thread theo bài nộp | F-COM-10 | UC-07 |
+| Chatbot / Agent hỏi đáp | F-COM-11 | UC-08 |
+| Hướng dẫn nhanh & Usage Event | F-COM-12, 13 | UC-09 |
+
+Đáng chú ý nhất trong nhóm này là **Chatbot / Agent hỏi đáp**: đây là chức năng duy nhất trong toàn bộ F-COM-01→13 có gắn AI (agent gọi lại các API nội bộ để trả lời truy vấn), nhưng trước khi cập nhật lần này, nó chưa từng xuất hiện như một use case ở đâu trong Chương 3 — mục 3.4.2 liệt kê sáu workflow AI nhưng không có agent/chatbot, và 3.4.3 chỉ nhắc đến nó gián tiếp qua một câu về cơ chế cache session Redis.
+
+#### Sơ đồ use case đầy đủ — Author, Reviewer, Chair
+
+Sơ đồ dưới đây mở rộng sơ đồ rút gọn ở trên: giữ nguyên sáu use case tiêu biểu ban đầu (tô đậm trong bảng đối chiếu bên dưới) và bổ sung các use case còn thiếu mà mục 3.2.1 đã mô tả bằng lời nhưng chưa từng được vẽ, được nhóm lại ở cùng mức trừu tượng với các bubble đã có (ví dụ "Cấu hình Hội nghị" tiếp tục gộp các mã cấu hình/tạo/sửa hội nghị, không tách thành từng mã F-CHAIR riêng lẻ).
+
+```mermaid
+graph TD
+    Author["Tác giả (Author)"]
+    Reviewer["Người phản biện (Reviewer)"]
+    Chair["Chủ tọa / Đồng chủ tọa (Chair)"]
+
+    subgraph Author_UseCases ["Nhóm chức năng Tác giả"]
+        UC_Explore(["Khám phá & Tìm kiếm Hội nghị"])
+        UC_Autofill(["Nộp bài & AI Autofill"])
+        UC_Track(["Nhận gợi ý Track"])
+        UC_Manage(["Theo dõi, Lưu nháp, Sửa & Rút bài"])
+        UC_Rebuttal(["Gửi bài Rebuttal"])
+        UC_Result(["Xem Quyết định cuối & Camera-ready"])
+    end
+
+    subgraph Reviewer_UseCases ["Nhóm chức năng Phản biện"]
+        UC_Invite(["Xử lý Lời mời Phản biện"])
+        UC_Assigned(["Theo dõi & Lưu nháp Bài được phân công"])
+        UC_Briefing(["Xem tóm tắt bài nộp (AI)"])
+        UC_Review(["Đánh giá & Nhập điểm"])
+        UC_PostRebuttal(["Rebuttal & Thảo luận sau Đánh giá"])
+    end
+
+    subgraph Chair_UseCases ["Nhóm chức năng Chủ tọa"]
+        UC_Dashboard(["Dashboard & Danh sách Hội nghị"])
+        UC_Config(["Cấu hình Hội nghị"])
+        UC_Committee(["Mời & Quản lý Ban tổ chức"])
+        UC_SubList(["Danh sách & Chi tiết Bài nộp"])
+        UC_COI(["Kiểm tra xung đột (COI)"])
+        UC_Assign(["Phân công (Matching)"])
+        UC_RebuttalConf(["Cấu hình & Mở Rebuttal"])
+        UC_Decision(["Ra quyết định & Decision Copilot"])
+        UC_CameraCheck(["Duyệt Camera-ready"])
+    end
+
+    Author --> UC_Explore
+    Author --> UC_Autofill
+    Author --> UC_Track
+    Author --> UC_Manage
+    Author --> UC_Rebuttal
+    Author --> UC_Result
+
+    Reviewer --> UC_Invite
+    Reviewer --> UC_Assigned
+    Reviewer --> UC_Briefing
+    Reviewer --> UC_Review
+    Reviewer --> UC_PostRebuttal
+
+    Chair --> UC_Dashboard
+    Chair --> UC_Config
+    Chair --> UC_Committee
+    Chair --> UC_SubList
+    Chair --> UC_COI
+    Chair --> UC_Assign
+    Chair --> UC_RebuttalConf
+    Chair --> UC_Decision
+    Chair --> UC_CameraCheck
+```
+
+**Bảng đối chiếu use case Author / Reviewer / Chair với mã chức năng:**
+
+| Vai trò | Use case | Mã F-code | Đặc tả chi tiết |
+| --- | --- | --- | --- |
+| Author | Khám phá & Tìm kiếm Hội nghị | F-AUTHOR-01, 02, 03, 04 | UC-10 |
+| Author | Nộp bài & AI Autofill *(đã có)* | F-AUTHOR-05, 06, 07, 11 | UC-01 |
+| Author | Nhận gợi ý Track *(đã có)* | F-AUTHOR-08 | UC-01 |
+| Author | Theo dõi, Lưu nháp, Sửa & Rút bài | F-AUTHOR-10, 12, 13, 14, 15 | UC-11 |
+| Author | Gửi bài Rebuttal *(đã có)* | F-AUTHOR-16, 17, 18 | — *(xem UC-15 phía Reviewer cho luồng đối ứng)* |
+| Author | Xem Quyết định cuối & Camera-ready | F-AUTHOR-19, 20 | UC-12 |
+| Reviewer | Xử lý Lời mời Phản biện | F-REV-02, 03, 04, 22 | UC-13 |
+| Reviewer | Theo dõi & Lưu nháp Bài được phân công | F-REV-01, 05, 06, 07, 08, 13, 16, 21 | UC-14 |
+| Reviewer | Xem tóm tắt bài nộp (AI) *(đã có)* | F-REV-09 | UC-01 *(minh họa qua luồng AI Autofill)* |
+| Reviewer | Đánh giá & Nhập điểm *(đã có)* | F-REV-10, 11, 12, 14, 15 | UC-02 |
+| Reviewer | Rebuttal & Thảo luận sau Đánh giá | F-REV-17, 18, 19, 20 | UC-15 |
+| Chair | Dashboard & Danh sách Hội nghị | F-CHAIR-01, 02 | UC-16 |
+| Chair | Cấu hình Hội nghị *(đã có)* | F-CHAIR-03, 04, 05, 06, 07, 08 | — *(giữ nguyên như sơ đồ rút gọn)* |
+| Chair | Mời & Quản lý Ban tổ chức | F-CHAIR-09, 10, 11 | UC-17 |
+| Chair | Danh sách & Chi tiết Bài nộp | F-CHAIR-12, 13, 14 | UC-18 |
+| Chair | Kiểm tra xung đột (COI) *(đã có)* | F-CHAIR-21, 22, 23 | UC-02 |
+| Chair | Phân công (Matching) *(đã có)* | F-CHAIR-15, 16, 17, 18, 19, 20, 33 | UC-02 |
+| Chair | Cấu hình & Mở Rebuttal | F-CHAIR-26, 27, 28 | UC-19 |
+| Chair | Ra quyết định & Decision Copilot *(đã có)* | F-CHAIR-24, 25, 29, 30 | UC-03 |
+| Chair | Duyệt Camera-ready | F-CHAIR-31 | UC-20 |
+
+*(Các dòng đánh dấu "đã có" là sáu use case đã tồn tại trong sơ đồ rút gọn ban đầu và không thay đổi; các dòng còn lại là use case mới bổ sung trong lần cập nhật này.)*
+
+#### Sơ đồ use case đầy đủ — PC, Admin và Tác nhân hệ thống
+
+Đây là ba tác nhân mà mục 3.2.1 đã mô tả bằng lời nhưng hoàn toàn vắng mặt trong mọi sơ đồ trước khi cập nhật. PC chỉ có quyền đọc, Admin xác thực bằng token vận hành riêng biệt, còn Tác nhân hệ thống (cron job và AI Service callback) không đi qua giao diện người dùng — vì vậy nhóm này được tách thành sơ đồ riêng thay vì gộp chung với Author/Reviewer/Chair để tránh gây hiểu nhầm rằng đây là các thao tác thủ công qua UI.
+
+```mermaid
+graph TD
+    PC["Ban chương trình (PC)"]
+    Admin["Quản trị hệ thống (Admin)"]
+    SysActor["Tác nhân hệ thống (Cron Job / AI Service Callback)"]
+
+    subgraph PC_UseCases ["Nhóm chức năng PC"]
+        UC_PCView(["Xem tổng quan Hội nghị (Read-only)"])
+    end
+
+    subgraph Admin_UseCases ["Nhóm chức năng Admin"]
+        UC_AdminOps(["Vận hành & Khắc phục sự cố Hệ thống"])
+    end
+
+    subgraph System_UseCases ["Nhóm tác vụ tự động"]
+        UC_CronRebuttal(["Tự động đóng giai đoạn Rebuttal quá hạn"])
+        UC_AICallback(["AI Service gọi ngược Backend (Callback)"])
+    end
+
+    PC --> UC_PCView
+    Admin --> UC_AdminOps
+    SysActor --> UC_CronRebuttal
+    SysActor --> UC_AICallback
+```
+
+**Bảng đối chiếu:**
+
+| Tác nhân | Use case | Mã F-code / Cơ chế | Đặc tả chi tiết |
+| --- | --- | --- | --- |
+| PC | Xem tổng quan Hội nghị (Read-only) | F-CHAIR-32 | UC-21 |
+| Admin | Vận hành & Khắc phục sự cố Hệ thống | Xác thực `X-Admin-Token` (không có mã F-code, theo mô tả 3.2.1) | UC-22 |
+| Tác nhân hệ thống | Tự động đóng giai đoạn Rebuttal quá hạn | Cron job nội bộ (theo mô tả 3.2.1) | UC-23 |
+| Tác nhân hệ thống | AI Service gọi ngược Backend (Callback) | Xác thực `X-Agent-Service-Token` (theo mô tả 3.2.1) | UC-24 |
+
+Tổng hợp lại, sơ đồ use case đầy đủ của ConferenceSpace gồm sáu tác nhân và các nhóm use case nêu trên — tăng từ 9 use case trong sơ đồ rút gọn ban đầu lên toàn bộ các nhóm chức năng bao phủ 88 mã F-code trong Bảng danh sách chức năng theo vai trò, được trừu tượng hóa thành các use case ở mức phù hợp cho sơ đồ UML thay vì liệt kê nguyên văn từng mã.
+
 ---
 
 ### 3.2.3. Đặc tả use case quan trọng
 
-Phần này trình bày chi tiết ba use case trọng tâm đại diện cho ba lớp của hệ thống: nộp bài (lớp nghiệp vụ), phân công phản biện (lớp thuật toán) và hỗ trợ quyết định bằng AI (lớp AI).
+Phần này trình bày chi tiết ba use case trọng tâm đại diện cho ba lớp của hệ thống: nộp bài (lớp nghiệp vụ), phân công phản biện (lớp thuật toán) và hỗ trợ quyết định bằng AI (lớp AI). Tiếp theo UC-03, mục này trình bày đặc tả chi tiết cho toàn bộ các use case còn lại vừa được bổ sung vào sơ đồ đầy đủ ở mục 3.2.2, theo cùng định dạng (mục tiêu, điều kiện tiên quyết, sơ đồ hoạt động/tuần tự, giải thích) để đảm bảo tính nhất quán và đầy đủ của tài liệu đặc tả.
 
 #### UC-01: Nộp bài và trích xuất metadata tự động
 
@@ -255,6 +436,754 @@ Sơ đồ tuần tự minh họa dòng tương tác giữa các dịch vụ khi 
 1. **Thu thập dữ liệu thô:** Go Backend chịu trách nhiệm truy vấn PostgreSQL để gom toàn bộ ngữ cảnh liên quan của bài viết. Dữ liệu bao gồm các bản phản biện thô, phản hồi rebuttal và các đoạn chat thảo luận bảo mật giữa các reviewer.
 2. **Định dạng Prompt:** Dữ liệu thô được gửi sang AI Service dưới dạng payload JSON. Tại đây, AI Service định dạng dữ liệu vào một prompt mẫu được thiết kế sẵn cho việc tổng hợp học thuật.
 3. **Phân tích bằng Gemini:** Gemini API xử lý dữ liệu và trả về bản tổng hợp dưới dạng văn bản có cấu trúc (các điểm đồng thuận, bất đồng chính, đánh giá rebuttal). Kết quả cuối cùng được hiển thị trên dashboard để chair tham khảo. Toàn bộ quy trình này diễn ra bất đồng bộ, bảo vệ backend không bị block luồng xử lý do latency cao của LLM.
+
+---
+
+#### UC-04: Đăng ký, Đăng nhập & Xác thực tài khoản
+
+**Mục tiêu:** Người dùng mới tạo tài khoản và xác thực email trước khi sử dụng hệ thống; người dùng đã có tài khoản đăng nhập hoặc khôi phục mật khẩu khi quên.
+
+**Điều kiện tiên quyết:** Đối với đăng ký, người dùng chưa có tài khoản với email đó. Đối với đăng nhập, tài khoản đã tồn tại và đã xác thực email.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-04:**
+
+```mermaid
+sequenceDiagram
+    actor U as Người dùng
+    participant FE as Frontend (Next.js)
+    participant BE as Backend (Go/Gin)
+    participant DB as PostgreSQL
+    participant Mail as Brevo Email
+
+    U->>FE: Nhập email, họ tên, mật khẩu, domain
+    FE->>BE: POST /api/v1/auth/register
+    BE->>DB: Tạo bản ghi users (email_verified=false)
+    BE->>Mail: Gửi email xác thực kèm token
+    Mail-->>U: Email xác thực
+    U->>FE: Nhấp link xác thực
+    FE->>BE: GET /api/v1/auth/verify-email?token=...
+    BE->>DB: Cập nhật email_verified=true
+
+    U->>FE: Nhập email/mật khẩu để đăng nhập
+    FE->>BE: POST /api/v1/auth/login
+    BE->>DB: Kiểm tra hashed_password
+    DB-->>BE: Hợp lệ
+    BE-->>FE: JWT token
+    FE-->>U: Chuyển đến trang chọn vai trò
+
+    opt Quên mật khẩu
+        U->>FE: Yêu cầu reset mật khẩu
+        FE->>BE: POST /forgot-password
+        BE->>Mail: Gửi link reset kèm token
+        U->>FE: Đặt mật khẩu mới qua link
+        FE->>BE: POST /reset-password
+        BE->>DB: Cập nhật hashed_password
+    end
+```
+
+#### Giải thích sơ đồ tuần tự UC-04
+
+1. **Đăng ký & xác thực:** Tài khoản được tạo với `email_verified=false`; người dùng chỉ được coi là hợp lệ đầy đủ sau khi nhấp link xác thực gửi qua Brevo — bước này ngăn tài khoản rác và đảm bảo email dùng để liên lạc (thông báo, lời mời) là email thật.
+2. **Đăng nhập:** Backend so khớp `hashed_password` và trả về JWT; JWT này được dùng cho toàn bộ các request có xác thực sau đó, bao gồm cả bước chọn vai trò ở UC-05.
+3. **Khôi phục mật khẩu:** Nhánh `opt` độc lập với luồng đăng nhập chính, dùng token một lần gửi qua email để tránh phải lưu mật khẩu cũ hoặc câu hỏi bảo mật.
+
+---
+
+#### UC-05: Chọn vai trò làm việc & Quản lý hồ sơ học thuật
+
+**Mục tiêu:** Sau khi đăng nhập, người dùng chọn vai trò làm việc cho phiên hiện tại (vai trò được gán theo từng hội nghị, không phải toàn hệ thống) và có thể cập nhật hồ sơ cá nhân, chủ động liên kết hồ sơ Semantic Scholar để hỗ trợ matching và phát hiện COI chính xác hơn.
+
+**Điều kiện tiên quyết:** Đã đăng nhập thành công (có JWT hợp lệ).
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-05:**
+
+```mermaid
+flowchart TD
+    Start([Đăng nhập thành công]) --> ChooseRole{Chọn vai trò làm việc}
+    ChooseRole -- Author --> DashAuthor[Vào Dashboard Tác giả]
+    ChooseRole -- Reviewer --> DashReviewer[Vào Dashboard Phản biện]
+    ChooseRole -- Chair --> DashChair[Vào Dashboard Chủ tọa]
+
+    DashAuthor --> ProfileCheck{Cập nhật hồ sơ?}
+    DashReviewer --> ProfileCheck
+    DashChair --> ProfileCheck
+
+    ProfileCheck -- Có --> EditProfile[Sửa họ tên, affiliation, domain chuyên môn]
+    EditProfile --> LinkScholar{Liên kết Semantic Scholar?}
+    LinkScholar -- Có --> CallAPI[Gọi Semantic Scholar API đồng bộ hồ sơ]
+    CallAPI --> CacheDB[("Lưu cache vào scholar_profiles, scholar_papers")]
+    CacheDB --> SaveProfile[Lưu hồ sơ cập nhật]
+    LinkScholar -- Không --> SaveProfile
+    ProfileCheck -- Không --> SaveProfile
+    SaveProfile --> End([Hoàn tất])
+```
+
+#### Giải thích sơ đồ hoạt động UC-05
+
+1. **Vai trò theo hội nghị:** Việc chọn vai trò không phải là thuộc tính cố định của tài khoản mà được tra cứu qua bảng `conference_user_roles` — cùng một người có thể là Author ở hội nghị này và Reviewer ở hội nghị khác, đúng như mô tả ở mục 3.1.
+2. **Quản lý hồ sơ:** Trường `domain` (mảng chuyên môn) và affiliation được dùng trực tiếp làm đầu vào cho thuật toán Jaccard matching ở UC-02, nên độ chính xác của hồ sơ ảnh hưởng trực tiếp đến chất lượng gợi ý phân công.
+3. **Liên kết Semantic Scholar (chủ động):** Đây là hành động do người dùng khởi tạo (F-COM-07), khác với cơ chế cache tự động của backend khi gọi Semantic Scholar API mô tả ở mục 3.3.3 — liên kết chủ động đồng bộ toàn bộ publication history của người dùng, còn cache tự động chỉ lưu lại kết quả tra cứu theo yêu cầu để tránh gọi API lặp lại.
+
+---
+
+#### UC-06: Thông báo & Lịch trình cá nhân
+
+**Mục tiêu:** Người dùng nhận thông báo realtime về các sự kiện liên quan (phân công mới, deadline sắp tới, quyết định...) và xem lịch tổng hợp các deadline theo vai trò đang hoạt động.
+
+**Điều kiện tiên quyết:** Đã đăng nhập; kết nối WebSocket tới `/ws/notifications` đã được thiết lập.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-06:**
+
+```mermaid
+sequenceDiagram
+    participant BE as Backend (Go/Gin)
+    participant Hub as WebSocket Notification Hub
+    actor U as Người dùng
+    participant FE as Frontend
+    participant DB as PostgreSQL
+
+    Note over BE: Một sự kiện nghiệp vụ xảy ra (vd: assignment mới)
+    BE->>DB: Lưu bản ghi notification
+    BE->>Hub: Đẩy notification tới Hub
+    Hub-->>FE: Push realtime qua WebSocket
+    FE-->>U: Hiển thị badge & toast thông báo
+
+    U->>FE: Mở danh sách thông báo
+    FE->>BE: GET /api/v1/notifications
+    BE->>DB: Truy vấn danh sách
+    DB-->>BE: Danh sách notification
+    BE-->>FE: Trả JSON
+    U->>FE: Đánh dấu đã đọc / xóa thông báo
+
+    U->>FE: Mở trang Lịch (Schedules)
+    FE->>BE: GET lịch deadline theo vai trò
+    BE->>DB: Tổng hợp deadline hội nghị/submission/review/rebuttal/camera-ready
+    DB-->>BE: Danh sách deadline
+    BE-->>FE: Lịch tổng hợp
+    FE-->>U: Hiển thị Calendar view
+```
+
+#### Giải thích sơ đồ tuần tự UC-06
+
+1. **Đẩy realtime:** Notification Hub tận dụng lại WebSocket Hub đã mô tả ở mục 3.3.2 (module `WebSocket`), cho phép một sự kiện nghiệp vụ bất kỳ (phân công, deadline, quyết định) được đẩy ngay đến người dùng đang mở phiên làm việc mà không cần polling.
+2. **Danh sách & trạng thái đọc:** Ngoài kênh realtime, người dùng vẫn có thể truy vấn lại toàn bộ lịch sử thông báo qua REST API, đánh dấu đã đọc hoặc xóa — đây là kênh dự phòng khi kết nối WebSocket bị gián đoạn.
+3. **Lịch tổng hợp:** Trang Lịch không phải là một bảng dữ liệu riêng mà là một view tổng hợp deadline từ nhiều bảng nghiệp vụ khác nhau (`conferences`, `conference_submissions`, cấu hình rebuttal...), giúp người dùng có một điểm nhìn duy nhất thay vì phải vào từng hội nghị để tra deadline.
+
+---
+
+#### UC-07: Discussion Thread theo bài nộp
+
+**Mục tiêu:** Author, Reviewer và Chair trao đổi thông tin liên quan đến một bài nộp cụ thể trong một thread riêng biệt, có thể đính kèm tệp.
+
+**Điều kiện tiên quyết:** Người dùng có quyền truy cập bài nộp (là tác giả, reviewer được phân công hoặc chair/co-chair của hội nghị).
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-07:**
+
+```mermaid
+flowchart TD
+    Start([Mở trang chi tiết bài nộp]) --> HasThread{Thread đã tồn tại?}
+    HasThread -- Không --> CreateThread[Hệ thống tạo thread mới cho submission_id]
+    HasThread -- Có --> LoadMessages[Tải danh sách message]
+    CreateThread --> LoadMessages
+    LoadMessages --> Compose[Người dùng soạn message kèm đính kèm tệp]
+    Compose --> Send[Gửi message]
+    Send --> DB[("Lưu vào bảng threads / messages")]
+    DB --> Push[Đẩy realtime cho các thành viên khác trong thread]
+    Push --> End([Hiển thị message mới trong thread])
+```
+
+#### Giải thích sơ đồ hoạt động UC-07
+
+1. **Phạm vi truy cập:** Middleware `RequireSubmissionAccess` (đã mô tả ở mục 3.3.2) đảm bảo chỉ những người liên quan trực tiếp đến bài nộp mới đọc/gửi được message trong thread, tránh rò rỉ nội dung thảo luận nội bộ.
+2. **Tái sử dụng hạ tầng realtime:** Message mới được đẩy qua cùng WebSocket Hub dùng cho thông báo (UC-06), nên các thành viên khác của thread thấy tin nhắn ngay lập tức mà không cần tải lại trang.
+3. **Liên kết với các luồng khác:** Discussion Thread là hạ tầng dùng chung được UC-15 (Rebuttal & Thảo luận sau Đánh giá) và UC-03 (Decision Copilot) tái sử dụng — nội dung `discussion_messages` chính là một trong các nguồn dữ liệu thô mà Decision Copilot tổng hợp.
+
+---
+
+#### UC-08: Chatbot / Agent hỏi đáp
+
+**Mục tiêu:** Người dùng tương tác với chatbot/agent để tra cứu nhanh thông tin (trạng thái bài nộp, deadline, hướng dẫn thao tác...) mà không cần điều hướng thủ công qua nhiều màn hình.
+
+**Điều kiện tiên quyết:** Đã đăng nhập; AI Service (agent) khả dụng.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-08:**
+
+```mermaid
+sequenceDiagram
+    actor U as Người dùng
+    participant FE as Frontend (/api/chat)
+    participant BE as Backend (/api/v1/agent)
+    participant Redis as Redis (Session cache)
+    participant AI as AI Service (Agent)
+    participant LLM as External LLM
+
+    U->>FE: Gửi câu hỏi trong chat widget
+    FE->>BE: POST /api/v1/agent/query (session_id, message)
+    BE->>Redis: Lấy lịch sử hội thoại theo session_id
+    Redis-->>BE: Context hội thoại trước đó
+    BE->>AI: Forward request kèm context
+    AI->>AI: Kiểm tra ngưỡng 70% context window -> Compaction nếu cần
+    AI->>LLM: Gọi model kèm tool definitions
+    LLM-->>AI: Phản hồi hoặc yêu cầu gọi tool
+
+    opt LLM yêu cầu gọi tool
+        AI->>BE: Gọi lại API nội bộ (X-Agent-Service-Token) để lấy dữ liệu
+        BE-->>AI: Dữ liệu kết quả (vd: trạng thái submission)
+        AI->>LLM: Gửi kết quả tool để tổng hợp câu trả lời
+        LLM-->>AI: Câu trả lời cuối cùng
+    end
+
+    AI->>Redis: Cập nhật session cache
+    AI-->>BE: Câu trả lời + chi tiết tiến trình tool call
+    BE-->>FE: JSON response
+    FE-->>U: Hiển thị câu trả lời & tool call đã thực hiện
+```
+
+#### Giải thích sơ đồ tuần tự UC-08
+
+1. **Vị trí trong kiến trúc AI:** Về mặt kỹ thuật, agent dùng chung hạ tầng Redis session cache và cơ chế xác thực `X-Agent-Service-Token` đã mô tả ở mục 3.4.3, nhưng đây là workflow duy nhất trong hệ thống có khả năng **gọi ngược lại** Backend để lấy dữ liệu thời gian thực (qua UC-24) thay vì chỉ nhận dữ liệu một chiều như các workflow AI khác.
+2. **Context compaction:** Khi lịch sử hội thoại vượt 70% giới hạn context window, AI Service tự nén ngữ cảnh trước khi gọi LLM, giảm chi phí token mà vẫn giữ đủ thông tin cho các lượt hỏi tiếp theo — cơ chế này áp dụng riêng cho chatbot vì đây là workflow duy nhất có hội thoại nhiều lượt.
+3. **Vị trí còn thiếu trong tài liệu trước đây:** Trước bản cập nhật này, Chatbot/Agent chưa từng được liệt kê như một use case hay một trong sáu workflow AI ở mục 3.4.2, dù đã được nhắc đến gián tiếp qua cơ chế cache Redis ở mục 3.4.3.
+
+---
+
+#### UC-09: Ghi nhận Usage Event & Hướng dẫn nhanh theo vai trò
+
+**Mục tiêu:** Hệ thống tự động ghi nhận hành vi sử dụng để phục vụ phân tích sản phẩm; người dùng mới xem hướng dẫn nhanh (onboarding) theo vai trò khi lần đầu sử dụng.
+
+**Điều kiện tiên quyết:** Đã đăng nhập.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-09:**
+
+```mermaid
+flowchart TD
+    Start([Người dùng thao tác trên hệ thống]) --> Trigger{Hành động thuộc danh sách theo dõi?}
+    Trigger -- Có --> LogEvent[Frontend gửi usage event]
+    LogEvent --> API[POST /api/v1/usage-events]
+    API --> DB[("Lưu event vào PostgreSQL")]
+    Trigger -- Không --> Skip[Không ghi nhận]
+
+    Start --> FirstTime{Lần đầu vào vai trò này?}
+    FirstTime -- Có --> ShowOnboarding["Hiển thị checklist & ảnh chụp hướng dẫn tại /role/onboarding"]
+    ShowOnboarding --> Dismiss[Người dùng xem/đóng hướng dẫn]
+    FirstTime -- Không --> Continue[Vào thẳng Dashboard]
+```
+
+#### Giải thích sơ đồ hoạt động UC-09
+
+1. **Usage event:** Đây là cơ chế ghi log hành vi mang tính "nền", không hiển thị trực tiếp cho người dùng cuối, phục vụ việc đánh giá sản phẩm sau này (ví dụ: tỷ lệ dùng Autofill so với nhập tay).
+2. **Onboarding theo vai trò:** Vì một tài khoản có thể giữ nhiều vai trò khác nhau ở các hội nghị khác nhau (mục 3.1), hướng dẫn nhanh được kích hoạt riêng theo từng vai trò — người dùng đã quen thuộc với vai trò Author vẫn có thể thấy hướng dẫn khi lần đầu đóng vai Reviewer.
+3. **Mức độ ưu tiên thấp nhưng vẫn cần đặc tả:** Hai chức năng này không có AI hay logic nghiệp vụ phức tạp, nhưng vẫn thuộc nhóm F-COM-01→13 mà bản đặc tả trước đây bỏ sót hoàn toàn.
+
+---
+
+#### UC-10: Khám phá & Tìm kiếm Hội nghị
+
+**Mục tiêu:** Tác giả tìm hội nghị phù hợp với lĩnh vực nghiên cứu trước khi nộp bài, có thể lọc theo domain/track/trạng thái và đánh dấu quan tâm để quay lại sau.
+
+**Điều kiện tiên quyết:** Không bắt buộc đăng nhập để xem danh sách công khai; cần đăng nhập với vai trò Author để bookmark.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-10:**
+
+```mermaid
+flowchart TD
+    Start([Vào trang Khám phá hội nghị]) --> Browse[Xem danh sách hội nghị đang mở]
+    Browse --> FilterChoice{Cần lọc/tìm kiếm?}
+    FilterChoice -- Có --> Filter[Nhập từ khóa / chọn domain, track, trạng thái]
+    Filter --> Result[Danh sách hội nghị đã lọc]
+    FilterChoice -- Không --> Result
+    Result --> ViewDetail[Xem Overview / CFP / Deadline / Committee]
+    ViewDetail --> Bookmark{Đánh dấu quan tâm?}
+    Bookmark -- Có --> SaveBookmark[("Lưu bookmark")]
+    Bookmark -- Không --> Decide{Nộp bài ngay?}
+    SaveBookmark --> Decide
+    Decide -- Có --> ToUC01[Chuyển sang UC-01: Nộp bài]
+    Decide -- Không --> End([Kết thúc phiên khám phá])
+```
+
+#### Giải thích sơ đồ hoạt động UC-10
+
+1. **Điểm vào của toàn bộ luồng Author:** Đây là use case xảy ra trước UC-01 trong hành trình thực tế của tác giả nhưng lại chưa từng được đặc tả — trước khi cập nhật, tài liệu coi như tác giả "đã biết" hội nghị nào cần nộp, bỏ qua bước tìm kiếm.
+2. **Lọc và bookmark:** Bộ lọc theo domain/track giúp tác giả thu hẹp phạm vi khi hệ thống có nhiều hội nghị đang mở đồng thời; bookmark là tiện ích để quay lại một hội nghị đang cân nhắc mà chưa quyết định nộp ngay.
+3. **Chuyển tiếp sang UC-01:** Sau khi xem chi tiết, nếu quyết định nộp bài, luồng chuyển thẳng sang UC-01 đã đặc tả ở trên — hai use case này nối tiếp nhau thành một hành trình liền mạch.
+
+---
+
+#### UC-11: Theo dõi trạng thái, Lưu nháp, Sửa & Rút bài
+
+**Mục tiêu:** Tác giả quản lý vòng đời bài nộp sau khi đã khởi tạo: lưu nháp bài chưa hoàn chỉnh, theo dõi trạng thái theo thời gian thực, chỉnh sửa hoặc rút bài khi còn được phép theo policy hội nghị.
+
+**Điều kiện tiên quyết:** Tác giả đã có ít nhất một bài nộp (draft hoặc submitted) tại hội nghị.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-11:**
+
+```mermaid
+flowchart TD
+    Start([Vào trang My Submissions]) --> List[Xem danh sách bài đã nộp / nháp]
+    List --> Choose{Chọn thao tác}
+    Choose -- Tiếp tục nháp --> Draft[Mở form nháp, autosave định kỳ]
+    Draft --> SaveDraft[("Lưu draft")]
+    Choose -- Sửa bài đã nộp --> CheckWindow{Còn trong deadline/policy cho phép?}
+    CheckWindow -- Có --> Edit[Cập nhật thông tin / tệp bản thảo]
+    Edit --> SaveEdit[("Cập nhật submission")]
+    CheckWindow -- Không --> Denied[Từ chối, hiển thị lý do]
+    Choose -- Rút bài --> ConfirmWithdraw{Xác nhận rút bài?}
+    ConfirmWithdraw -- Có --> Withdraw[("Cập nhật status = withdrawn")]
+    Choose -- Xem trạng thái --> Status["Hiển thị timeline: draft -> submitted -> reviewing -> accepted/rejected"]
+    SaveDraft --> End([Cập nhật danh sách])
+    SaveEdit --> End
+    Withdraw --> End
+    Status --> End
+    Denied --> End
+```
+
+#### Giải thích sơ đồ hoạt động UC-11
+
+1. **Gộp bốn thao tác cùng bối cảnh:** Lưu nháp, theo dõi trạng thái, sửa và rút bài đều thao tác trên cùng một bản ghi `conference_submissions` sau khi đã tồn tại, nên được nhóm chung thành một use case thay vì tách bốn use case riêng lẻ, giữ đúng mức trừu tượng như các bubble hiện có trong sơ đồ.
+2. **Autosave nháp:** Form nộp bài tự động lưu định kỳ trong lúc tác giả đang nhập liệu, tránh mất dữ liệu nếu phiên làm việc bị gián đoạn trước khi gửi chính thức.
+3. **Ràng buộc theo policy:** Việc sửa hoặc rút bài chỉ được phép trong một cửa sổ thời gian nhất định (thường là trước deadline hoặc trước khi có phân công phản biện), do policy của từng hội nghị quyết định — hệ thống kiểm tra điều kiện này trước khi cho phép thao tác.
+
+---
+
+#### UC-12: Xem Quyết định cuối & Nộp Camera-ready
+
+**Mục tiêu:** Sau khi Chair ra quyết định (UC-03), tác giả xem kết quả accept/reject; nếu bài được chấp nhận, tác giả nộp bản camera-ready trước deadline để đưa vào kỷ yếu hội nghị.
+
+**Điều kiện tiên quyết:** Chair đã ra quyết định cho bài nộp.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-12:**
+
+```mermaid
+sequenceDiagram
+    actor A as Tác giả
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as PostgreSQL
+
+    Note over BE: Chair đã lưu quyết định (UC-03)
+    BE-->>A: Notification "Có quyết định mới"
+    A->>FE: Mở trang chi tiết bài nộp
+    FE->>BE: GET /submissions/:id
+    BE->>DB: Lấy status, decision, lý do
+    DB-->>BE: Dữ liệu quyết định
+    BE-->>FE: Hiển thị Decision status
+
+    alt Bài được chấp nhận
+        A->>FE: Tải lên bản camera-ready trước deadline
+        FE->>BE: POST /submissions/:id/camera-ready
+        BE->>DB: Lưu file & cập nhật trạng thái
+        BE-->>A: Xác nhận đã nhận camera-ready
+    else Bài bị từ chối
+        A->>FE: Xem lý do & phản biện tham khảo
+    end
+```
+
+#### Giải thích sơ đồ tuần tự UC-12
+
+1. **Điểm kết của hành trình Author:** Đây là use case khép lại toàn bộ vòng đời bài nộp phía tác giả, tiếp nối trực tiếp từ UC-03 (Decision Copilot) phía Chair — trước khi cập nhật, tài liệu dừng lại ở bước ra quyết định mà chưa mô tả điều gì xảy ra tiếp theo với tác giả.
+2. **Hai nhánh rẽ:** Nếu bị từ chối, luồng chỉ dừng ở việc xem lại lý do và phản biện tham khảo; nếu được chấp nhận, luồng tiếp tục sang bước nộp camera-ready — một tệp bản thảo hoàn thiện cuối cùng để đưa vào kỷ yếu.
+3. **Kiểm soát deadline:** Việc nộp camera-ready vẫn bị ràng buộc bởi deadline riêng (khác deadline nộp bài ban đầu), được Chair duyệt lại ở UC-20.
+
+---
+
+#### UC-13: Xử lý Lời mời Phản biện
+
+**Mục tiêu:** Reviewer (thành viên hệ thống hoặc chuyên gia ngoài hệ thống) nhận, xem và phản hồi lời mời tham gia hội nghị hoặc phản biện một bài cụ thể.
+
+**Điều kiện tiên quyết:** Chair đã gửi lời mời qua hệ thống hoặc qua email (UC-17).
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-13:**
+
+```mermaid
+sequenceDiagram
+    actor R as Người phản biện
+    participant Mail as Email (Brevo)
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as PostgreSQL
+
+    Note over BE: Chair gửi lời mời (UC-17)
+    BE->>Mail: Gửi email lời mời kèm token (nếu là chuyên gia ngoài hệ thống)
+    Mail-->>R: Email lời mời
+
+    alt Reviewer đã có tài khoản
+        R->>FE: Xem lời mời trong Dashboard
+    else Chuyên gia ngoài hệ thống
+        R->>FE: Nhấp link, đăng ký nhanh & khai báo domain nghiên cứu
+        FE->>BE: POST /auth/register (kèm invitation token)
+        BE->>DB: Tạo tài khoản, liên kết invitation
+    end
+
+    R->>FE: Chấp nhận hoặc Từ chối kèm lý do
+    FE->>BE: POST /invitations/:id/respond
+    BE->>DB: Cập nhật trạng thái accepted / declined
+    DB-->>BE: OK
+    BE-->>R: Xác nhận trạng thái tham gia
+```
+
+#### Giải thích sơ đồ tuần tự UC-13
+
+1. **Hai đường tiếp nhận lời mời:** Reviewer nội bộ (đã có tài khoản) thấy lời mời ngay trong Dashboard; chuyên gia ngoài hệ thống (F-REV-22) đi qua một luồng đăng ký nhanh gắn kèm token lời mời, giúp họ tham gia mà không cần tự đăng ký từ đầu qua UC-04.
+2. **Từ chối kèm lý do:** Lý do từ chối (không đúng chuyên môn, bận, xung đột lợi ích, lịch trình...) được lưu lại, hữu ích cho Chair khi cần hiểu vì sao tỷ lệ chấp nhận lời mời thấp và điều chỉnh chiến lược mời ở các vòng sau.
+3. **Vị trí trong luồng end-to-end:** Đây là bước tiên quyết trước khi Chair có thể chạy thuật toán phân công ở UC-02 — chỉ những reviewer đã accepted mới được đưa vào tập ứng viên matching.
+
+---
+
+#### UC-14: Theo dõi & Lưu nháp Bài được phân công
+
+**Mục tiêu:** Reviewer theo dõi tổng quan các bài được phân công, tìm/lọc theo trạng thái, xem hoặc tải bản thảo và lưu nháp đánh giá để hoàn thiện sau.
+
+**Điều kiện tiên quyết:** Reviewer đã được phân công ít nhất một bài (assignment tồn tại).
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-14:**
+
+```mermaid
+flowchart TD
+    Start([Vào Dashboard Reviewer]) --> Overview[Xem tổng hợp assignment, deadline, trạng thái]
+    Overview --> FilterChoice{Lọc/sắp xếp danh sách?}
+    FilterChoice -- Có --> Filter["Lọc pending/accepted/declined/completed, sort theo deadline/title"]
+    Filter --> Pick[Chọn một bài để xử lý]
+    FilterChoice -- Không --> Pick
+    Pick --> ViewFile[Xem/tải manuscript]
+    ViewFile --> WriteReview[Bắt đầu / tiếp tục nhập đánh giá]
+    WriteReview --> SaveDraft{Lưu nháp hay gửi ngay?}
+    SaveDraft -- Lưu nháp --> Draft[("Lưu review draft")]
+    SaveDraft -- Gửi ngay --> ToUC02[Chuyển sang UC-02: Đánh giá & Nhập điểm]
+    Draft --> Completed[Xem lại danh sách đã hoàn thành]
+    Completed --> End([Kết thúc phiên làm việc])
+```
+
+#### Giải thích sơ đồ hoạt động UC-14
+
+1. **Lớp trung gian giữa lời mời và đánh giá:** Use case này lấp khoảng trống giữa UC-13 (đã accepted lời mời) và luồng nhập điểm chính thức — trước khi cập nhật, tài liệu bỏ qua toàn bộ giai đoạn reviewer "quản lý công việc" của mình trước khi thực sự chấm điểm.
+2. **Lưu nháp:** Vì một bản đánh giá đầy đủ thường cần nhiều lần đọc và chỉnh sửa, hệ thống cho phép lưu nháp (F-REV-13) và có cơ chế override khi audit service lỗi (F-REV-16) để không chặn việc gửi review chỉ vì một dịch vụ phụ trợ gặp sự cố.
+3. **Tìm/lọc:** Với reviewer được phân công nhiều bài trong một hội nghị lớn, bộ lọc theo trạng thái và sắp xếp theo deadline là điều kiện cần để quản lý khối lượng công việc hiệu quả.
+
+---
+
+#### UC-15: Rebuttal & Thảo luận sau Đánh giá
+
+**Mục tiêu:** Sau khi tác giả gửi rebuttal, reviewer đọc phản hồi, đánh dấu từng điểm đã được giải quyết hay cần thảo luận thêm, tham gia thảo luận nội bộ và có thể cập nhật điểm/khuyến nghị.
+
+**Điều kiện tiên quyết:** Giai đoạn rebuttal đã mở (UC-19) và tác giả đã gửi phản hồi cho bài được phân công.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-15:**
+
+```mermaid
+flowchart TD
+    Start([Nhận thông báo có rebuttal mới]) --> Read["Đọc general response & per-point response"]
+    Read --> Ack["Acknowledge từng điểm: addressed / needs discussion + note"]
+    Ack --> DiscussChoice{Cần thảo luận thêm với Chair/Reviewer khác?}
+    DiscussChoice -- Có --> Discuss[Gửi message trong Discussion Thread - UC-07]
+    DiscussChoice -- Không --> UpdateChoice
+    Discuss --> UpdateChoice{Cập nhật điểm/khuyến nghị?}
+    UpdateChoice -- Có --> Update[Sửa score, recommendation, comment]
+    Update --> Save[("Lưu post-rebuttal score")]
+    UpdateChoice -- Không --> End([Giữ nguyên đánh giá ban đầu])
+    Save --> End
+```
+
+#### Giải thích sơ đồ hoạt động UC-15
+
+1. **Vế đối ứng của UC "Gửi bài Rebuttal" phía Author:** Sơ đồ Author/Reviewer/Chair ở mục 3.2.2 có bubble "Gửi bài Rebuttal" phía tác giả nhưng chưa từng mô tả điều reviewer làm sau khi nhận được phản hồi đó — UC-15 lấp đúng khoảng trống này.
+2. **Acknowledge từng điểm:** Thay vì chỉ đọc rebuttal một cách tự do, reviewer đánh dấu trạng thái cho từng điểm phản hồi cụ thể (đã giải quyết / cần thảo luận thêm), giúp Chair và các reviewer khác nắm được tiến độ xử lý rebuttal mà không cần đọc lại toàn bộ nội dung.
+3. **Cập nhật điểm là tùy chọn:** Reviewer không bắt buộc phải thay đổi điểm sau rebuttal; nếu rebuttal không làm thay đổi đánh giá ban đầu, luồng kết thúc mà không cần ghi đè `post-rebuttal score`.
+
+---
+
+#### UC-16: Dashboard & Danh sách Hội nghị quản lý
+
+**Mục tiêu:** Chair có cái nhìn tổng quan về các hội nghị mình phụ trách: số bài nộp, tiến độ review, acceptance rate và các action cần xử lý ngay.
+
+**Điều kiện tiên quyết:** Chair đã đăng nhập và có ít nhất một hội nghị được gán vai trò chair/co-chair.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-16:**
+
+```mermaid
+flowchart TD
+    Start([Đăng nhập, chọn vai trò Chair]) --> LoadConfs[Lấy danh sách hội nghị mà user là chair/co-chair]
+    LoadConfs --> Aggregate["Tổng hợp số submission, tiến độ review, acceptance rate"]
+    Aggregate --> ActionList["Xác định action cần xử lý: review trễ hạn, thiếu reviewer..."]
+    ActionList --> Render[Hiển thị Dashboard metrics + action list]
+    Render --> Pick{Chọn hội nghị cụ thể?}
+    Pick -- Có --> ToDetail[Vào trang chi tiết hội nghị]
+    Pick -- Không --> End([Ở lại Dashboard tổng])
+```
+
+#### Giải thích sơ đồ hoạt động UC-16
+
+1. **Điểm vào của toàn bộ luồng Chair:** Tương tự UC-10 phía Author, đây là use case xảy ra đầu tiên trong hành trình thực tế của Chair nhưng trước đó chưa từng được vẽ — sơ đồ cũ đưa Chair thẳng vào "Cấu hình Hội nghị" như thể hội nghị đã tồn tại sẵn.
+2. **Action list chủ động:** Thay vì chỉ hiển thị số liệu thụ động, dashboard xác định các action cần chú ý (review trễ hạn, chưa đủ reviewer tối thiểu...), giúp Chair phát hiện vấn đề mà không cần chủ động rà từng hội nghị.
+3. **Vai trò co-chair:** Danh sách hội nghị bao gồm cả những hội nghị mà người dùng là co-chair (không chỉ chair chính), phản ánh đúng mô hình quyền hạn đã mô tả ở 3.2.1.
+
+---
+
+#### UC-17: Mời & Quản lý Ban tổ chức (Committee)
+
+**Mục tiêu:** Chair mời reviewer, PC hoặc co-chair tham gia hội nghị — người đã có tài khoản hoặc chuyên gia ngoài hệ thống qua email — và theo dõi/quản lý trạng thái tham gia.
+
+**Điều kiện tiên quyết:** Hội nghị đã được tạo và đang trong giai đoạn cho phép mời committee.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-17:**
+
+```mermaid
+sequenceDiagram
+    actor C as Chủ tọa
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as PostgreSQL
+    participant Mail as Brevo Email
+
+    C->>FE: Nhập email & chọn vai trò (reviewer/PC/co-chair)
+    FE->>BE: POST /conferences/:id/invitations
+    alt Người dùng đã có tài khoản
+        BE->>DB: Tạo bản ghi conference_user_roles (pending)
+        BE->>Mail: Gửi thông báo lời mời trong hệ thống
+    else Người dùng chưa có tài khoản
+        BE->>DB: Tạo external invitation kèm token
+        BE->>Mail: Gửi email lời mời kèm token
+    end
+    Note over C: Xem UC-13 phía Reviewer cho luồng phản hồi tương ứng
+
+    C->>FE: Xem danh sách trạng thái pending/accepted/declined
+    FE->>BE: GET /conferences/:id/committee
+    BE->>DB: Truy vấn trạng thái
+    DB-->>BE: Danh sách
+    BE-->>C: Hiển thị bảng trạng thái, cho phép xóa reviewer khỏi hội nghị
+```
+
+#### Giải thích sơ đồ tuần tự UC-17
+
+1. **Cặp use case đối ứng với UC-13:** Đây là nửa phía Chair của cùng một quy trình mời — UC-17 phát sinh sự kiện, UC-13 xử lý phản hồi từ phía reviewer/PC được mời.
+2. **Hai loại người được mời:** Với người đã có tài khoản, lời mời chỉ là một bản ghi vai trò ở trạng thái pending; với người chưa có tài khoản, hệ thống phát sinh thêm token invitation gắn với luồng đăng ký nhanh ở UC-13.
+3. **Quản lý trạng thái:** Chair có thể theo dõi ai đã chấp nhận/từ chối và xóa reviewer khỏi hội nghị nếu cần — dữ liệu này là tiền đề để UC-02 chỉ đưa các reviewer đã accepted vào tập ứng viên matching.
+
+---
+
+#### UC-18: Danh sách & Chi tiết Bài nộp
+
+**Mục tiêu:** Chair tìm, lọc, xem chi tiết từng bài nộp (metadata, tác giả, file, review, timeline, discussion, history) và có thể cập nhật nhanh trạng thái xử lý.
+
+**Điều kiện tiên quyết:** Hội nghị đã có ít nhất một bài nộp.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-18:**
+
+```mermaid
+flowchart TD
+    Start([Vào tab Submissions của hội nghị]) --> Filter["Tìm/lọc theo track, status; sort theo ID/title/score"]
+    Filter --> Table[Hiển thị bảng danh sách bài nộp]
+    Table --> SelectOne[Chọn một bài để xem chi tiết]
+    SelectOne --> Detail[Xem metadata, tác giả, file, review, timeline, discussion, history]
+    Detail --> QuickAction{Cần cập nhật trạng thái nhanh?}
+    QuickAction -- Có --> UpdateStatus[Chuyển accepted/rejected hoặc trạng thái xử lý khác]
+    UpdateStatus --> Save[("Cập nhật submission status")]
+    QuickAction -- Không --> End([Quay lại danh sách])
+    Save --> End
+```
+
+#### Giải thích sơ đồ hoạt động UC-18
+
+1. **Trang trung tâm của Chair khi xử lý bài nộp:** Đây là nơi Chair truy cập trước khi chuyển sang các use case chuyên biệt hơn như COI (UC-02), phân công (UC-02) hoặc quyết định (UC-03) — trước khi cập nhật, các use case chuyên biệt đó có trong sơ đồ nhưng thiếu "trang cửa ngõ" dẫn vào chúng.
+2. **Xem chi tiết đa nguồn:** Trang chi tiết bài nộp tổng hợp dữ liệu từ nhiều bảng khác nhau (submission, review, discussion, history) thành một view duy nhất, tương tự cách UC-03 tổng hợp dữ liệu cho Decision Copilot nhưng ở đây là hiển thị thô, không qua xử lý AI.
+3. **Cập nhật trạng thái nhanh:** Tách biệt với quyết định chính thức ở UC-03 (vốn cần đủ điều kiện rebuttal/review), đây là thao tác cập nhật trạng thái xử lý nhanh cho các tình huống khác (ví dụ đánh dấu đang xem xét thêm).
+
+---
+
+#### UC-19: Cấu hình & Mở Rebuttal
+
+**Mục tiêu:** Chair thiết lập tham số giai đoạn rebuttal (deadline, giới hạn ký tự, policy), mở giai đoạn để tác giả phản hồi, và mở thảo luận sâu hơn sau khi có phản hồi.
+
+**Điều kiện tiên quyết:** Bài nộp đã có đủ số phản biện tối thiểu theo cấu hình hội nghị.
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-19:**
+
+```mermaid
+flowchart TD
+    Start([Chair vào tab Rebuttal Settings]) --> Config["Thiết lập deadline, character limit, policy"]
+    Config --> SaveConfig[("Lưu rebuttal config")]
+    SaveConfig --> OpenChoice{Mở giai đoạn rebuttal ngay?}
+    OpenChoice -- Có --> Open["Chuyển phase sang 'rebuttal open'"]
+    Open --> Notify[Thông báo cho tác giả liên quan]
+    OpenChoice -- Không --> Wait[Chờ thời điểm đã cấu hình / kích hoạt thủ công sau]
+    Notify --> AuthorSubmit["Tác giả gửi phản hồi (UC-11), Reviewer xử lý (UC-15)"]
+    AuthorSubmit --> Finalize{Kết thúc giai đoạn rebuttal?}
+    Finalize -- Có --> Close[Finalize phase]
+    Close --> DiscussOpen{Mở discussion sâu hơn?}
+    DiscussOpen -- Có --> OpenDiscuss[Mở discussion phase cho reviewer/chair]
+    DiscussOpen -- Không --> End([Sẵn sàng cho UC-03: Decision Copilot])
+    OpenDiscuss --> End
+```
+
+#### Giải thích sơ đồ hoạt động UC-19
+
+1. **Nút thắt giữa Review và Decision:** Trước khi cập nhật, sơ đồ có bubble "Gửi bài Rebuttal" phía Author nhưng không có bubble nào phía Chair mô tả ai là người mở giai đoạn này — UC-19 lấp đúng khoảng trống đó, đồng thời là điều kiện tiên quyết chính thức cho UC-03.
+2. **Ba tham số cấu hình:** Deadline, giới hạn ký tự phản hồi và policy (ví dụ số điểm tối đa được phản hồi) được cấu hình trước khi mở, tránh tình huống tác giả phản hồi không giới hạn gây khó cho reviewer khi đọc.
+3. **Mở discussion là bước tùy chọn:** Không phải hội nghị nào cũng cần thảo luận sâu sau rebuttal; Chair có thể bỏ qua bước này và chuyển thẳng sang ra quyết định nếu rebuttal đã đủ rõ ràng.
+
+---
+
+#### UC-20: Duyệt Camera-ready
+
+**Mục tiêu:** Sau khi bài được chấp nhận và tác giả nộp bản camera-ready, Chair kiểm tra và xác nhận bản cuối trước khi đưa vào kỷ yếu hội nghị.
+
+**Điều kiện tiên quyết:** Bài nộp có status accepted và tác giả đã nộp camera-ready (UC-12).
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-20:**
+
+```mermaid
+flowchart TD
+    Start([Chair vào tab Camera-ready]) --> List[Xem danh sách bài accepted đã/chưa nộp camera-ready]
+    List --> CheckOne[Mở một bài để kiểm tra]
+    CheckOne --> ViewFile[Xem/tải file camera-ready]
+    ViewFile --> Decision{Đạt yêu cầu?}
+    Decision -- Có --> Approve[Đánh dấu đã duyệt]
+    Decision -- Không --> RequestChange[Yêu cầu tác giả nộp lại kèm ghi chú]
+    Approve --> End([Hoàn tất kỷ yếu])
+    RequestChange --> Notify[Thông báo cho tác giả]
+    Notify --> End
+```
+
+#### Giải thích sơ đồ hoạt động UC-20
+
+1. **Use case khép lại toàn bộ luồng end-to-end:** UC-20 là bước cuối cùng nối tiếp UC-12 phía Author, hoàn thiện vòng đời bài nộp từ khám phá hội nghị (UC-10) đến kỷ yếu cuối cùng.
+2. **Vòng lặp yêu cầu nộp lại:** Nếu bản camera-ready chưa đạt yêu cầu định dạng hoặc nội dung, Chair có thể yêu cầu tác giả nộp lại kèm ghi chú cụ thể, tạo thành một vòng lặp ngắn giữa UC-12 và UC-20 cho đến khi đạt yêu cầu.
+3. **Trước đây hoàn toàn vắng mặt:** Trước bản cập nhật này, "camera-ready" chưa từng xuất hiện ở bất kỳ sơ đồ hay đặc tả nào của Chương 3, dù có mã chức năng F-CHAIR-31 và F-AUTHOR-20 trong danh sách chức năng.
+
+---
+
+#### UC-21: Xem Tổng quan Hội nghị (PC — Read-only)
+
+**Mục tiêu:** Thành viên Ban chương trình (PC) theo dõi thông tin hội nghị, danh sách bài nộp và thống kê tổng hợp ở chế độ chỉ đọc, không can thiệp vào quy trình nghiệp vụ.
+
+**Điều kiện tiên quyết:** PC đã được mời và chấp nhận tham gia hội nghị (UC-17).
+
+**Sơ đồ hoạt động (Activity Diagram) cho UC-21:**
+
+```mermaid
+flowchart TD
+    Start([PC đăng nhập, chọn hội nghị]) --> CheckRole{Role = pc?}
+    CheckRole -- Có --> ReadOnly["Cấp quyền xem: danh sách bài nộp, review, thống kê"]
+    ReadOnly --> Browse[Duyệt các tab được phép xem]
+    Browse --> Attempt{Thử thao tác chỉnh sửa?}
+    Attempt -- Có --> Blocked["Middleware chặn - HTTP 403"]
+    Attempt -- Không --> End([Kết thúc phiên xem])
+    Blocked --> End
+    CheckRole -- Không --> Deny[Từ chối truy cập]
+```
+
+#### Giải thích sơ đồ hoạt động UC-21
+
+1. **Tác nhân bị bỏ sót hoàn toàn trước đây:** Dù mục 3.2.1 mô tả rõ PC "có quyền đọc và tổng quan, không có quyền can thiệp vào quy trình nghiệp vụ", PC chưa từng xuất hiện trong bất kỳ sơ đồ use case nào của Chương 3 trước bản cập nhật này.
+2. **Ràng buộc quyền ở tầng middleware:** Cùng middleware RBAC cấp hội nghị mô tả ở mục 3.3.2 được tái sử dụng cho PC — thay vì có một bộ route riêng, PC dùng chung route với Chair nhưng bị chặn ở các hành động ghi (POST/PATCH/DELETE), chỉ còn lại GET.
+3. **Giá trị của việc hiển thị tường minh:** Việc vẽ riêng UC-21 giúp người đọc tài liệu hiểu PC không phải là "Chair rút gọn" mà là một tác nhân độc lập với ranh giới quyền hạn rõ ràng (F-CHAIR-32).
+
+---
+
+#### UC-22: Vận hành & Khắc phục sự cố Hệ thống (Admin)
+
+**Mục tiêu:** Quản trị hệ thống thực hiện các thao tác vận hành nội bộ như xem dữ liệu thô, cưỡng bức đồng bộ dữ liệu hoặc khắc phục sự cố mà không đi qua luồng nghiệp vụ thông thường.
+
+**Điều kiện tiên quyết:** Request có header `X-Admin-Token` hợp lệ.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-22:**
+
+```mermaid
+sequenceDiagram
+    actor Ad as Quản trị hệ thống
+    participant BE as Backend (Go/Gin)
+    participant Mid as Admin Middleware
+    participant DB as PostgreSQL / Neo4j
+
+    Ad->>BE: Gửi request kèm header X-Admin-Token
+    BE->>Mid: Xác thực token quản trị
+    alt Token hợp lệ
+        Mid-->>BE: Cho phép truy cập route admin
+        BE->>DB: Thực hiện thao tác (xem dữ liệu thô / cưỡng bức đồng bộ / sửa lỗi dữ liệu)
+        DB-->>BE: Kết quả
+        BE-->>Ad: Trả kết quả thao tác
+    else Token không hợp lệ
+        Mid-->>BE: Từ chối (401/403)
+        BE-->>Ad: Lỗi xác thực
+    end
+```
+
+#### Giải thích sơ đồ tuần tự UC-22
+
+1. **Tác nhân đặc biệt, không phải người dùng cuối:** Đúng như mô tả ở 3.2.1, Admin không đăng nhập qua luồng JWT thông thường (UC-04) mà dùng một shared secret riêng (`X-Admin-Token`), tách biệt hoàn toàn khỏi RBAC cấp hội nghị dùng cho Author/Reviewer/Chair/PC.
+2. **Không có mã F-code tương ứng:** Vì báo cáo danh sách chức năng theo vai trò (feature-list-by-role-report.md) tập trung vào ba vai trò nghiệp vụ chính và PC, các thao tác Admin không được gán mã F-XXX — UC-22 dựa trực tiếp trên mô tả bằng lời ở mục 3.2.1 của chương này.
+3. **Phạm vi sử dụng:** Đây là các thao tác vận hành mang tính khắc phục sự cố (incident response), không phải một tính năng người dùng cuối tương tác thường xuyên, nên tần suất sử dụng thấp nhưng mức độ nhạy cảm cao.
+
+---
+
+#### UC-23: Tự động Kết thúc Rebuttal quá hạn (Cron Job)
+
+**Mục tiêu:** Hệ thống tự động chuyển giai đoạn rebuttal đã quá deadline sang trạng thái đóng, không cần Chair thao tác thủ công, đảm bảo tiến độ hội nghị không bị treo vô thời hạn.
+
+**Điều kiện tiên quyết:** Có bài nộp đang ở giai đoạn rebuttal với deadline đã qua.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-23:**
+
+```mermaid
+sequenceDiagram
+    participant Cron as Cron Scheduler
+    participant BE as Backend (Go)
+    participant DB as PostgreSQL
+    participant Hub as Notification Hub
+
+    loop Chạy định kỳ
+        Cron->>BE: Kích hoạt job kiểm tra rebuttal quá hạn
+        BE->>DB: Truy vấn submissions có rebuttal_deadline < now() và phase = 'open'
+        DB-->>BE: Danh sách bài quá hạn
+        alt Có bài quá hạn
+            BE->>DB: Cập nhật phase = 'closed'
+            BE->>Hub: Thông báo Chair & Reviewer liên quan
+        else Không có bài quá hạn
+            BE-->>Cron: Không có thay đổi
+        end
+    end
+```
+
+#### Giải thích sơ đồ tuần tự UC-23
+
+1. **Tác nhân không qua giao diện người dùng:** Đây là một trong hai use case của "Tác nhân hệ thống" mô tả ở 3.2.1 — không có màn hình, không có thao tác thủ công, chỉ có một job chạy định kỳ trên Backend.
+2. **Vai trò trong tính tự động hóa:** Nếu không có cơ chế này, một Chair quên mở/đóng thủ công giai đoạn rebuttal có thể khiến hội nghị bị treo vô thời hạn ở bước chờ phản hồi tác giả — cron job đảm bảo tiến độ luôn được duy trì mà không phụ thuộc vào sự chủ động của con người.
+3. **Thông báo sau khi tự động đóng:** Sau khi đóng, hệ thống vẫn đẩy thông báo cho Chair và Reviewer liên quan qua Notification Hub (UC-06), giữ tính minh bạch dù hành động là tự động.
+
+---
+
+#### UC-24: AI Service gọi ngược Backend (Agent Callback)
+
+**Mục tiêu:** AI Service (đóng vai trò tác nhân hệ thống) gọi ngược vào Backend để lấy hoặc cập nhật dữ liệu nghiệp vụ cần thiết khi thực thi workflow — điển hình là khi Chatbot/Agent (UC-08) cần tra cứu dữ liệu thời gian thực để trả lời người dùng.
+
+**Điều kiện tiên quyết:** AI Service đang xử lý một workflow cần dữ liệu nghiệp vụ thời gian thực.
+
+**Sơ đồ tuần tự (Sequence Diagram) cho UC-24:**
+
+```mermaid
+sequenceDiagram
+    participant AI as AI Service (FastAPI)
+    participant BE as Backend (Go/Gin)
+    participant Mid as Agent Middleware
+    participant DB as PostgreSQL
+
+    AI->>BE: Gọi API nội bộ kèm header X-Agent-Service-Token
+    BE->>Mid: Xác thực shared secret
+    alt Token hợp lệ
+        Mid-->>BE: Cho phép truy cập
+        BE->>DB: Truy vấn/cập nhật dữ liệu theo yêu cầu
+        DB-->>BE: Kết quả
+        BE-->>AI: Trả JSON kết quả
+    else Token không hợp lệ
+        Mid-->>BE: Từ chối truy cập
+        BE-->>AI: HTTP 401
+    end
+```
+
+#### Giải thích sơ đồ tuần tự UC-24
+
+1. **Chiều gọi ngược lại với các workflow AI khác:** Ở năm workflow AI còn lại (Autofill, Track Recommendation, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Decision Copilot), Backend luôn là bên chủ động gọi sang AI Service. UC-24 là chiều duy nhất đảo ngược: AI Service chủ động gọi lại Backend, phát sinh trực tiếp từ nhu cầu của Chatbot/Agent ở UC-08.
+2. **Cùng cơ chế xác thực đã mô tả:** `X-Agent-Service-Token` là shared secret đã được mô tả ở mục 3.4.3, đảm bảo chỉ AI Service nội bộ (không phải một client bên ngoài bất kỳ) mới gọi được các API nhạy cảm này.
+3. **Tác nhân hệ thống thứ hai:** Cùng với UC-23, đây là use case thứ hai của "Tác nhân hệ thống" — khác ở chỗ UC-23 là tác vụ định kỳ chủ động, còn UC-24 là phản ứng theo yêu cầu (on-demand) khi có một workflow AI cần dữ liệu thời gian thực.
 
 ---
 
