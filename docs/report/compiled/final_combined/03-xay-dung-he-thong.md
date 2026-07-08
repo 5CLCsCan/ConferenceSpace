@@ -104,7 +104,7 @@ flowchart TD
 
     subgraph A["Nhóm chức năng Tác giả"]
         A1["Nộp bài nhiều bước"]
-        A2["Submission Autofill và track_rankings"]
+        A2["Submission Autofill gồm Track recommendation"]
         A3["Submission Gating"]
         A4["Xem review và gửi rebuttal"]
     end
@@ -133,9 +133,9 @@ Các use case trên phản ánh trực tiếp ma trận truy vết ở Chương 
 
 ### 3.2.3. Đặc tả use case quan trọng
 
-#### UC-01. Nộp bài với Submission Autofill và `track_rankings`
+#### UC-01. Nộp bài với Submission Autofill và Track recommendation
 
-**Mục tiêu.** Tác giả hoàn thành bản nháp nộp bài với metadata được trích xuất từ bản thảo và gợi ý track trong ngữ cảnh hội nghị.
+**Mục tiêu.** Tác giả hoàn thành bản nháp nộp bài với metadata được trích xuất từ bản thảo và Track recommendation (gợi ý track) trong ngữ cảnh hội nghị.
 
 **Điều kiện tiên quyết.** Tác giả đã đăng nhập; hội nghị đang mở nhận bài; danh sách track của hội nghị đã được cấu hình; file bản thảo có thể đọc được.
 
@@ -146,7 +146,7 @@ flowchart TD
     A["Tác giả tải bản thảo"] --> B["Trích xuất nội dung tài liệu"]
     B --> C{"Nội dung đủ điều kiện?"}
     C -- "Không" --> D["Trả lỗi có hướng dẫn sửa file"]
-    C -- "Có" --> E["LLM tạo metadata và track_rankings"]
+    C -- "Có" --> E["AI tạo metadata và gợi ý track"]
     E --> F["Validate schema output"]
     F --> G["Tác giả kiểm tra và chỉnh sửa"]
     G --> H["Lưu draft submission"]
@@ -156,7 +156,7 @@ flowchart TD
     J -- "Pass/Warn" --> L["Khai báo COI và gửi bài chính thức"]
 ```
 
-Workflow này không tự động gửi bài thay tác giả. Output từ AI chỉ là bản nháp gồm tiêu đề, tóm tắt, keyword, thông tin liên quan và `track_rankings`. Tác giả vẫn phải xem lại, chỉnh sửa và xác nhận trước khi gửi. Trước khi submission được gửi chính thức, Submission Gating đóng vai trò như một lớp kiểm tra draft ở cổng nộp bài: hệ thống có thể cảnh báo hoặc chặn các bản nộp không đáp ứng policy/hình thức rõ ràng, nhưng không đưa ra kết luận học thuật thay Chair hoặc reviewer. Thiết kế này giải quyết vấn đề biểu mẫu dài và phát hiện lỗi muộn ở Chương 2 nhưng vẫn giữ quyền kiểm soát của người dùng.
+Workflow này không tự động gửi bài thay tác giả. Output từ AI chỉ là bản nháp gồm tiêu đề, tóm tắt, keyword, thông tin liên quan và gợi ý track phù hợp với danh sách track của hội nghị. Tác giả vẫn phải xem lại, chỉnh sửa và xác nhận trước khi gửi. Trước khi submission được gửi chính thức, Submission Gating đóng vai trò như một lớp kiểm tra draft ở cổng nộp bài: hệ thống có thể cảnh báo hoặc chặn các bản nộp không đáp ứng policy/hình thức rõ ràng, nhưng không đưa ra kết luận học thuật thay Chair hoặc reviewer. Thiết kế này giải quyết vấn đề biểu mẫu dài và phát hiện lỗi muộn ở Chương 2 nhưng vẫn giữ quyền kiểm soát của người dùng.
 
 Các trường hợp lỗi được xử lý rõ: nếu file không đọc được, text extraction thấp hoặc dữ liệu không đủ căn cứ, workflow trả lỗi thay vì tạo metadata thiếu cơ sở. Đây là điểm quan trọng vì một hệ thống AI trong bối cảnh học thuật không được “đoán cho đủ form” khi bản thảo đầu vào không đủ tin cậy.
 
@@ -292,7 +292,7 @@ flowchart LR
     H --> I
 ```
 
-Frontend cũng đóng vai trò kiểm soát trải nghiệm AI. Kết quả AI không được trình bày như kết luận cuối cùng, mà như bản nháp, cảnh báo hoặc bằng chứng cần kiểm tra. Ví dụ, `track_rankings` hiển thị để tác giả chọn/chỉnh sửa; Reviewer Initial Analysis hiển thị như briefing đọc bài; Chair Decision Copilot hiển thị như bản tổng hợp cần Chair đối chiếu với review gốc.
+Frontend cũng đóng vai trò kiểm soát trải nghiệm AI. Kết quả AI không được trình bày như kết luận cuối cùng, mà như bản nháp, cảnh báo hoặc bằng chứng cần kiểm tra. Ví dụ, phần Track recommendation trong Submission Autofill hiển thị để tác giả chọn/chỉnh sửa track; Reviewer Initial Analysis hiển thị như briefing đọc bài; Chair Decision Copilot hiển thị như bản tổng hợp cần Chair đối chiếu với review gốc.
 
 ### 3.3.3. Thiết kế backend, API và phân quyền
 
@@ -402,7 +402,7 @@ sequenceDiagram
     FE->>BE: Gửi file và conference context
     BE->>AI: Yêu cầu Submission Autofill
     AI->>AI: Trích xuất nội dung, gọi model, validate schema
-    AI-->>BE: Metadata và track_rankings
+    AI-->>BE: Metadata và gợi ý track
     BE-->>FE: Trả bản nháp cho tác giả
     Author->>FE: Kiểm tra, chỉnh sửa, xác nhận
     FE->>BE: Lưu draft và yêu cầu kiểm tra nộp bài
@@ -508,7 +508,7 @@ Các cơ chế này là phần nền của hệ thống. Nếu chúng không đ�
 
 AI được đưa vào ConferenceSpace theo vai trò hỗ trợ từng điểm nghẽn, không phải như lớp tự động hóa toàn bộ quy trình. Nhóm chia workflow AI thành ba nhóm.
 
-Nhóm thứ nhất là **hỗ trợ nhập liệu và kiểm tra sớm** cho tác giả: Submission Autofill, `track_rankings` và Submission Gating. Nhóm này giải quyết trực tiếp vấn đề biểu mẫu dài và lỗi chỉ được phát hiện muộn.
+Nhóm thứ nhất là **hỗ trợ nhập liệu và kiểm tra sớm** cho tác giả: Submission Autofill và Submission Gating. Trong đó, Track recommendation là một phần của Submission Autofill workflow, giúp tác giả chọn track phù hợp từ nội dung bản thảo và danh sách track của hội nghị. Nhóm này giải quyết trực tiếp vấn đề biểu mẫu dài, lựa chọn track thủ công và lỗi chỉ được phát hiện muộn.
 
 Nhóm thứ hai là **hỗ trợ đọc và kiểm soát chất lượng phản biện** cho reviewer: Reviewer Initial Analysis và Review Quality Auditor. Nhóm này không thay việc đọc bài hoặc viết phản biện, mà giúp reviewer định hướng đọc và kiểm tra bản nháp có đủ căn cứ hay chưa.
 
@@ -518,7 +518,7 @@ Nhóm thứ ba là **hỗ trợ tổng hợp và truy vấn ngữ cảnh hệ th
 
 #### 3.5.2.1. Submission Autofill
 
-Submission Autofill nhận bản thảo, conference context và danh sách track để tạo metadata nháp cho form nộp bài. Output chính gồm tiêu đề, tóm tắt, keyword, thông tin tác giả khi trích xuất được và `track_rankings`. Giá trị của workflow này là giảm nhập liệu lặp lại, đặc biệt với các trường đã có trong PDF.
+Submission Autofill nhận bản thảo, conference context và danh sách track để tạo metadata nháp cho form nộp bài. Output chính gồm tiêu đề, tóm tắt, keyword, thông tin tác giả khi trích xuất được và phần Track recommendation để đề xuất các track phù hợp trong danh sách track hợp lệ của hội nghị. Giá trị của workflow này là giảm nhập liệu lặp lại, đặc biệt với các trường đã có trong PDF, đồng thời giảm thao tác dò/chọn track thủ công.
 
 Ranh giới kiểm soát là tác giả. Hệ thống không tự động gửi bài và không khóa các trường do AI tạo. Tác giả phải xem lại, chỉnh sửa và xác nhận trước khi lưu submission chính thức.
 

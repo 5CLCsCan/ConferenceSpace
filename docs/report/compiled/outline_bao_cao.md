@@ -135,7 +135,7 @@ Giải thích AI được đưa vào hệ thống để hỗ trợ công đoạn
 Giới thiệu tổng quan các quy trình trong hệ thống mà AI tham gia xử lý, sau đó phân nhóm theo vai trò người dùng và vị trí của workflow trong quy trình hội nghị. Phần này cần nhấn mạnh rằng mỗi workflow tạo đầu ra hỗ trợ để người dùng kiểm tra lại, không tự động thay thế quyết định học thuật.
 
 ##### 3.5.2.1 Submission Autofill
-Trình bày workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo, gồm trích xuất metadata, chuẩn hóa thông tin, gợi ý keyword và tạo `track_rankings` trong ngữ cảnh Submission Autofill. Mục này cần làm rõ đầu vào, đầu ra, điểm tác giả xác nhận và giới hạn của việc tự động điền thông tin.
+Trình bày workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo, gồm trích xuất metadata, chuẩn hóa thông tin, gợi ý keyword và Track recommendation (gợi ý track) như một phần của Submission Autofill. Mục này cần làm rõ đầu vào, đầu ra, điểm tác giả xác nhận và giới hạn của việc tự động điền thông tin.
 
 ##### 3.5.2.2 Submission Gating
 Trình bày workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc trước khi publish, gồm kiểm tra luật nộp bài, cảnh báo lỗi hình thức và hỗ trợ điều hướng nội dung cần xem lại. Mục này cần tách rõ phần rule deterministic với phần cảnh báo hỗ trợ dùng AI, đồng thời nhấn mạnh workflow không tự động thay Chair loại bài vì nhận định nội dung.
