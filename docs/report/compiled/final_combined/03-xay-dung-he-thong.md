@@ -82,15 +82,17 @@ PostgreSQL là nguồn dữ liệu nghiệp vụ chính vì dữ liệu hội ng
 
 ### 3.2.1. Tác nhân hệ thống
 
-**Tác giả** sử dụng hệ thống để tìm hội nghị, xem track và hạn chót, nộp bài, khai báo xung đột lợi ích, chỉnh sửa bản thảo trước deadline, xem phản biện và gửi rebuttal. Đây là nhóm chịu ảnh hưởng trực tiếp của các vấn đề nhập liệu dài, chọn track khó và thiếu kiểm tra lỗi sớm.
+ConferenceSpace phục vụ ba tác nhân nghiệp vụ chính tương ứng với phạm vi đã xác định ở Chương 1 và các nhóm yêu cầu ở Chương 2.
 
-**Người phản biện** nhận lời mời, xem bài được phân công, đọc bản thảo, nhập điểm và nhận xét, lưu nháp, gửi phản biện và xem rebuttal khi có. Với nhóm này, AI không được dùng để thay thế việc đọc bài. Vai trò hợp lý của AI là cung cấp tóm tắt trung lập, điểm cần kiểm tra và cảnh báo chất lượng bản nháp review để giảm thao tác rà soát thủ công.
+**Tác giả** tìm kiếm hội nghị, theo dõi track và hạn chót, nộp bài, khai báo xung đột lợi ích, quản lý bản nháp, xem phản biện, gửi rebuttal và nộp camera-ready khi bài được chấp nhận. Đây là nhóm chịu ảnh hưởng trực tiếp của biểu mẫu dài, thao tác chọn track và việc lỗi bản thảo thường chỉ được phát hiện ở giai đoạn muộn.
 
-**Chủ tọa/Đồng chủ tọa** cấu hình hội nghị, track, deadline, biểu mẫu phản biện, mời reviewer, kiểm tra xung đột lợi ích, xác nhận phân công, theo dõi tiến độ và đưa ra quyết định cuối cùng. Đây là nhóm cần cả công cụ thuật toán và AI: thuật toán để có matching minh bạch, AI để tổng hợp nhiều nguồn phản biện và phát hiện rủi ro chất lượng.
+**Người phản biện** tiếp nhận lời mời, quản lý các bài được phân công, đọc bản thảo, nhập điểm và nhận xét, lưu nháp, gửi phản biện, tham gia Discussion và xem rebuttal. AI chỉ hỗ trợ định hướng đọc và rà soát chất lượng bản nháp; người phản biện vẫn phải tự đọc bài, hình thành nhận định chuyên môn và chịu trách nhiệm đối với nội dung phản biện.
 
-**Quản trị hệ thống** chịu trách nhiệm vận hành, cấu hình và khắc phục sự cố. Các thao tác này không đại diện cho người dùng học thuật thông thường và được kiểm soát bằng cơ chế xác thực riêng.
+**Chủ tọa/Đồng chủ tọa** tạo và cấu hình hội nghị, quản lý hội đồng chương trình, kiểm tra xung đột lợi ích, xác nhận phân công, theo dõi tiến độ, giám sát trao đổi và đưa ra quyết định cuối cùng. Chair sử dụng thuật toán xác định cho matching và COI, đồng thời có thể dùng AI để rà soát chất lượng phản biện và tổng hợp bằng chứng. Hai lớp hỗ trợ này không thay thế quyền quyết định của Chair.
 
-**Tác nhân hệ thống** gồm AI service, các job nền và các service bên ngoài. AI service có thể gọi backend qua service token trong phạm vi được phép; các job nền xử lý trạng thái quá hạn hoặc đồng bộ dữ liệu.
+Ngoài ba tác nhân chính, hệ thống còn có **tác nhân hỗ trợ**. Quản trị hệ thống thực hiện các thao tác vận hành có xác thực riêng; AI service xử lý các workflow hỗ trợ và chỉ truy vấn dữ liệu qua ranh giới được kiểm soát; các tác vụ nền xử lý trạng thái quá hạn hoặc đồng bộ dữ liệu. Thành viên ban chương trình có thể được cấp quyền đọc trong phạm vi hội nghị, nhưng không được xem là một vai trò nghiệp vụ chính độc lập trong phạm vi báo cáo.
+
+Discussion là use case liên vai trò nhưng quyền của các tác nhân không đối xứng. Trong triển khai hiện tại, reviewer được phân công là người tạo thread; reviewer sở hữu thread và tác giả trao đổi trong thread; Chair có quyền quan sát toàn bộ trao đổi của submission để theo dõi quá trình xử lý và đối chiếu bằng chứng.
 
 ### 3.2.2. Các use case chính
 
@@ -102,136 +104,565 @@ flowchart TD
     Reviewer["Người phản biện"]
     Chair["Chair/Co-chair"]
 
-    subgraph A["Nhóm chức năng Tác giả"]
-        A1["Nộp bài nhiều bước"]
-        A2["Submission Autofill"]
-        A3["Submission Gating"]
-        A4["Xem review và gửi rebuttal"]
+    subgraph AU["Vòng đời Tác giả"]
+        UC01["UC-01 Khám phá và theo dõi hội nghị"]
+        UC02["UC-02 Hoàn tất và kiểm tra bài nộp"]
+        UC03["UC-03 Quản lý vòng đời bài nộp"]
     end
 
-    subgraph R["Nhóm chức năng Reviewer"]
-        R1["Xem bài được phân công"]
-        R2["Reviewer Initial Analysis"]
-        R3["Soạn và gửi phản biện"]
-        R4["Review Quality Auditor"]
+    subgraph RV["Vòng đời Người phản biện"]
+        UC04["UC-04 Tiếp nhận lời mời và quản lý assignment"]
+        UC05["UC-05 Đọc, soạn và gửi phản biện"]
     end
 
-    subgraph C["Nhóm chức năng Chair"]
-        C1["Cấu hình hội nghị"]
-        C2["Phát hiện xung đột lợi ích"]
-        C3["Reviewer matching"]
-        C4["Theo dõi tiến độ"]
-        C5["Chair Decision Copilot"]
+    subgraph CH["Vòng đời Chair"]
+        UC06["UC-06 Phân công và kiểm tra COI"]
+        UC07["UC-07 Quản lý hội nghị và tiến độ"]
+        UC09["UC-09 Tổng hợp bằng chứng và ra quyết định"]
     end
 
-    Author --> A1 --> A2 --> A3 --> A4
-    Reviewer --> R1 --> R2 --> R3 --> R4
-    Chair --> C1 --> C2 --> C3 --> C4 --> C5
+    UC08["UC-08 Trao đổi theo submission"]
+    UC10["UC-10 Chatbot Agent theo ngữ cảnh"]
+
+    Author --> UC01 --> UC02 --> UC03
+    Reviewer --> UC04 --> UC05
+    Chair --> UC07 --> UC06 --> UC09
+
+    Author --> UC08
+    Reviewer --> UC08
+    Chair --> UC08
+
+    Author --> UC10
+    Reviewer --> UC10
+    Chair --> UC10
+
+    UC03 -.->|"rebuttal và camera-ready"| UC09
+    UC05 -.->|"review và cập nhật sau rebuttal"| UC09
+    UC08 -.->|"evidence thảo luận"| UC09
 ```
 
-Các use case trên phản ánh trực tiếp ma trận truy vết ở Chương 2. Luồng của tác giả tập trung vào giảm thao tác thủ công và giảm lỗi trước khi gửi. Luồng của reviewer tập trung vào hỗ trợ đọc, ghi chú và bảo đảm bản phản biện đủ căn cứ. Luồng của Chair tập trung vào kiểm soát rủi ro hệ thống: xung đột lợi ích, tải phản biện, tiến độ và tổng hợp bằng chứng ra quyết định.
+Mười use case trên được chọn theo vòng đời nghiệp vụ thay vì theo endpoint. Ba use case đầu bao phủ hành trình của tác giả từ khám phá hội nghị đến kết quả cuối; hai use case tiếp theo bao phủ quá trình reviewer nhận việc và hoàn tất phản biện; ba use case của Chair bao phủ cấu hình, phân công, giám sát và ra quyết định. Discussion và Chatbot Agent được tách thành hai luồng xuyên vai trò vì chúng phục vụ nhiều không gian làm việc nhưng vẫn chịu cùng một ranh giới phân quyền.
+
+**Hình 3.3. Các cơ chế xuyên vai trò trong use case**
+
+```mermaid
+flowchart LR
+    Author["Tác giả"]
+    Reviewer["Người phản biện"]
+    Chair["Chair/Co-chair"]
+
+    Discussion["Discussion theo submission"]
+    Chatbot["Chatbot Agent"]
+    Notification["Notification routing"]
+    Access["Xác thực và phân quyền theo tài nguyên"]
+
+    Author --> Discussion
+    Reviewer --> Discussion
+    Chair -->|"quan sát"| Discussion
+
+    Author --> Chatbot
+    Reviewer --> Chatbot
+    Chair --> Chatbot
+
+    Discussion --> Notification
+    Chatbot --> Access
+    Discussion --> Access
+    Notification --> Access
+```
+
+Notification và phân quyền không được tách thành use case độc lập vì đây là các cơ chế xuyên suốt. Notification được phát sinh từ các thay đổi trạng thái hoặc trao đổi có liên quan; phân quyền kiểm tra danh tính, vai trò và quyền trên tài nguyên trước khi cho phép thao tác. Cách trình bày này tránh biến các concern kỹ thuật thành chức năng người dùng giả, đồng thời làm rõ chúng hỗ trợ toàn bộ vòng đời như thế nào.
+
+**Bảng 3.1. Truy vết yêu cầu Chương 2 đến use case và thiết kế Chương 3**
+
+| Mã yêu cầu | Use case đáp ứng | Mục thiết kế liên quan |
+|---|---|---|
+| F-AUTHOR-01 | UC-01 | 3.3.2, 3.4.4 |
+| F-AUTHOR-02 | UC-02 | 3.3.2, 3.3.3, 3.3.4 |
+| F-AUTHOR-03 | UC-02 | 3.5.2.1 |
+| F-AUTHOR-04 | UC-02 | 3.5.2.1 |
+| F-AUTHOR-05 | UC-02 | 3.5.2.2 |
+| F-AUTHOR-06 | UC-03, UC-08 | 3.3.2, 3.3.4, 3.4.4 |
+| F-REVIEWER-01 | UC-04 | 3.3.2, 3.3.3 |
+| F-REVIEWER-02 | UC-04, UC-05, UC-08 | 3.3.2, 3.3.3 |
+| F-REVIEWER-03 | UC-05 | 3.3.2, 3.3.4 |
+| F-REVIEWER-04 | UC-05 | 3.5.2.3 |
+| F-REVIEWER-05 | UC-05 | 3.5.2.3, 3.5.2.4 |
+| F-CHAIR-01 | UC-07 | 3.3.2, 3.3.3 |
+| F-CHAIR-02 | UC-07, UC-08 | 3.3.2, 3.4.4 |
+| F-CHAIR-03 | UC-06 | 3.4.2 |
+| F-CHAIR-04 | UC-06 | 3.4.3 |
+| F-CHAIR-05 | UC-06 | 3.4.2, 3.4.3 |
+| F-CHAIR-06 | UC-05 | 3.5.2.4 |
+| F-CHAIR-07 | UC-09 | 3.5.2.5 |
+| F-COMMON-01 | UC-10 | 3.5.2.6 |
+| F-COMMON-02 | Xuyên suốt UC-02 đến UC-09 | 3.3.2, 3.4.4 |
+| F-COMMON-03 | Xuyên suốt cả mười use case | 3.3.3, 3.6.7 |
 
 ### 3.2.3. Đặc tả use case quan trọng
 
-#### UC-01. Nộp bài với Submission Autofill
+Mười đặc tả dưới đây dùng chung một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế, hậu điều kiện và sơ đồ. Phần này tập trung vào mục tiêu người dùng và ranh giới trách nhiệm; shape dữ liệu và các stage nội bộ của workflow AI được trình bày riêng ở mục 3.5.
 
-**Mục tiêu.** Tác giả hoàn thành bản nháp nộp bài với metadata được trích xuất từ bản thảo, trong đó hệ thống có thể gợi ý track dựa trên ngữ cảnh hội nghị.
+#### UC-01. Khám phá và theo dõi hội nghị
 
-**Điều kiện tiên quyết.** Tác giả đã đăng nhập; hội nghị đang mở nhận bài; danh sách track của hội nghị đã được cấu hình; file bản thảo có thể đọc được.
+**Mục tiêu.** Giúp tác giả xác định hội nghị phù hợp, nắm được track và hạn chót trước khi bắt đầu nộp bài. Use case này giải quyết nhu cầu tập trung thông tin mà Chương 2 đã xác định, đồng thời tạo điểm bắt đầu đầy đủ cho vòng đời tác giả.
 
-**Hình 3.3. Luồng nộp bài với Submission Autofill**
+**Tác nhân.** Tác giả đã đăng nhập.
+
+**Sự kiện kích hoạt.** Người dùng mở khu vực khám phá hội nghị.
+
+**Điều kiện tiên quyết.** Người dùng đã xác thực; hội nghị đã được công bố và có thông tin cấu hình cho tác giả xem.
+
+**Luồng chính.**
+
+1. Người dùng xem hoặc tìm kiếm danh sách hội nghị.
+2. Hệ thống áp dụng bộ lọc theo từ khóa, lĩnh vực, track hoặc trạng thái.
+3. Người dùng mở trang hội nghị để xem CFP, track, hạn chót và thông tin liên quan.
+4. Tác giả có thể đánh dấu hội nghị quan tâm hoặc chuyển sang quy trình nộp bài.
+
+**Luồng thay thế và lỗi.** Nếu không có kết quả phù hợp, hệ thống trả danh sách rỗng cùng điều kiện lọc hiện tại. Nếu hội nghị đã đóng nhận bài, người dùng vẫn có thể xem thông tin nhưng không thể bắt đầu một submission mới. Nếu phiên đăng nhập hết hạn, hệ thống yêu cầu xác thực lại trước khi hiển thị danh sách hoặc lưu hội nghị quan tâm.
+
+**Hậu điều kiện.** Tác giả chọn được hội nghị để nộp bài hoặc lưu hội nghị vào danh sách theo dõi.
+
+**Hình 3.4. Luồng khám phá và theo dõi hội nghị**
 
 ```mermaid
 flowchart TD
-    A["Tác giả tải bản thảo"] --> B["Trích xuất nội dung tài liệu"]
-    B --> C{"Nội dung đủ điều kiện?"}
-    C -- "Không" --> D["Trả lỗi có hướng dẫn sửa file"]
-    C -- "Có" --> E["AI tạo metadata và gợi ý track"]
-    E --> F["Validate schema output"]
-    F --> G["Tác giả kiểm tra và chỉnh sửa"]
-    G --> H["Lưu draft submission"]
-    H --> I["Submission Gating kiểm tra draft"]
-    I --> J{"Pass / Warn / Block"}
-    J -- "Block" --> K["Trả cảnh báo và yêu cầu sửa trước khi gửi"]
-    J -- "Pass/Warn" --> L["Khai báo COI và gửi bài chính thức"]
+    A["Mở danh sách hội nghị"] --> B{"Phiên đăng nhập hợp lệ?"}
+    B -- "Không" --> C["Yêu cầu xác thực lại"]
+    B -- "Có" --> D["Tìm kiếm hoặc lọc"]
+    D --> E["Xem CFP, track và hạn chót"]
+    E --> F{"Hội nghị còn nhận bài?"}
+    F -- "Không" --> G["Chỉ cho phép xem và theo dõi"]
+    F -- "Có" --> H{"Tác giả chọn hành động"}
+    H -- "Đánh dấu quan tâm" --> I["Lưu hội nghị quan tâm"]
+    H -- "Nộp bài" --> J["Chuyển sang UC-02"]
 ```
 
-Workflow này không tự động gửi bài thay tác giả. Output từ AI chỉ là bản nháp gồm tiêu đề, tóm tắt, keyword, thông tin liên quan và gợi ý track phù hợp với danh sách track của hội nghị. Tác giả vẫn phải xem lại, chỉnh sửa và xác nhận trước khi gửi. Trước khi submission được gửi chính thức, Submission Gating đóng vai trò như một lớp kiểm tra draft ở cổng nộp bài: hệ thống có thể cảnh báo hoặc chặn các bản nộp không đáp ứng policy/hình thức rõ ràng, nhưng không đưa ra kết luận học thuật thay Chair hoặc reviewer. Thiết kế này giải quyết vấn đề biểu mẫu dài và phát hiện lỗi muộn ở Chương 2 nhưng vẫn giữ quyền kiểm soát của người dùng.
+Use case này chỉ mô tả hành trình tìm và chọn hội nghị. Việc điền form, kiểm tra bản thảo và gửi chính thức thuộc UC-02, tránh gộp hai mục tiêu người dùng khác nhau vào cùng một đặc tả.
 
-Các trường hợp lỗi được xử lý rõ: nếu file không đọc được, text extraction thấp hoặc dữ liệu không đủ căn cứ, workflow trả lỗi thay vì tạo metadata thiếu cơ sở. Đây là điểm quan trọng vì một hệ thống AI trong bối cảnh học thuật không được “đoán cho đủ form” khi bản thảo đầu vào không đủ tin cậy.
+#### UC-02. Hoàn tất và kiểm tra bài nộp
 
-#### UC-02. Phân công phản biện có kiểm tra xung đột lợi ích
+**Mục tiêu.** Giúp tác giả tạo submission đầy đủ, giảm nhập liệu lặp lại và phát hiện lỗi trước khi gửi chính thức, nhưng vẫn giữ tác giả là người xác nhận toàn bộ dữ liệu.
 
-**Mục tiêu.** Chair nhận được gợi ý phân công reviewer có điểm phù hợp, không vi phạm xung đột lợi ích và có thể kiểm tra/ghi đè trước khi lưu.
+**Tác nhân.** Tác giả; AI service là tác nhân hỗ trợ cho Submission Autofill và Submission Gating.
 
-**Điều kiện tiên quyết.** Hội nghị có bài nộp hợp lệ; reviewer đã được mời hoặc đăng ký; dữ liệu domain/keyword và thông tin xung đột lợi ích đủ để tính toán.
+**Sự kiện kích hoạt.** Tác giả chọn nộp bài vào một hội nghị đang mở.
 
-**Hình 3.4. Luồng reviewer matching và xung đột lợi ích**
+**Điều kiện tiên quyết.** Tác giả đã đăng nhập; hội nghị còn nhận bài; danh sách track và policy nộp bài đã được cấu hình.
+
+**Luồng chính.**
+
+1. Tác giả tạo draft và tải bản thảo.
+2. Khi tác giả yêu cầu Autofill, hệ thống trích xuất metadata và có thể gợi ý track trong danh sách hợp lệ của hội nghị.
+3. Tác giả kiểm tra, chỉnh sửa hoặc nhập bổ sung tiêu đề, tóm tắt, keyword, thông tin tác giả và track.
+4. Tác giả khai báo xung đột lợi ích và xem lại toàn bộ submission.
+5. Submission Gating kiểm tra file, policy và các điều kiện pre-check.
+6. Tác giả xử lý cảnh báo rồi xác nhận gửi bài chính thức.
+
+**Luồng thay thế và lỗi.** Nếu file không đọc được hoặc Autofill lỗi, form thủ công vẫn hoạt động. Kết quả `warn` cho phép tác giả xem cảnh báo và tiếp tục theo policy; kết quả `block` chỉ ngăn gửi khi lỗi hình thức hoặc policy có căn cứ chưa được sửa. Nếu deadline đã qua, hệ thống không cho publish submission.
+
+**Hậu điều kiện.** Submission được lưu ở trạng thái draft hoặc chuyển sang trạng thái đã gửi sau khi tác giả xác nhận.
+
+**Hình 3.5. Luồng hoàn tất và kiểm tra bài nộp**
+
+```mermaid
+flowchart TD
+    A["Tạo draft và tải bản thảo"] --> B{"Dùng Submission Autofill?"}
+    B -- "Có" --> C["Trích xuất metadata và gợi ý track"]
+    B -- "Không" --> D["Nhập metadata thủ công"]
+    C --> E["Tác giả kiểm tra và chỉnh sửa"]
+    D --> E
+    C -.->|"Lỗi hoặc thiếu căn cứ"| D
+    E --> F["Khai báo COI và xem lại"]
+    F --> G["Submission Gating"]
+    G --> H{"Verdict"}
+    H -- "pass" --> I["Cho phép gửi"]
+    H -- "warn" --> J["Hiển thị cảnh báo"]
+    J --> I
+    H -- "block" --> K["Yêu cầu sửa lỗi có căn cứ"]
+    K --> E
+    I --> L["Tác giả xác nhận gửi chính thức"]
+```
+
+Gợi ý track không phải một workflow độc lập; đây là một khả năng trong Submission Autofill. Tương tự, Submission Gating chỉ kiểm tra điều kiện gửi và không đưa ra quyết định học thuật về chất lượng paper.
+
+#### UC-03. Quản lý vòng đời bài nộp
+
+**Mục tiêu.** Cho phép tác giả theo dõi và thực hiện các thao tác hợp lệ trên submission từ draft đến kết quả cuối, thay vì chỉ hỗ trợ thời điểm nộp bài ban đầu.
+
+**Tác nhân.** Tác giả; Chair là tác nhân tạo quyết định hoặc mở các giai đoạn liên quan.
+
+**Sự kiện kích hoạt.** Tác giả mở danh sách bài đã tạo hoặc nhận thông báo thay đổi trạng thái.
+
+**Điều kiện tiên quyết.** Tác giả sở hữu submission và đã được xác thực.
+
+**Luồng chính.**
+
+1. Tác giả xem danh sách bài, trạng thái và hạn chót liên quan.
+2. Với draft, tác giả tiếp tục chỉnh sửa; form định kỳ autosave các thay đổi.
+3. Với bài đã gửi, tác giả theo dõi trạng thái và xem review khi được công bố.
+4. Khi rebuttal được mở, tác giả gửi phản hồi theo cấu hình hội nghị.
+5. Sau khi Chair công bố quyết định, tác giả xem kết quả.
+6. Nếu bài được chấp nhận, tác giả tải lên bản camera-ready theo yêu cầu hội nghị.
+
+**Luồng thay thế và lỗi.** Việc sửa, rút bài hoặc gửi rebuttal bị từ chối nếu trạng thái hoặc deadline không cho phép. Camera-ready chỉ được nhận khi submission đã được chấp nhận và file tải lên hợp lệ. Nếu autosave lỗi, hệ thống giữ trạng thái chưa lưu để tác giả chủ động thử lại.
+
+**Hậu điều kiện.** Trạng thái submission hoặc artifact tương ứng được cập nhật theo transition nghiệp vụ hợp lệ.
+
+**Hình 3.6. Vòng đời thao tác của tác giả trên submission**
+
+```mermaid
+flowchart TD
+    A["draft"] -->|"Tác giả xác nhận gửi"| B["published"]
+    A -->|"Chỉnh sửa"| A
+    B -->|"Bắt đầu phản biện"| C["reviewing"]
+    B -->|"Rút bài khi được phép"| D["withdrawn"]
+    C --> E["Tác giả xem review"]
+    E --> F{"Giai đoạn rebuttal được mở?"}
+    F -- "Có" --> G["Tác giả gửi rebuttal"]
+    F -- "Không" --> H["Chờ quyết định"]
+    G --> H
+    H --> I{"Quyết định của Chair"}
+    I -- "Chấp nhận" --> J["accepted"]
+    I -- "Từ chối" --> K["rejected"]
+    J --> L["Tác giả tải camera-ready"]
+```
+
+Hệ thống hiện hỗ trợ tác giả tải lên và truy xuất camera-ready khi bài đã accepted, nhưng chưa có workflow Chair phê duyệt, cưỡng chế deadline camera-ready ở runtime hoặc yêu cầu nộp lại bản camera-ready. Vì vậy, use case không mở rộng hành vi vượt quá phạm vi triển khai.
+
+#### UC-04. Tiếp nhận lời mời và quản lý bài được phân công
+
+**Mục tiêu.** Tạo một đường chuyển rõ từ lời mời của Chair đến workspace phản biện, giúp reviewer biết mình được mời vào hội nghị nào, đã nhận bài nào và cần hoàn thành việc gì.
+
+**Tác nhân.** Người phản biện là tác nhân chính; Chair và hệ thống email là tác nhân phối hợp.
+
+**Sự kiện kích hoạt.** Chair gửi lời mời tham gia hội nghị hoặc hệ thống ghi nhận một assignment mới.
+
+**Điều kiện tiên quyết.** Hội nghị tồn tại; Chair có quyền mời; địa chỉ email người nhận hợp lệ.
+
+**Luồng chính.**
+
+1. Chair gửi lời mời cho reviewer trong hoặc ngoài hệ thống.
+2. Hệ thống lưu lời mời và gửi thông báo qua kênh phù hợp.
+3. Reviewer mở lời mời, xem thông tin hội nghị và chấp nhận hoặc từ chối.
+4. Sau khi được phân công, reviewer mở dashboard để xem bài, deadline và trạng thái.
+5. Reviewer chọn assignment hợp lệ và chuyển sang workspace phản biện ở UC-05.
+
+**Luồng thay thế và lỗi.** Token lời mời không hợp lệ hoặc đã hết hiệu lực không được chấp nhận. Nếu reviewer từ chối, lý do được ghi nhận để Chair điều chỉnh phân công. Người dùng không sở hữu assignment bị từ chối truy cập.
+
+**Hậu điều kiện.** Trạng thái lời mời được cập nhật; assignment hợp lệ trở thành đầu vào của quá trình phản biện.
+
+**Hình 3.7. Luồng tiếp nhận lời mời và mở assignment**
+
+```mermaid
+sequenceDiagram
+    actor Chair
+    participant BE as Backend
+    participant Mail as Email/Notification
+    actor Reviewer
+    participant UI as Reviewer workspace
+
+    Chair->>BE: Gửi lời mời
+    BE->>Mail: Phát thông báo hoặc email
+    Mail-->>Reviewer: Thông tin lời mời
+    Reviewer->>BE: Chấp nhận hoặc từ chối
+    BE-->>Reviewer: Cập nhật trạng thái
+    alt Reviewer chấp nhận và được phân công
+        Reviewer->>UI: Mở dashboard
+        UI->>BE: Lấy danh sách assignment hợp lệ
+        BE-->>UI: Bài, deadline và trạng thái
+        Reviewer->>UI: Mở workspace phản biện
+    else Reviewer từ chối
+        BE-->>Chair: Cập nhật trạng thái để phân công lại
+    end
+```
+
+Use case này kết thúc ở thời điểm reviewer mở assignment. Hoạt động đọc, lưu nháp và gửi phản biện được tách sang UC-05 để giữ mỗi đặc tả có một mục tiêu chính.
+
+#### UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ
+
+**Mục tiêu.** Hỗ trợ reviewer quản lý quá trình đọc và hoàn thiện phản biện, đồng thời giữ toàn bộ nhận định chuyên môn và nội dung review thuộc trách nhiệm của reviewer.
+
+**Tác nhân.** Người phản biện; AI service hỗ trợ Reviewer Initial Analysis và Review Quality Auditor.
+
+**Sự kiện kích hoạt.** Reviewer mở một assignment mà mình có quyền truy cập.
+
+**Điều kiện tiên quyết.** Assignment đã được xác nhận; reviewer sở hữu assignment; bản thảo có thể truy cập.
+
+**Luồng chính.**
+
+1. Hệ thống tải bản thảo, metadata, deadline và review form.
+2. Reviewer có thể yêu cầu Reviewer Initial Analysis để nhận briefing ban đầu.
+3. Reviewer đọc bài, đối chiếu briefing với bản thảo và tự hình thành đánh giá.
+4. Reviewer nhập điểm, nhận xét, recommendation và confidence; bản nháp có thể được lưu qua nhiều phiên.
+5. Trước khi gửi, Review Quality Auditor kiểm tra tính sử dụng được của bản review.
+6. Reviewer xem findings, chỉnh sửa khi cần và xác nhận gửi phản biện.
+7. Khi có rebuttal, reviewer có thể acknowledgement và cập nhật đánh giá sau rebuttal nếu bằng chứng mới làm thay đổi nhận định.
+
+**Luồng thay thế và lỗi.** Nếu Initial Analysis không khả dụng hoặc artifact đã stale, reviewer vẫn đọc bài và tiếp tục thủ công. Auditor trả `warn` để reviewer cân nhắc; `block` chỉ áp dụng cho nhóm lỗi nặng theo mode gửi chính thức. Nếu AI lỗi hoặc tạo false block, reviewer phải nhận được thông báo rõ; giới hạn và hướng hậu kiểm được giải thích ở mục 3.5.2.4.
+
+**Hậu điều kiện.** Review được lưu nháp hoặc gửi chính thức; mọi thay đổi sau rebuttal được gắn với assignment tương ứng.
+
+**Hình 3.8. Vòng đời đọc và hoàn thiện phản biện**
+
+```mermaid
+flowchart TD
+    A["Reviewer mở assignment"] --> B["Tải bài, deadline và review form"]
+    B --> C{"Yêu cầu Initial Analysis?"}
+    C -- "Có" --> D["Tải hoặc sinh briefing có fingerprint"]
+    C -- "Không" --> E["Reviewer đọc bản thảo"]
+    D --> E
+    D -.->|"Không khả dụng hoặc stale"| E
+    E --> F["Nhập điểm, nhận xét và confidence"]
+    F --> G{"Lưu nháp hay gửi?"}
+    G -- "Lưu nháp" --> H["Lưu để tiếp tục sau"]
+    G -- "Gửi" --> I["Review Quality Auditor"]
+    I --> J{"pass / warn / block"}
+    J -- "pass" --> K["Reviewer xác nhận gửi"]
+    J -- "warn" --> L["Reviewer xem finding và quyết định"]
+    L --> K
+    J -- "block" --> M["Sửa lỗi tối thiểu hoặc xử lý ngoại lệ"]
+    M --> F
+    K --> N["Xem rebuttal và cập nhật nếu cần"]
+```
+
+Reviewer Initial Analysis có thể giảm thao tác truy vết và đọc lại để tìm các điểm cần chú ý, nhưng không thay thế việc đọc bài. Review Quality Auditor kiểm tra chất lượng sử dụng của review, không đánh giá giá trị học thuật của paper và không được thay đổi điểm hoặc recommendation của reviewer.
+
+#### UC-06. Phân công phản biện có kiểm tra xung đột lợi ích
+
+**Mục tiêu.** Cung cấp cho Chair một proposal phân công có điểm phù hợp, loại trừ xung đột lợi ích và có thể kiểm tra trước khi xác nhận.
+
+**Tác nhân.** Chair/Co-chair.
+
+**Sự kiện kích hoạt.** Chair bắt đầu giai đoạn phân công hoặc yêu cầu hệ thống tạo gợi ý.
+
+**Điều kiện tiên quyết.** Hội nghị có submission hợp lệ; reviewer đã được mời hoặc đăng ký; dữ liệu domain/keyword và thông tin COI đủ để xử lý.
+
+**Luồng chính.**
+
+1. Hệ thống chuẩn bị tập submission và reviewer hợp lệ.
+2. Mỗi cặp được tính Domain Jaccard score từ keyword và domain.
+3. Các COI detector kiểm tra self-author, khai báo thủ công và quan hệ đồng tác giả.
+4. Cặp có COI bị loại khỏi tập ứng viên.
+5. Thuật toán greedy tạo proposal theo điểm, tải reviewer và số reviewer cần thiết.
+6. Chair xem điểm, lý do, các bài chưa đủ reviewer và điều chỉnh khi cần.
+7. Chair xác nhận proposal trước khi assignment được lưu.
+
+**Luồng thay thế và lỗi.** Nếu Neo4j hoặc nguồn dữ liệu học thuật không khả dụng, hệ thống vẫn giữ các lớp COI còn lại và nêu rõ phần bằng chứng bị thiếu. Fallback có thể nới ngưỡng điểm hoặc tải nhưng không nới COI. Khi tín hiệu phù hợp quá yếu hoặc thiếu reviewer, Chair chuyển sang phân công thủ công.
+
+**Hậu điều kiện.** Proposal được tạo để Chair xem hoặc assignment được lưu sau xác nhận.
+
+**Hình 3.9. Luồng phân công phản biện và kiểm tra COI**
 
 ```mermaid
 flowchart TD
     A["Submission keywords"] --> C["Tính Domain Jaccard score"]
     B["Reviewer domains"] --> C
-    C --> D["Tạo ma trận score"]
+    C --> D["Tạo ma trận ứng viên"]
     D --> E["Chạy COI detectors"]
     E --> F{"Cặp có COI?"}
-    F -- "Có" --> G["Loại khỏi ứng viên phân công"]
+    F -- "Có" --> G["Loại cặp và lưu bằng chứng"]
     F -- "Không" --> H["Greedy assignment theo score và tải"]
     H --> I{"Bài chưa đủ reviewer?"}
-    I -- "Có" --> J["Fallback nhưng vẫn giữ COI là ràng buộc cứng"]
-    I -- "Không" --> K["Chair xem và xác nhận"]
+    I -- "Có" --> J["Fallback nhưng giữ COI là ràng buộc cứng"]
+    I -- "Không" --> K["Tạo proposal"]
     J --> K
+    K --> L["Chair kiểm tra, điều chỉnh và xác nhận"]
 ```
 
-Điểm phù hợp giữa bài và reviewer được tính bằng Jaccard similarity trên tập keyword/domain:
+Điểm phù hợp được tính bằng Jaccard similarity:
 
 ```text
 score = |submission_keywords ∩ reviewer_domains| / |submission_keywords ∪ reviewer_domains|
 ```
 
-Sau đó, thuật toán greedy sắp xếp các cặp theo điểm giảm dần và gán reviewer theo các ràng buộc: không có xung đột lợi ích, không vượt tải reviewer, không vượt số reviewer tối đa mỗi bài và đạt ngưỡng điểm tối thiểu nếu có. Nếu một bài chưa có reviewer nào, fallback pass có thể nới ràng buộc tải hoặc ngưỡng điểm, nhưng **không nới xung đột lợi ích**. Điều này giúp hệ thống ưu tiên tính toàn vẹn học thuật hơn việc lấp đầy phân công bằng mọi giá.
+Reviewer matching là thuật toán xác định, không phải workflow AI. Chair có thể ghi đè proposal, nhưng mọi assignment cuối cùng vẫn phải tuân thủ kiểm tra quyền và xung đột lợi ích.
 
-#### UC-03. Reviewer Initial Analysis và Review Quality Auditor
+#### UC-07. Quản lý hội nghị và theo dõi tiến độ
 
-**Mục tiêu.** Người phản biện nhận được hỗ trợ đọc ban đầu và kiểm tra chất lượng bản nháp review, nhưng vẫn giữ trách nhiệm đọc bài và viết phản biện.
+**Mục tiêu.** Cung cấp cho Chair một luồng quản trị xuyên suốt từ cấu hình hội nghị đến theo dõi các điểm nghẽn trước khi ra quyết định.
 
-**Hình 3.5. Luồng hỗ trợ người phản biện**
+**Tác nhân.** Chair/Co-chair.
+
+**Sự kiện kích hoạt.** Chair tạo hội nghị mới hoặc mở dashboard của hội nghị đang phụ trách.
+
+**Điều kiện tiên quyết.** Người dùng đã xác thực và có quyền Chair/Co-chair đối với hội nghị.
+
+**Luồng chính.**
+
+1. Chair tạo hoặc cập nhật thông tin hội nghị, track, deadline, review form và policy.
+2. Chair mời và quản lý committee/reviewer.
+3. Dashboard tổng hợp số bài, tiến độ review, COI và các trường hợp cần xử lý.
+4. Chair chuyển tới luồng phân công khi dữ liệu đầu vào đã sẵn sàng.
+5. Sau giai đoạn review, Chair cấu hình, mở và kết thúc rebuttal.
+6. Chair theo dõi review, Discussion và thay đổi sau rebuttal trước khi chuyển sang UC-09.
+
+**Luồng thay thế và lỗi.** Cấu hình có deadline không hợp lệ hoặc thiếu trường bắt buộc không được lưu. Nếu thiếu reviewer hoặc review chưa đủ, dashboard giữ trạng thái cần xử lý và không xem đó là giai đoạn đã hoàn tất. Người dùng không có quyền bị từ chối thao tác ghi.
+
+**Hậu điều kiện.** Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chair được cập nhật.
+
+**Hình 3.10. Luồng quản lý hội nghị và theo dõi tiến độ**
 
 ```mermaid
 flowchart TD
-    A["Reviewer mở bài được phân công"] --> B["Tạo submission fingerprint"]
-    B --> C{"Có artifact hợp lệ?"}
-    C -- "Có" --> D["Trả phân tích đã lưu"]
-    C -- "Không" --> E["Trích xuất nội dung bản thảo"]
-    E --> F["LLM tạo tóm tắt trung lập và điểm cần kiểm tra"]
-    F --> G["Reviewer đọc bài và viết phản biện"]
-    G --> H["Review Quality Auditor kiểm tra bản nháp"]
-    H --> I{"Pass / Warn / Block"}
-    I --> J["Reviewer chỉnh sửa hoặc gửi chính thức"]
+    A["Tạo hoặc mở hội nghị"] --> B["Cấu hình track, deadline, form và policy"]
+    B --> C{"Cấu hình hợp lệ?"}
+    C -- "Không" --> B
+    C -- "Có" --> D["Mời committee và reviewer"]
+    D --> E["Theo dõi submission, review và COI"]
+    E --> F{"Có điểm nghẽn?"}
+    F -- "Thiếu reviewer" --> G["Điều chỉnh lời mời hoặc phân công"]
+    F -- "Review trễ hoặc thiếu" --> H["Theo dõi và nhắc việc"]
+    F -- "Không" --> I["Mở hoặc quản lý rebuttal"]
+    G --> E
+    H --> E
+    I --> J["Theo dõi Discussion và cập nhật sau rebuttal"]
+    J --> K["Chuyển sang UC-09"]
 ```
 
-Reviewer Initial Analysis không phải là bản review tự động. Nó chỉ cung cấp bối cảnh đọc ban đầu: tóm tắt trung lập, đóng góp chính, điểm cần kiểm tra và câu hỏi nên chú ý. Luận điểm thiết kế ở đây là AI có thể giảm số lần reviewer phải đọc lại toàn bộ bài chỉ để truy vết các điểm cần chú ý, từ đó giúp reviewer tập trung vào phần quan trọng hơn của phản biện chuyên môn.
+Dashboard không chỉ hiển thị thống kê mà còn giúp Chair nhận biết các trạng thái chưa đủ điều kiện để chuyển giai đoạn. Các cơ chế deadline, notification và chuyển trạng thái được trình bày tại mục 3.4.4.
 
-Review Quality Auditor kiểm tra bản nháp review theo rubric: mức độ đầy đủ, tính cụ thể, sự nhất quán giữa điểm và nhận xét, khả năng thiếu căn cứ hoặc quá ngắn. Auditor có thể trả trạng thái `pass`, `warn` hoặc `block`, nhưng không đánh giá thay reviewer về đúng/sai chuyên môn của bài báo.
+#### UC-08. Trao đổi theo submission
 
-#### UC-04. Chair Decision Copilot
+**Mục tiêu.** Cho phép reviewer và tác giả trao đổi có cấu trúc quanh một submission, đồng thời cung cấp cho Chair lịch sử thảo luận để giám sát và đối chiếu khi ra quyết định.
 
-**Mục tiêu.** Chair nhận được bản tổng hợp có cấu trúc từ các review, rebuttal và thảo luận nội bộ để ra quyết định có căn cứ hơn.
+**Tác nhân.** Reviewer được phân công và tác giả là hai bên trao đổi; Chair/Co-chair là tác nhân giám sát.
 
-**Hình 3.6. Luồng Chair Decision Copilot**
+**Sự kiện kích hoạt.** Reviewer được phân công tạo một thread trong giai đoạn reviewing.
+
+**Điều kiện tiên quyết.** Submission tồn tại; conference ở trạng thái reviewing; reviewer có assignment hợp lệ.
+
+**Luồng chính.**
+
+1. Reviewer tạo thread với tiêu đề và message đầu tiên.
+2. Hệ thống liên kết thread với submission, conference và reviewer tạo thread.
+3. Tác giả nhận notification và mở thread liên quan đến bài của mình.
+4. Tác giả và reviewer sở hữu thread trao đổi message; participant hợp lệ có thể dùng tệp đính kèm.
+5. Reviewer chỉ xem thread của mình; Chair xem toàn bộ thread và message của submission.
+6. Nội dung Discussion trở thành một nguồn evidence cho Chair Decision Copilot.
+
+**Luồng thay thế và lỗi.** Author hoặc Chair không thể tạo thread theo chính sách backend hiện tại. Reviewer khác không được xem hoặc ghi vào thread không thuộc mình. Khi conference không ở giai đoạn reviewing, hệ thống từ chối tạo thread hoặc thêm message. Tệp vượt giới hạn hoặc người dùng không phải participant bị từ chối.
+
+**Hậu điều kiện.** Thread và message được lưu; bên liên quan nhận notification; lịch sử trao đổi gắn với submission.
+
+**Hình 3.11. Luồng Discussion giữa các vai trò**
+
+```mermaid
+sequenceDiagram
+    actor Reviewer
+    participant BE as Backend
+    participant DB as PostgreSQL
+    participant N as Notification
+    actor Author
+    actor Chair
+
+    Reviewer->>BE: Tạo thread cho submission
+    BE->>BE: Kiểm tra assignment và trạng thái reviewing
+    BE->>DB: Lưu thread và message đầu tiên
+    BE->>N: Thông báo cho tác giả
+    N-->>Author: Có Discussion mới
+    Author->>BE: Mở thread và gửi phản hồi
+    BE->>DB: Lưu message
+    BE->>N: Thông báo reviewer
+    Reviewer->>BE: Tiếp tục trao đổi
+    BE->>DB: Lưu message
+    Chair->>BE: Xem toàn bộ thread của submission
+    BE-->>Chair: Lịch sử Discussion ở chế độ quan sát
+```
+
+Database đã có trường `visibility` cho thread, nhưng truy vấn backend hiện chưa cưỡng chế đầy đủ việc lọc thread theo các mức visibility. Giao diện Chair cũng có control tạo thread và gửi message trong khi backend từ chối hai thao tác này. Vì vậy, báo cáo chỉ khẳng định mô hình quyền đã được kiểm chứng bằng backend và test: reviewer tạo thread, author/reviewer trao đổi, Chair quan sát. Visibility nhiều tầng được xem là phần thiết kế chưa hoàn thiện, không phải bảo đảm bảo mật đã được chứng minh.
+
+#### UC-09. Tổng hợp bằng chứng hỗ trợ Chair ra quyết định
+
+**Mục tiêu.** Giúp Chair đối chiếu nhiều nguồn bằng chứng hiệu quả hơn nhưng không chuyển trách nhiệm accept/reject sang AI.
+
+**Tác nhân.** Chair/Co-chair; AI service là tác nhân hỗ trợ.
+
+**Sự kiện kích hoạt.** Chair mở submission ở giai đoạn chuẩn bị quyết định hoặc yêu cầu sinh lại bản tổng hợp.
+
+**Điều kiện tiên quyết.** Chair có quyền trên hội nghị; submission có dữ liệu review hoặc evidence phù hợp để tổng hợp.
+
+**Luồng chính.**
+
+1. Backend thu thập review, điểm số, rebuttal, thay đổi sau rebuttal và Discussion.
+2. Hệ thống tạo evidence fingerprint và kiểm tra artifact hiện có.
+3. Nếu artifact còn hợp lệ, hệ thống trả bản tổng hợp đã lưu; nếu stale hoặc chưa có, Chair Decision Copilot tạo artifact mới.
+4. Output làm rõ đồng thuận, bất đồng, vấn đề còn mở và evidence liên quan.
+5. Chair đối chiếu output với dữ liệu gốc.
+6. Chair tự đưa ra và lưu quyết định cuối cùng.
+
+**Luồng thay thế và lỗi.** Nếu dữ liệu chưa đủ, hệ thống nêu rõ phần evidence bị thiếu. Khi AI service lỗi, Chair vẫn xem review, rebuttal và Discussion gốc để tiếp tục xử lý. Artifact cũ bị đánh dấu stale khi evidence thay đổi.
+
+**Hậu điều kiện.** Bản tổng hợp có cấu trúc được lưu như artifact hỗ trợ; quyết định cuối cùng chỉ được tạo bởi Chair.
+
+**Hình 3.12. Luồng tổng hợp bằng chứng và ra quyết định**
 
 ```mermaid
 flowchart TD
-    A["Chair mở submission"] --> B["Thu thập review, điểm, rebuttal và discussion"]
+    A["Chair mở submission"] --> B["Thu thập review, điểm, rebuttal và Discussion"]
     B --> C["Tạo evidence fingerprint"]
     C --> D{"Artifact còn hợp lệ?"}
     D -- "Có" --> E["Tải bản tổng hợp đã lưu"]
-    D -- "Không" --> F["LLM tổng hợp đồng thuận, bất đồng và điểm cần xem xét"]
-    F --> G["Validate output và lưu artifact"]
-    G --> H["Chair đọc, kiểm tra và quyết định"]
+    D -- "Không" --> F["Copilot tổng hợp đồng thuận, bất đồng và vấn đề mở"]
+    F --> G["Validate và lưu artifact"]
+    E --> H["Chair đối chiếu với evidence gốc"]
+    G --> H
+    F -.->|"AI service lỗi"| H
+    H --> I["Chair đưa ra và lưu quyết định"]
 ```
 
-Copilot không sinh quyết định accept/reject và không đưa ra kết luận thay Chair. Output tập trung vào bằng chứng: reviewer nào đồng thuận, reviewer nào bất đồng, rebuttal có trả lời được điểm nào, còn vấn đề nào chưa được giải quyết. Đây là ranh giới quan trọng để tránh tạo áp lực vô hình lên quyết định cuối cùng.
+Copilot không sinh quyết định hoặc recommendation accept/reject. Việc tách rõ bước tổng hợp và bước Chair quyết định là ranh giới bắt buộc để tránh AI tạo áp lực vô hình lên kết luận học thuật.
+
+#### UC-10. Truy vấn trạng thái và hướng dẫn theo ngữ cảnh bằng Chatbot Agent
+
+**Mục tiêu.** Giúp tác giả, reviewer và Chair tra cứu trạng thái, thao tác hoặc dữ liệu trong phạm vi quyền mà không phải tự dò qua nhiều màn hình.
+
+**Tác nhân.** Tác giả, Người phản biện và Chair; AI service và Backend Query Engine là tác nhân hỗ trợ.
+
+**Sự kiện kích hoạt.** Người dùng gửi câu hỏi trong Chatbot Agent.
+
+**Điều kiện tiên quyết.** Người dùng đã xác thực; agent và backend query endpoint được cấu hình; câu hỏi nằm trong phạm vi hỗ trợ của nền tảng.
+
+**Luồng chính.**
+
+1. Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại.
+2. Agent xác định có thể trả lời trực tiếp hay cần dữ liệu hệ thống.
+3. Nếu cần dữ liệu, agent gửi yêu cầu có cấu trúc tới backend query endpoint.
+4. Backend kiểm tra user token, service token, resource registry, field và quyền trên tài nguyên.
+5. Backend trả dữ liệu tối thiểu được phép; agent tổng hợp câu trả lời theo vai trò.
+6. Câu trả lời và trạng thái tool call được trả về giao diện.
+
+**Luồng thay thế và lỗi.** Query ngoài registry, field không được phép hoặc tài nguyên vượt quyền bị từ chối. Nếu tool call hoặc AI service lỗi, hệ thống trả lỗi rõ thay vì tạo dữ liệu giả. Với câu hỏi không cần dữ liệu, agent có thể trả lời hướng dẫn mà không gọi backend.
+
+**Hậu điều kiện.** Người dùng nhận câu trả lời bám dữ liệu được phép hoặc lỗi có giải thích; agent không truy vấn database trực tiếp.
+
+**Hình 3.13. Luồng Chatbot Agent theo ngữ cảnh và quyền truy cập**
+
+```mermaid
+sequenceDiagram
+    actor User as Người dùng
+    participant FE as Frontend
+    participant AI as AI Service
+    participant BE as Backend Query Engine
+    participant DB as Nguồn dữ liệu nghiệp vụ
+
+    User->>FE: Gửi câu hỏi
+    FE->>AI: Message, thread và page context
+    AI->>AI: Xác định có cần dữ liệu hệ thống
+    alt Cần dữ liệu
+        AI->>BE: Query có user token và service token
+        BE->>BE: Kiểm tra registry, field và quyền
+        BE->>DB: Truy vấn dữ liệu được phép
+        DB-->>BE: Kết quả tối thiểu
+        BE-->>AI: Dữ liệu có cấu trúc
+    else Không cần dữ liệu
+        AI->>AI: Tạo hướng dẫn từ ngữ cảnh
+    end
+    AI-->>FE: Câu trả lời và trạng thái xử lý
+    FE-->>User: Hiển thị kết quả
+```
+
+Chatbot Agent là khả năng dùng chung của nền tảng, không thuộc riêng Chair. Ranh giới xác thực kép và resource registry bảo đảm service token không trở thành quyền truy cập dữ liệu không giới hạn.
 
 ---
 
@@ -253,7 +684,7 @@ Các thành phần chính gồm:
 
 Backend là ranh giới nghiệp vụ chính. Frontend không gọi trực tiếp database hoặc AI provider; AI service không tự ý truy cập toàn bộ dữ liệu nghiệp vụ ngoài các repository/query endpoint được kiểm soát. Cách tổ chức này giúp giảm rủi ro lộ dữ liệu bản thảo khi đưa AI vào hệ thống.
 
-**Hình 3.7. Kiến trúc service và ranh giới dữ liệu**
+**Hình 3.14. Kiến trúc service và ranh giới dữ liệu**
 
 ```mermaid
 flowchart TD
@@ -276,7 +707,7 @@ Frontend của ConferenceSpace được xây dựng bằng Next.js App Router, R
 
 UI sử dụng Radix UI và Tailwind CSS để chuẩn hóa các primitive tương tác như dialog, select, tabs, tooltip và menu [4][5]. Giá trị của lựa chọn này nằm ở tính nhất quán: các luồng phức tạp được chia thành bước rõ, trạng thái quan trọng được hiển thị bằng bảng và badge, còn các hành động nguy cơ cao như gửi bài hoặc quyết định cuối cùng cần có bước xác nhận.
 
-**Hình 3.8. Tổ chức frontend theo vai trò**
+**Hình 3.15. Tổ chức frontend theo vai trò**
 
 ```mermaid
 flowchart LR
@@ -294,11 +725,13 @@ flowchart LR
 
 Frontend cũng đóng vai trò kiểm soát trải nghiệm AI. Kết quả AI không được trình bày như kết luận cuối cùng, mà như bản nháp, cảnh báo hoặc bằng chứng cần kiểm tra. Ví dụ, gợi ý track trong Submission Autofill hiển thị để tác giả chọn/chỉnh sửa; Reviewer Initial Analysis hiển thị như briefing đọc bài; Chair Decision Copilot hiển thị như bản tổng hợp cần Chair đối chiếu với review gốc.
 
+Ba workspace hiện thực hóa các vòng đời đã đặc tả ở mục 3.2. Author workspace nối luồng khám phá, nộp bài và quản lý submission; Reviewer workspace nối lời mời, assignment, review editor và Discussion; Chair console nối cấu hình hội nghị, phân công, giám sát tiến độ, Discussion và quyết định. Chatbot Agent và notification xuất hiện xuyên các workspace nhưng luôn dùng cùng ngữ cảnh xác thực và quyền trên tài nguyên.
+
 ### 3.3.3. Thiết kế backend, API và phân quyền
 
 Backend được tổ chức theo các module có trách nhiệm rõ trong `backend/internal/`. Tầng controller tiếp nhận HTTP request và chuyển về service; tầng service chứa logic nghiệp vụ; tầng storage/repository làm việc với PostgreSQL; tầng clients bọc các tích hợp bên ngoài như AI service, Neo4j, Semantic Scholar và email.
 
-**Hình 3.9. Phụ thuộc các tầng trong Go backend**
+**Hình 3.16. Phụ thuộc các tầng trong Go backend**
 
 ```mermaid
 flowchart TD
@@ -320,6 +753,16 @@ Luồng phụ thuộc được giữ một chiều để tránh controller chứ
 
 Phân quyền được thiết kế theo vai trò trong từng hội nghị, không theo quyền toàn cục. Cùng một người dùng có thể là tác giả ở hội nghị này, reviewer ở hội nghị khác và Chair ở một hội nghị khác nữa. Vì vậy, mỗi request cần xét cả danh tính người dùng và vai trò của họ trong tài nguyên cụ thể.
 
+**Bảng 3.2. Quyền hiện hành trong Discussion theo submission**
+
+| Vai trò | Tạo thread | Xem thread | Gửi message |
+|---|---|---|---|
+| Reviewer được phân công | Có | Chỉ thread do mình tạo trong submission | Có, trong thread do mình sở hữu |
+| Tác giả của submission | Không | Các thread gắn với submission của mình | Có, trong thread liên quan |
+| Chair/Co-chair | Không | Toàn bộ thread và message của submission | Không |
+
+Ma trận trên phản ánh quyền đang được backend và API test cưỡng chế, không suy diễn từ control trên giao diện. Trường `visibility` đã tồn tại trong dữ liệu Discussion nhưng chưa được áp dụng nhất quán vào truy vấn danh sách thread; vì vậy, hệ thống chưa thể tuyên bố đã hoàn thiện phân quyền visibility nhiều tầng.
+
 Ngoài JWT Bearer token cho người dùng cuối, hệ thống có hai header phục vụ vận hành và tích hợp service: `X-Admin-Token` cho tác vụ quản trị nội bộ và `X-Agent-Service-Token` cho AI service khi cần gọi backend query endpoint. Thiết kế này giúp tách quyền người dùng cuối khỏi quyền service-to-service, tránh để AI service truy cập dữ liệu vượt phạm vi được phép.
 
 ### 3.3.4. Thiết kế dữ liệu
@@ -339,7 +782,7 @@ Nhóm thứ ba là **dữ liệu AI và trạng thái vận hành**. Các workfl
 | Học thuật và COI       | `scholar_profiles`, `scholar_papers`, `coi_relationships`, Neo4j co-author graph | Phát hiện quan hệ rủi ro và cung cấp bằng chứng để Chair kiểm tra                       |
 | AI artifact và audit   | `ai.*_runs`, `ai.*_artifacts`, `ai.*_stage_records`, `ai_tool_audit`             | Truy vết đầu vào, đầu ra, trạng thái và lỗi của các workflow AI                         |
 
-**Hình 3.10. Mô hình dữ liệu nghiệp vụ cốt lõi**
+**Hình 3.17. Mô hình dữ liệu nghiệp vụ cốt lõi**
 
 ```mermaid
 erDiagram
@@ -357,7 +800,7 @@ erDiagram
     USERS ||--o{ SCHOLAR_PROFILES : "links"
 ```
 
-**Hình 3.11. Dữ liệu COI từ graph đến bằng chứng nghiệp vụ**
+**Hình 3.18. Dữ liệu COI từ graph đến bằng chứng nghiệp vụ**
 
 ```mermaid
 flowchart LR
@@ -370,7 +813,7 @@ flowchart LR
     E --> F["Chair inspection before assignment"]
 ```
 
-**Hình 3.12. Truy vết dữ liệu AI trong hệ thống**
+**Hình 3.19. Truy vết dữ liệu AI trong hệ thống**
 
 ```mermaid
 flowchart TD
@@ -447,7 +890,7 @@ Nhóm cơ chế này gồm reviewer matching, phát hiện xung đột lợi íc
 
 Reviewer matching được triển khai như một thuật toán xác định dựa trên Domain Jaccard Similarity và greedy assignment. Đầu vào gồm keyword/domain của bài nộp, domain của reviewer, tải phản biện hiện tại, cấu hình số reviewer mỗi bài và các cặp bị loại do xung đột lợi ích.
 
-**Hình 3.13. Pipeline reviewer matching**
+**Hình 3.20. Pipeline reviewer matching**
 
 ```mermaid
 flowchart TD
@@ -471,7 +914,7 @@ Phát hiện xung đột lợi ích được triển khai theo nhiều lớp:
 2. **Declared-conflict detector** sử dụng khai báo thủ công từ tác giả, reviewer hoặc Chair.
 3. **Co-author graph detector** sử dụng Neo4j để truy vấn quan hệ đồng tác giả nhiều bậc trong đồ thị học thuật.
 
-**Hình 3.14. Cơ chế phát hiện xung đột lợi ích đa tầng**
+**Hình 3.21. Cơ chế phát hiện xung đột lợi ích đa tầng**
 
 ```mermaid
 flowchart TD
@@ -493,7 +936,8 @@ Trong luồng phân công, COI là ràng buộc cứng. Thuật toán có thể 
 Bên cạnh matching và COI, hệ thống có nhiều cơ chế xác định nhỏ hơn nhưng quan trọng cho trải nghiệm vận hành:
 
 - **State machine hội nghị** kiểm soát các giai đoạn Draft, Open, Reviewing, Decision và Closed.
-- **Deadline gating** kiểm tra thời điểm nộp bài, chỉnh sửa, gửi review, rebuttal và camera-ready.
+- **Deadline gating** kiểm tra thời điểm nộp bài, chỉnh sửa, gửi review và rebuttal.
+- **Camera-ready upload guard** chỉ cho phép tải file khi bài đã accepted và file tải lên hợp lệ; deadline camera-ready được dùng như thông tin vận hành/cấu hình, không được mô tả như một gate runtime trong phiên bản hiện tại.
 - **RBAC theo hội nghị** kiểm tra vai trò của người dùng trên từng tài nguyên.
 - **Notification routing** gửi thông báo đúng người, đúng thời điểm, đúng ngữ cảnh.
 - **Schema validation** kiểm tra request/response trước khi ghi dữ liệu bền vững.
@@ -520,7 +964,7 @@ Nhóm thứ ba là **hỗ trợ tổng hợp và truy vấn ngữ cảnh hệ th
 
 Submission Autofill là workflow đầu tiên tác giả gặp trong luồng nộp bài. Thay vì yêu cầu tác giả tự nhập lại những thông tin đã có trong bản thảo, hệ thống đọc file, trích xuất nội dung, tạo bản nháp metadata và gợi ý track phù hợp trong danh sách track hợp lệ của hội nghị. Đây là workflow giảm thao tác nhập liệu, không phải cơ chế tự động nộp bài.
 
-**Hình 3.15. Luồng hoạt động của Submission Autofill**
+**Hình 3.22. Luồng hoạt động của Submission Autofill**
 
 ```mermaid
 flowchart TD
@@ -558,7 +1002,7 @@ flowchart TD
 
 Submission Gating là lớp kiểm tra trước khi submission được gửi chính thức. Workflow này kết hợp rule xác định và đánh giá hỗ trợ bằng AI để phát hiện lỗi hình thức, thiếu điều kiện policy hoặc rủi ro nội dung cần người dùng xem lại. Vai trò của gating là đưa lỗi về sớm tại thời điểm tác giả còn có thể sửa, thay vì để lỗi xuất hiện muộn sau khi hệ thống đã bước vào giai đoạn phản biện.
 
-**Hình 3.16. Luồng hoạt động của Submission Gating**
+**Hình 3.23. Luồng hoạt động của Submission Gating**
 
 ```mermaid
 flowchart TD
@@ -604,7 +1048,7 @@ Sơ đồ này tách rõ ba lớp kiểm soát. Lớp đầu tiên chặn sớm 
 
 Reviewer Initial Analysis tạo briefing ban đầu cho reviewer trước khi reviewer bắt đầu viết phản biện. Workflow này không thay thế việc đọc bài; nó tạo một lớp định hướng gồm snapshot trung lập, đóng góp được claim, điểm đáng chú ý, điểm cần kiểm tra và annotation theo section. Thiết kế này trực tiếp bám với kết quả khảo sát ở Chương 2: reviewer chấp nhận AI tốt hơn khi AI giúp nắm bối cảnh ban đầu, nhưng vẫn cần tự đánh giá chuyên môn.
 
-**Hình 3.17. Luồng hoạt động của Reviewer Initial Analysis**
+**Hình 3.24. Luồng hoạt động của Reviewer Initial Analysis**
 
 ```mermaid
 flowchart TD
@@ -642,7 +1086,7 @@ Luận điểm thiết kế quan trọng là AI có thể giảm số lần revi
 
 Review Quality Auditor kiểm tra chất lượng của bản nháp review trước khi reviewer gửi chính thức. Khác với Reviewer Initial Analysis, workflow này không đọc bài để đánh giá bài báo, mà đọc chính bản phản biện để phát hiện vấn đề về độ cụ thể, tính nhất quán, mức độ bám bằng chứng và độ đầy đủ theo form. Đây là cơ chế giảm rủi ro hệ thống nhận review quá ngắn, quá chung chung hoặc mâu thuẫn giữa điểm số và nhận xét.
 
-**Hình 3.18. Luồng hoạt động của Review Quality Auditor**
+**Hình 3.25. Luồng hoạt động của Review Quality Auditor**
 
 ```mermaid
 flowchart TD
@@ -696,7 +1140,7 @@ Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra ch�
 
 Chair Decision Copilot hỗ trợ Chair đọc nhanh toàn bộ evidence package của một submission. Ở giai đoạn ra quyết định, Chair phải đối chiếu nhiều nguồn: điểm số, nội dung review, thay đổi sau rebuttal, discussion nội bộ, phản hồi tác giả và trạng thái hội nghị. Copilot gom các nguồn này thành bản tổng hợp có cấu trúc để Chair kiểm tra nhanh hơn.
 
-**Hình 3.19. Luồng hoạt động của Chair Decision Copilot**
+**Hình 3.26. Luồng hoạt động của Chair Decision Copilot**
 
 ```mermaid
 flowchart TD
@@ -736,7 +1180,7 @@ Workflow này không sinh quyết định accept/reject. Nếu hệ thống trì
 
 Chatbot Agent là trợ lý chung của nền tảng, dùng được bởi tác giả, reviewer và Chair. Khác với các workflow còn lại, agent không gắn với một chức năng cụ thể mà sử dụng các công cụ của nền tảng để hỗ trợ người dùng trong các thao tác như hỏi đáp về hệ thống, truy vấn dữ liệu hoặc tạo báo cáo dựa trên trạng thái trong phạm vi quyền truy cập của từng vai trò. Khi cần dữ liệu hệ thống, agent không truy vấn database trực tiếp mà gọi backend query endpoint để đi qua cùng lớp phân quyền như phần còn lại của hệ thống.
 
-**Hình 3.20. Luồng hoạt động của Chatbot Agent**
+**Hình 3.27. Luồng hoạt động của Chatbot Agent**
 
 ```mermaid
 flowchart TD
@@ -774,7 +1218,7 @@ Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh
 
 Các workflow AI khác nhau về vai trò và dữ liệu, nhưng dùng chung một số kiểm soát kiến trúc. Các kiểm soát này là phần giúp hệ thống giữ được nguyên tắc "AI hỗ trợ, con người quyết định" xuyên suốt Chương 1 và Chương 2.
 
-**Hình 3.21. Kiểm soát chung quanh output AI**
+**Hình 3.28. Kiểm soát chung quanh output AI**
 
 ```mermaid
 flowchart LR
@@ -803,7 +1247,7 @@ Nhờ các kiểm soát này, AI không trở thành một lớp quyết định
 
 AI service được triển khai như một service FastAPI độc lập. Trong repo, service đăng ký các router workflow riêng: submission autofill, submission gating, reviewer initial analysis, review quality audit, chair decision copilot và agent/status router. Cách tách router này giúp mỗi workflow có schema, prompt, runner và validation riêng thay vì gom tất cả vào một endpoint chung.
 
-**Hình 3.22. Luồng tích hợp AI service**
+**Hình 3.29. Luồng tích hợp AI service**
 
 ```mermaid
 flowchart TD
@@ -975,7 +1419,7 @@ ConferenceSpace được đóng gói thành các service độc lập: Caddy gat
 
 Môi trường production được triển khai trên VPS chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu được đặt ở mức 2 vCPU, 4 GB RAM và tối thiểu 30 GB dung lượng lưu trữ để có đủ khoảng trống cho image, volume dữ liệu, log và các lần cập nhật qua deployment pipeline. Với khối lượng sử dụng cao hơn, cấu hình 4 vCPU và 8 GB RAM trở lên phù hợp hơn vì stack chạy đồng thời PostgreSQL, Redis, Neo4j, backend, AI service, Next.js và Caddy.
 
-**Hình 3.23. Topology triển khai production**
+**Hình 3.30. Topology triển khai production**
 
 ```mermaid
 flowchart LR
@@ -1126,7 +1570,7 @@ Quy trình `.github/workflows/deploy.yml` có bốn nhóm bước chính:
 1. Build và push các image của từng module lên GHCR song song: frontend, backend và AI service.
 2. SSH vào VPS, cập nhật `.env.production`, pull image, chạy migration và `docker compose up -d`.
 
-**Hình 3.24. Luồng CI/CD production**
+**Hình 3.31. Luồng CI/CD production**
 
 ```mermaid
 flowchart TD
@@ -1245,7 +1689,9 @@ Secret không được đưa vào image, Dockerfile hoặc báo cáo. File `.env
 
 ## 3.7. Tổng kết chương
 
-Chương 3 đã trình bày ConferenceSpace như một hệ thống hoàn chỉnh thay vì một tập hợp tính năng rời rạc. Về mặt nghiệp vụ, hệ thống bao phủ ba vai trò chính của quy trình hội nghị: tác giả, người phản biện và Chair. Về mặt kỹ thuật, hệ thống tách rõ frontend, backend, AI service, dữ liệu quan hệ, dữ liệu graph, cache và gateway. Về mặt thiết kế AI, hệ thống giữ nguyên tắc xuyên suốt: AI hỗ trợ nhập liệu, đọc, kiểm tra và tổng hợp; con người vẫn chịu trách nhiệm với phản biện, phân công và quyết định học thuật.
+Chương 3 đã trình bày ConferenceSpace như một hệ thống hoàn chỉnh thay vì một tập hợp tính năng rời rạc. Mười use case đại diện bao phủ vòng đời của tác giả, người phản biện và Chair, từ khám phá hội nghị đến nộp bài, phân công, phản biện, Discussion, rebuttal và ra quyết định. Discussion và Chatbot Agent làm rõ các tương tác xuyên vai trò, trong khi ma trận truy vết cho thấy từng yêu cầu ở Chương 2 được hiện thực hóa ở đâu trong thiết kế.
+
+Về mặt kỹ thuật, hệ thống tách rõ frontend, backend, AI service, dữ liệu quan hệ, dữ liệu graph, cache và gateway. Về mặt thiết kế AI, hệ thống giữ nguyên tắc xuyên suốt: AI hỗ trợ nhập liệu, đọc, kiểm tra và tổng hợp; con người vẫn chịu trách nhiệm với phản biện, phân công và quyết định học thuật. Những giới hạn triển khai như quyền ghi của Chair và visibility trong Discussion cũng được nêu rõ thay vì mô tả như năng lực đã hoàn thiện.
 
 Việc tách lớp nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ tạo cơ sở để Chương 4 đánh giá hệ thống theo đúng bản chất từng lớp. Backend và thuật toán cần được đánh giá bằng hiệu năng, độ ổn định và khả năng giải thích; workflow AI cần được đánh giá bằng chất lượng đầu ra, độ trễ, chi phí và mức độ hữu ích với người dùng; khảo sát sau sử dụng cần kiểm chứng liệu các lựa chọn thiết kế có thật sự giải quyết được nhu cầu đã nêu ở Chương 2 hay không.
 
