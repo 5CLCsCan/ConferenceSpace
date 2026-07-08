@@ -562,26 +562,31 @@ Submission Gating là lớp kiểm tra trước khi submission được gửi ch
 
 ```mermaid
 flowchart TD
-    A["Draft submission và file bản thảo"] --> B["Chuẩn hóa request và policy hội nghị"]
-    B --> C["Kiểm tra file, format và section bắt buộc"]
-    C --> D["Trích xuất facts từ tài liệu"]
-    D --> E["Đánh giá rule deterministic"]
-    D --> F["Đánh giá nội dung mềm bằng AI nếu cần"]
-    E --> G["Gộp findings và tính verdict"]
-    F --> G
-    G --> H{"Verdict"}
-    H -- "pass" --> I["Cho phép tiếp tục gửi"]
-    H -- "warn" --> J["Hiển thị cảnh báo và hướng sửa"]
-    H -- "block" --> K["Chặn gửi cho tới khi lỗi policy/hình thức được sửa"]
-    G --> L["Lưu audit: fingerprint, policy hash, stage timings"]
+    A["Nộp bài hoặc chạy pre-check"] --> B["1. Intake Normalization<br/>Chuẩn hóa request, actor, policy và file metadata"]
+    B -- "Lỗi cấu trúc request" --> B0["BLOCK<br/>Trả lỗi API"]
+    B -- "Hợp lệ" --> C["2. Binary Integrity<br/>Kiểm tra định dạng, dung lượng và khả năng đọc bytes đầu vào"]
+    C -- "Định dạng không hỗ trợ<br/>hoặc quá dung lượng" --> C0["BLOCK"]
+    C -- "Hợp lệ" --> D["3. Document Extraction<br/>Đọc PDF, DOCX hoặc LaTeX; trích text, section và layout facts"]
+    D -- "Tệp hỏng, bị khóa<br/>hoặc không trích xuất được" --> D0["BLOCK"]
+    D -- "Thành công" --> E["4. Fact Derivation<br/>Tính số trang, references, section presence, anonymity và format facts"]
+    E -- "Có steering prompt của Chair" --> F["5. Content Evaluation AI/LLM<br/>Kiểm tra nội dung theo policy mềm do Chair cấu hình"]
+    E --> G["6. Policy Evaluation deterministic<br/>Page limit, min references, required sections,<br/>anonymity, banned phrases, font, margin, paper size, columns"]
+    F --> H["7. Verdict Mapping<br/>Gộp findings và tính verdict cuối"]
+    G --> H
+    H -- "Có deterministic block" --> I["BLOCK<br/>Yêu cầu sửa lỗi policy hoặc hình thức"]
+    H -- "Chỉ có cảnh báo/advisory" --> J["WARN<br/>Cho phép tiếp tục, flag để xem thủ công"]
+    H -- "Không có vi phạm" --> K["PASS"]
+    H --> L["Guidance Rendering và Persistence Audit<br/>Lưu fingerprint, policy hash, stage timings"]
 ```
+
+Sơ đồ này tách rõ ba lớp kiểm soát. Lớp đầu tiên chặn sớm các lỗi kỹ thuật có thể tái lập như request sai cấu trúc, file không hỗ trợ, file bị hỏng, bị khóa hoặc không thể trích xuất nội dung. Lớp thứ hai là rule deterministic dựa trên policy hội nghị và facts trích xuất được; đây là nguồn duy nhất có thể tạo `block` ở bước đánh giá policy. Lớp thứ ba là Content Evaluation dùng AI theo steering prompt của Chair; lớp này chỉ tạo `warn` hoặc `pass`, nhằm chỉ ra điểm cần xem lại chứ không tự động loại bài vì nhận định nội dung.
 
 **Dạng đầu vào chính**
 
 | Nhóm dữ liệu | Nội dung |
 |---|---|
 | Draft submission | Tiêu đề, tóm tắt, track đã chọn, keyword, đồng tác giả, COI khai báo và metadata liên quan |
-| Policy hội nghị | Định dạng submission, số trang tối đa, section bắt buộc, rule desk-check, ngưỡng và prompt bổ sung của Chair |
+| Policy hội nghị | Định dạng submission, số trang khuyến nghị/tối đa, số lượng tài liệu tham khảo tối thiểu, section bắt buộc, yêu cầu ẩn danh, cụm từ bị cấm, cấu hình font/margin/page size/columns và steering prompt của Chair |
 | File và nguồn gọi | File metadata, mode `advisory` hoặc `gate`, nguồn gọi như precheck hoặc submit chính thức |
 
 **Dạng đầu ra chính**
@@ -589,11 +594,11 @@ flowchart TD
 | Nhóm dữ liệu | Nội dung |
 |---|---|
 | Verdict | `pass`, `warn`, `block` hoặc `error` |
-| Finding | Rule, nguồn phát hiện, mức độ nghiêm trọng, thông điệp, bằng chứng và hướng sửa |
+| Finding | Rule, nguồn phát hiện (`deterministic` hoặc `llm_content_evaluation`), mức độ nghiêm trọng, thông điệp, bằng chứng và hướng sửa |
 | Guidance | Danh sách việc tác giả cần chỉnh trước khi gửi hoặc trước khi Chair xem lại |
-| Audit metadata | Input fingerprint, policy hash, summary theo mức độ, thời gian từng stage và dấu hiệu deterministic |
+| Audit metadata | Input fingerprint, policy hash, summary theo mức độ, thời gian từng stage, stage bị skip hoặc lỗi và dấu hiệu deterministic |
 
-Điểm cần nhấn mạnh là Submission Gating đóng vai trò như desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Chỉ các lỗi có policy rõ ràng, có thể giải thích và tái lập mới nên tạo trạng thái `block`. Các nhận xét nội dung mềm chỉ nên ở dạng cảnh báo hoặc hướng kiểm tra để tác giả và Chair xem lại.
+Điểm cần nhấn mạnh là Submission Gating đóng vai trò như desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Chỉ các lỗi có policy rõ ràng, có thể giải thích và tái lập mới nên tạo trạng thái `block`, ví dụ không đọc được file, thiếu số lượng tài liệu tham khảo tối thiểu, thiếu section bắt buộc khi hệ thống xác minh được, vi phạm yêu cầu ẩn danh, chứa cụm từ bị cấm hoặc không đáp ứng ngưỡng font/margin đã cấu hình. Các nhận xét nội dung mềm từ AI chỉ nên ở dạng cảnh báo hoặc hướng kiểm tra để tác giả và Chair xem lại.
 
 #### 3.5.2.3. Reviewer Initial Analysis
 

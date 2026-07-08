@@ -138,7 +138,7 @@ Giới thiệu tổng quan các quy trình trong hệ thống mà AI tham gia x�
 Trình bày workflow hỗ trợ tác giả chuẩn bị form nộp bài từ bản thảo, gồm trích xuất metadata, chuẩn hóa thông tin, gợi ý keyword và gợi ý track như các khả năng bên trong Submission Autofill. Mục này cần làm rõ đầu vào, đầu ra, điểm tác giả xác nhận và giới hạn của việc tự động điền thông tin.
 
 ##### 3.5.2.2 Submission Gating
-Trình bày workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc trước khi publish, gồm kiểm tra luật nộp bài, cảnh báo lỗi hình thức và hỗ trợ điều hướng nội dung cần xem lại. Mục này cần tách rõ phần rule deterministic với phần cảnh báo hỗ trợ dùng AI, đồng thời nhấn mạnh workflow không tự động thay Chair loại bài vì nhận định nội dung.
+Trình bày workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc trước khi publish, gồm kiểm tra luật nộp bài, cảnh báo lỗi hình thức và hỗ trợ điều hướng nội dung cần xem lại. Sơ đồ workflow cần thể hiện rõ các stage Intake Normalization, Binary Integrity, Document Extraction, Fact Derivation, Content Evaluation, Policy Evaluation và Verdict Mapping; đồng thời nêu các rule chính như số trang, số lượng tài liệu tham khảo, section bắt buộc, ẩn danh, cụm từ bị cấm, font, margin, page size và columns. Mục này cần tách rõ phần rule deterministic có thể tạo `block` với phần cảnh báo hỗ trợ dùng AI chỉ ở mức `warn`/`pass`, đồng thời nhấn mạnh workflow không tự động thay Chair loại bài vì nhận định nội dung.
 
 ##### 3.5.2.3 Reviewer Initial Analysis
 Trình bày workflow hỗ trợ người phản biện đọc hiểu bài nộp ban đầu, gồm tóm tắt trung lập, nhận diện điểm cần kiểm tra kỹ và tổ chức các ghi chú ban đầu. Nội dung cần nhấn mạnh AI giúp reviewer định hướng đọc, nhưng reviewer vẫn chịu trách nhiệm đọc bài và viết đánh giá chuyên môn.
