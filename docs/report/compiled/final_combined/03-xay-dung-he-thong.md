@@ -332,12 +332,12 @@ Nhóm thứ hai là **dữ liệu quan hệ học thuật và xung đột lợi 
 
 Nhóm thứ ba là **dữ liệu AI và trạng thái vận hành**. Các workflow AI không được xem là hộp đen tách khỏi hệ thống chính. Schema `ai` lưu session hội thoại, message, tool audit, các run của Submission Gating, Reviewer Initial Analysis, Review Quality Audit và Chair Decision Copilot, cùng artifact JSON, fingerprint, trạng thái, thời điểm tạo và bản ghi theo từng stage. Thiết kế này cho phép hệ thống biết một artifact được sinh từ submission/assignment nào, theo trạng thái dữ liệu nào và có còn hợp lệ hay không. Đây cũng là nền để Chương 4 đánh giá workflow AI bằng input/output, timing và failure case, thay vì chỉ dựa vào cảm nhận người dùng.
 
-| Nhóm dữ liệu | Thực thể tiêu biểu | Vai trò trong thiết kế |
-|---|---|---|
-| Nghiệp vụ hội nghị | `conferences`, `conference_submissions`, `paper_assignments`, `rebuttal_points` | Bảo toàn vòng đời submission-review-rebuttal và các ràng buộc giao dịch |
-| Phân quyền và phối hợp | `users`, `conference_user_roles`, `discussion_threads`, `notifications` | Đảm bảo mỗi vai trò chỉ thao tác trong phạm vi được phép và nhận đúng tín hiệu vận hành |
-| Học thuật và COI | `scholar_profiles`, `scholar_papers`, `coi_relationships`, Neo4j co-author graph | Phát hiện quan hệ rủi ro và cung cấp bằng chứng để Chair kiểm tra |
-| AI artifact và audit | `ai.*_runs`, `ai.*_artifacts`, `ai.*_stage_records`, `ai_tool_audit` | Truy vết đầu vào, đầu ra, trạng thái và lỗi của các workflow AI |
+| Nhóm dữ liệu           | Thực thể tiêu biểu                                                               | Vai trò trong thiết kế                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Nghiệp vụ hội nghị     | `conferences`, `conference_submissions`, `paper_assignments`, `rebuttal_points`  | Bảo toàn vòng đời submission-review-rebuttal và các ràng buộc giao dịch                 |
+| Phân quyền và phối hợp | `users`, `conference_user_roles`, `discussion_threads`, `notifications`          | Đảm bảo mỗi vai trò chỉ thao tác trong phạm vi được phép và nhận đúng tín hiệu vận hành |
+| Học thuật và COI       | `scholar_profiles`, `scholar_papers`, `coi_relationships`, Neo4j co-author graph | Phát hiện quan hệ rủi ro và cung cấp bằng chứng để Chair kiểm tra                       |
+| AI artifact và audit   | `ai.*_runs`, `ai.*_artifacts`, `ai.*_stage_records`, `ai_tool_audit`             | Truy vết đầu vào, đầu ra, trạng thái và lỗi của các workflow AI                         |
 
 **Hình 3.10. Mô hình dữ liệu nghiệp vụ cốt lõi**
 
@@ -537,19 +537,19 @@ flowchart TD
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Bản thảo | File PDF hoặc tài liệu nộp chính, kèm tên file, loại nội dung và kích thước |
-| Ngữ cảnh hội nghị | Tên hội nghị, mô tả, domain, CFP và danh sách track đang mở |
-| Ngữ cảnh người dùng | Tác giả đang đăng nhập, hội nghị đang thao tác và thông tin bổ sung nếu có |
+| Nhóm dữ liệu        | Nội dung                                                                    |
+| ------------------- | --------------------------------------------------------------------------- |
+| Bản thảo            | File PDF hoặc tài liệu nộp chính, kèm tên file, loại nội dung và kích thước |
+| Ngữ cảnh hội nghị   | Tên hội nghị, mô tả, domain, CFP và danh sách track đang mở                 |
+| Ngữ cảnh người dùng | Tác giả đang đăng nhập, hội nghị đang thao tác và thông tin bổ sung nếu có  |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Metadata nháp | Tiêu đề, tóm tắt, keyword, loại bài và ghi chú bổ sung nếu trích xuất được |
-| Tác giả nháp | Tên, email, đơn vị và quốc gia khi thông tin xuất hiện rõ trong bản thảo |
-| Gợi ý track | Danh sách track hợp lệ được đề xuất kèm độ tự tin và lý do ngắn |
+| Nhóm dữ liệu     | Nội dung                                                                       |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Metadata nháp    | Tiêu đề, tóm tắt, keyword, loại bài và ghi chú bổ sung nếu trích xuất được     |
+| Tác giả nháp     | Tên, email, đơn vị và quốc gia khi thông tin xuất hiện rõ trong bản thảo       |
+| Gợi ý track      | Danh sách track hợp lệ được đề xuất kèm độ tự tin và lý do ngắn                |
 | Trạng thái xử lý | Trạng thái thành công/thất bại, cảnh báo đọc file, thông tin material đã xử lý |
 
 Điểm quan trọng của thiết kế là output luôn ở dạng bản nháp. Frontend không khóa các trường do AI tạo và backend chỉ lưu submission chính thức sau khi tác giả xác nhận. Nếu file có độ phủ text thấp hoặc thiếu căn cứ, workflow phải trả cảnh báo thay vì điền thông tin bằng suy đoán. Nhờ vậy, Submission Autofill hỗ trợ tốc độ nhập liệu nhưng vẫn giữ trách nhiệm kiểm tra cuối cùng ở tác giả.
@@ -583,20 +583,20 @@ Sơ đồ này tách rõ ba lớp kiểm soát. Lớp đầu tiên chặn sớm 
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Draft submission | Tiêu đề, tóm tắt, track đã chọn, keyword, đồng tác giả, COI khai báo và metadata liên quan |
-| Policy hội nghị | Định dạng submission, số trang khuyến nghị/tối đa, số lượng tài liệu tham khảo tối thiểu, section bắt buộc, yêu cầu ẩn danh, cụm từ bị cấm, cấu hình font/margin/page size/columns và steering prompt của Chair |
-| File và nguồn gọi | File metadata, mode `advisory` hoặc `gate`, nguồn gọi như precheck hoặc submit chính thức |
+| Nhóm dữ liệu      | Nội dung                                                                                                                                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Draft submission  | Tiêu đề, tóm tắt, track đã chọn, keyword, đồng tác giả, COI khai báo và metadata liên quan                                                                                                                      |
+| Policy hội nghị   | Định dạng submission, số trang khuyến nghị/tối đa, số lượng tài liệu tham khảo tối thiểu, section bắt buộc, yêu cầu ẩn danh, cụm từ bị cấm, cấu hình font/margin/page size/columns và steering prompt của Chair |
+| File và nguồn gọi | File metadata, mode `advisory` hoặc `gate`, nguồn gọi như precheck hoặc submit chính thức                                                                                                                       |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Verdict | `pass`, `warn`, `block` hoặc `error` |
-| Finding | Rule, nguồn phát hiện (`deterministic` hoặc `llm_content_evaluation`), mức độ nghiêm trọng, thông điệp, bằng chứng và hướng sửa |
-| Guidance | Danh sách việc tác giả cần chỉnh trước khi gửi hoặc trước khi Chair xem lại |
-| Audit metadata | Input fingerprint, policy hash, summary theo mức độ, thời gian từng stage, stage bị skip hoặc lỗi và dấu hiệu deterministic |
+| Nhóm dữ liệu   | Nội dung                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Verdict        | `pass`, `warn`, `block` hoặc `error`                                                                                            |
+| Finding        | Rule, nguồn phát hiện (`deterministic` hoặc `llm_content_evaluation`), mức độ nghiêm trọng, thông điệp, bằng chứng và hướng sửa |
+| Guidance       | Danh sách việc tác giả cần chỉnh trước khi gửi hoặc trước khi Chair xem lại                                                     |
+| Audit metadata | Input fingerprint, policy hash, summary theo mức độ, thời gian từng stage, stage bị skip hoặc lỗi và dấu hiệu deterministic     |
 
 Điểm cần nhấn mạnh là Submission Gating đóng vai trò như desk-check/desk-reject gate ở khâu nộp draft, nhưng không phải quyết định desk rejection học thuật cuối cùng. Chỉ các lỗi có policy rõ ràng, có thể giải thích và tái lập mới nên tạo trạng thái `block`, ví dụ không đọc được file, thiếu số lượng tài liệu tham khảo tối thiểu, thiếu section bắt buộc khi hệ thống xác minh được, vi phạm yêu cầu ẩn danh, chứa cụm từ bị cấm hoặc không đáp ứng ngưỡng font/margin đã cấu hình. Các nhận xét nội dung mềm từ AI chỉ nên ở dạng cảnh báo hoặc hướng kiểm tra để tác giả và Chair xem lại.
 
@@ -622,19 +622,19 @@ flowchart TD
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Submission snapshot | Tiêu đề, tóm tắt, keyword, track và trạng thái bản thảo |
-| Ngữ cảnh reviewer | Assignment, reviewer đang đăng nhập và domain tags nếu có |
-| Fingerprint | Dấu vết trạng thái submission để xác định artifact cũ có còn dùng được không |
+| Nhóm dữ liệu        | Nội dung                                                                     |
+| ------------------- | ---------------------------------------------------------------------------- |
+| Submission snapshot | Tiêu đề, tóm tắt, keyword, track và trạng thái bản thảo                      |
+| Ngữ cảnh reviewer   | Assignment, reviewer đang đăng nhập và domain tags nếu có                    |
+| Fingerprint         | Dấu vết trạng thái submission để xác định artifact cũ có còn dùng được không |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Briefing | Snapshot bài nộp, tín hiệu sẵn sàng phản biện, đóng góp được claim, điểm đáng chú ý và limitation |
-| Annotation | Nhận xét theo section, gồm strength, weakness, suggestion hoặc question |
-| Cache state | Trạng thái `idle`, `ready`, `stale` hoặc `failed`, kèm run id và fingerprint |
+| Nhóm dữ liệu | Nội dung                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------- |
+| Briefing     | Snapshot bài nộp, tín hiệu sẵn sàng phản biện, đóng góp được claim, điểm đáng chú ý và limitation |
+| Annotation   | Nhận xét theo section, gồm strength, weakness, suggestion hoặc question                           |
+| Cache state  | Trạng thái `idle`, `ready`, `stale` hoặc `failed`, kèm run id và fingerprint                      |
 
 Luận điểm thiết kế quan trọng là AI có thể giảm số lần reviewer phải đọc lại toàn bộ bài chỉ để truy vết các điểm cần chú ý. Khi các điểm cần kiểm tra được gom lại có cấu trúc, reviewer có thể tập trung nhiều hơn vào đánh giá chuyên môn, chất lượng lập luận và bằng chứng trong bài. Vì vậy, giao diện cần trình bày artifact như briefing hỗ trợ đọc, không như kết luận thay reviewer.
 
@@ -660,35 +660,35 @@ flowchart TD
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Review draft | Điểm theo tiêu chí, summary, strengths, weaknesses, questions, recommendation và confidence |
-| Policy review | Section bắt buộc và chế độ kiểm tra như draft save, submit preflight hoặc enforcement |
-| Ngữ cảnh bài nộp | Tiêu đề, tóm tắt, keyword, track và artifact phân tích ban đầu nếu có |
+| Nhóm dữ liệu     | Nội dung                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Review draft     | Điểm theo tiêu chí, summary, strengths, weaknesses, questions, recommendation và confidence |
+| Policy review    | Section bắt buộc và chế độ kiểm tra như draft save, submit preflight hoặc enforcement       |
+| Ngữ cảnh bài nộp | Tiêu đề, tóm tắt, keyword, track và artifact phân tích ban đầu nếu có                       |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Status | `pass`, `warn` hoặc `block` |
-| Evaluation | Tóm tắt mức độ cụ thể, mức độ bám bằng chứng, tính nhất quán và trọng tâm cần cải thiện |
-| Finding | Mã vấn đề, severity, field bị ảnh hưởng, rationale, message, suggestion và fingerprint điều kiện |
+| Nhóm dữ liệu | Nội dung                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| Status       | `pass`, `warn` hoặc `block`                                                                      |
+| Evaluation   | Tóm tắt mức độ cụ thể, mức độ bám bằng chứng, tính nhất quán và trọng tâm cần cải thiện          |
+| Finding      | Mã vấn đề, severity, field bị ảnh hưởng, rationale, message, suggestion và fingerprint điều kiện |
 
 Ba trạng thái của Review Quality Auditor cần được hiểu theo chất lượng bản review, không theo chất lượng bài báo:
 
-| Trạng thái | Khi nào xảy ra | Ý nghĩa trong workflow |
-|---|---|---|
-| `pass` | Không có finding đáng kể sau khi kiểm tra độ cụ thể, mức độ bám bằng chứng và tính nhất quán | Reviewer có thể tiếp tục lưu/gửi review; hệ thống không thêm rào cản |
-| `warn` | Có vấn đề nên sửa, nhưng review vẫn có thể dùng được sau khi reviewer cân nhắc, ví dụ thiếu giải thích cho một tiêu chí phụ, strengths/weaknesses chưa cân bằng, hoặc confidence chưa được hỗ trợ đủ rõ | Frontend hiển thị cảnh báo và gợi ý chỉnh sửa; reviewer vẫn giữ quyền sửa, bỏ qua hoặc xác nhận tùy policy |
-| `block` | Review chưa đủ tư cách gửi như một phản biện học thuật ở trạng thái hiện tại, chẳng hạn tự mâu thuẫn nghiêm trọng, khuyến nghị không có lập luận hỗ trợ, bỏ qua claim trung tâm của bài, hoặc quá chung chung đến mức Chair không thể sử dụng | Hệ thống yêu cầu reviewer chỉnh review trước khi gửi chính thức; block áp vào hành động gửi review, không áp vào quyết định accept/reject của bài báo |
+| Trạng thái | Khi nào xảy ra                                                                                                                                                                                                                                | Ý nghĩa trong workflow                                                                                                                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pass`     | Không có finding đáng kể sau khi kiểm tra độ cụ thể, mức độ bám bằng chứng và tính nhất quán                                                                                                                                                  | Reviewer có thể tiếp tục lưu/gửi review; hệ thống không thêm rào cản                                                                                  |
+| `warn`     | Có vấn đề nên sửa, nhưng review vẫn có thể dùng được sau khi reviewer cân nhắc, ví dụ thiếu giải thích cho một tiêu chí phụ, strengths/weaknesses chưa cân bằng, hoặc confidence chưa được hỗ trợ đủ rõ                                       | Frontend hiển thị cảnh báo và gợi ý chỉnh sửa; reviewer vẫn giữ quyền sửa, bỏ qua hoặc xác nhận tùy policy                                            |
+| `block`    | Review chưa đủ tư cách gửi như một phản biện học thuật ở trạng thái hiện tại, chẳng hạn tự mâu thuẫn nghiêm trọng, khuyến nghị không có lập luận hỗ trợ, bỏ qua claim trung tâm của bài, hoặc quá chung chung đến mức Chair không thể sử dụng | Hệ thống yêu cầu reviewer chỉnh review trước khi gửi chính thức; block áp vào hành động gửi review, không áp vào quyết định accept/reject của bài báo |
 
-Điểm dễ gây hiểu nhầm là vì sao output của AI có thể dẫn tới trạng thái `block`. Trong thiết kế này, AI không được phép chặn vì "không đồng ý" với nhận định chuyên môn của reviewer, cũng không được đề xuất đổi điểm, đổi recommendation hoặc đổi confidence. AI chỉ phát hiện một số lỗi hình thức-ngữ nghĩa của chính bản review: bản review có tự mâu thuẫn không, có đưa ra khuyến nghị nhưng không có lập luận hỗ trợ không, có bỏ qua claim trung tâm đến mức review không còn hữu ích không, hoặc có quá chung chung để Chair dùng trong quá trình ra quyết định không. Nói cách khác, đối tượng bị kiểm tra là **tính sử dụng được của review**, không phải **giá trị học thuật của paper**.
+Điểm dễ gây hiểu nhầm là vì sao output của AI có thể dẫn tới trạng thái `block`. Trong thiết kế này, AI không chặn review vì không đồng ý với nhận định chuyên môn, không đề xuất đổi điểm, recommendation hoặc confidence. Auditor chỉ kiểm tra **tính sử dụng được của bản phản biện**: review có tự mâu thuẫn không, recommendation có thiếu lập luận hỗ trợ không.
 
-Trong triển khai, model chỉ sinh finding với mã lỗi, field bị ảnh hưởng và mức nghiêm trọng ngữ nghĩa. Runtime của hệ thống mới quyết định status cuối cùng theo mode. Ở chế độ `draft_save`, các vấn đề nghiêm trọng vẫn được hạ thành cảnh báo để reviewer có thể lưu nháp. Ở các chế độ trước khi gửi chính thức, chỉ một nhóm lỗi nặng mới được map thành `block`: tự mâu thuẫn, recommendation lệch với lập luận, recommendation không được hỗ trợ, không đụng tới claim trung tâm của bài, hoặc review quá chung chung để gửi. Cách chia này giữ đúng ranh giới trách nhiệm: AI có thể chặn một thao tác gửi review chưa đạt điều kiện tối thiểu, nhưng không ra quyết định học thuật thay reviewer hoặc Chair.
+Trong triển khai, model chỉ sinh finding gồm mã lỗi, field liên quan và mức nghiêm trọng. Runtime mới quyết định trạng thái cuối theo mode. Ở chế độ `draft_save`, lỗi nghiêm trọng vẫn được hạ thành cảnh báo để reviewer lưu nháp. Trước khi gửi chính thức, một số lỗi nặng mới được map thành `block`, như tự mâu thuẫn, recommendation không được hỗ trợ, recommendation lệch với lập luận. Vì vậy, `block` chỉ ngăn thao tác gửi một review chưa đạt điều kiện tối thiểu, không phải quyết định học thuật về paper.
 
-Tuy nhiên, đây cũng là một điểm yếu của phiên bản hiện tại. Vì output của auditor vẫn do AI sinh ra, workflow vẫn có khả năng hallucinate hoặc diễn giải quá mạnh, dẫn tới trường hợp block thao tác gửi review sai và tạo friction cho reviewer. Nhóm chưa triển khai lớp kiểm tra chéo runtime cho từng finding do giới hạn hạ tầng: nếu mỗi finding đều phải truy xuất evidence, chạy kiểm định NLI và xếp hạng lại bằng chứng trước khi trả kết quả, độ trễ và chi phí sẽ tăng đáng kể đối với luồng reviewer vốn cần phản hồi tương đối nhanh. Do đó, trong sản phẩm hiện tại, `block` cần được xem là một cơ chế bảo vệ tối thiểu có thể gây false positive, không phải phán quyết tuyệt đối.
+Giới hạn hiện tại là finding vẫn do AI sinh ra, nên có thể hallucinate hoặc diễn giải quá mạnh, dẫn tới false block và gây khó chịu cho reviewer. Nhóm đề xuất hướng kiểm tra chéo bằng cách chuẩn hóa finding thành claim, ghép claim với evidence từ review, submission và artifact liên quan, sau đó dùng NLI để đánh giá mức độ groundedness trước khi quyết định giữ `block` hay hạ xuống `warn`.
 
-Hướng cải tiến trực tiếp là đưa cơ chế hậu kiểm trong benchmark vào runtime ở dạng gọn hơn. Cụ thể, hệ thống có thể trích các claim chính từ finding, chuẩn hóa claim khi cần, tạo cặp evidence-claim từ review, submission và analysis artifact, rồi dùng NLI để kiểm tra mức độ entailment/groundedness. Benchmark hiện tại dùng ModernCE-large-nli làm thành phần đánh giá chính; Qwen 3.5 2B hỗ trợ chuyển attention point hoặc rationale thành claim rõ hơn; Qwen 3.5 0.8B hỗ trợ phân loại claim kỹ thuật/hành chính và một số bước phân loại chất lượng dữ liệu. Nếu cơ chế tương tự được triển khai vào runtime, các finding không đủ groundedness có thể bị hạ từ `block` xuống `warn`, hoặc được yêu cầu Chair/reviewer xác nhận trước khi hệ thống chặn gửi chính thức.
+Phương pháp này chưa được đưa vào runtime do giới hạn về độ trễ và chi phí, nhưng đã được áp dụng trong quy trình benchmark ở Chương 4. Benchmark sử dụng ModernCE-large-nli làm thành phần đánh giá chính, với Qwen 3.5 hỗ trợ chuẩn hóa và phân loại claim. Kết quả benchmark cho thấy hướng hậu kiểm claim-evidence là khả quan, vì vậy đây là một hướng phát triển tiềm năng để giảm false block và tăng độ tin cậy cho Review Quality Auditor trong các phiên bản sau.
 
 Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Reviewer vẫn là người sửa nội dung review và chịu trách nhiệm cuối cùng với nhận định chuyên môn của mình.
 
@@ -714,27 +714,27 @@ flowchart TD
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| CFP và submission | Tên hội nghị, domain, track, tiêu đề bài, trạng thái, keyword và thời điểm cập nhật |
-| Review evidence | Recommendation, confidence, score, summary, strengths, weaknesses, questions và điểm theo tiêu chí |
-| Review analytics | Phân bố recommendation, mix confidence, tiêu chí mạnh/yếu và mức độ đầy đủ của review |
-| Discussion và rebuttal | Thread thảo luận, phản hồi tác giả, trạng thái acknowledgement và điểm còn bỏ ngỏ |
+| Nhóm dữ liệu           | Nội dung                                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| CFP và submission      | Tên hội nghị, domain, track, tiêu đề bài, trạng thái, keyword và thời điểm cập nhật                |
+| Review evidence        | Recommendation, confidence, score, summary, strengths, weaknesses, questions và điểm theo tiêu chí |
+| Review analytics       | Phân bố recommendation, mix confidence, tiêu chí mạnh/yếu và mức độ đầy đủ của review              |
+| Discussion và rebuttal | Thread thảo luận, phản hồi tác giả, trạng thái acknowledgement và điểm còn bỏ ngỏ                  |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Evidence summary | Overview và danh sách bằng chứng chính mà Chair cần xem |
-| Review synthesis | Tổng hợp điểm mạnh, điểm yếu, câu hỏi và xu hướng phản biện |
+| Nhóm dữ liệu     | Nội dung                                                                       |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Evidence summary | Overview và danh sách bằng chứng chính mà Chair cần xem                        |
+| Review synthesis | Tổng hợp điểm mạnh, điểm yếu, câu hỏi và xu hướng phản biện                    |
 | Disagreement map | Điểm đồng thuận, điểm bất đồng, concern chưa giải quyết và giới hạn độ tin cậy |
-| Chair note nháp | Gợi ý ghi chú tổng hợp để Chair chỉnh sửa, không phải quyết định accept/reject |
+| Chair note nháp  | Gợi ý ghi chú tổng hợp để Chair chỉnh sửa, không phải quyết định accept/reject |
 
 Workflow này không sinh quyết định accept/reject. Nếu hệ thống trình bày một khuyến nghị như kết luận, nó sẽ làm lệch trách nhiệm học thuật. Vì vậy, output của Copilot được thiết kế như bản tổng hợp để Chair đọc nhanh hơn và đối chiếu với dữ liệu gốc. Trạng thái cache `stale` cũng quan trọng: khi review, rebuttal hoặc discussion thay đổi, bản tổng hợp cũ phải được đánh dấu không còn hiện hành.
 
 #### 3.5.2.6. Chatbot Agent của nền tảng
 
-Chatbot Agent là trợ lý chung của nền tảng, dùng được bởi tác giả, reviewer và Chair. Khác với các workflow còn lại, agent không gắn với một màn hình duy nhất; nó hỗ trợ hỏi đáp về thao tác, trạng thái và dữ liệu trong phạm vi quyền truy cập của từng người dùng. Khi cần dữ liệu hệ thống, agent không truy vấn database trực tiếp mà gọi backend query endpoint để đi qua cùng lớp phân quyền như phần còn lại của hệ thống.
+Chatbot Agent là trợ lý chung của nền tảng, dùng được bởi tác giả, reviewer và Chair. Khác với các workflow còn lại, agent không gắn với một chức năng cụ thể mà sử dụng các công cụ của nền tảng để hỗ trợ người dùng trong các thao tác như hỏi đáp về hệ thống, truy vấn dữ liệu hoặc tạo báo cáo dựa trên trạng thái trong phạm vi quyền truy cập của từng vai trò. Khi cần dữ liệu hệ thống, agent không truy vấn database trực tiếp mà gọi backend query endpoint để đi qua cùng lớp phân quyền như phần còn lại của hệ thống.
 
 **Hình 3.20. Luồng hoạt động của Chatbot Agent**
 
@@ -754,19 +754,19 @@ flowchart TD
 
 **Dạng đầu vào chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Hội thoại | Thread id, lịch sử message, trigger và message id khi regenerate |
-| Ngữ cảnh giao diện | Đường dẫn hiện tại, client metadata và trạng thái trang nếu frontend cung cấp |
-| Tool request | Resource cần truy vấn, field được chọn, filter, group by, aggregate, sort, limit và offset |
+| Nhóm dữ liệu       | Nội dung                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| Hội thoại          | Thread id, lịch sử message, trigger và message id khi regenerate                           |
+| Ngữ cảnh giao diện | Đường dẫn hiện tại, client metadata và trạng thái trang nếu frontend cung cấp              |
+| Tool request       | Resource cần truy vấn, field được chọn, filter, group by, aggregate, sort, limit và offset |
 
 **Dạng đầu ra chính**
 
-| Nhóm dữ liệu | Nội dung |
-|---|---|
-| Câu trả lời | Nội dung trả lời cho người dùng, có thể gồm hướng dẫn thao tác hoặc tóm tắt trạng thái |
-| Tool result | Rows được backend cho phép trả về, meta về số dòng, limit/offset và policy notes |
-| Trạng thái tool | `output-available`, `output-error` hoặc `timeout` để frontend/agent xử lý tiếp |
+| Nhóm dữ liệu    | Nội dung                                                                               |
+| --------------- | -------------------------------------------------------------------------------------- |
+| Câu trả lời     | Nội dung trả lời cho người dùng, có thể gồm hướng dẫn thao tác hoặc tóm tắt trạng thái |
+| Tool result     | Rows được backend cho phép trả về, meta về số dòng, limit/offset và policy notes       |
+| Trạng thái tool | `output-available`, `output-error` hoặc `timeout` để frontend/agent xử lý tiếp         |
 
 Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh rủi ro lộ dữ liệu bản thảo hoặc phản biện. Agent chỉ được trả lời dựa trên dữ liệu người dùng có quyền xem. Backend giữ quyền kiểm soát resource, field và filter; AI chỉ đề xuất truy vấn ở mức ý định, không được bỏ qua RBAC hoặc đọc database trực tiếp.
 
@@ -788,14 +788,14 @@ flowchart LR
     H --> I["Human review, override hoặc xác nhận"]
 ```
 
-| Kiểm soát | Vai trò trong hệ thống |
-|---|---|
-| Schema validation | Output phải đúng cấu trúc trước khi trả về frontend hoặc lưu artifact |
-| Input fingerprint | Artifact gắn với trạng thái dữ liệu tại thời điểm sinh; khi dữ liệu đổi, artifact có thể bị stale |
-| Policy hash | Các workflow có policy như Submission Gating phải biết output được tạo theo cấu hình nào |
-| Timeout và error handling | Lỗi provider không được biến thành dữ liệu giả hợp lệ |
-| Human override | Người dùng có thẩm quyền phải có khả năng chỉnh sửa, bỏ qua hoặc xác nhận output |
-| Audit trail | Trạng thái, thời gian xử lý, lỗi và stage timings cần được lưu để phục vụ benchmark ở Chương 4 |
+| Kiểm soát                 | Vai trò trong hệ thống                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------- |
+| Schema validation         | Output phải đúng cấu trúc trước khi trả về frontend hoặc lưu artifact                             |
+| Input fingerprint         | Artifact gắn với trạng thái dữ liệu tại thời điểm sinh; khi dữ liệu đổi, artifact có thể bị stale |
+| Policy hash               | Các workflow có policy như Submission Gating phải biết output được tạo theo cấu hình nào          |
+| Timeout và error handling | Lỗi provider không được biến thành dữ liệu giả hợp lệ                                             |
+| Human override            | Người dùng có thẩm quyền phải có khả năng chỉnh sửa, bỏ qua hoặc xác nhận output                  |
+| Audit trail               | Trạng thái, thời gian xử lý, lỗi và stage timings cần được lưu để phục vụ benchmark ở Chương 4    |
 
 Nhờ các kiểm soát này, AI không trở thành một lớp quyết định ẩn trong hệ thống. Mỗi workflow đều có hợp đồng dữ liệu, trạng thái lỗi và điểm can thiệp của con người. Đây là điều kiện cần để các kết quả benchmark ở Chương 4 có thể được diễn giải đúng: benchmark đo chất lượng của output hỗ trợ, không chứng minh rằng hệ thống có quyền thay người dùng ra quyết định học thuật.
 
@@ -817,9 +817,9 @@ flowchart TD
     W --> B
 ```
 
-`LLMClient` là lớp giữ hợp đồng gọi model thống nhất. Client có thể nhận cấu hình OpenAI-compatible provider hoặc OpenRouter provider, có timeout và structured output. Fallback provider chỉ là cơ chế vận hành; nó không làm thay đổi bản chất học thuật của workflow. Mọi workflow vẫn phải tuân thủ cùng schema, prompt và validation.
+`LLMClient` là lớp gọi model thống nhất. Client có thể nhận cấu hình OpenAI-compatible provider hoặc OpenRouter provider, có timeout và structured output. Fallback provider chỉ là cơ chế vận hành; nó không làm thay đổi bản chất học thuật của workflow. Mọi workflow vẫn phải tuân thủ cùng schema, prompt và validation.
 
-Đối với LLM, cấu hình production cần khóa về `gemini-3.1-flash-lite`:
+Cấu hình môi trường cho AI service:
 
 ```env
 OPENROUTER_API_KEY=
@@ -829,8 +829,6 @@ OPENAI_BASE_URL=
 OPENAI_MODEL=gemini-3.1-flash-lite
 LLM_REQUEST_TIMEOUT_SECONDS=60
 ```
-
-Đoạn env trên thể hiện ý nghĩa thiết kế: dù gọi qua OpenRouter hay OpenAI-compatible route, model mục tiêu của hệ thống vẫn là `gemini-3.1-flash-lite`. Nếu thay đổi provider trong tương lai, thay đổi đó phải giữ nguyên ranh giới workflow, schema validation và nguyên tắc con người kiểm soát đầu ra.
 
 ### 3.5.4. Tích hợp nguồn dữ liệu học thuật bên ngoài
 
@@ -850,9 +848,132 @@ Các giới hạn chính gồm: phụ thuộc chất lượng file đầu vào, 
 
 ## 3.6. Môi trường triển khai và vận hành
 
-### 3.6.1. Kiến trúc triển khai production
+### 3.6.1. Môi trường phát triển cục bộ
+
+Môi trường phát triển cục bộ của ConferenceSpace được thiết kế để nhóm có thể phát triển tính năng, chạy migration, kiểm tra API, kiểm tra workflow AI và tái tạo lỗi vận hành trên máy cá nhân. Môi trường này được chuẩn hóa bằng ba nhóm cơ chế: Docker Compose cho các service có trạng thái, Makefile cho luồng khởi động backend/data/AI, và các biến môi trường mẫu cho cấu hình runtime.
+
+Trong môi trường phát triển, các service như PostgreSQL, Redis, Neo4j và AI service được container hóa để giảm thao tác cài đặt thủ công. Backend có thể chạy trực tiếp bằng Go để giữ vòng lặp sửa code nhanh, trong khi frontend chạy bằng dev server của Next.js.
+
+#### 3.6.1.1. Quy trình khởi động môi trường
+
+Quy trình khởi động môi trường được tóm tắt bằng các target chính sau:
+
+```makefile
+dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server
+
+server:
+	go run ./cmd/server/main.go
+
+migrate-up:
+	$(MIGRATE) -path migrations \
+	  -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
+```
+
+Luồng `make dev` là lệnh khởi động nhanh stack chính cho backend và AI service: PostgreSQL, Redis, Neo4j và AI service chạy bằng Docker Compose; migration PostgreSQL và schema Neo4j được chuẩn bị tự động; Swagger docs được sinh lại; Go backend chạy local trên cổng 8080.
+
+Để chạy toàn bộ nền tảng end-to-end với giao diện, frontend Next.js được khởi động riêng ở terminal riêng trong thư mục `frontend`:
+
+```bash
+npm install
+npm run dev
+```
+
+#### 3.6.1.2. Các service phụ thuộc trong môi trường phát triển
+
+Cấu hình Docker Compose local mô tả các dependency vận hành và mở các port cần thiết ra máy phát triển. Nhờ đó, lập trình viên có thể kiểm tra trực tiếp PostgreSQL, Redis, Neo4j Browser, backend API và AI service trong quá trình phát triển. Khi cần kiểm tra toàn bộ backend bằng container thay vì `go run`, hệ thống cung cấp luồng `make docker-up`.
+
+```yaml
+postgres:
+  image: postgres:15-alpine
+  ports:
+    - "5432:5432"
+
+redis:
+  image: redis:7-alpine
+  ports:
+    - "6379:6379"
+
+neo4j:
+  image: neo4j:5.15-community
+  ports:
+    - "7474:7474"
+    - "7687:7687"
+
+ai-service:
+  build:
+    context: ../ai-service
+  ports:
+    - "8090:8090"
+  environment:
+    REDIS_URL: "redis://redis:6379/0"
+    POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@postgres:5432/conferencespace"
+    BACKEND_API_BASE_URL: "http://host.docker.internal:8080"
+```
+
+Ngoài `make dev`, Makefile cũng có nhóm lệnh `docker-up`, `docker-down`, `docker-logs` và `status` để vận hành stack container hóa, xem log và kiểm tra trạng thái service.
+
+#### 3.6.1.3. Chạy riêng từng service để kiểm thử
+
+Khi cần kiểm thử hoặc phân tích lỗi ở AI service, nhóm có thể chạy service trực tiếp thay vì qua container:
+
+```bash
+poetry install
+cp .env.example .env
+poetry run alembic upgrade head
+poetry run uvicorn app.main:app --reload --port 8090
+```
+
+AI service đọc `.env` bằng `pydantic-settings`, kết nối Redis qua `REDIS_URL`, PostgreSQL qua `POSTGRES_DSN` và backend qua `BACKEND_API_BASE_URL`. Khi khởi động, service yêu cầu có một trong hai cấu hình provider hợp lệ: `OPENAI_API_KEY` + `OPENAI_BASE_URL` + `OPENAI_MODEL`, hoặc `OPENROUTER_API_KEY` + `AGENT_MODEL`.
+
+Frontend dùng Next.js và được chạy bằng script phát triển riêng:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest",
+    "test:run": "vitest run"
+  }
+}
+```
+
+Frontend local thường chạy trên `http://localhost:3000`. Trình duyệt gọi API qua route proxy `/api/backend`; proxy Next.js chuyển request đến `BACKEND_API_BASE_URL`, mặc định là `http://localhost:8080`. Các route chat của frontend gọi `AI_SERVICE_BASE_URL`, mặc định là `http://localhost:8090`. Nhờ vậy, local frontend không cần gọi trực tiếp database hoặc AI provider; mọi truy cập dữ liệu vẫn đi qua backend hoặc AI service.
+
+Các nhóm biến môi trường local chính:
+
+| Thành phần       | Nhóm cấu hình                        | Biến quan trọng                                                                                                                                   | Vai trò                                                                    |
+| ---------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Backend Go       | Server và database                   | `SERVER_PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`                                                            | Cổng API và kết nối PostgreSQL                                             |
+| Backend tích hợp | Service nội bộ và dịch vụ ngoài      | `AI_SERVICE_BASE_URL`, `AI_SERVICE_TIMEOUT_SECONDS`, `NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`, `SEMANTIC_SCHOLAR_API_KEY`, `BREVO_API_KEY` | Kết nối AI service, graph COI, dữ liệu học thuật và email                  |
+| Bảo mật backend  | Auth, CORS và service token          | `JWT_SECRET`, `JWT_EXPIRY_HOURS`, `ADMIN_TOKEN`, `AGENT_SERVICE_TOKEN`, `CORS_ALLOWED_ORIGINS`, `APP_BASE_URL`                                    | Xác thực, service-to-service token, CORS và URL ứng dụng                   |
+| Lưu trữ file     | Local/Supabase storage               | `FILE_STORAGE_PROVIDER`, `FILE_STORAGE_LOCAL_BASE_PATH`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`                   | Mặc định local lưu file dưới `./uploads/submissions`; Supabase là tùy chọn |
+| AI service       | Runtime và provider LLM              | `AI_SERVICE_PORT`, `OPENROUTER_API_KEY`, `AGENT_MODEL`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, `LLM_REQUEST_TIMEOUT_SECONDS`        | Cấu hình runtime và provider LLM                                           |
+| AI service state | State, session và giới hạn hội thoại | `REDIS_URL`, `POSTGRES_DSN`, `POSTGRES_SCHEMA`, `SESSION_TTL_MINUTES`, `MAX_ITERATIONS`, `MAX_TURN_DURATION_SECONDS`                              | Redis/PostgreSQL state, giới hạn hội thoại và timeout                      |
+| Frontend Next.js | API proxy và cookie                  | `NEXT_PUBLIC_API_BASE_URL`, `BACKEND_API_BASE_URL`, `AI_SERVICE_BASE_URL`, `AI_SERVICE_ENABLED`, `JWT_EXPIRY_SECONDS`                             | Proxy API, proxy chatbot và thời hạn cookie                                |
+
+Các endpoint và lệnh kiểm tra local quan trọng:
+
+| Mục kiểm tra           | Cách kiểm tra                                                                                               |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Frontend               | `npm install`, `npm run dev`, mở `http://localhost:3000`                                                    |
+| Backend/data/AI stack  | `make dev`, kiểm tra backend tại `http://localhost:8080/health`                                             |
+| Swagger UI             | `make swagger`, mở `http://localhost:8080/swagger/index.html`                                               |
+| AI service riêng       | `poetry run uvicorn app.main:app --reload --port 8090`, kiểm tra `http://localhost:8090/health` và `/ready` |
+| PostgreSQL             | `make db-up`, `make db-shell`, hoặc `pg_isready` trong container                                            |
+| Redis                  | `make redis-up`, `docker-compose exec -T redis redis-cli ping`                                              |
+| Neo4j                  | `make neo4j-up`, mở `http://localhost:7474`, user `neo4j`, password `conferencespace`                       |
+| Trạng thái stack local | `make status`, `docker-compose ps`, `docker-compose logs -f`                                                |
+
+Điểm cần nhấn mạnh là môi trường phát triển cục bộ không chỉ phục vụ chạy giao diện. Nó là nơi kiểm tra toàn bộ contract vận hành: migration PostgreSQL, schema AI bằng Alembic, graph COI trên Neo4j, cache/session bằng Redis, proxy API của frontend và token service-to-service giữa backend và AI service.
+
+### 3.6.2. Kiến trúc triển khai production
 
 ConferenceSpace được đóng gói thành các service độc lập: Caddy gateway, Next.js web, Go backend, backend migration job, FastAPI AI service, PostgreSQL, Redis và Neo4j. Cách triển khai này giúp nhóm chứng minh hệ thống không chỉ chạy ở môi trường development mà có thể vận hành như một stack thực tế.
+
+Môi trường production được triển khai trên VPS chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu được đặt ở mức 2 vCPU, 4 GB RAM và tối thiểu 30 GB dung lượng lưu trữ để có đủ khoảng trống cho image, volume dữ liệu, log và các lần cập nhật qua deployment pipeline. Với khối lượng sử dụng cao hơn, cấu hình 4 vCPU và 8 GB RAM trở lên phù hợp hơn vì stack chạy đồng thời PostgreSQL, Redis, Neo4j, backend, AI service, Next.js và Caddy.
 
 **Hình 3.23. Topology triển khai production**
 
@@ -885,9 +1006,9 @@ flowchart LR
 
 Network `app` phục vụ giao tiếp giữa các service ứng dụng, còn network `data` được cấu hình `internal: true` để giới hạn truy cập vào cơ sở dữ liệu và cache. Thiết kế này phù hợp với yêu cầu bảo mật bản thảo và dữ liệu phản biện: các thành phần dữ liệu không được expose trực tiếp ra Internet.
 
-### 3.6.2. Docker Compose và container images
+### 3.6.3. Docker Compose và container images
 
-File `deployment/docker-compose.prod.yml` là evidence chính cho topology production. Compose khai báo service, image, environment, volume, healthcheck, network và restart policy. Ba service ứng dụng `web`, `backend` và `ai-service` dùng image được build từ GitHub Actions và truyền vào qua biến môi trường:
+Cấu hình Docker Compose production khai báo service, image, environment, volume, healthcheck, network và restart policy. Ba service ứng dụng `web`, `backend` và `ai-service` dùng image được build từ GitHub Actions và truyền vào qua biến môi trường:
 
 ```yaml
 web:
@@ -906,9 +1027,68 @@ ghcr.io/<owner>/conferencespace-backend:<GITHUB_SHA>
 ghcr.io/<owner>/conferencespace-ai-service:<GITHUB_SHA>
 ```
 
-Đây là điểm quan trọng về khả năng tái lập. Mỗi lần deploy production không build trực tiếp trên server mà kéo đúng image đã build trong pipeline, sau đó chạy migration và cập nhật stack bằng Docker Compose.
+Ba Dockerfile tương ứng xác định đúng runtime của từng service:
 
-### 3.6.3. Cấu hình server và biến môi trường
+| Image                        | Dockerfile              | Nội dung chính                                                                                                                              |
+| ---------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conferencespace-frontend`   | `frontend/Dockerfile`   | Multi-stage Node 22 Alpine; build Next.js với `NEXT_PUBLIC_API_BASE_URL=/api/backend`; runtime chạy `pnpm start` ở cổng 3000                |
+| `conferencespace-backend`    | `backend/Dockerfile`    | Multi-stage Go 1.24 Alpine; sinh Swagger docs, build binary Linux tĩnh, copy migrations và `migrate` CLI; runtime expose cổng 8080          |
+| `conferencespace-ai-service` | `ai-service/Dockerfile` | Python 3.12 slim; cài `libmagic1`, Poetry và dependency production; khi chạy thực hiện `alembic upgrade head` rồi start Uvicorn ở cổng 8090 |
+
+Các đoạn cấu hình image cốt lõi:
+
+```dockerfile
+# frontend/Dockerfile
+FROM node:22-alpine AS deps
+RUN corepack enable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+FROM node:22-alpine AS builder
+ARG NEXT_PUBLIC_API_BASE_URL=/api/backend
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NODE_OPTIONS=--max-old-space-size=4096
+RUN pnpm build
+
+FROM node:22-alpine AS runner
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+EXPOSE 3000
+CMD ["pnpm", "start"]
+```
+
+```dockerfile
+# backend/Dockerfile
+FROM golang:1.24-alpine AS builder
+RUN apk add --no-cache git
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+RUN go run github.com/swaggo/swag/cmd/swag@latest init -g cmd/server/main.go -o ./docs
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /app/main .
+COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /go/bin/migrate /usr/local/bin/migrate
+EXPOSE 8080
+CMD ["./main"]
+```
+
+```dockerfile
+# ai-service/Dockerfile
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 curl \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir poetry==1.8.5
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root --only main
+EXPOSE 8090
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8090"]
+```
+
+Đây là điểm quan trọng về khả năng tái lập. Mỗi lần deploy production không build trực tiếp trên server mà kéo đúng image đã build trong pipeline, sau đó chạy migration và cập nhật stack bằng Docker Compose. Nhờ đó, server production chỉ cần Docker Engine, Docker Compose plugin, file `.env.production` và quyền pull GHCR; logic build nằm trong CI/CD.
+
+### 3.6.4. Cấu hình server và biến môi trường
 
 Runtime configuration được tách khỏi mã nguồn bằng `.env.production` trên server. GitHub Actions chỉ cập nhật ba biến image (`FRONTEND_IMAGE`, `BACKEND_IMAGE`, `AI_SERVICE_IMAGE`) và yêu cầu file `.env.production` đã tồn tại trước khi deploy. Cách này giúp secret thật không đi vào repository.
 
@@ -923,11 +1103,11 @@ Các nhóm biến chính gồm:
 
 Mọi secret phải được cấu hình ở server hoặc GitHub Secrets. Báo cáo chỉ trình bày tên biến và vai trò, không đưa giá trị thật.
 
-### 3.6.4. Reverse proxy, HTTPS và routing
+### 3.6.5. Reverse proxy, HTTPS và routing
 
 Caddy đóng vai trò gateway nhận lưu lượng từ Internet và định tuyến vào các service nội bộ. Trình duyệt không truy cập trực tiếp backend, AI service, PostgreSQL, Redis hoặc Neo4j. WebSocket notification được định tuyến riêng về backend, còn giao diện web được định tuyến về Next.js.
 
-File `deployment/Caddyfile` hiện tại:
+Cấu hình Caddy production hiện tại:
 
 ```caddyfile
 conference-space.com, www.conference-space.com {
@@ -939,14 +1119,12 @@ conference-space.com, www.conference-space.com {
 
 Đoạn cấu hình trên là anchor quan trọng của kiến trúc triển khai: mọi truy cập công khai đi qua gateway, còn service nội bộ chỉ giao tiếp trong Docker network. Caddy đồng thời xử lý nén nội dung và Automatic HTTPS [19], giúp giảm phần cấu hình vận hành thủ công so với mô hình reverse proxy cộng Certbot riêng.
 
-### 3.6.5. CI/CD, GitHub Actions và GHCR
+### 3.6.6. CI/CD, GitHub Actions và GHCR
 
-Pipeline `.github/workflows/deploy.yml` có bốn nhóm bước chính:
+Quy trình `.github/workflows/deploy.yml` có bốn nhóm bước chính:
 
-1. Build và push image frontend lên GHCR.
-2. Build và push image backend lên GHCR.
-3. Build và push image AI service lên GHCR.
-4. SSH vào VPS, cập nhật `.env.production`, pull image, chạy migration và `docker compose up -d`.
+1. Build và push các image của từng module lên GHCR song song: frontend, backend và AI service.
+2. SSH vào VPS, cập nhật `.env.production`, pull image, chạy migration và `docker compose up -d`.
 
 **Hình 3.24. Luồng CI/CD production**
 
@@ -965,11 +1143,99 @@ flowchart TD
     I --> J["docker compose up -d --remove-orphans"]
 ```
 
-Pipeline cũng in image digest vào GitHub Step Summary. Đây là bằng chứng vận hành hữu ích: khi cần truy vết một bản deploy, nhóm có thể biết service nào chạy image nào thay vì chỉ dựa vào tag `latest`.
+Các đoạn cấu hình quan trọng của GitHub Actions thể hiện rõ cách image được đặt tên, build và deploy. Mỗi build job đăng nhập GHCR bằng `GHCR_TOKEN`, đặt image theo owner repository và commit SHA, đồng thời push thêm tag `latest`:
 
-### 3.6.6. Network isolation, volume và bảo mật secret
+```yaml
+env:
+  REGISTRY: ghcr.io
 
-Production Compose tách network `app` và `data`; network `data` được khai báo `internal: true`. PostgreSQL, Redis và Neo4j chỉ nằm trên network dữ liệu, trong khi backend và AI service là các service được phép đi qua ranh giới này. Caddy chỉ nằm ở network ứng dụng và expose cổng 80/443.
+- name: Set image names
+  id: images
+  run: |
+    image_prefix="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/conferencespace"
+    echo "prefix=${image_prefix}" >> "$GITHUB_OUTPUT"
+    echo "image=${image_prefix}-frontend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+- name: Build and push frontend
+  id: build
+  uses: docker/build-push-action@v6
+  with:
+    context: ./frontend
+    file: ./frontend/Dockerfile
+    build-args: |
+      NEXT_PUBLIC_API_BASE_URL=/api/backend
+    push: true
+    tags: |
+      ${{ steps.images.outputs.image }}
+      ${{ steps.images.outputs.prefix }}-frontend:latest
+```
+
+Backend và AI service dùng cùng mẫu cấu hình, chỉ khác `context`, `file` và hậu tố image:
+
+```yaml
+backend:
+  context: ./backend
+  file: ./backend/Dockerfile
+  image: ghcr.io/<owner>/conferencespace-backend:<GITHUB_SHA>
+
+ai-service:
+  context: ./ai-service
+  file: ./ai-service/Dockerfile
+  image: ghcr.io/<owner>/conferencespace-ai-service:<GITHUB_SHA>
+```
+
+Sau khi ba image được build xong, job `deploy` copy các file triển khai lên `/opt/conferencespace`:
+
+```yaml
+- name: Prepare deployment files
+  run: |
+    mkdir -p deploy
+    cp deployment/docker-compose.prod.yml deploy/docker-compose.prod.yml
+    cp deployment/Caddyfile deploy/Caddyfile
+    cp deployment/bootstrap.sh deploy/bootstrap.sh
+```
+
+Trên VPS, workflow cập nhật ba biến image trong `.env.production`, đăng nhập GHCR, pull image, chạy migration bằng service `backend-migrate`, rồi khởi động stack:
+
+```sh
+chmod 600 .env.production
+set_env FRONTEND_IMAGE "${FRONTEND_IMAGE}"
+set_env BACKEND_IMAGE "${BACKEND_IMAGE}"
+set_env AI_SERVICE_IMAGE "${AI_SERVICE_IMAGE}"
+
+echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+docker compose --env-file .env.production -f docker-compose.prod.yml pull
+docker compose --env-file .env.production -f docker-compose.prod.yml run --rm backend-migrate
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+```
+
+Luồng triển khai đầy đủ vì vậy gồm sáu bước: commit vào `main` hoặc chạy thủ công workflow; GitHub Actions build ba image độc lập; GHCR lưu image theo commit SHA và `latest`; deploy job chuyển compose/Caddy/bootstrap lên server; server cập nhật `.env.production` để trỏ tới đúng image mới; Docker Compose pull, migrate và thay container đang chạy. Cuối workflow, script so sánh image cũ và image hiện tại của `web`, `backend`, `ai-service` để xóa các image ứng dụng không còn dùng, giúp giảm sử dụng dung lượng không cần thiết trên VPS.
+
+### 3.6.7. Network isolation, volume và bảo mật secret
+
+Production Compose tách network `app` và `data`; network `data` được khai báo `internal: true`. PostgreSQL và Redis chỉ nằm trên network dữ liệu. Backend và AI service nằm trên cả `app` và `data` để vừa nhận request nội bộ, vừa truy cập database/cache. Neo4j nằm trên `app` và `data` trong cấu hình hiện tại để hỗ trợ các kết nối nội bộ cần thiết, nhưng không expose port trực tiếp ra Internet. Caddy chỉ nằm ở network ứng dụng và expose cổng 80/443.
+
+Đoạn cấu hình network và volume chính trong `deployment/docker-compose.prod.yml`:
+
+```yaml
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  redis_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_plugins:
+  uploads_data:
+
+networks:
+  app:
+    driver: bridge
+  data:
+    driver: bridge
+    internal: true
+```
 
 Các volume bền vững gồm `postgres_data`, `redis_data`, `neo4j_data`, `neo4j_logs`, `neo4j_plugins`, `uploads_data`, `caddy_data` và `caddy_config`. Việc tách volume giúp dữ liệu không mất khi container được tái tạo trong quá trình deploy.
 
