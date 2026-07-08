@@ -6,11 +6,11 @@ Số lượng bài báo gửi đến các hội nghị khoa học lớn đã tă
 
 Các công cụ trí tuệ nhân tạo, đặc biệt là mô hình ngôn ngữ lớn, mở ra khả năng hỗ trợ một số công đoạn có khối lượng thông tin lớn. Một thử nghiệm ngẫu nhiên trên hơn 20.000 bản phản biện tại ICLR 2025 cho thấy phản hồi do AI tạo có thể giúp người phản biện làm cho nhận xét cụ thể và có tính hành động hơn; nhóm nhận phản hồi cũng tham gia trao đổi trong giai đoạn rebuttal tích cực hơn [3]. Tuy nhiên, kết quả này phản ánh hiệu quả của một cơ chế hỗ trợ được thiết kế và kiểm soát trong một bối cảnh cụ thể, không đồng nghĩa AI có thể thay thế hoạt động đánh giá học thuật.
 
-Việc đưa AI vào quy trình phản biện còn đặt ra các vấn đề về bảo mật bản thảo chưa công bố, độ tin cậy của nội dung sinh ra và trách nhiệm đối với quyết định cuối cùng. Khảo sát của *Nature* với gần 5.000 nhà nghiên cứu cho thấy cộng đồng có quan điểm phân hóa về việc sử dụng AI trong viết và phản biện khoa học [4]. Nếu AI trực tiếp tạo nhận định hoặc chi phối quyết định mà thiếu cơ chế kiểm tra, hệ thống có thể làm tăng rủi ro thay vì giảm tải cho người dùng. Vì vậy, bài toán trọng tâm không chỉ là bổ sung AI, mà là xác định công đoạn nào nên được xử lý bằng nghiệp vụ ổn định, công đoạn nào cần thuật toán có thể kiểm chứng, và công đoạn nào phù hợp để AI hỗ trợ dưới sự kiểm soát của con người.
+Việc đưa AI vào quy trình phản biện còn đặt ra các vấn đề về bảo mật bản thảo chưa công bố, độ tin cậy của nội dung sinh ra và trách nhiệm đối với quyết định cuối cùng. Khảo sát của _Nature_ với gần 5.000 nhà nghiên cứu cho thấy cộng đồng có quan điểm phân hóa về việc sử dụng AI trong viết và phản biện khoa học [4]. Nếu AI trực tiếp tạo nhận định hoặc chi phối quyết định mà thiếu cơ chế kiểm tra, hệ thống có thể làm tăng rủi ro thay vì giảm tải cho người dùng. Vì vậy, bài toán trọng tâm không chỉ là bổ sung AI, mà là xác định công đoạn nào nên được xử lý bằng nghiệp vụ ổn định, công đoạn nào cần thuật toán có thể kiểm chứng, và công đoạn nào phù hợp để AI hỗ trợ dưới sự kiểm soát của con người.
 
 Các nền tảng như EasyChair, HotCRP, Microsoft CMT và OpenReview đã hỗ trợ hiệu quả những nghiệp vụ nền tảng của hội nghị, gồm tiếp nhận bản thảo, phân công phản biện, thu thập đánh giá và quản lý quyết định [5][6][7][8]. Tuy nhiên, các khả năng hỗ trợ nhập liệu, kiểm tra bản thảo, đọc hiểu và tổng hợp thông tin bằng AI chưa được tổ chức thành một quy trình thống nhất với ranh giới trách nhiệm rõ ràng giữa nghiệp vụ, thuật toán và AI. Khoảng trống này sẽ được khảo sát và đối chiếu chi tiết ở Chương 2.
 
-Từ bối cảnh trên, nhóm xây dựng **ConferenceSpace**, một nền tảng web hiện thực các nghiệp vụ cần thiết cho vòng đời xét duyệt bài báo và làm môi trường đánh giá cách tích hợp AI có kiểm soát. Hệ thống được tổ chức theo ba lớp: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Cách tổ chức này nhằm duy trì khả năng vận hành khi dịch vụ AI không khả dụng, tạo điều kiện kiểm tra các kết quả thuật toán, đồng thời bảo đảm quyết định học thuật cuối cùng vẫn thuộc về người có thẩm quyền.
+Từ bối cảnh trên, nhóm xây dựng **ConferenceSpace**, một nền tảng web hiện thực các nghiệp vụ cần thiết cho vòng đời xét duyệt bài báo và làm môi trường đánh giá cách tích hợp AI có kiểm soát. Hệ thống được tổ chức theo ba lớp: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Cách tổ chức này nhằm duy trì khả năng vận hành khi dịch vụ AI không khả dụng, tạo điều kiện kiểm tra các kết quả thuật toán, đồng thời bảo đảm quyết định học thuật cuối cùng vẫn thuộc về người dùng và vai trò có thẩm quyền.
 
 ## 1.2. Mục tiêu đề tài
 
@@ -64,13 +64,13 @@ Mạch lập luận của báo cáo được tổ chức như sau: Chương 1 x�
 
 ## Tài liệu tham khảo
 
-[1] A. Azad and A. Banu, “Publication Trends in Artificial Intelligence Conferences: The Rise of Super Prolific Authors,” *arXiv preprint*, arXiv:2412.07793, 2024. Available: https://arxiv.org/abs/2412.07793
+[1] A. Azad and A. Banu, “Publication Trends in Artificial Intelligence Conferences: The Rise of Super Prolific Authors,” _arXiv preprint_, arXiv:2412.07793, 2024. Available: https://arxiv.org/abs/2412.07793
 
 [2] Neural Information Processing Systems Foundation, “NeurIPS 2025 Fact Sheet,” 2025. Available: https://media.neurips.cc/Conferences/NeurIPS2025/press/NeurIPS2025-Fact_Sheet.pdf
 
-[3] N. Thakkar et al., “A Large-Scale Randomized Study of Large Language Model Feedback in Peer Review,” *Nature Machine Intelligence*, 2026. doi: 10.1038/s42256-026-01188-x. Available: https://doi.org/10.1038/s42256-026-01188-x
+[3] N. Thakkar et al., “A Large-Scale Randomized Study of Large Language Model Feedback in Peer Review,” _Nature Machine Intelligence_, 2026. doi: 10.1038/s42256-026-01188-x. Available: https://doi.org/10.1038/s42256-026-01188-x
 
-[4] R. Van Noorden, “Is It OK for AI to Write Science Papers? Nature Survey Shows Researchers Are Split,” *Nature*, May 2025. Available: https://www.nature.com/articles/d41586-025-01463-8
+[4] D. Kwon, “Is It OK for AI to Write Science Papers? Nature Survey Shows Researchers Are Split,” _Nature_, May 2025. Available: https://www.nature.com/articles/d41586-025-01463-8
 
 [5] EasyChair, “EasyChair Conference Management.” Available: https://easychair.org/
 
