@@ -35,7 +35,7 @@ Hệ thống tích hợp sáu workflow AI phục vụ trực tiếp ba vai trò 
 
 | Workflow | Vai trò phục vụ | Kết quả đạt được |
 |---|---|---|
-| **Submission Autofill** | Author | Trích xuất tự động tiêu đề, tóm tắt, từ khóa, tác giả từ PDF và hỗ trợ Track recommendation trong cùng luồng nộp bài. Đánh giá trên 1.127 bài báo: **91,22%** khớp tiêu đề chính xác, ROUGE-1/ROUGE-L abstract đạt **83,6%/83,3%**, Keyword F1 đạt **92,77%** |
+| **Submission Autofill** | Author | Trích xuất tự động tiêu đề, tóm tắt, từ khóa, tác giả từ PDF và gợi ý track trong cùng luồng nộp bài. Đánh giá trên 1.127 bài báo: **91,22%** khớp tiêu đề chính xác, ROUGE-1/ROUGE-L abstract đạt **83,6%/83,3%**, Keyword F1 đạt **92,77%** |
 | **Submission Gating** | Author/Chair | Kiểm tra định dạng, section bắt buộc, policy hội nghị và các điểm cần Chair xem lại trước khi submission được gửi chính thức |
 | **Reviewer Initial Analysis** | Reviewer | Tạo briefing tổng quan và chú thích chi tiết từng đoạn (phương pháp luận, điểm mạnh/yếu, câu hỏi gợi ý) — hỗ trợ phản biện chuẩn bị đánh giá |
 | **Review Quality Auditor** | Reviewer/Chair | Kiểm tra chất lượng, mức độ cụ thể và tính nhất quán của bản nháp phản biện trước khi gửi chính thức |
