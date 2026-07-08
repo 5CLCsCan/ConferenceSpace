@@ -669,7 +669,19 @@ flowchart TD
 | Evaluation | Tóm tắt mức độ cụ thể, mức độ bám bằng chứng, tính nhất quán và trọng tâm cần cải thiện |
 | Finding | Mã vấn đề, severity, field bị ảnh hưởng, rationale, message, suggestion và fingerprint điều kiện |
 
-Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Nếu workflow trả cảnh báo, reviewer vẫn là người sửa, bỏ qua hoặc xác nhận. Nếu hệ thống dùng chế độ enforcement, điều kiện block cần được giới hạn ở lỗi rõ ràng làm review chưa đủ tư cách gửi.
+Ba trạng thái của Review Quality Auditor cần được hiểu theo chất lượng bản review, không theo chất lượng bài báo:
+
+| Trạng thái | Khi nào xảy ra | Ý nghĩa trong workflow |
+|---|---|---|
+| `pass` | Không có finding đáng kể sau khi kiểm tra độ cụ thể, mức độ bám bằng chứng và tính nhất quán | Reviewer có thể tiếp tục lưu/gửi review; hệ thống không thêm rào cản |
+| `warn` | Có vấn đề nên sửa, nhưng review vẫn có thể dùng được sau khi reviewer cân nhắc, ví dụ thiếu giải thích cho một tiêu chí phụ, strengths/weaknesses chưa cân bằng, hoặc confidence chưa được hỗ trợ đủ rõ | Frontend hiển thị cảnh báo và gợi ý chỉnh sửa; reviewer vẫn giữ quyền sửa, bỏ qua hoặc xác nhận tùy policy |
+| `block` | Review chưa đủ tư cách gửi như một phản biện học thuật ở trạng thái hiện tại, chẳng hạn tự mâu thuẫn nghiêm trọng, khuyến nghị không có lập luận hỗ trợ, bỏ qua claim trung tâm của bài, hoặc quá chung chung đến mức Chair không thể sử dụng | Hệ thống yêu cầu reviewer chỉnh review trước khi gửi chính thức; block áp vào hành động gửi review, không áp vào quyết định accept/reject của bài báo |
+
+Điểm dễ gây hiểu nhầm là vì sao output của AI có thể dẫn tới trạng thái `block`. Trong thiết kế này, AI không được phép chặn vì "không đồng ý" với nhận định chuyên môn của reviewer, cũng không được đề xuất đổi điểm, đổi recommendation hoặc đổi confidence. AI chỉ phát hiện một số lỗi hình thức-ngữ nghĩa của chính bản review: bản review có tự mâu thuẫn không, có đưa ra khuyến nghị nhưng không có lập luận hỗ trợ không, có bỏ qua claim trung tâm đến mức review không còn hữu ích không, hoặc có quá chung chung để Chair dùng trong quá trình ra quyết định không. Nói cách khác, đối tượng bị kiểm tra là **tính sử dụng được của review**, không phải **giá trị học thuật của paper**.
+
+Trong triển khai, model chỉ sinh finding với mã lỗi, field bị ảnh hưởng và mức nghiêm trọng ngữ nghĩa. Runtime của hệ thống mới quyết định status cuối cùng theo mode. Ở chế độ `draft_save`, các vấn đề nghiêm trọng vẫn được hạ thành cảnh báo để reviewer có thể lưu nháp. Ở các chế độ trước khi gửi chính thức, chỉ một nhóm lỗi nặng mới được map thành `block`: tự mâu thuẫn, recommendation lệch với lập luận, recommendation không được hỗ trợ, không đụng tới claim trung tâm của bài, hoặc review quá chung chung để gửi. Cách chia này giữ đúng ranh giới trách nhiệm: AI có thể chặn một thao tác gửi review chưa đạt điều kiện tối thiểu, nhưng không ra quyết định học thuật thay reviewer hoặc Chair.
+
+Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Reviewer vẫn là người sửa nội dung review và chịu trách nhiệm cuối cùng với nhận định chuyên môn của mình.
 
 #### 3.5.2.5. Chair Decision Copilot
 

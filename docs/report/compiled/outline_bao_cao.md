@@ -144,7 +144,7 @@ Trình bày workflow kiểm tra sơ bộ bản thảo trước khi nộp hoặc 
 Trình bày workflow hỗ trợ người phản biện đọc hiểu bài nộp ban đầu, gồm tóm tắt trung lập, nhận diện điểm cần kiểm tra kỹ và tổ chức các ghi chú ban đầu. Nội dung cần nhấn mạnh AI giúp reviewer định hướng đọc, nhưng reviewer vẫn chịu trách nhiệm đọc bài và viết đánh giá chuyên môn.
 
 ##### 3.5.2.4 Review Quality Auditor
-Trình bày workflow kiểm tra chất lượng bản nháp phản biện, gồm phát hiện phản biện thiếu căn cứ, thiếu chiều sâu, không nhất quán hoặc có nguy cơ không đáp ứng yêu cầu biểu mẫu. Mục này cần nhấn mạnh auditor là công cụ hỗ trợ tự kiểm tra hoặc hỗ trợ Chair, không phải bộ lọc tự động quyết định review đạt hay không đạt.
+Trình bày workflow kiểm tra chất lượng bản nháp phản biện, gồm phát hiện phản biện thiếu căn cứ, thiếu chiều sâu, không nhất quán hoặc có nguy cơ không đáp ứng yêu cầu biểu mẫu. Mục này cần nhấn mạnh auditor là công cụ hỗ trợ tự kiểm tra hoặc hỗ trợ Chair, không phải bộ lọc tự động quyết định bài báo đạt hay không đạt. Cần mô tả rõ ba trạng thái `pass`, `warn`, `block`; đặc biệt, `block` chỉ áp vào thao tác gửi review khi bản review chưa đủ tư cách là một phản biện học thuật ở trạng thái hiện tại, và runtime chỉ map một số lỗi nghiêm trọng thành block ở chế độ trước khi gửi chính thức.
 
 ##### 3.5.2.5 Chair Decision Copilot
 Trình bày workflow hỗ trợ Chair tổng hợp review, rebuttal, điểm đồng thuận, điểm mâu thuẫn và bằng chứng liên quan trước khi ra quyết định. Mục này cần khẳng định workflow chỉ hỗ trợ tổng hợp evidence, không sinh quyết định accept/reject thay Chair.
