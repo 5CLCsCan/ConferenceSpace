@@ -1,8 +1,8 @@
-# Chương 2. Khảo sát nhu cầu, hiện trạng và tổng hợp yêu cầu
+# Chương 2. Khảo sát nhu cầu, hiện trạng và khoảng trống nghiên cứu
 
 Chương 1 đã xác lập vấn đề trung tâm của đề tài: quy trình bình duyệt học thuật (peer review) trong hội nghị khoa học đang chịu áp lực lớn về quy mô, trong khi việc đưa AI vào quy trình học thuật phải được kiểm soát chặt chẽ để không làm suy giảm tính liêm chính, bảo mật và trách nhiệm ra quyết định. Vì vậy, Chương 2 không chỉ khảo sát người dùng và các hệ thống hiện có, mà còn chuyển các quan sát đó thành yêu cầu thiết kế cụ thể cho ConferenceSpace.
 
-Mạch lập luận của chương gồm bốn bước. Mục 2.1 trình bày khảo sát nhu cầu ban đầu của nhóm theo ba vai trò chính: Tác giả, Người phản biện và Chủ tọa. Mục 2.2 đối chiếu các nhu cầu này với các nền tảng quản lý hội nghị đang được sử dụng rộng rãi như EasyChair, HotCRP, OpenReview và Microsoft CMT. Mục 2.3 rút ra các khoảng trống thực tiễn và nguyên tắc giải pháp. Cuối cùng, mục 2.4 tổng hợp thành yêu cầu hệ thống, tạo cầu nối trực tiếp sang thiết kế ở Chương 3 và lựa chọn công nghệ ở Chương 4.
+Mạch lập luận của chương gồm bốn bước. Mục 2.1 trình bày khảo sát nhu cầu ban đầu của nhóm theo ba vai trò chính: Tác giả, Người phản biện và Chủ tọa. Mục 2.2 đối chiếu các nhu cầu này với các nền tảng quản lý hội nghị đang được sử dụng rộng rãi như EasyChair, HotCRP, OpenReview và Microsoft CMT. Mục 2.3 rút ra các khoảng trống thực tiễn và nguyên tắc giải pháp. Cuối cùng, mục 2.4 tổng hợp thành yêu cầu hệ thống, tạo cầu nối trực tiếp sang phần thiết kế hệ thống ở Chương 3 và phần đánh giá ở Chương 4.
 
 ## 2.1. Khảo sát nhu cầu người dùng
 
@@ -103,7 +103,7 @@ _![Biểu đồ mức độ ủng hộ AI của Reviewer](link_hinh_anh_google_f
 
 Kết quả này phù hợp với các chính sách gần đây của những hội nghị lớn: AI có thể hỗ trợ người phản biện trong điều kiện có kiểm soát, nhưng người phản biện vẫn chịu trách nhiệm cuối cùng về nội dung phản biện, bảo mật bản thảo và tính trung thực của đánh giá [15][16].
 
-Do đó, luận điểm phù hợp cho nhóm người phản biện không phải là hệ thống thay con người đọc và đánh giá bài báo, mà là AI hỗ trợ người phản biện đọc có định hướng hơn. Bản tóm tắt trung lập và danh sách điểm cần kiểm tra có thể giảm phần ghi chú, đối chiếu và rà soát thủ công lặp lại, giúp người phản biện tập trung hơn vào các phần quan trọng của bài báo. Tuy nhiên, đây chỉ là hỗ trợ định hướng: người phản biện vẫn phải đọc bài, kiểm tra lại các điểm AI nêu ra và chịu trách nhiệm cuối cùng về nhận xét học thuật.
+Do đó, luận điểm phù hợp cho nhóm người phản biện không phải là hệ thống thay con người đọc và đánh giá bài báo, mà là AI hỗ trợ người phản biện đọc có định hướng hơn. Bản tóm tắt trung lập và danh sách điểm cần kiểm tra có thể giảm phần ghi chú, đối chiếu và rà soát thủ công lặp lại, giúp người phản biện tập trung hơn vào các phần quan trọng của bài báo.
 
 ### 2.1.6. Diễn giải kết quả và giới hạn khảo sát
 
@@ -114,7 +114,7 @@ Tổng hợp các phản hồi cho thấy bốn nhu cầu nền tảng:
 3. **Tăng kiểm soát rủi ro:** Chair cần hỗ trợ phát hiện COI và theo dõi tiến độ phản biện; tác giả cần phát hiện lỗi trước khi gửi chính thức.
 4. **AI phải minh bạch và có thể ghi đè:** người dùng chấp nhận AI khi AI đóng vai trò hỗ trợ, có căn cứ và cho phép con người kiểm tra lại.
 
-Những kết luận này cần được đọc cùng ba giới hạn. Thứ nhất, khảo sát dùng mẫu thuận tiện với 71 phản hồi, nên không đủ để đại diện cho toàn bộ cộng đồng học thuật. Thứ hai, các nhóm Chair và Reviewer có kích thước nhỏ, do đó phân tích theo vai trò chỉ mang tính định hướng. Thứ ba, khảo sát này đo nhu cầu trước khi sử dụng hệ thống, khác với khảo sát UAT sau khi trải nghiệm sản phẩm được trình bày ở Chương 5.
+Những kết luận này cần được đọc cùng ba giới hạn. Thứ nhất, khảo sát dùng mẫu thuận tiện với 71 phản hồi, nên không đủ để đại diện cho toàn bộ cộng đồng học thuật. Thứ hai, các nhóm Chair và Reviewer có kích thước nhỏ, do đó phân tích theo vai trò chỉ mang tính định hướng. Thứ ba, khảo sát này đo nhu cầu trước khi sử dụng hệ thống, khác với khảo sát người dùng sau khi trải nghiệm sản phẩm được trình bày trong chương đánh giá.
 
 ## 2.2. Khảo sát hiện trạng các hệ thống quản lý hội nghị
 
@@ -207,7 +207,7 @@ ConferenceSpace được thiết kế như một phản hồi trực tiếp vớ
 | Người dùng khó tìm hướng dẫn thao tác | Chatbot Agent truy vấn dữ liệu hệ thống theo quyền truy cập | Trả lời phải bám dữ liệu hệ thống, không vượt quyền |
 | Thông báo và trạng thái phân tán | Bảng điều khiển và thông báo trong hệ thống | Trạng thái tập trung, giảm phụ thuộc vào email |
 
-Mối liên hệ này giúp tránh một lỗi thường gặp trong báo cáo đồ án AI: thêm AI như một lớp trang trí. Trong ConferenceSpace, mỗi luồng AI phải trả lời một vấn đề nổi bật cụ thể, có điểm dừng trách nhiệm rõ ràng và được kiểm chứng lại ở Chương 5.
+Mối liên hệ này giúp tránh một lỗi thường gặp trong báo cáo đồ án AI: thêm AI như một lớp trang trí. Trong ConferenceSpace, mỗi luồng AI phải trả lời một vấn đề nổi bật cụ thể, có điểm dừng trách nhiệm rõ ràng và được kiểm chứng lại trong chương đánh giá.
 
 ### 2.3.3. Nguyên tắc thiết kế từ khoảng trống
 
@@ -219,7 +219,7 @@ Từ phân tích trên, nhóm xác định bốn nguyên tắc thiết kế cho 
 
 **Nguyên tắc 3: Mọi gợi ý quan trọng cần có căn cứ.** Gợi ý người phản biện cần điểm phù hợp và lý do; cảnh báo COI cần nêu quan hệ hoặc nguồn dữ liệu; Chair Decision Copilot cần chỉ ra phản biện/phản hồi nào tạo nên nhận định tổng hợp. Đây là điều kiện để người dùng có thể tin, kiểm tra và ghi đè kết quả.
 
-**Nguyên tắc 4: Đánh giá AI theo đúng bản chất từng luồng xử lý.** Autofill có thể đo bằng độ đúng siêu dữ liệu; Submission Gating có thể đo precision/recall theo từng luật kiểm tra; Reviewer Initial Analysis cần được đánh giá về tính đúng sự thật và độ bao phủ; Review Quality Auditor cần đánh giá rủi ro cảnh báo sai; Chair Decision Copilot cần kiểm tra mức độ bao phủ bằng chứng, không đo như bộ phân loại chấp nhận/từ chối. Nguyên tắc này sẽ được triển khai trong Chương 5.
+**Nguyên tắc 4: Đánh giá AI theo đúng bản chất từng luồng xử lý.** Các luồng tạo dữ liệu nháp, kiểm tra sơ bộ, hỗ trợ đọc hiểu và tổng hợp bằng chứng cần được đánh giá bằng tiêu chí khác nhau. Nguyên tắc này giúp chương đánh giá về sau tránh dùng một thước đo chung cho mọi đầu ra AI hoặc diễn giải quá mức vai trò của hệ thống.
 
 ## 2.4. Tổng hợp yêu cầu hệ thống từ khảo sát
 
@@ -255,7 +255,7 @@ Mục 2.4 chuyển các kết quả khảo sát và phân tích khoảng trống
 | F-CHAIR-01 | Chair có thể tạo và cấu hình hội nghị, track, hạn chót, biểu mẫu phản biện, hội đồng chương trình và chính sách. | Nghiệp vụ lõi của EasyChair/CMT/OpenReview. |
 | F-CHAIR-02 | Chair có bảng điều khiển theo dõi số bài nộp, tiến độ review, hạn chót, conflict và việc cần xử lý. | Vấn đề nổi bật thông báo/hạn chót rời rạc và bảng điều khiển được Chair quan tâm. |
 | F-CHAIR-03 | Hệ thống gợi ý người phản biện bằng thuật toán xác định, hiển thị điểm phù hợp, lý do và các ràng buộc. | Phân công phản biện là tác vụ quan trọng và có ràng buộc về tải phản biện/xung đột lợi ích [11]. |
-| F-CHAIR-04 | Hệ thống phát hiện COI bằng nhiều lớp: tự phản biện, khai báo thủ công và đồ thị đồng tác giả. | COI không nên chỉ dựa vào việc tự xác định xung đột [12]. |
+| F-CHAIR-04 | Hệ thống phát hiện COI bằng nhiều lớp: tự phản biện, khai báo thủ công và đồ thị đồng tác giả hoặc dữ liệu học thuật bên ngoài khi phù hợp. | COI không nên chỉ dựa vào việc tự xác định xung đột [12]; dữ liệu như Semantic Scholar Academic Graph API có thể hỗ trợ làm giàu hồ sơ học thuật nhưng không thay thế xác nhận của Chair [13]. |
 | F-CHAIR-05 | Chair có thể phân công thủ công, chấp nhận/ghi đè gợi ý và theo dõi tiến độ review. | Con người giữ quyền quyết định cuối cùng. |
 | F-CHAIR-06 | Hệ thống hỗ trợ rà soát phản biện thiếu căn cứ, quá ngắn hoặc mâu thuẫn giữa điểm và nhận xét. | Nhu cầu kiểm soát chất lượng phản biện trong bối cảnh quá tải phản biện. |
 | F-CHAIR-07 | Chair Decision Copilot chỉ tổng hợp bằng chứng, đồng thuận, bất đồng, vấn đề còn mở và câu hỏi cần xem xét. | Không biến AI thành bộ phân loại chấp nhận/từ chối. |
@@ -278,15 +278,13 @@ Mục 2.4 chuyển các kết quả khảo sát và phân tích khoảng trống
 | Tính giải thích | Gợi ý người phản biện, cảnh báo COI và tổng hợp của AI cần hiển thị căn cứ đủ để người dùng kiểm tra. |
 | Khả năng sử dụng | Quy trình cần được tổ chức theo vai trò, có bảng điều khiển trạng thái, thông báo rõ lỗi và cho phép quay lại/chỉnh sửa trước khi gửi. |
 | Khả năng mở rộng | Thiết kế cần hỗ trợ nhiều hội nghị, nhiều track, số lượng bài nộp/người phản biện tăng và tích hợp dữ liệu học thuật bên ngoài. |
-| Khả năng đánh giá | Các luồng xử lý quan trọng cần lưu được đầu vào/đầu ra, trạng thái hoàn tất, thời gian xử lý và chỉ số phù hợp để đánh giá ở Chương 5. |
-
-Semantic Scholar API là một nguồn dữ liệu phù hợp để làm giàu hồ sơ học thuật vì cung cấp dữ liệu về papers, authors, citations, venues, embeddings và recommendations thông qua Academic Graph API [13]. Tuy nhiên, mọi kết luận từ dữ liệu bên ngoài cần được xem như hỗ trợ, không thay thế xác nhận của Chair.
+| Khả năng đánh giá | Các luồng xử lý quan trọng cần lưu được đầu vào/đầu ra, trạng thái hoàn tất, thời gian xử lý và chỉ số phù hợp để đánh giá trong chương đánh giá. |
 
 ### 2.4.3. Nguyên tắc sử dụng AI có trách nhiệm
 
 Từ khảo sát người dùng và bối cảnh chính sách học thuật hiện nay, nhóm xác định các nguyên tắc bắt buộc khi đưa AI vào ConferenceSpace:
 
-- **AI hỗ trợ, không thay thế:** AI không ra quyết định chấp nhận/từ chối, không viết phản biện thay người phản biện, không tự phân công người phản biện và không tự loại bài nếu chưa có luật/chính sách rõ.
+- **AI hỗ trợ, không thay thế:** AI không ra quyết định chấp nhận/từ chối, không viết phản biện thay người phản biện, không tự phân công người phản biện và không tự loại bài ngoài chính sách đã cấu hình.
 - **Con người trong vòng kiểm soát:** mọi đầu ra ảnh hưởng đến nộp bài, phản biện hoặc ra quyết định đều cần người dùng có thẩm quyền xem lại và xác nhận.
 - **Minh bạch nguồn gốc:** hệ thống cần phân biệt rõ dữ liệu do người dùng nhập, dữ liệu được trích xuất từ tệp, dữ liệu lấy từ nguồn học thuật và nhận định do AI tổng hợp.
 - **Có quyền ghi đè:** tác giả có thể sửa Autofill; Chair có thể ghi đè gợi ý người phản biện; người phản biện có thể bỏ qua tóm tắt AI.
@@ -295,20 +293,20 @@ Từ khảo sát người dùng và bối cảnh chính sách học thuật hi�
 
 Các nguyên tắc này tương thích với xu hướng thận trọng của cộng đồng. NeurIPS 2026, trong thí nghiệm AI-assisted reviewing, nêu rõ công cụ AI chỉ nhằm hỗ trợ người phản biện suy nghĩ và hiểu bài nộp, không thay thế phán đoán chuyên môn hoặc viết phản biện thay người phản biện; thí nghiệm cũng đặt các cơ chế kiểm soát như tự nguyện tham gia, không lưu dữ liệu và giám sát tự động/bán tự động [19].
 
-### 2.4.4. Ma trận truy vết từ nhu cầu đến thiết kế và đánh giá
+### 2.4.4. Ma trận truy vết từ nhu cầu đến thiết kế và kiểm chứng
 
-| Nhu cầu/khoảng trống | Yêu cầu hệ thống | Thiết kế sẽ trình bày ở Chương 3 | Đánh giá sẽ kiểm chứng ở Chương 5 |
+| Nhu cầu/khoảng trống | Yêu cầu hệ thống | Thiết kế sẽ trình bày ở Chương 3 | Kiểm chứng ở chương đánh giá |
 |---|---|---|---|
-| Biểu mẫu nhập liệu dài và lặp lại | Autofill siêu dữ liệu, gợi ý track trong Autofill, cho phép chỉnh sửa | Luồng nộp bài, dịch vụ AI, cấu trúc biểu mẫu nộp bài | Benchmark Submission Autofill, tỷ lệ trường đúng, lỗi trích xuất, tỷ lệ gợi ý track không hợp lệ |
-| Không có kiểm tra lỗi sớm | Submission Gating trước khi gửi/chuyển trạng thái | Luồng kiểm tra sơ bộ và kiểm tra chính sách | Precision/recall hoặc F1 theo từng luật kiểm tra nếu có nhãn chuẩn |
-| Không biết bước tiếp theo | Bảng điều khiển, quy trình từng bước, chatbot hỗ trợ thao tác | Frontend theo vai trò, thông báo, agent query | UAT theo vai trò, chatbot tỷ lệ gọi công cụ thành công và mức độ bám dữ liệu |
-| COI khó phát hiện thủ công | COI đa tầng, đồ thị đồng tác giả | Neo4j, Semantic Scholar integration, COI detector | Tỷ lệ phát hiện self/manual/coauthor conflict, ca lỗi |
-| Phân công phản biện cần minh bạch | Matching xác định, điểm phù hợp, ràng buộc tải phản biện/COI | Dịch vụ matching và giao diện Chair xác nhận | Precision@K/độ bao phủ/cân bằng tải nếu có nhãn hoặc proxy phù hợp |
-| Người phản biện quá tải khi đọc bài và theo dõi điểm cần kiểm tra | Tóm tắt trung lập, điểm cần kiểm tra, hỗ trợ ghi chú có căn cứ | Reviewer Initial Analysis | Tính đúng sự thật, độ bao phủ, tỷ lệ đầu ra đúng và có căn cứ, phản hồi người phản biện, mức độ hữu ích trong việc định hướng đọc |
-| Chair khó tổng hợp nhiều phản biện | Review Quality Auditor, Chair Decision Copilot | Luồng tổng hợp bằng chứng, không sinh quyết định | Benchmark TCA, ca lỗi, UAT Chair |
-| Lo ngại AI thay thế quyết định học thuật | Con người trong vòng kiểm soát, nhật ký kiểm tra, quyền ghi đè | Phân lớp nghiệp vụ lõi/thuật toán/AI và mô hình phân quyền | Đánh giá mức tin tưởng, tỷ lệ ghi đè, phân tích giới hạn |
+| Biểu mẫu nhập liệu dài và lặp lại | Autofill siêu dữ liệu, gợi ý track trong Autofill, cho phép chỉnh sửa | Luồng nộp bài, dịch vụ AI, cấu trúc biểu mẫu nộp bài | Kiểm tra chất lượng Autofill và mức độ người dùng cần chỉnh sửa trước khi gửi |
+| Không có kiểm tra lỗi sớm | Submission Gating trước khi gửi/chuyển trạng thái | Luồng kiểm tra sơ bộ và kiểm tra chính sách | Đối chiếu khả năng phát hiện lỗi/cảnh báo với các luật nộp bài đã cấu hình |
+| Không biết bước tiếp theo | Bảng điều khiển, quy trình từng bước, chatbot hỗ trợ thao tác | Frontend theo vai trò, thông báo, agent query | Khảo sát trải nghiệm theo vai trò và kiểm tra chatbot có bám dữ liệu hệ thống hay không |
+| COI khó phát hiện thủ công | COI đa tầng, đồ thị đồng tác giả | Neo4j, dữ liệu học thuật bên ngoài, COI detector | Kiểm tra các lớp phát hiện COI và phân tích ca lỗi còn bỏ sót |
+| Phân công phản biện cần minh bạch | Matching xác định, điểm phù hợp, ràng buộc tải phản biện/COI | Dịch vụ matching và giao diện Chair xác nhận | Đánh giá mức độ phù hợp, độ bao phủ, cân bằng tải và khả năng giải thích của gợi ý |
+| Người phản biện quá tải khi đọc bài và theo dõi điểm cần kiểm tra | Tóm tắt trung lập, điểm cần kiểm tra, hỗ trợ ghi chú có căn cứ | Reviewer Initial Analysis | Kiểm tra tính đúng sự thật, độ bao phủ và phản hồi người phản biện về mức độ hữu ích |
+| Chair khó tổng hợp nhiều phản biện | Review Quality Auditor, Chair Decision Copilot | Luồng tổng hợp bằng chứng, không sinh quyết định | Kiểm tra khả năng tổng hợp đúng bằng chứng, phát hiện vấn đề trong review và phản hồi của Chair |
+| Lo ngại AI thay thế quyết định học thuật | Con người trong vòng kiểm soát, nhật ký kiểm tra, quyền ghi đè | Phân lớp nghiệp vụ lõi/thuật toán/AI và mô hình phân quyền | Đối chiếu thiết kế, thực nghiệm và khảo sát người dùng để đánh giá mức độ giữ được quyền kiểm soát của con người |
 
-Ma trận trên làm rõ Chương 2 không chỉ dừng ở khảo sát. Các nhu cầu đã được chuyển thành yêu cầu kiểm chứng được, đồng thời đặt ra tiêu chí để Chương 5 đánh giá liệu ConferenceSpace có thật sự giải quyết vấn đề đặt ra ở Chương 1 hay không.
+Ma trận trên làm rõ Chương 2 không chỉ dừng ở khảo sát. Các nhu cầu đã được chuyển thành yêu cầu có thể thiết kế và kiểm chứng, đồng thời đặt nền cho các chương sau đánh giá liệu ConferenceSpace có thật sự giải quyết vấn đề đặt ra ở Chương 1 hay không.
 
 ---
 
