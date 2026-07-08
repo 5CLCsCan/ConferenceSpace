@@ -512,7 +512,7 @@ Nhóm thứ nhất là **hỗ trợ nhập liệu và kiểm tra sớm** cho tá
 
 Nhóm thứ hai là **hỗ trợ đọc và kiểm soát chất lượng phản biện** cho reviewer: Reviewer Initial Analysis và Review Quality Auditor. Nhóm này không thay việc đọc bài hoặc viết phản biện, mà giúp reviewer định hướng đọc và kiểm tra bản nháp có đủ căn cứ hay chưa.
 
-Nhóm thứ ba là **hỗ trợ tổng hợp cho Chair**: Chair Decision Copilot và Chatbot Agent. Nhóm này giảm tải nhận thức khi Chair phải xử lý nhiều review, rebuttal, thảo luận và trạng thái hội nghị cùng lúc.
+Nhóm thứ ba là **hỗ trợ tổng hợp và truy vấn ngữ cảnh hệ thống**. Chair Decision Copilot hỗ trợ Chair tổng hợp review, rebuttal và thảo luận để chuẩn bị quyết định. Chatbot Agent là trợ lý chung cho tác giả, reviewer và Chair, cho phép mỗi vai trò tra cứu thao tác, trạng thái và dữ liệu trong phạm vi quyền truy cập của mình. Nhóm này giảm tải nhận thức ở các điểm người dùng phải tổng hợp nhiều nguồn thông tin hoặc tự dò trạng thái hệ thống.
 
 ### 3.5.2. Các workflow có sử dụng AI
 
