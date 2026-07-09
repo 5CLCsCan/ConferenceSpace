@@ -28,6 +28,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 | Contract | Hợp đồng dữ liệu / hành vi | Quy ước bắt buộc giữa các thành phần hệ thống, ví dụ output contract, API contract hoặc tool-call contract |
 | Guardrail | Ràng buộc kiểm soát | Quy tắc giới hạn hành vi của workflow AI, ví dụ không tự quyết định accept/reject hoặc không truy cập dữ liệu ngoài quyền |
 | Hallucination | Sinh thông tin không có căn cứ | Trường hợp AI tạo nội dung không được dữ liệu đầu vào hoặc bằng chứng hệ thống hỗ trợ |
+| Claim-evidence | Nhận định và bằng chứng đối chiếu | Cách biểu diễn một finding hoặc nhận định thành claim rồi liên kết với evidence để kiểm tra mức bám nguồn |
 | Fingerprint | Dấu vết trạng thái dữ liệu | Giá trị đại diện cho trạng thái dữ liệu tại thời điểm sinh artifact, dùng để phát hiện artifact đã lỗi thời |
 | Stale | Không còn hiện hành | Trạng thái của artifact khi dữ liệu gốc đã thay đổi so với thời điểm artifact được tạo |
 | Model router | Bộ định tuyến mô hình | Lớp chọn hoặc gọi provider mô hình theo cấu hình runtime của AI service |
@@ -54,6 +55,8 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 | Reviewer matching | Đối sánh phản biện | Cơ chế gợi ý reviewer phù hợp với bài nộp dựa trên miền chuyên môn, tải công việc và ràng buộc COI |
 | Domain Jaccard | Jaccard similarity theo miền chuyên môn | Công thức đo độ tương đồng giữa tập keyword/domain của bài nộp và reviewer bằng tỷ lệ giao trên hợp |
 | Greedy assignment | Phân công tham lam | Thuật toán xét các cặp submission-reviewer có điểm cao trước, đồng thời tôn trọng giới hạn tải và COI |
+| Load balancing | Cân bằng tải phản biện | Nguyên tắc phân bổ assignment để tránh dồn quá nhiều bài cho một reviewer khi có nhiều ứng viên tương đương |
+| Tie-break | Quy tắc phá hòa | Quy tắc chọn thứ tự ưu tiên khi nhiều ứng viên có cùng điểm, ví dụ ưu tiên reviewer có tải thấp hơn |
 | Fallback | Bước dự phòng | Bước xử lý khi một bài chưa đủ reviewer sau lượt gán chính; có thể nới score/load nhưng không nới COI |
 | Co-author graph | Đồ thị đồng tác giả | Đồ thị biểu diễn quan hệ đồng tác giả giữa các nhà nghiên cứu, dùng để phát hiện COI gián tiếp |
 | Relationship conflict | Xung đột do quan hệ cộng tác | COI suy ra từ quan hệ cộng tác học thuật, ví dụ đồng tác giả trực tiếp hoặc gián tiếp trong một khoảng thời gian |

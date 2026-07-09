@@ -200,7 +200,7 @@ Notification và phân quyền không được tách thành use case độc lậ
 
 ### 3.2.3. Đặc tả use case quan trọng
 
-Mười đặc tả dưới đây dùng chung một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế, hậu điều kiện và sơ đồ. Phần này tập trung vào mục tiêu người dùng và ranh giới trách nhiệm; shape dữ liệu và các stage nội bộ của workflow AI được trình bày riêng ở mục 3.5.
+Mười đặc tả dưới đây dùng chung một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế, hậu điều kiện và sơ đồ. Phần này tập trung vào mục tiêu người dùng và ranh giới trách nhiệm; cấu trúc dữ liệu và các stage nội bộ của workflow AI được trình bày riêng ở mục 3.5.
 
 #### UC-01. Khám phá và theo dõi hội nghị
 
@@ -399,7 +399,7 @@ Use case này kết thúc ở thời điểm reviewer mở assignment. Hoạt đ
 6. Reviewer xem findings, chỉnh sửa khi cần và xác nhận gửi phản biện.
 7. Khi có rebuttal, reviewer có thể acknowledgement và cập nhật đánh giá sau rebuttal nếu bằng chứng mới làm thay đổi nhận định.
 
-**Luồng thay thế và lỗi.** Nếu Initial Analysis không khả dụng hoặc artifact đã stale, reviewer vẫn đọc bài và tiếp tục thủ công. Auditor trả `warn` để reviewer cân nhắc; `block` chỉ áp dụng cho nhóm lỗi nặng theo mode gửi chính thức. Nếu AI lỗi hoặc tạo false block, reviewer phải nhận được thông báo rõ; giới hạn và hướng hậu kiểm được giải thích ở mục 3.5.2.4.
+**Luồng thay thế và lỗi.** Nếu Initial Analysis không khả dụng hoặc artifact đã stale, reviewer vẫn đọc bài và tiếp tục thủ công. Auditor trả `warn` để reviewer cân nhắc; `block` chỉ áp dụng cho nhóm lỗi nặng theo mode gửi chính thức. Nếu AI lỗi hoặc tạo cảnh báo chặn sai, reviewer phải nhận được thông báo rõ; giới hạn và hướng hậu kiểm được giải thích ở mục 3.5.2.4.
 
 **Hậu điều kiện.** Review được lưu nháp hoặc gửi chính thức; mọi thay đổi sau rebuttal được gắn với assignment tương ứng.
 
@@ -888,7 +888,26 @@ Nhóm cơ chế này gồm reviewer matching, phát hiện xung đột lợi íc
 
 ### 3.4.2. Reviewer matching
 
-Reviewer matching được triển khai như một thuật toán xác định dựa trên Domain Jaccard Similarity và greedy assignment. Đầu vào gồm keyword/domain của bài nộp, domain của reviewer, tải phản biện hiện tại, cấu hình số reviewer mỗi bài và các cặp bị loại do xung đột lợi ích.
+Reviewer matching được triển khai như một thuật toán xác định dựa trên Domain Jaccard Similarity và greedy assignment. Mục tiêu của thuật toán không phải là thay Chair chọn reviewer, mà là tạo một proposal có thể giải thích, kiểm tra và chỉnh sửa.
+
+Đầu vào của thuật toán gồm:
+
+| Nhóm dữ liệu | Nội dung sử dụng |
+|---|---|
+| Submission | Track, keyword, domain và trạng thái hợp lệ để phân công |
+| Reviewer | Domain chuyên môn, trạng thái tham gia hội nghị, tải phản biện hiện tại và giới hạn số bài có thể nhận |
+| Cấu hình hội nghị | Số reviewer cần cho mỗi bài, ngưỡng phù hợp tối thiểu nếu có và giới hạn tải |
+| COI | Các cặp submission-reviewer bị loại do self-author, khai báo thủ công hoặc quan hệ đồng tác giả |
+
+Với mỗi cặp submission-reviewer không bị loại bởi COI, hệ thống chuẩn hóa hai tập domain:
+
+```text
+S = tập keyword/domain của submission
+R = tập domain của reviewer
+score(S, R) = |S ∩ R| / |S ∪ R|
+```
+
+Nếu cả hai tập rỗng, cặp ứng viên không được xem là có bằng chứng phù hợp và bị đặt score bằng 0. Công thức Jaccard được chọn vì dễ giải thích với Chair: điểm tăng khi reviewer có nhiều domain trùng với bài, và giảm khi hai bên có nhiều domain không giao nhau.
 
 **Hình 3.20. Pipeline reviewer matching**
 
@@ -904,11 +923,33 @@ flowchart TD
     H --> I["Chair review and override"]
 ```
 
+Quá trình tạo proposal diễn ra theo bốn bước:
+
+1. Tạo ma trận ứng viên từ tất cả cặp submission-reviewer hợp lệ.
+2. Loại bỏ mọi cặp có COI trước khi sắp xếp điểm.
+3. Sắp xếp ứng viên theo score giảm dần; khi bằng điểm, ưu tiên reviewer có tải thấp hơn; nếu vẫn bằng nhau, dùng thứ tự ổn định theo định danh để kết quả lặp lại được.
+4. Gán reviewer theo greedy assignment cho đến khi mỗi submission đạt số reviewer yêu cầu hoặc không còn ứng viên hợp lệ.
+
+Load balancing được xử lý như một ràng buộc phụ sau COI. Reviewer đã đạt giới hạn tải sẽ không được chọn thêm; reviewer có tải thấp được ưu tiên trong tie-break để tránh proposal dồn quá nhiều bài vào một người. Tuy nhiên, hệ thống không hạ chuẩn COI hoặc tự tạo reviewer giả để lấp đủ số lượng.
+
+Đầu ra của thuật toán là một proposal gồm assignment đề xuất, score, lý do phù hợp, trạng thái COI, tải reviewer sau gán và danh sách submission chưa đủ reviewer. Chair có thể điều chỉnh proposal trước khi xác nhận. Nếu Chair ghi đè bằng thao tác thủ công, backend vẫn phải kiểm tra quyền và COI trước khi lưu assignment.
+
+Ví dụ, một bài có domain `{machine learning, information retrieval}` và một reviewer có domain `{machine learning, recommender systems}` sẽ có score `1/3`. Nếu reviewer này có tải thấp và không có COI, cặp này có thể được xếp trước một reviewer score thấp hơn. Nếu cùng reviewer được phát hiện là đồng tác giả của bài, cặp bị loại ngay cả khi score cao.
+
+Các failure cases chính được xử lý như sau:
+
+| Tình huống | Cách xử lý |
+|---|---|
+| Bài không đủ reviewer không có COI | Đánh dấu thiếu reviewer để Chair mời thêm hoặc phân công thủ công |
+| Reviewer thiếu domain hoặc profile học thuật | Vẫn có thể xuất hiện với score thấp nếu không có COI, nhưng không được ưu tiên |
+| Dữ liệu COI graph không khả dụng | Giữ các lớp COI còn lại và thông báo nguồn evidence bị thiếu |
+| Tất cả ứng viên tốt đều có COI | Không gán tự động; COI là ràng buộc cứng |
+
 Thuật toán này không cố gắng mô phỏng toàn bộ quyết định của Chair. Nó cung cấp một danh sách ứng viên có điểm phù hợp và lý do đủ rõ để Chair kiểm tra. Đây là cách cân bằng giữa tự động hóa và trách nhiệm học thuật: hệ thống giảm công tìm kiếm thủ công, nhưng quyết định phân công vẫn thuộc về Chair.
 
 ### 3.4.3. Phát hiện xung đột lợi ích
 
-Phát hiện xung đột lợi ích được triển khai theo nhiều lớp:
+Phát hiện xung đột lợi ích được triển khai theo nhiều lớp để giảm rủi ro bỏ sót quan hệ hiển nhiên:
 
 1. **Self-author detector** phát hiện trường hợp reviewer là tác giả hoặc đồng tác giả của bài.
 2. **Declared-conflict detector** sử dụng khai báo thủ công từ tác giả, reviewer hoặc Chair.
@@ -929,7 +970,9 @@ flowchart TD
     F --> H["Store coi_relationships with evidence"]
 ```
 
-Trong luồng phân công, COI là ràng buộc cứng. Thuật toán có thể fallback khi thiếu reviewer phù hợp, nhưng không được bỏ qua COI để lấp đủ số lượng. Mỗi cảnh báo COI được lưu kèm loại quan hệ, nguồn phát hiện và bằng chứng để Chair kiểm tra.
+Trong luồng phân công, COI là ràng buộc cứng và được áp dụng trước khi tính assignment cuối. Thuật toán có thể fallback khi thiếu reviewer phù hợp, nhưng không được bỏ qua COI để lấp đủ số lượng. Mỗi cảnh báo COI được lưu kèm loại quan hệ, nguồn phát hiện và bằng chứng để Chair kiểm tra.
+
+Kết quả COI không chỉ là giá trị đúng/sai. Với mỗi cặp bị loại, hệ thống cần lưu nguồn phát hiện, loại quan hệ và bằng chứng đủ để Chair hiểu vì sao reviewer không được đề xuất. Cách lưu này quan trọng vì COI có tính nghiệp vụ: Chair cần biết khác biệt giữa reviewer là đồng tác giả, reviewer do tác giả khai báo xung đột, và reviewer chỉ có quan hệ đồng tác giả gián tiếp trong graph học thuật.
 
 ### 3.4.4. Các cơ chế nghiệp vụ hỗ trợ vận hành
 
@@ -1130,9 +1173,7 @@ Ba trạng thái của Review Quality Auditor cần được hiểu theo chất 
 
 Trong triển khai, model chỉ sinh finding gồm mã lỗi, field liên quan và mức nghiêm trọng. Runtime mới quyết định trạng thái cuối theo mode. Ở chế độ `draft_save`, lỗi nghiêm trọng vẫn được hạ thành cảnh báo để reviewer lưu nháp. Trước khi gửi chính thức, một số lỗi nặng mới được map thành `block`, như tự mâu thuẫn, recommendation không được hỗ trợ, recommendation lệch với lập luận. Vì vậy, `block` chỉ ngăn thao tác gửi một review chưa đạt điều kiện tối thiểu, không phải quyết định học thuật về paper.
 
-Giới hạn hiện tại là finding vẫn do AI sinh ra, nên có thể hallucinate hoặc diễn giải quá mạnh, dẫn tới false block và gây khó chịu cho reviewer. Nhóm đề xuất hướng kiểm tra chéo bằng cách chuẩn hóa finding thành claim, ghép claim với evidence từ review, submission và artifact liên quan, sau đó dùng NLI để đánh giá mức độ groundedness trước khi quyết định giữ `block` hay hạ xuống `warn`.
-
-Phương pháp này chưa được đưa vào runtime do giới hạn về độ trễ và chi phí, nhưng đã được áp dụng trong quy trình benchmark ở Chương 4. Benchmark sử dụng ModernCE-large-nli làm thành phần đánh giá chính, với Qwen 3.5 hỗ trợ chuẩn hóa và phân loại claim. Kết quả benchmark cho thấy hướng hậu kiểm claim-evidence là khả quan, vì vậy đây là một hướng phát triển tiềm năng để giảm false block và tăng độ tin cậy cho Review Quality Auditor trong các phiên bản sau.
+Giới hạn hiện tại là finding vẫn do AI sinh ra, nên có thể thiếu căn cứ hoặc diễn giải quá mạnh. Một hướng kiểm soát là chuẩn hóa finding thành claim, liên kết claim với evidence từ review, submission và artifact liên quan, sau đó dùng cơ chế hậu kiểm claim-evidence để quyết định giữ mức cảnh báo cao hay hạ mức cảnh báo. Phần đánh giá định lượng của cơ chế này được trình bày ở Chương 4.
 
 Auditor không xác định bài báo tốt hay xấu. Nó chỉ kiểm tra chất lượng của chính bản phản biện: review có quá ngắn không, nhận xét có cụ thể không, điểm số và nhận xét có mâu thuẫn không, có thiếu phần bắt buộc không. Reviewer vẫn là người sửa nội dung review và chịu trách nhiệm cuối cùng với nhận định chuyên môn của mình.
 
@@ -1218,6 +1259,15 @@ Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh
 
 Các workflow AI khác nhau về vai trò và dữ liệu, nhưng dùng chung một số kiểm soát kiến trúc. Các kiểm soát này là phần giúp hệ thống giữ được nguyên tắc "AI hỗ trợ, con người quyết định" xuyên suốt Chương 1 và Chương 2.
 
+| Workflow | Output chính | Điểm kiểm soát của con người | Không được làm gì |
+|---|---|---|---|
+| Submission Autofill | Metadata, keyword và gợi ý track trong danh sách hợp lệ | Tác giả kiểm tra, chỉnh sửa và xác nhận trước khi gửi | Không tự gửi bài; không tự chọn track ngoài cấu hình hội nghị |
+| Submission Gating | Verdict `pass`, `warn`, `block` và lý do kiểm tra | Tác giả sửa lỗi hoặc xác nhận tiếp tục khi policy cho phép | Không đánh giá giá trị học thuật của paper |
+| Reviewer Initial Analysis | Briefing, điểm cần chú ý và annotation hỗ trợ đọc | Reviewer đọc bài gốc và tự hình thành nhận định chuyên môn | Không thay reviewer đọc bài; không sinh điểm hoặc recommendation |
+| Review Quality Auditor | Finding về độ cụ thể, nhất quán và mức độ bám form của review | Reviewer sửa hoặc xác nhận bản review trước khi gửi | Không đổi điểm, recommendation hoặc đánh giá bài báo thay reviewer |
+| Chair Decision Copilot | Tổng hợp evidence, đồng thuận, bất đồng và vấn đề còn mở | Chair đối chiếu evidence gốc và tự lưu quyết định cuối cùng | Không sinh quyết định accept/reject |
+| Chatbot Agent | Câu trả lời hoặc truy vấn dữ liệu trong phạm vi quyền | Người dùng kiểm tra câu trả lời; backend kiểm soát dữ liệu được trả | Không truy vấn database trực tiếp; không bỏ qua RBAC |
+
 **Hình 3.28. Kiểm soát chung quanh output AI**
 
 ```mermaid
@@ -1239,9 +1289,9 @@ flowchart LR
 | Policy hash               | Các workflow có policy như Submission Gating phải biết output được tạo theo cấu hình nào          |
 | Timeout và error handling | Lỗi provider không được biến thành dữ liệu giả hợp lệ                                             |
 | Human override            | Người dùng có thẩm quyền phải có khả năng chỉnh sửa, bỏ qua hoặc xác nhận output                  |
-| Audit trail               | Trạng thái, thời gian xử lý, lỗi và stage timings cần được lưu để phục vụ benchmark ở Chương 4    |
+| Audit trail               | Trạng thái, thời gian xử lý, lỗi và stage timings cần được lưu để phục vụ đánh giá ở Chương 4     |
 
-Nhờ các kiểm soát này, AI không trở thành một lớp quyết định ẩn trong hệ thống. Mỗi workflow đều có hợp đồng dữ liệu, trạng thái lỗi và điểm can thiệp của con người. Đây là điều kiện cần để các kết quả benchmark ở Chương 4 có thể được diễn giải đúng: benchmark đo chất lượng của output hỗ trợ, không chứng minh rằng hệ thống có quyền thay người dùng ra quyết định học thuật.
+Nhờ các kiểm soát này, AI không trở thành một lớp quyết định ẩn trong hệ thống. Mỗi workflow đều có hợp đồng dữ liệu, trạng thái lỗi và điểm can thiệp của con người. Đây là điều kiện cần để Chương 4 đánh giá đúng bản chất từng workflow: chất lượng của output hỗ trợ được đo riêng với quyền quyết định học thuật của người dùng.
 
 ### 3.5.3. AI Service, model router và structured output
 
@@ -1300,7 +1350,7 @@ Trong môi trường phát triển, các service như PostgreSQL, Redis, Neo4j v
 
 #### 3.6.1.1. Quy trình khởi động môi trường
 
-Quy trình khởi động môi trường được tóm tắt bằng các target chính sau:
+Quy trình khởi động môi trường được trình bày để chứng minh rằng backend, database, graph store, cache và AI service có thể được tái lập bằng một luồng thống nhất thay vì cấu hình thủ công rời rạc. Các target chính như sau:
 
 ```makefile
 dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server
@@ -1324,7 +1374,7 @@ npm run dev
 
 #### 3.6.1.2. Các service phụ thuộc trong môi trường phát triển
 
-Cấu hình Docker Compose local mô tả các dependency vận hành và mở các port cần thiết ra máy phát triển. Nhờ đó, lập trình viên có thể kiểm tra trực tiếp PostgreSQL, Redis, Neo4j Browser, backend API và AI service trong quá trình phát triển. Khi cần kiểm tra toàn bộ backend bằng container thay vì `go run`, hệ thống cung cấp luồng `make docker-up`.
+Cấu hình Docker Compose local mô tả các dependency vận hành và mở các port cần thiết ra máy phát triển. Phần này quan trọng vì nó giữ các service có trạng thái tách khỏi code đang sửa, trong khi vẫn cho phép kiểm tra trực tiếp PostgreSQL, Redis, Neo4j Browser, backend API và AI service trong quá trình phát triển. Khi cần kiểm tra toàn bộ backend bằng container thay vì `go run`, hệ thống cung cấp luồng `make docker-up`.
 
 ```yaml
 postgres:
@@ -1358,7 +1408,7 @@ Ngoài `make dev`, Makefile cũng có nhóm lệnh `docker-up`, `docker-down`, `
 
 #### 3.6.1.3. Chạy riêng từng service để kiểm thử
 
-Khi cần kiểm thử hoặc phân tích lỗi ở AI service, nhóm có thể chạy service trực tiếp thay vì qua container:
+Khi cần kiểm thử hoặc phân tích lỗi ở AI service, nhóm có thể chạy service trực tiếp thay vì qua container. Cách chạy riêng này phục vụ debug ở biên tích hợp: kiểm tra migration Alembic, kết nối Redis/PostgreSQL, kết nối backend và cấu hình provider mà không phải khởi động lại toàn bộ stack.
 
 ```bash
 poetry install
@@ -1452,7 +1502,7 @@ Network `app` phục vụ giao tiếp giữa các service ứng dụng, còn net
 
 ### 3.6.3. Docker Compose và container images
 
-Cấu hình Docker Compose production khai báo service, image, environment, volume, healthcheck, network và restart policy. Ba service ứng dụng `web`, `backend` và `ai-service` dùng image được build từ GitHub Actions và truyền vào qua biến môi trường:
+Cấu hình Docker Compose production khai báo service, image, environment, volume, healthcheck, network và restart policy. Các cấu hình dưới đây được giữ trong báo cáo vì chúng thể hiện ranh giới runtime của từng service và cách production tái sử dụng artifact đã build từ CI/CD. Ba service ứng dụng `web`, `backend` và `ai-service` dùng image được build từ GitHub Actions và truyền vào qua biến môi trường:
 
 ```yaml
 web:
@@ -1534,7 +1584,7 @@ CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --
 
 ### 3.6.4. Cấu hình server và biến môi trường
 
-Runtime configuration được tách khỏi mã nguồn bằng `.env.production` trên server. GitHub Actions chỉ cập nhật ba biến image (`FRONTEND_IMAGE`, `BACKEND_IMAGE`, `AI_SERVICE_IMAGE`) và yêu cầu file `.env.production` đã tồn tại trước khi deploy. Cách này giúp secret thật không đi vào repository.
+Runtime configuration được tách khỏi mã nguồn bằng `.env.production` trên server. Phần biến môi trường được trình bày theo nhóm để làm rõ ranh giới cấu hình giữa public URL, database, graph, AI service, provider bên ngoài và service token; đây là điều kiện để triển khai lại hệ thống mà không sửa mã nguồn. GitHub Actions chỉ cập nhật ba biến image (`FRONTEND_IMAGE`, `BACKEND_IMAGE`, `AI_SERVICE_IMAGE`) và yêu cầu file `.env.production` đã tồn tại trước khi deploy. Cách này giúp secret thật không đi vào repository.
 
 Các nhóm biến chính gồm:
 
@@ -1565,7 +1615,7 @@ conference-space.com, www.conference-space.com {
 
 ### 3.6.6. CI/CD, GitHub Actions và GHCR
 
-Quy trình `.github/workflows/deploy.yml` có bốn nhóm bước chính:
+Quy trình `.github/workflows/deploy.yml` được trình bày để chứng minh deployment không phụ thuộc vào thao tác build thủ công trên server. Pipeline tạo image bất biến theo commit SHA, đẩy lên GHCR, rồi yêu cầu VPS chỉ pull image, chạy migration và cập nhật container. Quy trình có hai nhóm bước chính:
 
 1. Build và push các image của từng module lên GHCR song song: frontend, backend và AI service.
 2. SSH vào VPS, cập nhật `.env.production`, pull image, chạy migration và `docker compose up -d`.
@@ -1689,11 +1739,22 @@ Secret không được đưa vào image, Dockerfile hoặc báo cáo. File `.env
 
 ## 3.7. Tổng kết chương
 
-Chương 3 đã trình bày ConferenceSpace như một hệ thống hoàn chỉnh thay vì một tập hợp tính năng rời rạc. Mười use case đại diện bao phủ vòng đời của tác giả, người phản biện và Chair, từ khám phá hội nghị đến nộp bài, phân công, phản biện, Discussion, rebuttal và ra quyết định. Discussion và Chatbot Agent làm rõ các tương tác xuyên vai trò, trong khi ma trận truy vết cho thấy từng yêu cầu ở Chương 2 được hiện thực hóa ở đâu trong thiết kế.
+Chương 3 đã trình bày ConferenceSpace như một hệ thống có ranh giới trách nhiệm rõ ràng giữa nghiệp vụ hội nghị, thuật toán xác định, AI hỗ trợ và hạ tầng triển khai. Use case được dùng để mô tả vòng đời chính của tác giả, reviewer và Chair; phần kỹ thuật sau đó giải thích cách các vòng đời này được hiện thực hóa bằng frontend theo vai trò, backend có phân quyền, dữ liệu quan hệ, graph COI, cache, AI service và gateway production.
 
-Về mặt kỹ thuật, hệ thống tách rõ frontend, backend, AI service, dữ liệu quan hệ, dữ liệu graph, cache và gateway. Về mặt thiết kế AI, hệ thống giữ nguyên tắc xuyên suốt: AI hỗ trợ nhập liệu, đọc, kiểm tra và tổng hợp; con người vẫn chịu trách nhiệm với phản biện, phân công và quyết định học thuật. Những giới hạn triển khai như quyền ghi của Chair và visibility trong Discussion cũng được nêu rõ thay vì mô tả như năng lực đã hoàn thiện.
+Trọng tâm thiết kế của chương là tách các quyết định cần tính xác định khỏi các workflow sinh ngôn ngữ. Reviewer matching và COI được mô tả như cơ chế thuật toán có đầu vào, công thức, ràng buộc cứng và failure cases; AI service chỉ hỗ trợ nhập liệu, đọc, kiểm tra bản nháp và tổng hợp evidence. Các giới hạn triển khai như visibility nhiều tầng trong Discussion, camera-ready gate và hậu kiểm claim-evidence cho Review Quality Auditor được nêu như phạm vi còn cần đánh giá hoặc phát triển tiếp, không được trình bày như năng lực đã hoàn thiện.
 
-Việc tách lớp nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ tạo cơ sở để Chương 4 đánh giá hệ thống theo đúng bản chất từng lớp. Backend và thuật toán cần được đánh giá bằng hiệu năng, độ ổn định và khả năng giải thích; workflow AI cần được đánh giá bằng chất lượng đầu ra, độ trễ, chi phí và mức độ hữu ích với người dùng; khảo sát sau sử dụng cần kiểm chứng liệu các lựa chọn thiết kế có thật sự giải quyết được nhu cầu đã nêu ở Chương 2 hay không.
+Các claim thiết kế chính của chương được nối với bằng chứng đánh giá ở Chương 4 như sau:
+
+| Claim thiết kế ở Chương 3 | Thành phần hiện thực hóa | Bằng chứng cần đối chiếu ở Chương 4 |
+|---|---|---|
+| Hệ thống đáp ứng vòng đời chính của hội nghị học thuật | Use case, frontend theo vai trò, backend API và state machine | Kiểm thử chức năng, UAT và luồng nghiệp vụ end-to-end |
+| Reviewer matching có thể giải thích và không phụ thuộc vào AI sinh ngôn ngữ | Domain Jaccard, greedy assignment, tie-break theo tải và proposal để Chair xác nhận | Đánh giá thuật toán, ví dụ phân công, failure cases và mức độ chấp nhận của Chair |
+| COI là ràng buộc cứng trong phân công | Self-author detector, declared conflict và co-author graph detector | Kiểm thử COI, dữ liệu graph và các trường hợp bị chặn đúng |
+| AI hỗ trợ nhưng không thay người dùng ra quyết định học thuật | Artifact schema, fingerprint, stale state, human review và bảng kiểm soát workflow AI | Đánh giá output AI, phân tích lỗi, độ trễ, chi phí và khảo sát người dùng |
+| Chatbot Agent không phá vỡ phân quyền dữ liệu | Backend query endpoint, service token, resource registry và RBAC theo tài nguyên | Kiểm thử quyền truy cập, truy vấn hợp lệ/không hợp lệ và log tool call |
+| Production deployment có thể tái lập | Docker Compose, image GHCR theo commit SHA, Caddy, network isolation và CI/CD | Kết quả deploy, healthcheck, migration, quan sát runtime và giới hạn vận hành |
+
+Nhờ cách tách lớp này, Chương 4 có thể đánh giá từng nhóm claim theo đúng bản chất của nó: hệ thống và backend được đánh giá bằng tính đúng, hiệu năng và độ ổn định; thuật toán xác định được đánh giá bằng khả năng giải thích và xử lý trường hợp biên; workflow AI được đánh giá bằng chất lượng output hỗ trợ, rủi ro lỗi và mức độ hữu ích đối với người dùng.
 
 ---
 
