@@ -56,9 +56,13 @@ Nhóm hạn chế thứ ba nằm ở khả năng vận hành như một sản ph
 
 Chatbot Agent còn tỷ lệ lỗi khi gọi công cụ ở mức đáng kể. Dù benchmark không ghi nhận rò rỉ dữ liệu trong kịch bản kiểm tra quyền truy cập, một agent có quyền truy vấn dữ liệu hệ thống phải từ chối đúng khi người dùng không có quyền, báo lỗi rõ khi dữ liệu không đủ và truy vết được nguyên nhân khi câu trả lời chỉ đạt một phần hoặc không đạt.
 
+Một hạn chế liên quan là hệ thống hiện chưa có lớp observability hướng người dùng cho các workflow AI. Benchmark hiện tại đã ghi nhận độ trễ, token, trạng thái hoàn tất và một số chỉ số hậu kiểm, nhưng người dùng cuối chưa có một không gian đủ rõ để theo dõi mỗi workflow đã dùng nguồn dữ liệu nào, gọi công cụ nào, tạo finding nào, bị kiểm tra lại ra sao và kết quả nào đã được người dùng chấp nhận, chỉnh sửa hoặc ghi đè. Với các workflow gần quyết định học thuật, thiếu observability làm giảm khả năng giám sát, phản hồi, audit và học từ lỗi vận hành. Đây cũng là yêu cầu phù hợp với các khuyến nghị về AI risk management và AgentOps, trong đó monitoring, logging, tracing, human oversight và incident response được xem là điều kiện quan trọng để vận hành hệ thống AI có trách nhiệm [3][4].
+
 Một số workflow nghiệp vụ cũng cần hoàn thiện nếu hệ thống hướng tới vận hành hội nghị thật. Discussion, camera-ready, bidding, lịch sử phiên bản, deadline và các thao tác Chair sau quyết định vẫn cần được kiểm soát chặt hơn theo vai trò, trạng thái submission và phạm vi hiển thị.
 
 Cuối cùng, hệ thống còn phụ thuộc vào nhà cung cấp và mô hình bên ngoài cho các thao tác LLM, bao gồm `gemini-3.1-flash-lite` thông qua OpenRouter hoặc model router tương thích OpenAI client. Sự phụ thuộc này tạo rủi ro về chi phí, giới hạn dịch vụ, độ ổn định, thay đổi chất lượng mô hình và bảo mật dữ liệu bản thảo. Vì vậy, chi phí và khả năng mở rộng cần tiếp tục được đánh giá bằng token, độ trễ và chính sách vận hành, thay vì gắn kết luận vào một bảng giá cố định.
+
+Đề tài cũng chưa làm rõ mô hình vận hành và tính bền vững của nền tảng. ConferenceSpace được xây dựng như một PoC kỹ thuật và học thuật, không nhằm cạnh tranh thương mại trực tiếp với các hệ thống quản lý hội nghị hiện có. Vì vậy, báo cáo chưa đánh giá các lựa chọn như open-source core, self-hosted deployment, hosted service có SLA, institutional membership hoặc dịch vụ tư vấn triển khai. Đây là giới hạn về khả năng chuyển từ prototype sang hạ tầng vận hành bền vững, không phải thiếu sót của mục tiêu nghiên cứu ban đầu. Nếu phát triển tiếp như một hạ tầng học thuật mở, hệ thống cần một mô hình bền vững dựa trên dịch vụ, hỗ trợ và cộng đồng, thay vì khai thác dữ liệu bản thảo hoặc dữ liệu phản biện [8][9].
 
 ## 5.3. Hướng phát triển trong tương lai
 
@@ -92,4 +96,36 @@ Hệ thống cũng nên mở rộng nguồn dữ liệu cho COI và hồ sơ chu
 
 Nếu tiếp tục phát triển theo hướng nghiên cứu, nhóm có thể công bố một phần benchmark hoặc mã nguồn sau khi xử lý quyền dữ liệu, ẩn danh thông tin nhạy cảm và mô tả rõ giới hạn sử dụng. Điều này giúp kết quả của đề tài có khả năng tái lập và tạo nền tảng cho các nghiên cứu tiếp theo về AI hỗ trợ peer review có kiểm soát.
 
+### 5.3.5. Phát triển nền tảng AI-native có kiểm soát cho vận hành hội nghị học thuật
+
+Một hướng phát triển quan trọng là bổ sung lớp tri thức truy hồi bằng embeddings, vector search hoặc hybrid retrieval. Thay vì mỗi workflow chỉ dựa vào context được truyền trực tiếp tại thời điểm gọi mô hình, hệ thống có thể xây dựng kho tri thức có kiểm soát từ CFP, guideline hội nghị, chính sách nộp bài, biểu mẫu review, lịch sử quyết định, hồ sơ reviewer và các artifact đã được phân quyền. Khi kết hợp Retrieval-Augmented Generation với metadata, versioning và citation, các workflow AI có thể truy xuất bằng chứng phù hợp hơn, giảm phụ thuộc vào tri thức nội tại của mô hình và hỗ trợ người dùng kiểm tra nguồn. Hướng này nối trực tiếp với hạn chế hiện tại của các workflow cần groundedness cao, đồng thời tạo baseline rõ hơn để so sánh với reviewer matching dựa trên từ khóa trong phạm vi đề tài [1].
+
+Từ lớp truy hồi này, ConferenceSpace có thể phát triển các workflow linh động hơn theo hướng Agentic RAG. Thay vì một pipeline cố định cho mọi trường hợp, agent có thể chọn chiến lược truy xuất, chia nhỏ tác vụ, gọi công cụ phù hợp và lặp lại bước kiểm tra khi nguồn dữ liệu chưa đủ. Tuy nhiên, hướng này chỉ phù hợp nếu agent được đặt trong một permissioned harness: tool schema rõ ràng, quyền theo vai trò, giới hạn tác vụ, audit log, human approval gate và cơ chế rollback. Các nghiên cứu về ReAct và Agentic RAG cho thấy việc kết hợp reasoning, tool use và retrieval có thể tăng tính linh hoạt của tác vụ nhiều bước; nhưng trong bối cảnh peer review, quyền hành của agent phải được giới hạn bằng ranh giới nghiệp vụ và giám sát con người [2][5].
+
+Trong môi trường như vậy, agent có thể thực hiện các thao tác thủ công lặp lại như kiểm tra thiếu thông tin, chuẩn bị gói bằng chứng cho Chair, nhắc deadline, gom điểm bất đồng giữa các review, kiểm tra policy hoặc tạo checklist tuân thủ. Mục tiêu không phải tự động hóa quyết định học thuật, mà tự động hóa các thao tác điều phối có thể kiểm tra. Điều này giữ nguyên luận điểm cốt lõi của đề tài: AI hỗ trợ thao tác và tổng hợp bằng chứng, còn quyết định chấp nhận, từ chối hoặc yêu cầu sửa đổi vẫn thuộc về con người.
+
+Lớp agentic cũng mở ra hướng tuân thủ học thuật chủ động. Hệ thống có thể kiểm tra disclosure về việc sử dụng AI, bảo mật bản thảo, quyền truy cập dữ liệu, provenance của nguồn, trạng thái đồng ý của người dùng và dấu vết can thiệp của con người trước khi cho phép workflow hoàn tất. Các khuyến nghị của ICMJE nhấn mạnh rằng AI có thể tạo nội dung sai, thiếu hoặc thiên lệch; con người vẫn chịu trách nhiệm về độ chính xác; bản thảo gửi tạp chí hoặc hội nghị là thông tin đặc quyền; và việc dùng AI trong quy trình biên tập/phản biện cần minh bạch, có chính sách rõ [6]. Cùng với định hướng human-centred, bảo vệ quyền riêng tư và khung chính sách của UNESCO, đây là cơ sở để ConferenceSpace phát triển theo hướng hỗ trợ AI nhưng vẫn bảo vệ trách nhiệm học thuật [7].
+
+Cuối cùng, nếu nhóm muốn định vị ConferenceSpace như một hạ tầng học thuật mở thay vì sản phẩm thương mại thuần túy, hướng phát triển nên bao gồm mô hình bền vững ngay từ thiết kế. Các lựa chọn có thể gồm open-source core, self-hosted deployment cho hội nghị hoặc đơn vị học thuật, hosted service có SLA, membership hoặc dịch vụ tư vấn triển khai. Nguyên tắc quan trọng là doanh thu nếu có nên dựa trên dịch vụ vận hành, hỗ trợ, SLA hoặc triển khai, không dựa trên khai thác dữ liệu bản thảo và dữ liệu phản biện. Cách định vị này phù hợp hơn với mục tiêu PoC của đề tài và với các nguyên tắc của open scholarly infrastructure [8][9].
+
 Tóm lại, ConferenceSpace cho thấy AI có thể tạo giá trị trong quy trình xét duyệt bài báo khi được đặt đúng vai trò: hỗ trợ thao tác, hỗ trợ đọc hiểu, kiểm tra bản nháp và tổng hợp bằng chứng. Giá trị đó chỉ bền vững khi hệ thống giữ quyền quyết định học thuật cho con người, cung cấp bằng chứng để kiểm tra lại và thừa nhận rõ giới hạn của dữ liệu, mô hình và môi trường vận hành. Kết luận của đề tài vì vậy không phải là AI có thể thay thế con người trong peer review, mà là một nền tảng được thiết kế đúng ranh giới có thể dùng AI để giảm tải một số điểm nghẽn mà vẫn bảo vệ trách nhiệm học thuật của tác giả, người phản biện và Chair.
+
+## Tài liệu tham khảo
+
+[1] P. Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks," *NeurIPS*, 2020. Available: https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html
+
+[2] S. Yao et al., "ReAct: Synergizing Reasoning and Acting in Language Models," *ICLR*, 2023. Available: https://arxiv.org/abs/2210.03629
+
+[3] L. Dong, Q. Lu, and L. Zhu, "AgentOps: Enabling Observability of LLM Agents," *arXiv preprint*, arXiv:2411.05285, 2024. Available: https://arxiv.org/abs/2411.05285
+
+[4] National Institute of Standards and Technology, "Artificial Intelligence Risk Management Framework (AI RMF 1.0)," 2023. Available: https://www.nist.gov/itl/ai-risk-management-framework
+
+[5] A. Singh, A. Ehtesham, S. Kumar, and T. T. Khoei, "Agentic Retrieval-Augmented Generation: A Survey on Agentic RAG," *arXiv preprint*, arXiv:2501.09136, 2025. Available: https://arxiv.org/abs/2501.09136
+
+[6] International Committee of Medical Journal Editors, "Use of Artificial Intelligence in Publishing," 2026. Available: https://www.icmje.org/recommendations/browse/artificial-intelligence/
+
+[7] UNESCO, "Guidance for Generative AI in Education and Research," 2023. Available: https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research
+
+[8] POSI Adopters, "The Principles of Open Scholarly Infrastructure," 2025. Available: https://openscholarlyinfrastructure.org/
+
+[9] NISO, "Building a Sustainable Open Research Infrastructure," 2020. Available: https://www.niso.org/niso-io/2020/08/building-sustainable-open-research-infrastructure

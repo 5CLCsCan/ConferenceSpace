@@ -20,6 +20,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 | Thuật ngữ | Tên đầy đủ / tương đương | Nghĩa sử dụng trong báo cáo |
 |---|---|---|
 | AI | Artificial Intelligence | Nhóm chức năng hỗ trợ bằng mô hình trí tuệ nhân tạo trong hệ thống, không bao gồm các thuật toán xác định như reviewer matching |
+| AI-native | Thiết kế lấy AI làm năng lực vận hành gốc | Cách định vị nền tảng trong đó AI, truy hồi bằng chứng, agent có kiểm soát và observability được thiết kế như một phần của workflow chính, không chỉ là tính năng phụ trợ |
 | LLM | Large Language Model | Mô hình ngôn ngữ lớn dùng trong các workflow hỗ trợ nhập liệu, đọc bài, kiểm toán review, tổng hợp bằng chứng hoặc chatbot |
 | Workflow AI | AI workflow | Luồng xử lý có dùng AI, có đầu vào, đầu ra, ràng buộc kiểm soát và tiêu chí đánh giá riêng |
 | Workflow runner | Bộ chạy workflow | Thành phần chạy workflow AI trên tập dữ liệu benchmark, lưu output, checkpoint, thời gian xử lý, token và trạng thái hoàn tất |
@@ -34,9 +35,23 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 | Composite pattern | Mẫu Composite | Mẫu thiết kế cho phép gom nhiều detector hoặc thành phần xử lý cùng giao diện để bật/tắt hoặc kết hợp theo cấu hình |
 | Hallucination | Sinh thông tin không có căn cứ | Trường hợp AI tạo nội dung không được dữ liệu đầu vào hoặc bằng chứng hệ thống hỗ trợ |
 | Claim-evidence | Nhận định và bằng chứng đối chiếu | Cách biểu diễn một finding hoặc nhận định thành claim rồi liên kết với evidence để kiểm tra mức bám nguồn |
+| Retrieval-Augmented Generation | Sinh nội dung có truy hồi bằng chứng | Cách kết hợp mô hình ngôn ngữ với bước truy xuất tài liệu hoặc artifact liên quan trước khi sinh câu trả lời |
+| RAG | Retrieval-Augmented Generation | Viết tắt của Retrieval-Augmented Generation, dùng trong báo cáo như một hướng phát triển để tăng groundedness của workflow AI |
+| Agentic RAG | RAG có điều phối bởi agent | Hướng mở rộng trong đó agent có thể chọn chiến lược truy xuất, chia nhỏ tác vụ, gọi công cụ và kiểm tra lại nguồn thay vì chạy một pipeline cố định |
+| Vector search | Tìm kiếm theo vector ngữ nghĩa | Cách tìm tài liệu, chủ đề hoặc hồ sơ gần nhau trong không gian embedding thay vì chỉ khớp từ khóa |
+| Hybrid retrieval | Truy hồi lai | Cách kết hợp tìm kiếm từ khóa, metadata và vector search để tăng khả năng lấy đúng nguồn liên quan |
+| Observability | Khả năng quan sát và truy vết vận hành | Khả năng theo dõi workflow đã dùng nguồn nào, gọi công cụ nào, sinh output nào, lỗi ở đâu và người dùng đã xử lý kết quả ra sao |
+| AgentOps | Vận hành và quan sát hệ thống agent | Nhóm thực hành tương tự DevOps/MLOps cho agent, tập trung vào monitoring, logging, tracing, analytics và kiểm soát an toàn |
+| Audit trail | Dấu vết kiểm toán | Chuỗi sự kiện và artifact giúp truy lại ai hoặc thành phần nào đã thực hiện thao tác, dựa trên dữ liệu nào và tạo kết quả gì |
+| Provenance | Nguồn gốc và lịch sử dữ liệu | Thông tin cho biết một nhận định, artifact hoặc dữ liệu được tạo từ nguồn nào, ở phiên bản nào và qua bước xử lý nào |
+| Permissioned harness | Môi trường agent có giới hạn quyền | Môi trường chạy agent với tool schema, quyền theo vai trò, giới hạn tác vụ, log và điểm phê duyệt của con người |
+| Human approval gate | Điểm phê duyệt của con người | Bước bắt buộc người dùng có thẩm quyền xác nhận trước khi một workflow hoặc agent thực hiện thao tác nhạy cảm |
+| Rollback | Hoàn tác trạng thái | Cơ chế đưa hệ thống hoặc artifact về trạng thái trước đó khi thao tác tự động hoặc bán tự động không phù hợp |
 | Fingerprint | Dấu vết trạng thái dữ liệu | Giá trị đại diện cho trạng thái dữ liệu tại thời điểm sinh artifact, dùng để phát hiện artifact đã lỗi thời |
 | Stale | Không còn hiện hành | Trạng thái của artifact khi dữ liệu gốc đã thay đổi so với thời điểm artifact được tạo |
 | Model router | Bộ định tuyến mô hình | Lớp chọn hoặc gọi provider mô hình theo cấu hình runtime của AI service |
+| Open scholarly infrastructure | Hạ tầng học thuật mở | Định hướng vận hành hạ tầng phục vụ cộng đồng học thuật với governance, sustainability, open source hoặc open standards phù hợp |
+| PoC | Proof of Concept | Bản chứng minh khả thi về mặt kỹ thuật và học thuật, chưa nhằm chứng minh mô hình kinh doanh hoặc khả năng vận hành thương mại đầy đủ |
 
 ## Thuật ngữ API và kiểm soát quyền
 
@@ -51,6 +66,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 | `query_engine` | Công cụ truy vấn backend | Công cụ read-only để Chatbot Agent lấy dữ liệu hệ thống thông qua backend và lớp phân quyền |
 | Service-to-service token | Token giữa các service | Token xác thực dùng cho giao tiếp nội bộ giữa backend và AI service |
 | Permission boundary | Ranh giới quyền truy cập | Giới hạn dữ liệu hoặc thao tác mà một vai trò người dùng được phép truy cập trong hệ thống |
+| SLA | Service Level Agreement | Cam kết mức dịch vụ, ví dụ độ sẵn sàng, thời gian phản hồi hoặc hỗ trợ vận hành trong mô hình hosted service |
 
 ## Thuật ngữ reviewer matching và COI
 
