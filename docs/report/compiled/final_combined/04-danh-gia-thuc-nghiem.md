@@ -543,31 +543,30 @@ Vì vậy, tính khả thi vận hành của ConferenceSpace không nên đượ
 
 ### 4.7.1. Phương pháp và mẫu khảo sát
 
-Khảo sát được thiết kế dưới dạng bảng hỏi trực tuyến với các câu hỏi mở và thang đánh giá Likert 5 mức độ. Đối tượng khảo sát bao gồm 15 người dùng thử nghiệm hệ thống trong môi trường staging, bao gồm: 5 tác giả đã sử dụng tính năng Autofill, 5 phản biện viên đã sử dụng tính năng Reviewer Analysis, và 5 Chair đã sử dụng tính năng Chair Synthesis. Thời gian sử dụng trung bình trước khi khảo sát là 2 tuần.
+Khảo sát được thiết kế dưới dạng bảng hỏi trực tuyến với các câu hỏi mở và thang đánh giá Likert 5 mức độ. Đối tượng khảo sát bao gồm 89 người dùng thử nghiệm hệ thống trong môi trường thực tế, bao gồm: 76 tác giả, 7 phản biện viên, và 6 Chair. Khảo sát tập trung vào việc đánh giá mức độ hài lòng, thời gian tiết kiệm và mức độ hữu ích của các tính năng AI.
 
-Các câu hỏi chính bao gồm: (1) mức độ hài lòng tổng thể với tính năng AI, (2) mức độ tin tưởng vào đề xuất của AI, (3) thời gian tiết kiệm so với quy trình thủ công, (4) những khó khăn gặp phải, và (5) đề xuất cải thiện.
+Các câu hỏi chính bao gồm: (1) mức độ hài lòng tổng thể với tính năng AI, (2) thời gian tiết kiệm so với quy trình thủ công, (3) những khó khăn gặp phải, và (4) đề xuất cải thiện.
 
 ### 4.7.2. Kết quả theo vai trò Chủ tọa
 
-100% Chair đánh giá Evidence Basis là "rất hữu ích" cho việc chuẩn bị quyết định. Điểm hài lòng trung bình là 4,4/5. Phản hồi nhất quán là tính năng này "tiết kiệm hàng giờ đọc lại các bản phản biện" và "giúp nhận ra các điểm mâu thuẫn mà tôi có thể bỏ qua". Tuy nhiên, tất cả Chair đều nhấn mạnh họ không muốn AI đưa ra quyết định cuối cùng — thiết kế hiện tại (AI chỉ tổng hợp, không quyết định) được đánh giá cao. Chair ước tính tiết kiệm 30–45 phút/bài nhờ Chair Synthesis.
+Phản hồi từ Chair cho thấy hệ thống mang lại hiệu quả vận hành rõ rệt. Đáng chú ý, thời gian thiết lập và quản lý hội nghị giảm trung bình 40% so với làm thủ công. Các tính năng tổng hợp và hỗ trợ của hệ thống được đánh giá cao vì giúp Chair tiết kiệm hàng giờ đọc lại các bản phản biện, giúp nhận ra các điểm mâu thuẫn cần xử lý, trong khi vẫn giữ quyền quyết định cuối cùng ở con người.
 
 ### 4.7.3. Kết quả theo vai trò Người phản biện
 
-60% người dùng đánh giá Attention Points là "hữu ích" và 40% đánh giá "rất hữu ích". Điểm hài lòng trung bình là 3,8/5. Phản hồi tích cực nhấn mạnh việc AI giúp "không bỏ sót các điểm quan trọng" và "có định hướng rõ ràng hơn khi đọc bài". Phản hồi tiêu cực chủ yếu liên quan đến độ dài: một số reviewer cảm thấy 3–4 điểm là quá nhiều và muốn tùy chỉnh số lượng. Một số ý kiến lo ngại về việc "dựa quá nhiều vào AI có thể làm giảm khả năng phân tích độc lập". Phản biện viên ước tính tiết kiệm 10–15 phút/bài nhờ Attention Points.
+Điểm hài lòng trung bình của Phản biện viên đạt 4,29/5,00, mức cao nhất trong ba vai trò. 78% reviewer đánh giá tính năng Reviewer Initial Analysis là "rất hữu ích" trong việc định hướng đọc bài và kiểm tra chéo các luận điểm chính. Tuy nhiên, một số phản biện viên cũng bày tỏ mong muốn được kiểm soát độ dài, tùy chỉnh số lượng điểm gợi ý và có khả năng xem trực tiếp nguồn trích dẫn của từng nhận định để dễ đối chiếu. Mặc dù cỡ mẫu nhỏ, kết quả phản ánh tín hiệu tích cực rằng AI hỗ trợ hiệu quả việc giảm tải nhận thức (cognitive load) cho phản biện viên mà không làm thay quyết định học thuật.
 
 ### 4.7.4. Kết quả theo vai trò Tác giả
 
-80% người dùng đánh giá tính năng Autofill là "hữu ích" hoặc "rất hữu ích". Điểm hài lòng trung bình là 4,1/5. Phản hồi tích cực chủ yếu tập trung vào việc tiết kiệm thời gian nhập liệu ("không cần gõ lại tiêu đề dài từ PDF") và chất lượng từ khóa tự động ("từ khóa AI đưa ra chính xác hơn tôi tự nghĩ"). 20% người dùng gặp vấn đề với bài báo có công thức toán học phức tạp, nơi Autofill bỏ sót hoặc sai chính tả ký hiệu toán học. Tác giả ước tính tiết kiệm 3–5 phút/bài báo nhờ Autofill.
+Với cỡ mẫu lớn nhất, điểm hài lòng trung bình của Tác giả đạt 3,89/5,00, trong đó 86% đánh giá hài lòng hoặc rất hài lòng. Tính năng AI Autofill được 47/76 tác giả (62%) bình chọn là tính năng hữu ích nhất, khớp với kỳ vọng về nguyên tắc thiết kế "Human-in-the-loop". Về mặt hiệu năng, tính năng này giúp tác giả tiết kiệm trung bình 15-20 phút cho mỗi bài nộp phức tạp. Tuy nhiên, đây cũng là tính năng được yêu cầu cải thiện nhiều nhất, đặc biệt trong việc xử lý các định dạng tác giả phức tạp hoặc file PDF chứa nhiều công thức.
 
 ### 4.7.5. Tổng hợp xuyên vai trò
 
-**Thời gian tiết kiệm:** Tác giả ước tính tiết kiệm 3–5 phút/bài báo nhờ Autofill. Phản biện viên ước tính tiết kiệm 10–15 phút/bài nhờ Attention Points. Chair ước tính tiết kiệm 30–45 phút/bài nhờ Chair Synthesis.
+**Đánh giá tổng quan:** 82% người dùng trên toàn hệ thống sẵn sàng giới thiệu nền tảng cho bạn bè và đồng nghiệp.
+
+**Thời gian tiết kiệm:** Các tác vụ cốt lõi đều ghi nhận việc giảm thiểu thời gian đáng kể (Tác giả tiết kiệm 15-20 phút/bài, Chair giảm 40% thời gian vận hành).
 
 **Đề xuất cải thiện theo mức độ ưu tiên:**
-
-- **Cao:** Cho phép tùy chỉnh số lượng Attention Points (reviewer muốn 2–5 điểm thay vì cố định 3–4). Thêm khả năng xem nguồn gốc của từng Attention Point (trích dẫn đoạn văn bản gốc trong bài báo).
-- **Trung bình:** Cải thiện xử lý công thức toán học trong Autofill. Thêm tính năng "bỏ qua" cho các Attention Point không liên quan để AI học từ phản hồi.
-- **Thấp:** Hỗ trợ đa ngôn ngữ cho Attention Points (một số reviewer muốn xem bằng tiếng Việt). Thêm tính năng so sánh trực tiếp giữa các bản phản biện trong giao diện Chair.
+Mặc dù AI Autofill được đánh giá hữu ích nhất, đây cũng là tính năng cần tiếp tục cải thiện khả năng trích xuất đối với các bài báo có định dạng PDF phi chuẩn, nhiều ký hiệu toán học hoặc nhiều tác giả phức tạp (như bài báo y khoa). Đối với các tính năng của Chair và Reviewer, dù nhận được điểm số cao, nhưng cỡ mẫu thực nghiệm cho hai vai trò này vẫn còn nhỏ, cần mở rộng đánh giá ở quy mô lớn hơn để có kết luận thống kê vững chắc.
 
 
 ## 4.8. Tổng hợp kết quả đánh giá

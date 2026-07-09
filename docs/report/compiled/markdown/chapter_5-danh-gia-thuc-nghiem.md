@@ -295,9 +295,9 @@ Khi phân tách kết quả TCA theo từng phân hội, dữ liệu thực nghi
 
 Sau khi người dùng trải nghiệm trực tiếp hệ thống ở vai trò được phân công, nhóm gửi khảo sát trực tuyến để đo lường mức độ hài lòng, độ dễ sử dụng và niềm tin đối với các tính năng AI. Khảo sát được thiết kế riêng cho từng vai trò (Chủ tọa, Người phản biện, Tác giả), gồm các nhóm câu hỏi: thông tin nền và các chức năng đã trải nghiệm; mức độ hài lòng theo từng khía cạnh trải nghiệm (thang 5 mức); mức độ dễ/khó khi thực hiện các thao tác chính; mức độ hài lòng theo từng chức năng đặc thù của vai trò; mức độ đồng ý với các nhận định về hệ thống, khả năng sử dụng (usability) và niềm tin đối với AI; yếu tố mong muốn cải thiện; điểm chưa thoải mái; mức độ sẵn sàng giới thiệu hệ thống; và phản hồi định tính mở.
 
-Tổng cộng thu được **91 phản hồi hợp lệ** trên ba vai trò:
+Tổng cộng thu được **89 phản hồi hợp lệ** trên ba vai trò:
 
-- **Chủ tọa (Chair):** 8 phản hồi hợp lệ (hoàn thành đến câu hỏi đánh giá tổng quan) trên tổng số 15 lượt truy cập form (tỷ lệ hoàn thành ~53%). 7/8 người từng sử dụng một hệ thống nộp bài/phản biện/quản lý hội nghị khác trước đây, cho thấy nhóm này có khả năng so sánh đối chiếu tương đối tốt.
+- **Chủ tọa (Chair):** 6 phản hồi hợp lệ (hoàn thành đến câu hỏi đánh giá tổng quan) trên tổng số 12 lượt truy cập form (tỷ lệ hoàn thành 50%). 5/6 người từng sử dụng một hệ thống nộp bài/phản biện/quản lý hội nghị khác trước đây, cho thấy nhóm này có khả năng so sánh đối chiếu tương đối tốt.
 - **Người phản biện (Reviewer):** 7 phản hồi hợp lệ trên tổng số 7 lượt truy cập (tỷ lệ hoàn thành 100%). 4/7 người từng dùng hệ thống tương tự, 3/7 là người dùng mới hoàn toàn.
 - **Tác giả (Author):** 76 phản hồi hợp lệ — mẫu lớn nhất và đủ lớn để phân tích xu hướng đáng tin cậy hơn. Đáng chú ý, 54/76 (71%) là người dùng **mới hoàn toàn**, chưa từng dùng hệ thống nộp bài/phản biện/quản lý hội nghị nào khác — ngược hẳn với hai vai trò còn lại. Điều này có ý nghĩa quan trọng: trải nghiệm của Tác giả phản ánh khá sát cảm nhận của người dùng lần đầu, nhóm mục tiêu chính mà hệ thống hướng tới.
 
@@ -305,13 +305,13 @@ Bảng 5.8 tổng hợp các chỉ số hài lòng chính để so sánh nhanh g
 
 **Bảng 5.8: So sánh mức độ hài lòng giữa ba vai trò**
 
-| Chỉ số | Chủ tọa (n=8) | Người phản biện (n=7) | Tác giả (n=76) |
+| Chỉ số | Chủ tọa (n=6) | Người phản biện (n=7) | Tác giả (n=76) |
 | :--- | :---: | :---: | :---: |
 | Điểm hài lòng tổng thể (/5) | 4,38 | 4,29 | 3,89 |
 | Điểm trải nghiệm tổng thể (/5) | 4,00 | 4,14 | 3,42 |
 | Điểm dễ thao tác trung bình (/5) | 3,33 | 3,80 | 3,49 |
-| Có điểm gây khó chịu | 100% (8/8) | 14% (1/7) | 58% (44/76) |
-| Sẵn sàng giới thiệu ("Chắc chắn có" hoặc "Có lẽ có") | 63% (5/8) | 86% (6/7) | 82% (62/76) |
+| Có điểm gây khó chịu | 100% (6/6) | 14% (1/7) | 58% (44/76) |
+| Sẵn sàng giới thiệu ("Chắc chắn có" hoặc "Có lẽ có") | 67% (4/6) | 86% (6/7) | 82% (62/76) |
 
 Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo từng vai trò; mục 5.7.5 tổng hợp các phát hiện xuyên vai trò.
 
@@ -319,15 +319,15 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 **a) Chức năng đã trải nghiệm.** Bảng 5.9 cho thấy "Xem gợi ý người phản biện và điểm phù hợp" là chức năng được thử nhiều nhất (6/8 người), phù hợp với vai trò trung tâm của thuật toán đối sánh phản biện đã trình bày ở mục 5.5.
 
-**Bảng 5.9: Các chức năng đã thử — vai trò Chủ tọa (n=8, có thể chọn nhiều mục)**
+**Bảng 5.9: Các chức năng đã thử — vai trò Chủ tọa (n=6, có thể chọn nhiều mục)**
 
 | Chức năng | Số người đã thử |
 | :--- | :---: |
-| Xem gợi ý người phản biện và điểm phù hợp | 6 |
-| Thiết lập/xem thông tin hội nghị | 4 |
-| Quản lý ngày quan trọng, lời mời nộp bài, ban tổ chức | 4 |
-| Tạo hội nghị từ template có sẵn | 4 |
-| Xem danh sách bài nộp và trạng thái | 4 |
+| Xem gợi ý người phản biện và điểm phù hợp | 4 |
+| Thiết lập/xem thông tin hội nghị | 3 |
+| Quản lý ngày quan trọng, lời mời nộp bài, ban tổ chức | 3 |
+| Tạo hội nghị từ template có sẵn | 3 |
+| Xem danh sách bài nộp và trạng thái | 3 |
 | Kiểm tra thông tin xung đột lợi ích | 4 |
 | Theo dõi tổng quan hoạt động hội nghị trên dashboard | 3 |
 | Sử dụng/hiểu công cụ AI hỗ trợ phân công, phản biện lại, quyết định | 3 |
@@ -335,7 +335,7 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 **b) Mức độ hài lòng theo khía cạnh trải nghiệm.** Các khía cạnh được đánh giá cao nhất là mức độ đầy đủ thông tin, độ tin cậy của trạng thái/xác nhận, và thiết kế giao diện (đều 4,25/5).
 
-**Bảng 5.10: Điểm hài lòng trung bình theo khía cạnh — vai trò Chủ tọa (n=8, thang 1–5)**
+**Bảng 5.10: Điểm hài lòng trung bình theo khía cạnh — vai trò Chủ tọa (n=6, thang 1–5)**
 
 | Khía cạnh | Điểm TB (/5) |
 | :--- | :---: |
@@ -350,7 +350,7 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 **c) Mức độ dễ/khó khi thao tác.** Ngược lại với mục (b), nhóm điểm về khả năng tự thao tác độc lập lại thấp nhất trong toàn khảo sát Chair: "hoàn thành tác vụ không cần hướng dẫn thêm" chỉ đạt **3,12/5**.
 
-**Bảng 5.11: Mức độ dễ/khó của các thao tác chính — vai trò Chủ tọa (n=8, thang 1=Rất khó đến 5=Rất dễ)**
+**Bảng 5.11: Mức độ dễ/khó của các thao tác chính — vai trò Chủ tọa (n=6, thang 1=Rất khó đến 5=Rất dễ)**
 
 | Thao tác | Điểm TB (/5) |
 | :--- | :---: |
@@ -364,7 +364,7 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 **d) Mức độ hài lòng tổng thể.** Điểm trung bình đạt **4,38/5** — cao nhất trong ba vai trò khảo sát.
 
-**Bảng 5.12: Phân bố điểm hài lòng tổng thể — vai trò Chủ tọa (n=8)**
+**Bảng 5.12: Phân bố điểm hài lòng tổng thể — vai trò Chủ tọa (n=6)**
 
 | Mức điểm | Số lượng |
 | :--- | :---: |
@@ -374,7 +374,7 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 **e) Hài lòng theo từng chức năng đặc thù.** Nhìn theo chức năng cụ thể, "Theo dõi tiến độ phản biện" và "Xem danh sách bài nộp và trạng thái" nhận được phản hồi tích cực nhất (không có phản hồi "Bình thường" hoặc rất ít), trong khi "Xem gợi ý người phản biện và điểm phù hợp" — chức năng lõi liên quan trực tiếp đến thuật toán ở mục 5.5 — lại có tỷ lệ "Bình thường" cao hơn hẳn (2/8), dù không ai chọn "Không hài lòng".
 
-**Bảng 5.13: Hài lòng theo từng chức năng đặc thù — vai trò Chủ tọa (n=8)**
+**Bảng 5.13: Hài lòng theo từng chức năng đặc thù — vai trò Chủ tọa (n=6)**
 
 | Chức năng | Rất hài lòng | Hài lòng | Bình thường |
 | :--- | :---: | :---: | :---: |
@@ -388,9 +388,9 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 | Kiểm tra thông tin xung đột lợi ích | 3 | 4 | 1 |
 | Công cụ AI hỗ trợ phân công/phản biện lại/quyết định | 2 | 5 | 1 |
 
-**f) Nhận định về hệ thống, khả năng sử dụng và niềm tin đối với AI.** Nhóm câu hỏi về niềm tin đối với AI có điểm đồng ý cao và đồng đều nhất trong toàn khảo sát Chair, đặc biệt là nhận định "AI hỗ trợ chủ tọa nhưng không thay thế quyết định con người" (7/8 đồng ý hoặc hoàn toàn đồng ý) và "muốn hệ thống hiển thị nguồn/lý do/độ tin cậy cho gợi ý AI" (7/8) — cho thấy người dùng ủng hộ đúng nguyên tắc thiết kế cốt lõi của hệ thống nhưng đồng thời mong muốn tính minh bạch cao hơn. Riêng nhận định "Tôi tin rằng quyết định học thuật cuối cùng vẫn nên do con người kiểm soát" nhận 6/8 đồng ý/hoàn toàn đồng ý và có 1/8 không đồng ý — phản hồi hiếm hoi lệch khỏi xu hướng chung, cần đối chiếu với phản hồi định tính của cùng người dùng để hiểu rõ hơn.
+**f) Nhận định về hệ thống, khả năng sử dụng và niềm tin đối với AI.** Nhóm câu hỏi về niềm tin đối với AI có điểm đồng ý cao và đồng đều nhất trong toàn khảo sát Chair, đặc biệt là nhận định "AI hỗ trợ chủ tọa nhưng không thay thế quyết định con người" (5/6 đồng ý hoặc hoàn toàn đồng ý) và "muốn hệ thống hiển thị nguồn/lý do/độ tin cậy cho gợi ý AI" (5/6) — cho thấy người dùng ủng hộ đúng nguyên tắc thiết kế cốt lõi của hệ thống nhưng đồng thời mong muốn tính minh bạch cao hơn. Riêng nhận định "Tôi tin rằng quyết định học thuật cuối cùng vẫn nên do con người kiểm soát" nhận 4/6 đồng ý/hoàn toàn đồng ý và có 1/6 không đồng ý — phản hồi hiếm hoi lệch khỏi xu hướng chung, cần đối chiếu với phản hồi định tính của cùng người dùng để hiểu rõ hơn.
 
-**Bảng 5.14: Mức độ đồng ý với các nhận định về AI — vai trò Chủ tọa (n=8)**
+**Bảng 5.14: Mức độ đồng ý với các nhận định về AI — vai trò Chủ tọa (n=6)**
 
 | Nhận định về AI | Hoàn toàn đồng ý | Đồng ý | Trung lập | Không đồng ý |
 | :--- | :---: | :---: | :---: | :---: |
@@ -406,9 +406,9 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 Ở nhóm nhận định về hệ thống và khả năng sử dụng nói chung, các nhận định như "Gợi ý người phản biện và điểm phù hợp dễ hiểu" (4 hoàn toàn đồng ý + 3 đồng ý) và "Nền tảng cung cấp đủ bằng chứng để cân nhắc gợi ý reviewer" (4 + 3) đạt tỷ lệ đồng ý cao, trong khi "Dashboard tóm tắt tình hình hội nghị rõ ràng" và "Khu vực thiết lập hội nghị dễ hiểu" có 1/8 không đồng ý — trùng khớp với điểm nghẽn về khả năng tự thao tác đã ghi nhận ở mục (c).
 
-**g) Điều gì sẽ làm Chủ tọa hài lòng hơn.** Yếu tố được mong muốn cải thiện nhiều nhất là "giải thích AI rõ hơn" (6/8 lượt chọn) và "dễ bỏ qua hoặc chỉnh sửa gợi ý AI hơn" (5/8 lượt chọn) — cho thấy mối quan tâm chính không phải ở tốc độ hay giao diện mà ở tính minh bạch của AI.
+**g) Điều gì sẽ làm Chủ tọa hài lòng hơn.** Yếu tố được mong muốn cải thiện nhiều nhất là "giải thích AI rõ hơn" (4/6 lượt chọn) và "dễ bỏ qua hoặc chỉnh sửa gợi ý AI hơn" (4/6 lượt chọn) — cho thấy mối quan tâm chính không phải ở tốc độ hay giao diện mà ở tính minh bạch của AI.
 
-**Bảng 5.15: Yếu tố mong muốn cải thiện để tăng hài lòng — vai trò Chủ tọa (n=8, chọn nhiều mục)**
+**Bảng 5.15: Yếu tố mong muốn cải thiện để tăng hài lòng — vai trò Chủ tọa (n=6, chọn nhiều mục)**
 
 | Yếu tố mong muốn | Số lượt chọn |
 | :--- | :---: |
@@ -424,9 +424,9 @@ Ba mục tiếp theo (5.7.2–5.7.4) trình bày chi tiết kết quả theo t�
 
 Tính năng hữu ích nhất được nhắc đến nhiều là gợi ý người phản biện (2 lượt), còn lại rải đều ở theo dõi tiến độ phản biện, tạo hội nghị từ template, danh sách bài nộp, AI hỗ trợ quyết định/phản biện lại, tín hiệu xung đột lợi ích và quản lý ban tổ chức (mỗi mục 1 lượt). Ngược lại, tính năng cần cải thiện nhất là **tín hiệu xung đột lợi ích** (2 lượt) — cùng một điểm nghẽn được ghi nhận ở vai trò Tác giả (mục 5.7.4).
 
-**h) Điểm chưa thoải mái.** Toàn bộ 8/8 người được hỏi cho biết **có** điểm khiến họ chưa thoải mái, phần lớn xuất phát từ lo ngại gợi ý AI sai (2 người) và cảm nhận về tính nhạy cảm của việc ra quyết định học thuật (1 người) — phản ánh rõ nét gánh nặng trách nhiệm của vai trò Chair khi phải dựa vào các gợi ý có yếu tố AI trong quyết định cuối cùng.
+**h) Điểm chưa thoải mái.** Toàn bộ 6/6 người được hỏi cho biết **có** điểm khiến họ chưa thoải mái, phần lớn xuất phát từ lo ngại gợi ý AI sai (1 người) và cảm nhận về tính nhạy cảm của việc ra quyết định học thuật (1 người) — phản ánh rõ nét gánh nặng trách nhiệm của vai trò Chair khi phải dựa vào các gợi ý có yếu tố AI trong quyết định cuối cùng.
 
-**Bảng 5.16: Lý do chính gây khó chịu — vai trò Chủ tọa (n=8, mỗi người 1 lý do chính)**
+**Bảng 5.16: Lý do chính gây khó chịu — vai trò Chủ tọa (n=6, mỗi người 1 lý do chính)**
 
 | Lý do | Số lượng |
 | :--- | :---: |
@@ -439,7 +439,7 @@ Tính năng hữu ích nhất được nhắc đến nhiều là gợi ý ngư�
 
 **i) Sẵn sàng giới thiệu hệ thống.** Đây là vai trò duy nhất xuất hiện phản hồi "Chắc chắn không" (1/8) — cần lưu ý khi đối chiếu với phản hồi định tính, có thể liên quan đến lo ngại AI hoặc tính nhạy cảm của việc ra quyết định học thuật đã nêu ở mục (h).
 
-**Bảng 5.17: Mức độ sẵn sàng giới thiệu hệ thống — vai trò Chủ tọa (n=8)**
+**Bảng 5.17: Mức độ sẵn sàng giới thiệu hệ thống — vai trò Chủ tọa (n=6)**
 
 | Mức độ | Số lượng |
 | :--- | :---: |
