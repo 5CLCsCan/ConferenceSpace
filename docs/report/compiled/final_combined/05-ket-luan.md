@@ -60,11 +60,11 @@ Một số workflow nghiệp vụ cũng cần hoàn thiện nếu hệ thống h
 
 Cuối cùng, hệ thống còn phụ thuộc vào nhà cung cấp và mô hình bên ngoài cho các thao tác LLM, bao gồm `gemini-3.1-flash-lite` thông qua OpenRouter hoặc model router tương thích OpenAI client. Sự phụ thuộc này tạo rủi ro về chi phí, giới hạn dịch vụ, độ ổn định, thay đổi chất lượng mô hình và bảo mật dữ liệu bản thảo. Vì vậy, chi phí và khả năng mở rộng cần tiếp tục được đánh giá bằng token, độ trễ và chính sách vận hành, thay vì gắn kết luận vào một bảng giá cố định.
 
-### 5.2.4. Hạn chế về giám sát AI và mô hình vận hành bền vững
+Đề tài cũng chưa làm rõ mô hình vận hành và tính bền vững của nền tảng. ConferenceSpace được xây dựng như một PoC kỹ thuật và học thuật, không nhằm cạnh tranh thương mại trực tiếp với các hệ thống quản lý hội nghị hiện có. Vì vậy, báo cáo chưa đánh giá các lựa chọn như open-source core, self-hosted deployment, hosted service có SLA, institutional membership hoặc dịch vụ tư vấn triển khai. Đây là giới hạn về khả năng chuyển từ prototype sang hạ tầng vận hành bền vững, không phải thiếu sót của mục tiêu nghiên cứu ban đầu. Nếu phát triển tiếp như một hạ tầng học thuật mở, hệ thống cần một mô hình bền vững dựa trên dịch vụ, hỗ trợ và cộng đồng, thay vì khai thác dữ liệu bản thảo hoặc dữ liệu phản biện [8][9].
+
+### 5.2.4. Hạn chế về giám sát AI
 
 Hệ thống hiện chưa có lớp observability hướng người dùng cho các workflow AI. Benchmark hiện tại đã ghi nhận độ trễ, token, trạng thái hoàn tất và một số chỉ số hậu kiểm, nhưng người dùng cuối chưa có một không gian đủ rõ để theo dõi mỗi workflow đã dùng nguồn dữ liệu nào, gọi công cụ nào, tạo finding nào, bị kiểm tra lại ra sao và kết quả nào đã được người dùng chấp nhận, chỉnh sửa hoặc ghi đè. Với các workflow gần quyết định học thuật, thiếu observability làm giảm khả năng giám sát, phản hồi, audit và học từ lỗi vận hành. Đây cũng là yêu cầu phù hợp với các khuyến nghị về AI risk management và AgentOps, trong đó monitoring, logging, tracing, human oversight và incident response được xem là điều kiện quan trọng để vận hành hệ thống AI có trách nhiệm [3][4].
-
-Đề tài cũng chưa làm rõ mô hình vận hành và tính bền vững của nền tảng. ConferenceSpace được xây dựng như một PoC kỹ thuật và học thuật, không nhằm cạnh tranh thương mại trực tiếp với các hệ thống quản lý hội nghị hiện có. Vì vậy, báo cáo chưa đánh giá các lựa chọn như open-source core, self-hosted deployment, hosted service có SLA, institutional membership hoặc dịch vụ tư vấn triển khai. Đây là giới hạn về khả năng chuyển từ prototype sang hạ tầng vận hành bền vững, không phải thiếu sót của mục tiêu nghiên cứu ban đầu. Nếu phát triển tiếp như một hạ tầng học thuật mở, hệ thống cần một mô hình bền vững dựa trên dịch vụ, hỗ trợ và cộng đồng, thay vì khai thác dữ liệu bản thảo hoặc dữ liệu phản biện [8][9].
 
 ## 5.3. Hướng phát triển trong tương lai
 
