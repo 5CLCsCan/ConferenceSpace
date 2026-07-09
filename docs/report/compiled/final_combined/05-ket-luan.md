@@ -50,9 +50,13 @@ Review Quality Auditor là trường hợp cần thận trọng nhất. Dù work
 
 Reviewer Initial Analysis và Chair Decision Copilot cũng phải được đọc trong đúng vai trò hỗ trợ. Initial Analysis giúp reviewer định hướng đọc, nhưng không bảo đảm bao phủ đầy đủ mọi đóng góp, thiếu sót hoặc rủi ro học thuật của bài báo. Chair Decision Copilot giúp tổng hợp review, rebuttal và evidence, nhưng chưa có cơ sở để kết luận hệ thống chọn đúng accept hoặc reject. Các cơ chế hậu kiểm bằng TCA/NLI trong benchmark là proxy tự động cho groundedness, coverage và additionality; chúng không thay thế đánh giá của chuyên gia trong các tiêu chí đòi hỏi hiểu sâu lĩnh vực nghiên cứu và chuẩn mực hội nghị.
 
-### 5.2.3. Hạn chế về vận hành và độ hoàn thiện sản phẩm
+### 5.2.3. Hạn chế về giám sát AI
 
-Nhóm hạn chế thứ ba nằm ở khả năng vận hành như một sản phẩm thực tế. Một số workflow AI có độ trễ cao và có trường hợp ngoại lệ vượt 100 giây, nên không phù hợp với mọi tương tác đồng bộ. Các workflow như Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot cần được vận hành theo hướng chạy nền, có hàng đợi xử lý, retry có giới hạn, timeout theo stage và trạng thái tiến độ rõ ràng.
+Nhóm hạn chế thứ ba nằm ở khả năng giám sát các workflow AI trong quá trình vận hành. Hệ thống hiện chưa có lớp observability hướng người dùng cho các workflow AI. Benchmark hiện tại đã ghi nhận độ trễ, token, trạng thái hoàn tất và một số chỉ số hậu kiểm, nhưng người dùng cuối chưa có một không gian đủ rõ để theo dõi mỗi workflow đã dùng nguồn dữ liệu nào, gọi công cụ nào, tạo finding nào, bị kiểm tra lại ra sao và kết quả nào đã được người dùng chấp nhận, chỉnh sửa hoặc ghi đè. Với các workflow gần quyết định học thuật, thiếu observability làm giảm khả năng giám sát, phản hồi, audit và học từ lỗi vận hành. Đây cũng là yêu cầu phù hợp với các khuyến nghị về AI risk management và AgentOps, trong đó monitoring, logging, tracing, human oversight và incident response được xem là điều kiện quan trọng để vận hành hệ thống AI có trách nhiệm [3][4].
+
+### 5.2.4. Hạn chế về vận hành và độ hoàn thiện sản phẩm
+
+Nhóm hạn chế cuối cùng nằm ở khả năng vận hành như một sản phẩm thực tế. Một số workflow AI có độ trễ cao và có trường hợp ngoại lệ vượt 100 giây, nên không phù hợp với mọi tương tác đồng bộ. Các workflow như Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot cần được vận hành theo hướng chạy nền, có hàng đợi xử lý, retry có giới hạn, timeout theo stage và trạng thái tiến độ rõ ràng.
 
 Chatbot Agent còn tỷ lệ lỗi khi gọi công cụ ở mức đáng kể. Dù benchmark không ghi nhận rò rỉ dữ liệu trong kịch bản kiểm tra quyền truy cập, một agent có quyền truy vấn dữ liệu hệ thống phải từ chối đúng khi người dùng không có quyền, báo lỗi rõ khi dữ liệu không đủ và truy vết được nguyên nhân khi câu trả lời chỉ đạt một phần hoặc không đạt.
 
@@ -61,10 +65,6 @@ Một số workflow nghiệp vụ cũng cần hoàn thiện nếu hệ thống h
 Cuối cùng, hệ thống còn phụ thuộc vào nhà cung cấp và mô hình bên ngoài cho các thao tác LLM, bao gồm `gemini-3.1-flash-lite` thông qua OpenRouter hoặc model router tương thích OpenAI client. Sự phụ thuộc này tạo rủi ro về chi phí, giới hạn dịch vụ, độ ổn định, thay đổi chất lượng mô hình và bảo mật dữ liệu bản thảo. Vì vậy, chi phí và khả năng mở rộng cần tiếp tục được đánh giá bằng token, độ trễ và chính sách vận hành, thay vì gắn kết luận vào một bảng giá cố định.
 
 Đề tài cũng chưa làm rõ mô hình vận hành và tính bền vững của nền tảng. ConferenceSpace được xây dựng như một PoC kỹ thuật và học thuật, không nhằm cạnh tranh thương mại trực tiếp với các hệ thống quản lý hội nghị hiện có. Vì vậy, báo cáo chưa đánh giá các lựa chọn như open-source core, self-hosted deployment, hosted service có SLA, institutional membership hoặc dịch vụ tư vấn triển khai. Đây là giới hạn về khả năng chuyển từ prototype sang hạ tầng vận hành bền vững, không phải thiếu sót của mục tiêu nghiên cứu ban đầu. Nếu phát triển tiếp như một hạ tầng học thuật mở, hệ thống cần một mô hình bền vững dựa trên dịch vụ, hỗ trợ và cộng đồng, thay vì khai thác dữ liệu bản thảo hoặc dữ liệu phản biện [8][9].
-
-### 5.2.4. Hạn chế về giám sát AI
-
-Hệ thống hiện chưa có lớp observability hướng người dùng cho các workflow AI. Benchmark hiện tại đã ghi nhận độ trễ, token, trạng thái hoàn tất và một số chỉ số hậu kiểm, nhưng người dùng cuối chưa có một không gian đủ rõ để theo dõi mỗi workflow đã dùng nguồn dữ liệu nào, gọi công cụ nào, tạo finding nào, bị kiểm tra lại ra sao và kết quả nào đã được người dùng chấp nhận, chỉnh sửa hoặc ghi đè. Với các workflow gần quyết định học thuật, thiếu observability làm giảm khả năng giám sát, phản hồi, audit và học từ lỗi vận hành. Đây cũng là yêu cầu phù hợp với các khuyến nghị về AI risk management và AgentOps, trong đó monitoring, logging, tracing, human oversight và incident response được xem là điều kiện quan trọng để vận hành hệ thống AI có trách nhiệm [3][4].
 
 ## 5.3. Hướng phát triển trong tương lai
 
@@ -94,6 +94,8 @@ Về nghiệp vụ, các phần cần hoàn thiện tiếp gồm Discussion, cam
 
 Một hướng phát triển dài hạn là giảm phụ thuộc vận hành vào nhà cung cấp bên ngoài. Nhóm có thể đánh giá phương án dùng mô hình open-weight hoặc triển khai on-premise cho những hội nghị có yêu cầu bảo mật cao. Hướng này cần được cân nhắc cùng chi phí hạ tầng, độ trễ, chất lượng đầu ra, khả năng cập nhật mô hình và công sức vận hành.
 
+Bên cạnh lựa chọn mô hình và hạ tầng triển khai, ConferenceSpace cũng cần được định vị bằng một mô hình vận hành bền vững nếu muốn vượt khỏi phạm vi PoC. Các lựa chọn có thể gồm open-source core, self-hosted deployment cho hội nghị hoặc đơn vị học thuật, hosted service có SLA, membership hoặc dịch vụ tư vấn triển khai. Nguyên tắc quan trọng là doanh thu nếu có nên dựa trên dịch vụ vận hành, hỗ trợ, SLA hoặc triển khai, không dựa trên khai thác dữ liệu bản thảo và dữ liệu phản biện. Cách định vị này phù hợp hơn với mục tiêu PoC của đề tài và với các nguyên tắc của open scholarly infrastructure [8][9].
+
 Hệ thống cũng nên mở rộng nguồn dữ liệu cho COI và hồ sơ chuyên môn nếu có điều kiện, chẳng hạn dữ liệu DBLP, Semantic Scholar cập nhật định kỳ hoặc dữ liệu affiliation do hội nghị tự thu thập. Việc mở rộng nguồn dữ liệu cần đi kèm cơ chế giải thích và kiểm tra thủ công, vì dữ liệu học thuật thường không đầy đủ, có tên trùng, affiliation thay đổi theo thời gian và quan hệ đồng tác giả không luôn phản ánh xung đột lợi ích hiện tại.
 
 Nếu tiếp tục phát triển theo hướng nghiên cứu, nhóm có thể công bố một phần benchmark hoặc mã nguồn sau khi xử lý quyền dữ liệu, ẩn danh thông tin nhạy cảm và mô tả rõ giới hạn sử dụng. Điều này giúp kết quả của đề tài có khả năng tái lập và tạo nền tảng cho các nghiên cứu tiếp theo về AI hỗ trợ peer review có kiểm soát.
@@ -106,11 +108,9 @@ Từ lớp truy hồi này, ConferenceSpace có thể phát triển các workflo
 
 Trong môi trường như vậy, agent có thể thực hiện các thao tác thủ công lặp lại như kiểm tra thiếu thông tin, chuẩn bị gói bằng chứng cho Chair, nhắc deadline, gom điểm bất đồng giữa các review, kiểm tra policy hoặc tạo checklist tuân thủ. Mục tiêu không phải tự động hóa quyết định học thuật, mà tự động hóa các thao tác điều phối có thể kiểm tra. Điều này giữ nguyên luận điểm cốt lõi của đề tài: AI hỗ trợ thao tác và tổng hợp bằng chứng, còn quyết định chấp nhận, từ chối hoặc yêu cầu sửa đổi vẫn thuộc về con người.
 
-### 5.3.6. Tăng tuân thủ học thuật và tính bền vững của nền tảng
+### 5.3.6. Tăng tuân thủ học thuật trong workflow AI
 
 Lớp agentic cũng mở ra hướng tuân thủ học thuật chủ động. Hệ thống có thể kiểm tra disclosure về việc sử dụng AI, bảo mật bản thảo, quyền truy cập dữ liệu, provenance của nguồn, trạng thái đồng ý của người dùng và dấu vết can thiệp của con người trước khi cho phép workflow hoàn tất. Các khuyến nghị của ICMJE nhấn mạnh rằng AI có thể tạo nội dung sai, thiếu hoặc thiên lệch; con người vẫn chịu trách nhiệm về độ chính xác; bản thảo gửi tạp chí hoặc hội nghị là thông tin đặc quyền; và việc dùng AI trong quy trình biên tập/phản biện cần minh bạch, có chính sách rõ [6]. Cùng với định hướng human-centred, bảo vệ quyền riêng tư và khung chính sách của UNESCO, đây là cơ sở để ConferenceSpace phát triển theo hướng hỗ trợ AI nhưng vẫn bảo vệ trách nhiệm học thuật [7].
-
-Cuối cùng, nếu nhóm muốn định vị ConferenceSpace như một hạ tầng học thuật mở thay vì sản phẩm thương mại thuần túy, hướng phát triển nên bao gồm mô hình bền vững ngay từ thiết kế. Các lựa chọn có thể gồm open-source core, self-hosted deployment cho hội nghị hoặc đơn vị học thuật, hosted service có SLA, membership hoặc dịch vụ tư vấn triển khai. Nguyên tắc quan trọng là doanh thu nếu có nên dựa trên dịch vụ vận hành, hỗ trợ, SLA hoặc triển khai, không dựa trên khai thác dữ liệu bản thảo và dữ liệu phản biện. Cách định vị này phù hợp hơn với mục tiêu PoC của đề tài và với các nguyên tắc của open scholarly infrastructure [8][9].
 
 Tóm lại, ConferenceSpace cho thấy AI có thể tạo giá trị trong quy trình xét duyệt bài báo khi được đặt đúng vai trò: hỗ trợ thao tác, hỗ trợ đọc hiểu, kiểm tra bản nháp và tổng hợp bằng chứng. Giá trị đó chỉ bền vững khi hệ thống giữ quyền quyết định học thuật cho con người, cung cấp bằng chứng để kiểm tra lại và thừa nhận rõ giới hạn của dữ liệu, mô hình và môi trường vận hành. Kết luận của đề tài vì vậy không phải là AI có thể thay thế con người trong peer review, mà là một nền tảng được thiết kế đúng ranh giới có thể dùng AI để giảm tải một số điểm nghẽn mà vẫn bảo vệ trách nhiệm học thuật của tác giả, người phản biện và Chair.
 
