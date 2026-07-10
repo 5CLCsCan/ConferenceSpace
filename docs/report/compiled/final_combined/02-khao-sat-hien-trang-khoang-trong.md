@@ -157,7 +157,7 @@ CMT là hệ đối sánh quan trọng cho bài toán hội nghị quy mô lớn
 
 ### 2.2.3. So sánh theo luồng nghiệp vụ và mức hỗ trợ người dùng
 
-Bảng dưới đây không dùng nhị phân "có/không" tuyệt đối, mà dùng mức hỗ trợ tương đối dựa trên tài liệu công khai và phạm vi khảo sát của nhóm.
+Bảng dưới đây không dùng nhị phân "có/không" tuyệt đối, mà dùng mức hỗ trợ tương đối dựa trên tài liệu công khai và phạm vi khảo sát của nhóm. Bảng tách riêng năng lực vận hành quy trình phản biện khỏi năng lực hỗ trợ người phản biện đọc hiểu bài, vì đây là hai lớp chức năng khác nhau.
 
 | Tiêu chí | EasyChair | HotCRP | OpenReview | Microsoft CMT | Định hướng ConferenceSpace |
 |---|---|---|---|---|---|
@@ -165,7 +165,8 @@ Bảng dưới đây không dùng nhị phân "có/không" tuyệt đối, mà d
 | Phân công phản biện | Theo ưu tiên | Tự động phân công, ưu tiên và xung đột | Ghép theo chuyên môn, bidding và ràng buộc | Thủ công/tự động, TPMS | Thuật toán xác định, có điểm số, lý do và ràng buộc COI |
 | Quản lý COI | Có cơ chế quản lý xung đột | Có cơ chế xung đột và quản trị viên theo bài | Có thư mục mở và thông tin COI | Xung đột theo cá nhân/domain, có hỗ trợ từ DBLP | COI đa tầng: tự kiểm tra, khai báo, đồ thị đồng tác giả |
 | Hỗ trợ tác giả khi nộp bài | Có biểu mẫu nộp bài | Không phải trọng tâm chính | Có nộp bài và thảo luận | Có toàn bộ vòng đời nộp bài | Autofill siêu dữ liệu, kiểm tra sơ bộ, quy trình từng bước, xác nhận trước khi gửi |
-| Hỗ trợ reviewer đọc bài | Biểu mẫu phản biện và thảo luận | Mạnh về luồng phản biện | Phản biện/thảo luận công khai tùy chính sách | Vòng đời phản biện | Tóm tắt trung lập và điểm cần kiểm tra, không thay thế phản biện |
+| Quy trình viết và thảo luận phản biện | Nộp phản biện, thảo luận trực tuyến và rebuttal | Biểu mẫu, nhiều vòng phản biện, đánh giá chất lượng phản biện và thảo luận | Biểu mẫu tùy chỉnh, mức hiển thị và thảo luận theo chính sách hội nghị | Xem bài, biểu mẫu, lưu nháp và thảo luận | Xem bài, biểu mẫu chuẩn hóa, lưu nháp/gửi phản biện, rebuttal và thảo luận |
+| Hỗ trợ reviewer đọc hiểu bài trước khi viết phản biện | Không ghi nhận như năng lực lõi trong tài liệu công khai được khảo sát | Không ghi nhận như năng lực lõi trong tài liệu công khai được khảo sát | Không ghi nhận như năng lực lõi trong tài liệu công khai được khảo sát | Không ghi nhận như năng lực lõi trong tài liệu công khai được khảo sát | Reviewer Initial Analysis cung cấp tóm tắt trung lập, chú thích và điểm cần kiểm tra; reviewer vẫn phải đọc bài và tự chịu trách nhiệm về đánh giá chuyên môn |
 | Hỗ trợ Chair tổng hợp bằng chứng | Có theo dõi, email và phân tích dữ liệu | Có tìm kiếm, phân công và thảo luận | Có thảo luận và dữ liệu mở | Có bảng điều khiển/luồng xử lý | Bảng điều khiển, rà soát chất lượng phản biện, tổng hợp đồng thuận/bất đồng |
 | AI/LLM tích hợp xuyên vai trò | Không ghi nhận như năng lực lõi công khai trong phạm vi khảo sát | Không ghi nhận như năng lực lõi công khai trong phạm vi khảo sát | Có thảo luận/chính sách/thử nghiệm AI trong hệ sinh thái ICLR/OpenReview | Tích hợp TPMS, không phải AI tạo sinh | AI hỗ trợ có kiểm soát cho Autofill, kiểm tra sơ bộ, hỗ trợ reviewer và tổng hợp cho Chair |
 
