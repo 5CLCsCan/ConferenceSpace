@@ -1,0 +1,193 @@
+\chapter*{Danh mục thuật ngữ và từ viết tắt}
+
+Danh mục này giải thích các thuật ngữ chuyên môn và từ viết tắt có vai trò quan trọng trong báo cáo ConferenceSpace.
+
+\section*{Thuật ngữ nghiệp vụ hội nghị}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 1}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  Chair     &     Chủ tọa / người điều phối hội nghị     &     Vai trò chịu trách nhiệm cấu hình hội nghị, theo dõi tiến độ, phân công phản biện và ra quyết định cuối cùng đối với bài nộp \\ \hline
+  Reviewer      &      Người phản biện      &      Người được phân công đọc bài, viết nhận xét, chấm điểm hoặc đưa ra khuyến nghị trong quy trình xét duyệt \\ \hline
+  Submission     &     Bài nộp     &     Bản thảo và metadata do tác giả gửi vào một hội nghị hoặc track cụ thể \\ \hline
+  CFP      &      Call for Papers      &      Lời mời nộp bài của hội nghị, thường mô tả phạm vi chủ đề, track, thời hạn và yêu cầu nộp bài \\ \hline
+  Rebuttal     &     Phản hồi của tác giả     &     Giai đoạn tác giả trả lời nhận xét của reviewer trước khi Chair ra quyết định cuối cùng \\ \hline
+  Camera-ready      &      Bản hoàn thiện sau chấp nhận      &      Phiên bản cuối của bài báo sau khi bài được chấp nhận và tác giả đã chỉnh sửa theo yêu cầu \\ \hline
+  Bidding     &     Đăng ký vai trò phản biện     &     Cơ chế reviewer bày tỏ mức độ quan tâm hoặc phù hợp với các bài nộp trước khi phân công \\ \hline
+  Peer review      &      Phản biện học thuật      &      Quy trình chuyên gia đánh giá chất lượng, tính mới, độ đúng và mức phù hợp của bài báo khoa học \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Thuật ngữ hệ thống và AI}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 2}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  AI     &     Artificial Intelligence     &     Nhóm chức năng hỗ trợ bằng mô hình trí tuệ nhân tạo trong hệ thống, không bao gồm các thuật toán xác định như reviewer matching \\ \hline
+  AI-native      &      Thiết kế lấy AI làm nền tảng vận hành      &      Cách định vị nền tảng trong đó AI, truy hồi bằng chứng, agent có kiểm soát và observability được thiết kế như một phần của workflow chính, không chỉ là tính năng phụ trợ \\ \hline
+  LLM     &     Large Language Model     &     Mô hình ngôn ngữ lớn dùng trong các workflow hỗ trợ nhập liệu, đọc bài, kiểm toán review, tổng hợp bằng chứng hoặc chatbot \\ \hline
+  Workflow AI      &      AI workflow      &      Luồng xử lý có dùng AI, có đầu vào, đầu ra, ràng buộc kiểm soát và tiêu chí đánh giá riêng \\ \hline
+  Workflow runner     &     Bộ chạy workflow     &     Thành phần chạy workflow AI trên tập dữ liệu benchmark, lưu output, checkpoint, thời gian xử lý, token và trạng thái hoàn tất \\ \hline
+  Result package      &      Gói kết quả workflow      &      Tập artifact được lưu sau khi workflow chạy xong, gồm dữ liệu nguồn, output, checkpoint, token và thông tin thời gian để hậu kiểm \\ \hline
+  Dispatcher-worker     &     Bộ điều phối và worker xử lý     &     Mô hình vận hành trong đó dispatcher phân phối tác vụ AI cho các worker chạy độc lập và lưu kết quả theo từng task \\ \hline
+  Artifact      &      -      &      Kết quả hoặc đối tượng kỹ thuật được tạo/lưu để đối chiếu, ví dụ output của workflow AI, metadata kiểm toán hoặc dữ liệu đã gắn fingerprint \\ \hline
+  Structured output     &     Đầu ra có cấu trúc     &     Đầu ra của model phải tuân theo schema hoặc field contract để backend có thể validate, lưu và hiển thị \\ \hline
+  Schema      &      Lược đồ dữ liệu      &      Đặc tả cấu trúc dữ liệu, kiểu field và ràng buộc validate cho request/response hoặc artifact \\ \hline
+  Contract     &     Hợp đồng dữ liệu / hành vi     &     Quy ước bắt buộc giữa các thành phần hệ thống, ví dụ output contract, API contract hoặc tool-call contract \\ \hline
+  Contract violation      &      Vi phạm hợp đồng dữ liệu / hành vi      &      Trường hợp output hoặc hành vi của workflow không tuân theo contract đã định, ví dụ sinh \texttt{block} tự động ở tuyến chỉ được phép cảnh báo \\ \hline
+  Guardrail     &     Ràng buộc kiểm soát     &     Quy tắc giới hạn hành vi của workflow AI, ví dụ không tự quyết định accept/reject hoặc không truy cập dữ liệu ngoài quyền \\ \hline
+  Composite pattern      &      Mẫu Composite      &      Mẫu thiết kế cho phép gom nhiều detector hoặc thành phần xử lý cùng giao diện để bật/tắt hoặc kết hợp theo cấu hình \\ \hline
+  Hallucination     &     Sinh thông tin không có căn cứ     &     Trường hợp AI tạo nội dung không được dữ liệu đầu vào hoặc bằng chứng hệ thống hỗ trợ \\ \hline
+  Claim-evidence      &      Nhận định và bằng chứng đối chiếu      &      Cách biểu diễn một finding hoặc nhận định thành claim rồi liên kết với evidence để kiểm tra mức bám nguồn \\ \hline
+  Retrieval-Augmented Generation     &     Sinh nội dung có truy hồi bằng chứng     &     Cách kết hợp mô hình ngôn ngữ với bước truy xuất tài liệu hoặc artifact liên quan trước khi sinh câu trả lời \\ \hline
+  RAG      &      Retrieval-Augmented Generation      &      Viết tắt của Retrieval-Augmented Generation, dùng trong báo cáo như một hướng phát triển để tăng groundedness của workflow AI \\ \hline
+  Agentic RAG     &     RAG có điều phối bởi agent     &     Hướng mở rộng trong đó agent có thể chọn chiến lược truy xuất, chia nhỏ tác vụ, gọi công cụ và kiểm tra lại nguồn thay vì chạy một pipeline cố định \\ \hline
+  Vector search      &      Tìm kiếm theo vector ngữ nghĩa      &      Cách tìm tài liệu, chủ đề hoặc hồ sơ gần nhau trong không gian embedding thay vì chỉ khớp từ khóa \\ \hline
+  Hybrid retrieval     &     Truy hồi lai     &     Cách kết hợp tìm kiếm từ khóa, metadata và vector search để tăng khả năng lấy đúng nguồn liên quan \\ \hline
+  Observability      &      Khả năng quan sát và truy vết vận hành      &      Khả năng theo dõi workflow đã dùng nguồn nào, gọi công cụ nào, sinh output nào, lỗi ở đâu và người dùng đã xử lý kết quả ra sao \\ \hline
+  AgentOps     &     Vận hành và quan sát hệ thống agent     &     Nhóm thực hành tương tự DevOps/MLOps cho agent, tập trung vào monitoring, logging, tracing, analytics và kiểm soát an toàn \\ \hline
+  Audit trail      &      Dấu vết kiểm toán      &      Chuỗi sự kiện và artifact giúp truy lại ai hoặc thành phần nào đã thực hiện thao tác, dựa trên dữ liệu nào và tạo kết quả gì \\ \hline
+  Provenance     &     Nguồn gốc và lịch sử dữ liệu     &     Thông tin cho biết một nhận định, artifact hoặc dữ liệu được tạo từ nguồn nào, ở phiên bản nào và qua bước xử lý nào \\ \hline
+  Permissioned harness      &      Môi trường agent có giới hạn quyền      &      Môi trường chạy agent với tool schema, quyền theo vai trò, giới hạn tác vụ, log và điểm phê duyệt của con người \\ \hline
+  Human approval gate     &     Điểm phê duyệt của con người     &     Bước bắt buộc người dùng có thẩm quyền xác nhận trước khi một workflow hoặc agent thực hiện thao tác nhạy cảm \\ \hline
+  Rollback      &      Hoàn tác trạng thái      &      Cơ chế đưa hệ thống hoặc artifact về trạng thái trước đó khi thao tác tự động hoặc bán tự động không phù hợp \\ \hline
+  Fingerprint     &     Dấu vết trạng thái dữ liệu     &     Giá trị đại diện cho trạng thái dữ liệu tại thời điểm sinh artifact, dùng để phát hiện artifact đã lỗi thời \\ \hline
+  Stale      &      Không còn hiện hành      &      Trạng thái của artifact khi dữ liệu gốc đã thay đổi so với thời điểm artifact được tạo \\ \hline
+  Model router     &     Bộ định tuyến mô hình     &     Lớp chọn hoặc gọi provider mô hình theo cấu hình runtime của AI service \\ \hline
+  Open scholarly infrastructure      &      Hạ tầng học thuật mở      &      Định hướng vận hành hạ tầng phục vụ cộng đồng học thuật với governance, sustainability, open source hoặc open standards phù hợp \\ \hline
+  PoC     &     Proof of Concept     &     Bản chứng minh khả thi về mặt kỹ thuật và học thuật, chưa nhằm chứng minh mô hình kinh doanh hoặc khả năng vận hành thương mại đầy đủ \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Thuật ngữ API và kiểm soát quyền}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 3}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  API     &     Application Programming Interface     &     Giao diện cho phép các thành phần hệ thống trao đổi request/response \\ \hline
+  DTO      &      Data Transfer Object      &      Cấu trúc dữ liệu dùng để truyền dữ liệu qua API hoặc giữa các lớp backend \\ \hline
+  RBAC     &     Role-Based Access Control     &     Cơ chế kiểm soát quyền truy cập dựa trên vai trò của người dùng trong hội nghị \\ \hline
+  Redaction      &      Ẩn dữ liệu nhạy cảm      &      Việc loại bỏ hoặc che bớt dữ liệu không được phép hiển thị trước khi trả response \\ \hline
+  Field whitelist     &     Danh sách field được phép     &     Danh sách field mà agent hoặc query engine được phép truy vấn/trả về đối với một resource \\ \hline
+  Resource registry      &      Danh mục resource      &      Danh sách resource mà agent được phép mô tả và truy vấn, ví dụ submissions, assignments hoặc notifications \\ \hline
+  \texttt{query\_engine}  &  Công cụ truy vấn backend  &  Công cụ read-only để Chatbot Agent lấy dữ liệu hệ thống thông qua backend và lớp phân quyền \\ \hline
+  Service-to-service token      &      Token giữa các service      &      Token xác thực dùng cho giao tiếp nội bộ giữa backend và AI service \\ \hline
+  Permission boundary     &     Ranh giới quyền truy cập     &     Giới hạn dữ liệu hoặc thao tác mà một vai trò người dùng được phép truy cập trong hệ thống \\ \hline
+  SLA      &      Service Level Agreement      &      Cam kết mức dịch vụ, ví dụ độ sẵn sàng, thời gian phản hồi hoặc hỗ trợ vận hành trong mô hình hosted service \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Thuật ngữ reviewer matching và COI}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 4}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  COI     &     Conflict of Interest     &     Xung đột lợi ích giữa reviewer và bài nộp, cần được phát hiện trước khi phân công phản biện \\ \hline
+  Reviewer matching      &      Đối sánh phản biện      &      Cơ chế gợi ý reviewer phù hợp với bài nộp dựa trên miền chuyên môn, tải công việc và ràng buộc COI \\ \hline
+  Domain Jaccard     &     Jaccard similarity theo miền chuyên môn     &     Công thức đo độ tương đồng giữa tập keyword/domain của bài nộp và reviewer bằng tỷ lệ giao trên hợp \\ \hline
+  Greedy assignment      &      Phân công tham lam      &      Thuật toán xét các cặp submission-reviewer có điểm cao trước, đồng thời tôn trọng giới hạn tải và COI \\ \hline
+  Load balancing     &     Cân bằng tải phản biện     &     Nguyên tắc phân bổ assignment để tránh dồn quá nhiều bài cho một reviewer khi có nhiều ứng viên tương đương \\ \hline
+  Load StdDev      &      Độ lệch chuẩn tải phản biện      &      Chỉ số đo mức phân tán số bài được gán cho từng reviewer; giá trị cao cho thấy tải phân công lệch hơn \\ \hline
+  Load Gini     &     Hệ số Gini của tải phản biện     &     Chỉ số đo mức bất bình đẳng trong phân bổ bài cho reviewer; giá trị càng gần 0 thì tải càng đều \\ \hline
+  Tie-break      &      Quy tắc phá hòa      &      Quy tắc chọn thứ tự ưu tiên khi nhiều ứng viên có cùng điểm, ví dụ ưu tiên reviewer có tải thấp hơn \\ \hline
+  Fallback     &     Bước dự phòng     &     Bước xử lý khi một bài chưa đủ reviewer sau lượt gán chính; có thể nới score/load nhưng không nới COI \\ \hline
+  Fallback rate      &      Tỷ lệ dùng bước dự phòng      &      Tỷ lệ phân công phải dùng cơ chế fallback vì không còn reviewer hợp lệ có tín hiệu phù hợp đủ rõ \\ \hline
+  COI violation     &     Vi phạm ràng buộc xung đột lợi ích     &     Trường hợp hệ thống phân công reviewer vào bài nộp có COI; trong benchmark đây là chỉ số phải bằng 0 \\ \hline
+  Co-author graph      &      Đồ thị đồng tác giả      &      Đồ thị biểu diễn quan hệ đồng tác giả giữa các nhà nghiên cứu, dùng để phát hiện COI gián tiếp \\ \hline
+  Relationship conflict     &     Xung đột do quan hệ cộng tác     &     COI suy ra từ quan hệ cộng tác học thuật, ví dụ đồng tác giả trực tiếp hoặc gián tiếp trong một khoảng thời gian \\ \hline
+  Lexical ceiling      &      Trần từ vựng      &      Giới hạn của phương pháp so khớp từ khóa khi hai hồ sơ cùng lĩnh vực lớn nhưng dùng ít từ khóa trùng nhau \\ \hline
+  Embedding     &     Biểu diễn vector ngữ nghĩa     &     Cách biểu diễn văn bản hoặc chủ đề thành vector để đo tương đồng ngữ nghĩa sâu hơn so với trùng khớp từ khóa \\ \hline
+  ANN      &      Approximate Nearest Neighbor      &      Kỹ thuật tìm láng giềng gần xấp xỉ trong không gian vector, thường dùng khi cần xếp hạng tương đồng trên tập dữ liệu lớn \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Thuật ngữ đánh giá thực nghiệm}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 5}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  Benchmark     &     Thực nghiệm đánh giá có kịch bản     &     Quy trình đo hiệu năng, chất lượng hoặc độ tin cậy của một lớp hệ thống theo dữ liệu và chỉ số xác định \\ \hline
+  Micro-benchmark      &      Benchmark vi mô      &      Thực nghiệm đo chi phí của một thành phần nhỏ, ví dụ thuật toán matching hoặc detector COI, tách khỏi overhead của API/database \\ \hline
+  k6     &     Công cụ kiểm thử tải HTTP     &     Công cụ dùng để sinh tải request trong benchmark backend, đo độ trễ, throughput và tỷ lệ lỗi \\ \hline
+  Virtual user      &      Người dùng ảo      &      Đơn vị mô phỏng người dùng đồng thời trong kiểm thử tải bằng k6 \\ \hline
+  Workload     &     Tải công việc thử nghiệm     &     Tập request, dữ liệu và kịch bản dùng để đo hành vi hệ thống trong một benchmark \\ \hline
+  Baseline      &      Mốc so sánh      &      Phương pháp hoặc kết quả nền dùng để đánh giá hệ thống hiện tại tốt hơn hay kém hơn ở chỉ số cụ thể \\ \hline
+  Ground truth     &     Nhãn tham chiếu     &     Dữ liệu hoặc nhãn được xem là chuẩn đối chiếu trong một thực nghiệm \\ \hline
+  Proxy      &      Chỉ báo thay thế      &      Chỉ số gián tiếp dùng khi không thể đo trực tiếp chất lượng cần quan tâm, ví dụ dùng TCA để hậu kiểm output AI \\ \hline
+  TCA     &     Truthfulness-Coverage-Additionality     &     Khung hậu kiểm output AI theo mức bám nguồn, mức bao phủ so với tham chiếu và lượng thông tin bổ sung có căn cứ \\ \hline
+  NLI      &      Natural Language Inference      &      Kỹ thuật kiểm tra quan hệ suy luận giữa claim và evidence, dùng trong benchmark hậu kiểm một số output AI \\ \hline
+  Truthfulness     &     Mức bám đúng bằng chứng     &     Tỷ lệ hoặc mức độ các claim được nguồn dữ liệu hỗ trợ \\ \hline
+  Groundedness      &      Mức neo nguồn      &      Mức độ một nhận định có thể truy vết về evidence cụ thể trong dữ liệu đầu vào \\ \hline
+  Coverage     &     Mức bao phủ     &     Trong benchmark AI, mức độ output bao phủ các điểm có trong nguồn tham chiếu; trong assignment, tỷ lệ bài được phân công đủ reviewer \\ \hline
+  Additionality      &      Thông tin bổ sung có căn cứ      &      Phần nội dung đúng và có evidence nhưng không trùng trực tiếp với tham chiếu của con người \\ \hline
+  Grounded-valid rate     &     Tỷ lệ finding vừa bám nguồn vừa hợp lệ     &     Chỉ số kết hợp giữa việc finding có căn cứ và việc finding phù hợp với tiêu chí audit \\ \hline
+  Validity rate      &      Tỷ lệ finding hợp lệ      &      Tỷ lệ finding được đánh giá là phù hợp với tiêu chí kiểm tra, chưa nhất thiết bảo đảm finding đó bám nguồn đầy đủ \\ \hline
+  Actionability     &     Tính có thể hành động     &     Mức độ một cảnh báo/finding đủ cụ thể để người dùng biết cần sửa hoặc kiểm tra gì \\ \hline
+  Severity      &      Mức độ nghiêm trọng      &      Nhãn thể hiện độ nặng của finding hoặc cảnh báo, ví dụ warning/blocking hoặc minor/moderate/major \\ \hline
+  Completion rate     &     Tỷ lệ hoàn tất     &     Tỷ lệ tác vụ hoặc workflow chạy xong và tạo được output hợp lệ theo contract \\ \hline
+  Invalid track rate      &      Tỷ lệ track không hợp lệ      &      Tỷ lệ gợi ý track nằm ngoài danh sách track hợp lệ của hội nghị đang xét \\ \hline
+  High-risk rate     &     Tỷ lệ trường hợp rủi ro cao     &     Tỷ lệ output hoặc task có dấu hiệu cần kiểm tra thủ công kỹ hơn trước khi dùng trong quyết định gần điểm nhạy cảm \\ \hline
+  Exact Match      &      Khớp tuyệt đối      &      Chỉ số yêu cầu output trùng hoàn toàn với giá trị tham chiếu sau khi chuẩn hóa theo quy tắc đánh giá \\ \hline
+  Top-K accuracy     &     Độ chính xác trong K gợi ý đầu     &     Tỷ lệ trường hợp nhãn đúng xuất hiện trong K kết quả được xếp hạng cao nhất \\ \hline
+  Hit@K      &      Hit at K      &      Chỉ số ranking cho biết kết quả đúng có nằm trong K gợi ý đầu tiên hay không \\ \hline
+  MRR     &     Mean Reciprocal Rank     &     Trung bình nghịch đảo thứ hạng của kết quả đúng đầu tiên trong danh sách gợi ý \\ \hline
+  nDCG@K      &      Normalized Discounted Cumulative Gain at K      &      Chỉ số đánh giá ranking có xét vị trí và độ liên quan của các kết quả trong K vị trí đầu \\ \hline
+  F1     &     F1-score     &     Trung bình điều hòa giữa precision và recall, dùng trong các bài toán so khớp hoặc trích xuất \\ \hline
+  ROUGE      &      Recall-Oriented Understudy for Gisting Evaluation      &      Nhóm chỉ số so sánh độ trùng lặp văn bản, dùng trong đánh giá tóm tắt hoặc trích xuất abstract \\ \hline
+  p95 latency     &     Độ trễ phân vị 95     &     Mức độ trễ mà 95\% request có thời gian xử lý nhỏ hơn hoặc bằng giá trị này \\ \hline
+  Throughput      &      Thông lượng      &      Số request hoặc tác vụ hệ thống xử lý được trong một đơn vị thời gian \\ \hline
+  Token     &     Đơn vị xử lý văn bản của mô hình     &     Đơn vị văn bản dùng để đo lượng đầu vào/đầu ra và ước tính chi phí khi gọi LLM \\ \hline
+  TTFT      &      Time to First Token      &      Thời gian từ lúc gửi yêu cầu đến khi hệ thống bắt đầu stream token đầu tiên \\ \hline
+  Stream duration     &     Thời lượng stream     &     Thời gian hệ thống duy trì luồng trả lời sau khi bắt đầu stream dữ liệu về giao diện \\ \hline
+  Tool-call success      &      Tỷ lệ gọi công cụ thành công      &      Tỷ lệ lời gọi tool của agent trả về kết quả hợp lệ trong benchmark hội thoại \\ \hline
+  Tool-call failure     &     Lượt gọi công cụ thất bại     &     Trường hợp agent gọi tool nhưng tool lỗi, không trả dữ liệu hợp lệ hoặc không giúp hoàn tất yêu cầu hội thoại \\ \hline
+  Permission safety      &      An toàn quyền truy cập      &      Mức độ chatbot hoặc agent giữ đúng ranh giới quyền, không trả dữ liệu vượt quyền của vai trò đang sử dụng \\ \hline
+  Workflow outcome     &     Kết quả hội thoại/workflow     &     Nhãn đánh giá cuối cùng của một workflow hoặc hội thoại, ví dụ đạt, đạt một phần hoặc không đạt \\ \hline
+  Decision label match      &      Khớp nhãn quyết định      &      Chỉ số giả định để đo việc hệ thống dự đoán đúng quyết định accept/reject; báo cáo nêu rõ Chair Decision Copilot chưa được đánh giá theo chỉ số này \\ \hline
+  UAT     &     User Acceptance Testing     &     Khảo sát/kiểm thử mức chấp nhận của người dùng sau khi trải nghiệm hệ thống \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Từ viết tắt cho các thuật ngữ triển khai}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|C{0.22\textwidth}|P{0.26\textwidth}|P{0.46\textwidth}|}
+  \caption{Danh mục thuật ngữ và từ viết tắt, phần 6}\\
+  \hline
+   \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
+  CI/CD     &     Continuous Integration / Continuous Deployment     &     Quy trình tự động build, kiểm tra, đóng gói và triển khai hệ thống \\ \hline
+  GHCR      &      GitHub Container Registry      &      Registry lưu container image được build từ GitHub Actions \\ \hline
+  VPS     &     Virtual Private Server     &     Máy chủ ảo dùng để triển khai môi trường production trong phạm vi đề tài \\ \hline
+  HTTP      &      Hypertext Transfer Protocol      &      Giao thức request/response dùng cho API và benchmark tải backend \\ \hline
+  HTTPS     &     HTTP Secure     &     HTTP qua kênh mã hóa TLS, được Caddy xử lý trong triển khai production \\ \hline
+  CRUD      &      Create, Read, Update, Delete      &      Nhóm thao tác nghiệp vụ cơ bản trên dữ liệu hệ thống \\ \hline
+\end{longtable}
+\endgroup

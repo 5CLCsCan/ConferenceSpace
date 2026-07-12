@@ -104,141 +104,23 @@ Workflow runner dùng router mô hình với cấu hình sinh output bằng **Ge
 
 ### 4.2.3. Kịch bản và chỉ số đánh giá
 
-Mỗi nhóm thực nghiệm trong chương được thiết kế để trả lời một câu hỏi đánh giá riêng, nhưng cùng tuân theo một khung phương pháp: xác định đầu vào và tiền điều kiện, mô tả thao tác hệ thống phải thực hiện, định nghĩa đầu ra kỳ vọng, ghi nhận đầu ra thực tế dưới dạng tư liệu có thể truy xuất, rồi mới suy ra chỉ số và giới hạn diễn giải. Bảng 4.3 chỉ đóng vai trò bản đồ tổng quan. Phần chi tiết của từng nhóm được trình bày ngay sau bảng, theo đúng thứ tự các lớp hệ thống đã nêu ở Mục 4.1.
+Quy trình thực nghiệm được thiết kế để mỗi kết quả trong chương có thể truy ngược về dữ liệu đầu vào, cách chạy và artifact đầu ra. Bảng 4.3 trình bày các kịch bản chính.
 
-**Bảng 4.3: Tổng quan kịch bản đánh giá và chỉ số chính**
+**Bảng 4.3: Quy trình kiểm thử và chỉ số đánh giá**
 
-| Nhóm đánh giá | Câu hỏi cần trả lời | Quy mô mẫu | Chỉ số chính | Nơi trình bày kết quả |
-| :--- | :--- | :---: | :--- | :--- |
-| Backend HTTP và giám sát tài nguyên | Hệ thống nghiệp vụ có ổn định dưới tải thử nghiệm không? | 300 hội nghị; 15.000 bài nộp; 9.000 phản biện viên | Throughput, độ trễ p95, tỷ lệ lỗi, CPU/RAM | Mục 4.3 |
-| Go micro-benchmark | Đối sánh phản biện và COI tốn bao nhiêu chi phí tính toán thuần túy? | Nhiều quy mô bộ dữ liệu thử thuật toán | `ns/op`, `B/op`, `allocs/op` | Mục 4.4.1 |
-| Chất lượng đối sánh phản biện | Gợi ý và phân công có tín hiệu chuyên môn đo được không? | 60 tác giả; 2.565 bài báo | Hit@k, MRR, nDCG, độ phủ, cân bằng tải, vi phạm COI | Mục 4.4.2 |
-| Bộ chạy luồng xử lý | Các luồng xử lý AI có sinh được đầu ra vận hành được không? | 1.127 bài | Tỷ lệ hoàn tất, độ trễ, token, tính hợp lệ schema | Mục 4.5 và 4.6 |
-| TCA benchmark | Đầu ra tự luận có bám chứng cứ nguồn không? | 1.097 gói kết quả | Truthfulness, Coverage, Additionality, Validity | Mục 4.5 |
-| Submission Autofill | Metadata có khớp dữ liệu tham chiếu và track có hợp lệ không? | 1.127 bài metadata; 48 trường hợp track | Exact Match, ROUGE, F1, tỷ lệ track không hợp lệ | Mục 4.5.3 |
-| Submission Gating | Luật cứng có đúng và cảnh báo mềm có giữ đúng phạm vi không? | 8 trường hợp luật; 24 trường hợp điều hướng | Độ chính xác phán quyết, độ hồi tưởng luật, số lần chặn nhầm, vi phạm hợp đồng | Mục 4.5.4 |
-| Chatbot Agent | Trợ lý có tra cứu đúng, giữ quyền và hoàn tất hội thoại không? | 40 hội thoại; 8 nhóm kịch bản | Kết quả hội thoại, tỷ lệ gọi công cụ thành công, an toàn quyền truy cập, TTFT | Mục 4.5.8 |
-| Khảo sát người dùng | Kết quả kỹ thuật có tương ứng với trải nghiệm thực tế không? | Ba vai trò Tác giả, Người phản biện, Chủ tọa | Mức hài lòng, độ dễ thao tác, phản hồi định tính | Mục 4.7 |
+| Nhóm đánh giá | Quy trình chạy | Chỉ số chính | Giới hạn diễn giải |
+| :--- | :--- | :--- | :--- |
+| Backend HTTP | Seed dữ liệu ứng dụng, chạy ba kịch bản k6 `CRUD`, `Matching`, `COI` với cấu hình mặc định 20 người dùng ảo trong 30 giây mỗi kịch bản; các ngưỡng kiểm tra được ghi nhận ở chế độ báo cáo | Số request, throughput, trung vị, p90, p95, độ trễ tối đa, tỷ lệ lỗi | Chứng minh hiệu năng trên tải thử nghiệm, không thay thế stress test dài hạn |
+| Resource monitoring | Theo dõi CPU và bộ nhớ theo từng phase khi chạy k6; mỗi mẫu được gắn nhãn `crud`, `matching` hoặc `coi` | CPU trung bình/đỉnh, bộ nhớ trung bình/đỉnh theo process/container | Chỉ phản ánh môi trường benchmark hiện tại, không phải sizing tuyệt đối cho mọi triển khai |
+| Go micro-benchmark | Chạy benchmark thuật toán với nhiều quy mô dữ liệu; mỗi benchmark lặp 5 lần và ghi `ns/op`, `B/op`, `allocs/op` | Thời gian xử lý, bộ nhớ và allocation của matching/COI | Đo chi phí tính toán thuần túy, không bao gồm HTTP, database hoặc serialization |
+| Reviewer matching quality | Chạy leave-one-out trên snapshot Semantic Scholar; so sánh Jaccard với overlap_count và random baseline | Hit@1, Hit@5, Hit@10, MRR, nDCG@10, coverage, load balance, fallback rate | Đây là proxy về tương đồng chủ đề, chưa phải dữ liệu phân công thật của Chair |
+| Workflow runner | Chạy các workflow AI trên dataset ReviewRebuttal đã chọn lọc; lưu checkpoint từng stage và result package cuối | Tỷ lệ hoàn tất, độ trễ, token, output schema và metric deterministic của Autofill | Đo khả năng sinh output thật, chưa tự chứng minh output tự luận đáng tin |
+| TCA benchmark | Đọc result package, trích claim, ghép evidence-claim và dùng NLI để kiểm tra groundedness; coverage/additionality chỉ tính sau truthfulness | Truthfulness, coverage, additionality, validity, grounded-valid rate, high-risk rate | Là proxy tự động cho groundedness, không thay thế đánh giá chuyên gia |
+| Submission Gating | Tách rule check deterministic khỏi steering bằng mô hình ngôn ngữ | Verdict accuracy, rule recall, false block count, contract violation, finding count | Rule check có thể kết luận mạnh hơn; steering chỉ là cảnh báo hỗ trợ |
+| Chatbot Agent | Chạy 40 hội thoại theo 8 nhóm kịch bản; lưu transcript, tool-call log và đánh giá thủ công outcome | Tỷ lệ hoàn tất, đạt/đạt một phần/không đạt, tool-call success, permission boundary, TTFT, thời lượng stream | Đủ cho nhận định kịch bản ban đầu, chưa đủ cho kết luận độ ổn định dài hạn |
+| Khảo sát người dùng | Thu thập phản hồi sau sử dụng bằng bảng hỏi theo vai trò | Mức hài lòng, độ dễ thao tác, điểm gây khó chịu và góp ý định tính | Dùng để bổ sung góc nhìn người dùng, không thay thế benchmark kỹ thuật |
 
-#### 4.2.3.1. Kịch bản hiệu năng lớp nghiệp vụ cốt lõi
-
-Lớp nghiệp vụ cốt lõi được đánh giá trước vì mọi thao tác người dùng và mọi luồng hỗ trợ đều phụ thuộc vào khả năng API, cơ sở dữ liệu quan hệ và cơ sở dữ liệu đồ thị vận hành ổn định. Benchmark này không nhằm chứng minh hệ thống chịu tải hội nghị thật quy mô lớn, mà nhằm xác định hành vi đầu-cuối trong một điều kiện thử nghiệm có kiểm soát.
-
-**Đầu vào.** Hệ thống được khởi tạo dữ liệu trước khi đo bằng bộ dữ liệu tổng hợp gồm 300 hội nghị, 50 bài nộp mỗi hội nghị và 30 phản biện viên mỗi hội nghị, tương ứng 15.000 bài nộp và 9.000 quan hệ phản biện viên–hội nghị. Môi trường đo gồm API container, PostgreSQL, Neo4j và Redis. Cấu hình tải mặc định dùng 20 người dùng ảo trong 30 giây cho mỗi kịch bản k6.
-
-**Các kịch bản và thao tác.** Ba kịch bản phản ánh các nhóm request phổ biến nhất của nền tảng:
-
-1. **CRUD:** đăng nhập, liệt kê hội nghị, liệt kê bài nộp và liệt kê người dùng. Đây là các thao tác đọc/ghi thường trực, phụ thuộc mạnh vào PostgreSQL.
-2. **Đối sánh phản biện:** gọi endpoint gợi ý hoặc tự động phân công phản biện. Kịch bản này kích hoạt lớp thuật toán đối sánh qua API thật.
-3. **COI:** gọi endpoint kiểm tra xung đột lợi ích, bao gồm truy vấn quan hệ đồng tác giả trên Neo4j.
-
-Trong lúc chạy tải, bộ giám sát tài nguyên lấy mẫu CPU và bộ nhớ theo từng giai đoạn và gắn nhãn `crud`, `matching` hoặc `coi`.
-
-**Đầu ra kỳ vọng.** Mỗi request hợp lệ phải hoàn tất với mã trạng thái thành công; hệ thống phải ghi được số request, throughput và các phân vị độ trễ. Bộ giám sát tài nguyên phải tạo chuỗi mẫu đủ để so sánh mức tiêu thụ giữa API, PostgreSQL, Neo4j và Redis.
-
-**Đầu ra thực tế và chỉ số.** Tư liệu chính gồm JSON summary theo kịch bản, nhật ký tài nguyên và bản tóm tắt tài nguyên. Các chỉ số dùng để diễn giải là số request, throughput, trung vị, p90, p95, độ trễ tối đa, tỷ lệ lỗi, cùng CPU và bộ nhớ trung bình/đỉnh theo tiến trình hoặc container. Kết quả định lượng được trình bày tại Mục 4.3. Giới hạn quan trọng là benchmark này đo tải thử nghiệm có kiểm soát, không thay thế kiểm thử chịu tải dài hạn hay ước lượng quy mô cho mọi môi trường triển khai.
-
-#### 4.2.3.2. Kịch bản thuật toán đối sánh phản biện và COI
-
-Sau khi đo hành vi đầu-cuối qua API, chương tách riêng chi phí thuật toán và chất lượng đề xuất. Việc tách này cần thiết vì một endpoint đối sánh nhanh có thể vẫn ẩn chi phí thuật toán kém, hoặc ngược lại một thuật toán rẻ về mặt tính toán vẫn có thể tạo danh sách xếp hạng yếu.
-
-**Go micro-benchmark.**
-
-- **Đầu vào:** bộ dữ liệu thử cho thuật toán đối sánh và COI ở nhiều quy mô, từ vài chục đến vài nghìn bài nộp/phản biện viên. Benchmark chạy trực tiếp trên mã Go, không đi qua HTTP, tuần tự hóa hay cơ sở dữ liệu.
-- **Thao tác:** mỗi benchmark được lặp 5 lần; hệ thống ghi `ns/op`, `B/op` và `allocs/op`.
-- **Đầu ra kỳ vọng:** xu hướng chi phí theo quy mô có thể quan sát được và so sánh giữa đối sánh phản biện với COI.
-- **Đầu ra thực tế và chỉ số:** file `micro.txt` lưu kết quả từng lần chạy; các chỉ số được tổng hợp tại Mục 4.4.1. Kết quả chỉ phản ánh chi phí tính toán thuần túy.
-
-**Benchmark chất lượng xếp hạng và phân công.**
-
-- **Đầu vào:** ảnh chụp dữ liệu Semantic Scholar gồm 60 tác giả và 2.565 bài báo thuộc 8 lĩnh vực khoa học máy tính. Mỗi tác giả có ít nhất hai bài để hỗ trợ phương pháp giữ lại một bài làm truy vấn.
-- **Thao tác xếp hạng:** với mỗi tác giả, một bài được giữ lại làm truy vấn; các tác giả còn lại được xếp hạng bằng Jaccard, `overlap_count` và đường cơ sở ngẫu nhiên. Nếu tác giả gốc xuất hiện ở vị trí cao, thuật toán được xem là nắm bắt được liên kết chủ đề giữa bài và hồ sơ chuyên môn.
-- **Thao tác phân công:** thuật toán gán tham lam được so với gán lần lượt và gán ngẫu nhiên trên các chỉ số nội tại, vì không tồn tại nhãn tham chiếu cho phân công tối ưu.
-- **Đầu ra kỳ vọng:** xếp hạng có tín hiệu chủ đề cao hơn ngẫu nhiên; phân công không tạo vi phạm COI; độ phủ, cân bằng tải và tỷ lệ thoái lui có thể đo được.
-- **Đầu ra thực tế và chỉ số:** báo cáo Markdown/CSV ngoại tuyến và các bảng tại Mục 4.4.2, gồm Hit@k, MRR, nDCG@k, độ phủ, Load StdDev, Load Gini, điểm trung bình, tỷ lệ thoái lui và số vi phạm COI.
-
-Cặp benchmark vi mô và benchmark chất lượng bổ sung cho nhau: benchmark vi mô trả lời câu hỏi “có chạy đủ nhanh không”, còn benchmark chất lượng trả lời “tín hiệu chuyên môn có đủ để dùng như gợi ý có kiểm soát không”. Cả hai vẫn chỉ là bằng chứng thay thế; chúng không thay nhãn tham chiếu từ phân công thật của Chủ tọa.
-
-#### 4.2.3.3. Kịch bản sinh đầu ra và hậu kiểm luồng xử lý AI
-
-Lớp AI được đánh giá theo hai bước nối tiếp, thay vì một chỉ số duy nhất. Bước thứ nhất kiểm tra luồng xử lý có sinh được đầu ra vận hành được hay không. Bước thứ hai kiểm tra đầu ra tự luận đã sinh có bám chứng cứ nguồn hay không. Việc tách bộ sinh và bộ đánh giá giúp báo cáo không đồng nhất “chạy được” với “đáng tin”.
-
-**Bộ chạy luồng xử lý.**
-
-- **Đầu vào:** 1.127 bài từ tập ReviewRebuttal đã chọn lọc, đủ bài nộp, metadata, phản biện, phản hồi hoặc metareview tùy luồng xử lý. Mỗi tác vụ tương ứng một bài nộp trong kiến trúc điều phối–xử lý.
-- **Thao tác:** bộ chạy gọi luồng xử lý thật, lưu ngữ cảnh nguồn, điểm kiểm soát từng giai đoạn, đầu ra cuối, token và thời gian xử lý. Với Submission Autofill, metadata sinh ra được so trực tiếp với metadata tham chiếu.
-- **Đầu ra kỳ vọng:** đầu ra tuân schema; luồng xử lý hoàn tất hoặc ghi nhận lỗi có truy xuất được; các trường có nhãn tham chiếu rõ cho phép tính Exact Match, ROUGE hoặc F1.
-- **Đầu ra thực tế và chỉ số:** gói kết quả JSON/JSONL/CSV của từng tác vụ. Chỉ số vận hành gồm tỷ lệ hoàn tất, độ trễ và token; chỉ số tất định của Submission Autofill được trình bày tại Mục 4.5.3.
-
-**TCA benchmark.**
-
-- **Đầu vào:** 1.097 gói kết quả đủ điều kiện từ Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot. Chứng cứ đối chiếu gồm bài nộp, phản biện hoặc metareview tùy luồng xử lý.
-- **Thao tác:** hệ thống trích mệnh đề từ đầu ra, ghép chứng cứ–mệnh đề, dùng NLI để gán trạng thái Truthfulness; Coverage và Additionality chỉ được tính trên các mệnh đề đã qua Truthfulness.
-- **Đầu ra kỳ vọng:** mỗi mệnh đề có trạng thái bám nguồn có thể truy ngược; mỗi luồng xử lý có các chỉ số Truthfulness, Coverage, Additionality, Validity, tỷ lệ vừa bám nguồn vừa hợp lệ hoặc tỷ lệ rủi ro cao tương ứng.
-- **Đầu ra thực tế và chỉ số:** JSONL theo từng bài và các bảng tại Mục 4.5.5–4.5.7.
-
-Hai bước này liên kết trực tiếp: bộ chạy tạo tập đầu ra thật; TCA không sinh lại đầu ra mà chỉ hậu kiểm tập đó. Do đó, một luồng xử lý có độ trễ tốt ở bộ chạy chưa đủ để kết luận chất lượng học thuật, và một chỉ số Truthfulness cao ở TCA cũng không đồng nghĩa với việc hệ thống thay được người phản biện hay Chủ tọa.
-
-#### 4.2.3.4. Kịch bản hợp đồng của Submission Autofill và Submission Gating
-
-Một số luồng xử lý AI có thể đánh giá mạnh hơn bằng hợp đồng đầu ra, vì chúng có đáp án tham chiếu rõ hoặc luật kiểm tra tất định. Hai nhóm này được tách khỏi TCA vì không cần chỉ số thay thế dạng mệnh đề/chứng cứ để kết luận phần cốt lõi.
-
-**Submission Autofill.**
-
-- **Đầu vào metadata:** PDF hoặc nội dung bài nộp cùng metadata tham chiếu của 1.127 bài.
-- **Đầu vào gợi ý track:** 48 trường hợp có danh sách track hợp lệ của hội nghị đang xét.
-- **Thao tác:** luồng xử lý trích tiêu đề, tóm tắt, từ khóa, tác giả và các trường bắt buộc; với nhóm track, luồng xử lý xếp hạng các track thuộc danh sách cho phép.
-- **Đầu ra kỳ vọng:** metadata gần với dữ liệu tham chiếu; mọi track được gợi ý phải nằm trong danh sách hợp lệ; luồng xử lý hoàn tất.
-- **Đầu ra thực tế và chỉ số:** gói kết quả từ bộ chạy cho metadata; bản tóm tắt benchmark hợp đồng cho track. Chỉ số gồm Title exact match, Title token F1, Abstract ROUGE, Keyword F1, Author F1, tỷ lệ hoàn tất trường bắt buộc, tỷ lệ hoàn tất và tỷ lệ track không hợp lệ.
-
-**Submission Gating.**
-
-- **Đầu vào kiểm tra luật:** 8 bộ dữ liệu thử được khởi tạo có kiểm soát. Mỗi bộ gồm nội dung bài hoặc file đầu vào, chính sách luật và cặp phán quyết kỳ vọng/mã luật. Ví dụ, bộ `gating_rule_0002` là PDF đọc được có bốn tài liệu tham khảo trong khi chính sách yêu cầu tối thiểu sáu.
-- **Đầu vào điều hướng nội dung:** 24 trường hợp nội dung cần cảnh báo mềm, không có quyền tự động loại bài.
-- **Thao tác:** tuyến tất định so phán quyết thực tế và mã luật với kết quả kỳ vọng; tuyến điều hướng sinh các phát hiện nội dung và bị kiểm tra hợp đồng không được tạo `block` tự động.
-- **Đầu ra kỳ vọng:** kiểm tra luật trả đúng `pass`, `warn` hoặc `block` cùng đúng mã luật; điều hướng chỉ cảnh báo và giữ quyền quyết định cho người phụ trách.
-- **Đầu ra thực tế và chỉ số:** `tasks.jsonl` lưu đầu vào và đầu ra kỳ vọng; `normalized_rule_findings.jsonl` lưu đầu ra thực tế; `summary_metrics.json` lưu độ chính xác phán quyết, độ hồi tưởng luật, số lần chặn nhầm, số phát hiện và số vi phạm hợp đồng.
-
-Hai benchmark này củng cố luận điểm thiết kế của đề tài: phần có luật hoặc metadata rõ có thể kiểm chứng mạnh; phần mang tính diễn giải học thuật phải giữ vai trò hỗ trợ và không được thổi phồng thành phán quyết tự động.
-
-#### 4.2.3.5. Kịch bản hội thoại của Chatbot Agent
-
-Chatbot Agent không được đánh giá như mô hình trả lời mở hay trợ lý nghiên cứu. Benchmark xem chatbot như trợ lý nền tảng: nhận yêu cầu theo vai trò, gọi công cụ nội bộ, trả lời từ dữ liệu ConferenceSpace và giữ đúng ranh giới quyền truy cập.
-
-**Đầu vào.** Bộ dữ liệu khởi tạo tạo một hội nghị giả lập với hai bài nộp, một tác giả, một người phản biện và một Chủ tọa. Tám nhóm kịch bản được định nghĩa trước, mỗi nhóm có năm biến thể diễn đạt, tổng cộng 40 hội thoại:
-
-1. Tác giả tra cứu trạng thái bài của chính mình.
-2. Tác giả tra cứu track và metadata bài của chính mình.
-3. Chủ tọa yêu cầu tổng quan vận hành hội nghị.
-4. Người phản biện kiểm tra phân công hoặc khối lượng việc.
-5. Tác giả tra cứu thông tin công khai của hội nghị.
-6. Tác giả yêu cầu chi tiết bài của tác giả khác để kiểm tra ranh giới quyền truy cập.
-7. Tác giả yêu cầu nghiên cứu hoặc báo cáo ngoài phạm vi nền tảng.
-8. Chủ tọa yêu cầu báo cáo vận hành nhiều bước từ dữ liệu nội bộ.
-
-Mỗi kịch bản lưu sẵn vai trò, request mẫu, dữ liệu khởi tạo cần có, công cụ kỳ vọng và tiêu chí chấm thủ công.
-
-**Thao tác.** Bộ chạy gửi yêu cầu theo đúng tài khoản vai trò, chờ chatbot hoàn tất luồng phản hồi, rồi lưu bản ghi hội thoại, nhật ký gọi công cụ, TTFT, thời gian đến câu trả lời hoàn chỉnh đầu tiên, thời lượng luồng phản hồi và số token. Kết quả được chấm thủ công theo bốn trục: hoàn tất đúng yêu cầu, bám dữ liệu nền tảng, an toàn quyền truy cập và kiểm soát phạm vi.
-
-**Đầu ra kỳ vọng.** Câu trả lời phải giải quyết đúng yêu cầu bằng dữ liệu hệ thống; dùng `query_engine` khi cần tra cứu; không lộ dữ liệu ngoài quyền; không mở rộng thành trợ lý nghiên cứu hay viết báo cáo ngoài nền tảng. Với kịch bản nhiều bước, chatbot cần chuỗi nhiều truy vấn nội bộ và phân biệt dữ liệu đã có với dữ liệu chưa cấu hình.
-
-**Đầu ra thực tế và chỉ số.** Tư liệu gồm file kịch bản, bản ghi hội thoại từng lượt và báo cáo đánh giá thủ công. Chỉ số tổng hợp gồm tỷ lệ hoàn tất hội thoại, số lượt đạt/đạt một phần/không đạt, tỷ lệ gọi công cụ thành công, an toàn quyền truy cập, TTFT và thời lượng luồng phản hồi. Kết quả định lượng được trình bày tại Mục 4.5.8.
-
-Vì đầu ra hội thoại không có một câu chữ vàng duy nhất, tiêu chí chấm dựa trên hành vi quan sát được thay vì khớp chuỗi. Cách này phù hợp hơn với trợ lý tương tác, nhưng cũng đặt ra giới hạn: 40 hội thoại đủ để đánh giá kịch bản ban đầu, chưa đủ để kết luận độ ổn định dài hạn trên nhiều hội nghị thật.
-
-#### 4.2.3.6. Kịch bản khảo sát sau sử dụng
-
-Khảo sát người dùng được đặt ở cuối chuỗi đánh giá vì nó không thay thế benchmark kỹ thuật, mà kiểm tra xem các bằng chứng định lượng có tương ứng với trải nghiệm thực tế hay không.
-
-**Đầu vào.** Người tham gia đã trải nghiệm hệ thống theo một trong ba vai trò Tác giả, Người phản biện hoặc Chủ tọa, sau đó trả lời bảng hỏi theo vai trò.
-
-**Thao tác.** Thu thập điểm số mức hài lòng, độ dễ thao tác, các điểm gây khó chịu và góp ý định tính; tổng hợp theo vai trò.
-
-**Đầu ra kỳ vọng.** Có phân bố điểm và chủ đề phản hồi đủ để đối chiếu với các kết luận kỹ thuật ở Mục 4.3–4.6, đặc biệt về tính hữu ích của AI hỗ trợ, độ trễ cảm nhận được và nhu cầu kiểm soát đầu ra.
-
-**Đầu ra thực tế và chỉ số.** Phiếu khảo sát và các bảng tổng hợp tại Mục 4.7. Chỉ số chính là mức hài lòng trung bình, tỷ lệ đánh giá tích cực theo tính năng và các chủ đề định tính lặp lại. Giới hạn diễn giải là cỡ mẫu và thiết kế khảo sát sau sử dụng không thay cho nghiên cứu người dùng quy mô lớn hay thử nghiệm A/B.
-
-Nhìn tổng thể, các kịch bản trên tạo thành một chuỗi bằng chứng có thứ tự: trước hết hệ thống phải chạy ổn định; tiếp theo thuật toán xác định phải đủ nhanh và có tín hiệu chuyên môn; sau đó AI mới được phép hỗ trợ ở những điểm nghẽn cụ thể với mức rủi ro được đo; cuối cùng phản hồi người dùng kiểm chứng xem chuỗi kỹ thuật đó có tạo trải nghiệm chấp nhận được hay không. Các mục 4.3 đến 4.7 chỉ báo cáo kết quả trên nền phương pháp đã cố định tại đây.
+Với benchmark backend, quy trình chạy đầy đủ gồm bốn bước: seed dữ liệu ứng dụng, chạy tải HTTP, ghi nhận tài nguyên hệ thống và chạy micro-benchmark thuật toán. Bộ seed dùng trong lần đo chính gồm 300 hội nghị, 50 bài nộp mỗi hội nghị và 30 reviewer mỗi hội nghị, tương ứng 15.000 bài nộp và 9.000 quan hệ reviewer-hội nghị. Các kịch bản k6 dùng cùng tập dữ liệu seed để bảo đảm CRUD, Matching và COI được đo trên cùng một bối cảnh vận hành. Go micro-benchmark được chạy riêng vì mục tiêu của nó là đo chi phí thuật toán thuần túy, không bị nhiễu bởi network, database hoặc serialization.
 
 ### 4.2.4. Phạm vi và giới hạn của thực nghiệm
 
