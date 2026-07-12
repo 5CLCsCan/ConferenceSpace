@@ -5,13 +5,13 @@
 
 \section{Mục tiêu và câu hỏi đánh giá}
 
-Chương 3 đã trình bày ConferenceSpace theo kiến trúc ba lớp: lớp nghiệp vụ cốt lõi, lớp thuật toán xác định và lớp AI hỗ trợ. Chương này đánh giá thực nghiệm cả ba lớp đó theo đúng bản chất của từng lớp, thay vì áp dụng một khung đánh giá chung một cách máy móc:
+Chương 3 đã trình bày ConferenceSpace theo kiến trúc ba lớp: lớp nghiệp vụ cốt lõi, lớp thuật toán xác định và lớp AI hỗ trợ. Chương này sẽ đánh giá thực nghiệm cả ba lớp đó theo đúng bản chất của từng lớp, thay vì áp dụng một khung đánh giá chung:
 
 \begin{itemize}
-  \item \textbf{Lớp nghiệp vụ cốt lõi} được đánh giá bằng kiểm thử chịu tải HTTP bằng công cụ k6 và giám sát tài nguyên, nhằm trả lời câu hỏi hệ thống có đáp ứng được về mặt hiệu năng và khả năng chịu tải hay không.
-  \item \textbf{Lớp thuật toán} (đối sánh phản biện và phát hiện xung đột lợi ích) được đánh giá bằng kiểm thử hiệu năng vi mô bằng Go (Go micro-benchmark) để đo trực tiếp chi phí tính toán thuần túy, đồng thời đánh giá chất lượng đề xuất trên tập dữ liệu thực từ Semantic Scholar.
-  \item \textbf{Lớp AI hỗ trợ} được đánh giá bằng một chuỗi thử nghiệm hai bước: chạy các quy trình sử dụng AI để tạo kết quả thực tế trên dữ liệu bài nộp, sau đó bộ kiểm thử TCA (Textual Claim-based Assessment - Đánh giá dựa trên mệnh đề văn bản) để hậu kiểm các kết quả văn bản phi cấu trúc (unstructured text) theo độ trung thực (Truthfulness), độ phủ (Coverage) và tính bổ sung (Additionality). Với đầu ra có đáp án tham chiếu rõ như Submission Autofill, chương này dùng các chỉ số tất định như khớp chính xác (Exact Match), ROUGE và F1. Với Chatbot Agent, chương này dùng thử nghiệm thủ công theo kịch bản hội thoại, tỷ lệ gọi công cụ thành công, quyền truy cập và trải nghiệm luồng phản hồi.
-  \item Cuối cùng, mức độ đáp ứng nhu cầu người dùng thực tế được đo lường thông qua khảo sát sau sử dụng (UAT) trên ba vai trò Tác giả, Người phản biện và Chủ tọa.
+  \item \textbf{Lớp nghiệp vụ cốt lõi} được đánh giá bằng kiểm thử chịu tải HTTP bằng công cụ k6 và giám sát mức sử dụng tài nguyên, nhằm trả lời câu hỏi liệu hệ thống có đáp ứng được về mặt hiệu năng và khả năng chịu tải hay không.
+  \item \textbf{Lớp thuật toán} (đối sánh phản biện và phát hiện xung đột lợi ích) được đánh giá bằng Go micro-benchmark để đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng, đồng thời đánh giá chất lượng đề xuất trên tập dữ liệu thực từ Semantic Scholar.
+  \item \textbf{Lớp AI hỗ trợ} được đánh giá bằng một luồng thử nghiệm hai bước: chạy các luồng sử dụng AI để tạo kết quả thực tế trên dữ liệu đầu vào, sau đó bộ kiểm thử TCA (Textual Claim-based Assessment) để hậu kiểm các kết quả theo độ trung thực (Truthfulness), độ phủ (Coverage) và khả năng bổ sung (Additionality). Với đầu ra có thể tham chiếu trực tiếp như Submission Autofill, chương này dùng các chỉ số tất định như tỉ lệ khớp chính xác (Exact Match), ROUGE và F1. Với Chatbot Agent, chương này thử nghiệm thủ công theo các kịch bản hội thoại để kiểm tra tỷ lệ gọi công cụ thành công, khả năng tuân thủ quyền truy cập và trải nghiệm luồng phản hồi.
+  \item Cuối cùng, mức độ đáp ứng nhu cầu người dùng thực tế được đo thông qua khảo sát sau sử dụng (UAT) trên ba vai trò Tác giả, Người phản biện và Chủ tọa.
 \end{itemize}
 
 Cách tiếp cận này cho phép trả lời câu hỏi cốt lõi: hệ thống có vận hành ổn định và đủ nhanh (lớp nghiệp vụ + thuật toán) hay không, đồng thời lớp AI có thực sự tạo ra giá trị đáng tin cậy cho người dùng hay không, thay vì chỉ dừng lại ở cảm nhận chủ quan.

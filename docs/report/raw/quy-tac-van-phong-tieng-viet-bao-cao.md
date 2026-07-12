@@ -110,7 +110,7 @@ Dấu hiệu thường gặp:
 | -------- | ---------- | --------- |
 | Dịch adjective EN word-by-word | _có tính hành động_ (actionable) | Nói **hậu quả / cách dùng**: _dễ chuyển thành chỉnh sửa hơn_ |
 | Dịch abstract noun | _tính nhất quán_ (consistency) khi nói xu hướng | _tăng đều_, _ổn định_ |
-| Dịch availability | _không khả dụng_ (unavailable) | _không dùng được_, _gián đoạn_ |
+| Dịch availability | _không khả dụng_ (unavailable) khi nghe calque cứng | NFR/vận hành: **giữ không khả dụng** (N6); metric AI: *mức độ sử dụng được*; câu calque: *không dùng được*, *gián đoạn* |
 | Dịch foundational + platform chồng nhau | _nghiệp vụ nền tảng_ cạnh _nền tảng phần mềm_ | _nghiệp vụ truyền thống / cơ bản_ |
 | Cụm đúng nghĩa nhưng dài kiểu textbook | _không đồng nghĩa với việc_ | **Rút gọn**: _không có nghĩa là_ |
 
@@ -148,18 +148,22 @@ Lỗi hay gặp: _nội dung sinh ra_, _kết quả thu được_, _quyết đ�
 
 - **reviewer → phản biện viên** (quy tắc cố định; không dùng _phản biện kỹ thuật_ cho vai trò; không để trần _người phản biện_ nếu ngữ cảnh cần danh xưng nghề).
 - Bản / nội dung do phản biện viên viết → **nhận xét phản biện** / **bản phản biện** (tách khỏi vai trò).
-- matching → **đối sánh phản biện** (khi nói reviewer matching).
+- matching → **đối sánh phản biện (reviewer matching)** lần đầu / khi cần ngữ cảnh kỹ thuật; sau đó có thể rút **đối sánh phản biện**. Không để trần *matching* / *ghép phản biện* nếu ngữ cảnh là reviewer matching.
 - ranking → **xếp hạng**.
 - ground truth (khi không cần EN) → **dữ liệu tham chiếu** / **bản tham chiếu** / **nhãn tham chiếu** (chọn một và giữ nhất quán trong mục).
 - proxy → **chỉ số gián tiếp** / **cách đo thay thế** (tránh _bằng chứng thay thế_ nếu nghe gượng).
 - _thuật toán xác định_ / deterministic (lớp hệ thống):
   - **Lần đầu trong đoạn/mục:** **thuật toán cố định, có thể kiểm chứng**
   - **Các lần sau (tránh lặp):** xen kẽ **thuật toán có thể kiểm chứng** và **thuật toán xác định**
+  - Tính chất kết quả deterministic: ưu tiên **ổn định, có thể tái tạo** (không *lặp lại được* nếu nghe gượng)
 - _bảo đảm_ vs _đảm bảo_: ưu tiên **đảm bảo** (đã chốt); thống nhất cả báo cáo.
-- _giảm tải_ (khi nói công việc người dùng) → ưu tiên **giảm khối lượng công việc**.
+- _giảm tải_ (khi nói công việc người dùng) → ưu tiên **giảm khối lượng công việc** / **giảm gánh nặng theo dõi** (khi nói trạng thái/hạn chót).
+- Tránh _giảm tải nhận thức_ / _gánh nặng nhận thức_ cho pain point UX theo dõi trạng thái — _nhận thức_ nặng hơn scope thực tế; dùng **giảm gánh nặng theo dõi**, **giảm khối lượng thao tác**.
 - _quan điểm phân hóa_ → **quan điểm không thống nhất**.
-- _tính năng_ product: dùng **tính năng** (không _khả năng_ trừu tượng) khi nói chức năng phần mềm.
-- Tránh chồng từ **nền tảng** (platform) + **nghiệp vụ nền tảng** (foundational): đổi vế sau thành **nghiệp vụ truyền thống / cơ bản**.
+- _tính năng_ product: dùng **tính năng** (không _khả năng_ trừu tượng) khi nói chức năng phần mềm; tên product EN giữ nguyên (vd. **Submission Autofill**).
+- **nghiệp vụ nền tảng**: **được giữ** khi nghĩa là foundational conference ops (không cạnh từ *nền tảng phần mềm* trong cùng câu). Chỉ đổi thành **nghiệp vụ truyền thống / cơ bản** khi **chồng** với *nền tảng* = platform trong cùng đoạn (M11).
+- **không khả dụng**: cụm **hợp lệ** trong NFR / vận hành (dịch vụ AI không khả dụng). Không bắt buộc đổi thành *không dùng được* trừ khi câu nghe calque cứng hoặc user chốt khác.
+- **Phản biện viên** / **Chủ tọa**: trong danh sách vai trò không cần gloss EN *(Reviewer)* / *(Chair)* nếu thuật ngữ đã chốt xuyên báo cáo; **Chủ tọa** đủ, không bắt buộc *Chủ tọa hoặc ban tổ chức*.
 
 ### 3.3. Cấm pattern “dịch rồi nhét lại”
 
@@ -332,6 +336,7 @@ Dùng bảng 1 hàng hoặc block như sau:
 | J | Thống nhất *luồng* vs *quy trình*, mức khái quát đoạn |
 | K | Cấu trúc mục (chắp vá vs overview + subsection) |
 | M | Chương 1 / đặt vấn đề: vai trò, calque actionable, rút gọn, chủ thể |
+| N | Chương 2: khảo sát, đối sánh hệ thống, thuật ngữ vai trò, matching, NFR |
 
 ---
 
@@ -476,6 +481,27 @@ Dùng bảng 1 hàng hoặc block như sau:
 | M28 | phân công … phản biện viên **với** bài báo | phân công … phản biện viên **cho** bài báo | Giới từ đúng |
 | M29 | AI trực tiếp **tạo nhận định** | AI trực tiếp **đưa ra nhận định** | Tự nhiên hơn *tạo nhận định* |
 | M30 | hỗ trợ nhập liệu…, **đọc hiểu** và tổng hợp… | …**hỗ trợ đọc hiểu** và tổng hợp… | User chốt cụm; tránh “đọc hiểu” đứng một mình |
+| M16* | AI **không khả dụng** → bắt buộc **không dùng được** | *superseded một phần bởi N6*: **không khả dụng** hợp lệ ở NFR/vận hành; *không dùng được* khi câu calque cứng | Ch2 user 2026-07-13 |
+
+### N. Chương 2 — Khảo sát / đối sánh hệ thống (user review 2026-07-13)
+
+| ID | Trước | Sau | Ghi chú |
+| -- | ----- | --- | ------- |
+| N1 | **Người phản biện (Reviewer):** | **Phản biện viên:** | Không kèm gloss EN khi danh xưng đã chốt |
+| N2 | **Chủ tọa hoặc ban tổ chức (Chair):** | **Chủ tọa:** | Đủ; không bắt buộc ban tổ chức / (Chair) |
+| N3 | **ghép phản biện** / trần *matching* | **đối sánh phản biện (reviewer matching)** | Gloss EN khi cần ngữ cảnh kỹ thuật |
+| N4 | **Giảm tải nhận thức** | **Giảm gánh nặng theo dõi** | Tránh *nhận thức* — nặng hơn scope UX theo dõi |
+| N5 | đổi *nghiệp vụ nền tảng* → *truyền thống* *(mọi ngữ cảnh)* | **giữ nghiệp vụ nền tảng** khi không chồng *nền tảng* = platform | User: cụm hợp lệ, phù hợp Ch2 |
+| N6 | bắt buộc *không khả dụng* → *không dùng được* | **giữ không khả dụng** (NFR/vận hành) | User: cụm hoàn toàn hợp lệ |
+| N7 | kết quả **ổn định, lặp lại được** | kết quả **ổn định, có thể tái tạo** | User: *có thể tái tạo* tự nhiên hơn |
+| N8 | tính năng **Autofill** | tính năng **Submission Autofill** | Tên product EN |
+| N9 | trần **Chair** / **Reviewer** trong câu VN | **Chủ tọa** / **phản biện viên** | Đồng bộ xuyên chương |
+| N10 | *bảo đảm* quyền quyết định | **đảm bảo** quyền quyết định | M17 |
+| N11 | lớp **thuật toán xác định** *(lần đầu Ch2)* | lớp **thuật toán cố định, có thể kiểm chứng** | M15 |
+| N12 | Tách lớp A**,** thuật toán… **và** AI | Tách lớp A**;** thuật toán cố định **và** có thể kiểm chứng**;** AI | M26 |
+| N13 | area chairs / senior area chairs (trần EN) | **Chủ tọa khu vực (Area Chair)** / **Chủ tọa khu vực cấp cao (Senior Area Chair)** | M21 |
+| N14 | xem **review**, gửi **rebuttal** | xem **nhận xét phản biện**, gửi **phản hồi của tác giả (rebuttal)** | M3 + M5 |
+| N15 | **Tính giải thích** (NFR label) | **Khả năng giải thích** | Tự nhiên hơn calque explainability |
 
 ---
 
@@ -502,7 +528,10 @@ Dùng cho mọi đoạn được chạm. **FAIL bất kỳ mục nào → sửa 
 | 15  | Đã **rút gọn** mệnh đề thừa khi cùng ý chưa (không chỉ đổi synonym)?            | Có hoặc N/A                                       |
 | 16  | Lần đầu nói deterministic layer: **thuật toán cố định, có thể kiểm chứng**?     | Có; lần sau được xen kẽ cụm ngắn hơn              |
 | 17  | Dùng **đảm bảo** (không *bảo đảm*) khi khẳng định trách nhiệm / kết quả?        | Có, thống nhất báo cáo                            |
-| 18  | Có chồng từ _nền tảng_ (platform + foundational) không?                         | Không                                             |
+| 18  | Có chồng từ _nền tảng_ (platform + foundational) trong **cùng đoạn** không?      | Không chồng; *nghiệp vụ nền tảng* được giữ nếu không cạnh *nền tảng* = platform (N5) |
+| 21  | Pain point UX theo dõi trạng thái: tránh _nhận thức_ / _giảm tải nhận thức_?   | Có — dùng *gánh nặng theo dõi* / *khối lượng thao tác* (N4) |
+| 22  | Reviewer matching: **đối sánh phản biện (reviewer matching)** khi cần ngữ cảnh? | Có (N3) |
+| 23  | Deterministic property: **ổn định, có thể tái tạo** (không *lặp lại được*)?    | Có khi mô tả tính chất kết quả (N7) |
 | 19  | Liệt kê **ba lớp** (cốt lõi / deterministic / AI): dấu phẩy trong lớp giữa có làm thành 4 hạng mục không? | Không — dùng `;` giữa lớp hoặc `và` trong lớp giữa (M26) |
 | 20  | Câu “không tự quyết định / xem lại đầu ra AI” đã có **chủ thể** đúng (người dùng / hệ thống) chưa? | Có — không để *đầu ra AI* làm chủ ngữ quyết định (M27) |
 
@@ -533,20 +562,25 @@ tích hợp trong một quy trình thống nhất
 thuật toán cố định, có thể kiểm chứng  (lần đầu)
 thuật toán có thể kiểm chứng / thuật toán xác định  (lần sau, xen kẽ)
 đảm bảo (không: bảo đảm)
-không dùng được (tránh: không khả dụng)
-nghiệp vụ truyền thống (tránh chồng: nghiệp vụ nền tảng + nền tảng)
-tính năng (product; tránh: khả năng mơ)
+không khả dụng — hợp lệ NFR/vận hành (N6); không dùng được — khi câu calque cứng
+nghiệp vụ nền tảng — giữ nếu không chồng platform (N5); nghiệp vụ truyền thống khi chồng nền tảng=platform
+tính năng (product; tránh: khả năng mơ); tên product EN: Submission Autofill
 cơ sở thực nghiệm để đánh giá
-giai đoạn phản hồi của tác giả (rebuttal)
-Chủ tọa khu vực (Area Chair)
-Chủ tọa (Chair) / Chủ tọa
+giai đoạn phản hồi của tác giả (rebuttal) / phản hồi của tác giả (rebuttal)
+Chủ tọa khu vực (Area Chair) / Chủ tọa khu vực cấp cao (Senior Area Chair)
+Chủ tọa (không bắt buộc gloss Chair nếu đã chốt)
+Phản biện viên (không bắt buộc gloss Reviewer nếu đã chốt)
+đối sánh phản biện (reviewer matching)
+ổn định, có thể tái tạo  (tránh: lặp lại được — N7)
+giảm gánh nặng theo dõi / giảm khối lượng thao tác  (tránh: giảm tải nhận thức — N4)
 luồng AI / luồng xử lý (tránh lặp workflow trừ tên riêng)
-mức độ sử dụng được (tránh: độ khả dụng)
+mức độ sử dụng được (tránh: độ khả dụng — metric AI, khác NFR “không khả dụng”)
 ba lớp: A; B và C; D  (tránh: A, B, C và D khi B đã có dấu phẩy nội bộ)
 Người dùng được xem lại đầu ra AI; hệ thống không tự quyết định…
 phân công phản biện viên cho bài báo (không: với bài báo)
 đưa ra nhận định (không: tạo nhận định)
 hỗ trợ đọc hiểu (không: đọc hiểu đứng một mình trong chuỗi tính năng)
+khả năng giải thích (NFR; tránh: tính giải thích)
 ```
 
 ---
@@ -564,4 +598,4 @@ Không xóa quy tắc / ví dụ cũ nếu vẫn còn xuất hiện trong bản 
 
 **Thứ tự ưu tiên khi mâu thuẫn:** câu user chốt mới nhất > cụm trong mục 5/9 > ví dụ cũ trong mục 7 > thói quen diễn đạt của model.
 
-**Nhắc session sau (Chương 1 đã chốt):** reviewer = **phản biện viên**; Area Chair = **Chủ tọa khu vực (Area Chair)**; Chair = **Chủ tọa (Chair)**; luôn soi dịch máy; bổ sung chủ thể; rút gọn khi được; *đảm bảo*; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng**; workflow chung → **luồng**; liệt kê ba lớp dùng `;` nếu lớp giữa có dấu phẩy (M26); chủ thể quyết định/xem lại AI (M27); **hỗ trợ đọc hiểu** (M30).
+**Nhắc session sau (Ch1+Ch2 đã chốt):** reviewer = **phản biện viên** (không bắt buộc gloss EN); Chair = **Chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; *đảm bảo*; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng**; tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh *nhận thức* cho UX theo dõi (N4); product EN **Submission Autofill**; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30).
