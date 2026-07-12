@@ -6,9 +6,9 @@
 % Trước khi build, xóa hết các file được tạo ra trong quá trình build trước đó, và build theo thứ tự: BIB > PDF > PDF.
 % Nếu cập nhật tài liệu tham khảo, cũng cần build lại theo cách trên.
 
-% \documentclass[oneside,a4paper,14pt]{extreport}
+\documentclass[oneside,a4paper,14pt]{extreport}
 
-\documentclass[oneside,a4paper,14pt,draft]{extreport}
+% \documentclass[oneside,a4paper,14pt,draft]{extreport}
 
 % Font tiếng Việt
 \usepackage[T5]{fontenc}
@@ -209,8 +209,7 @@
 
 
 \phantomsection
-%\addcontentsline{toc}{chapter}{Lời cam đoan}
-%\include{Appendix/reassurances}
+\addcontentsline{toc}{chapter}{Lời cam đoan}
 \include{Appendix/commitment}
 
 \addcontentsline{toc}{chapter}{Thuyết minh chỉnh sửa đề tài}
