@@ -503,6 +503,27 @@ Dùng bảng 1 hàng hoặc block như sau:
 | N14 | xem **review**, gửi **rebuttal** | xem **nhận xét phản biện**, gửi **phản hồi của tác giả (rebuttal)** | M3 + M5 |
 | N15 | **Tính giải thích** (NFR label) | **Khả năng giải thích** | Tự nhiên hơn calque explainability |
 
+### O. Chương 3 — Xây dựng hệ thống (user review 2026-07-13)
+
+| ID | Trước | Sau | Ghi chú |
+| -- | ----- | --- | ------- |
+| O1 | trần **Reviewer** / **Chair** / **Chair/Co-chair** trong prose Ch3 | **phản biện viên** / **Chủ tọa** / **Chủ tọa/Đồng chủ tọa** | Đồng bộ N9; product EN (*Reviewer Initial Analysis*, *Chair Decision Copilot*) **giữ** |
+| O2 | **Người phản biện** (Ch3 §AI) | **phản biện viên** | Không dùng lại *Người phản biện* |
+| O3 | *plugin độc lập* → bắt Việt hóa | **giữ plugin** | User Ch3: #16 giữ plugin |
+| O4 | Việt hóa hàng loạt *submission* / *assignment* / *workspace* / *policy* | **chọn lọc**: chỉ khi câu VN gượng; giữ token trạng thái/code, nhãn diagram, tên thực thể kỹ thuật | User Ch3: #17 cẩn thận |
+| O5 | *ràng buộc dữ liệu (data contract)* → bỏ gloss | **giữ gloss (data contract)** | User Ch3: #20 |
+| O6 | *hợp đồng API* / *hợp đồng OpenAPI* (tích hợp kỹ thuật) | **đặc tả API** / **đặc tả OpenAPI** | Khác *hợp đồng đầu ra* (mục 5.1); API contract ≠ output contract |
+| O7 | *khả năng sử dụng (usability)* của bản nhận xét | **mức độ sử dụng được** của bản nhận xét | G + metric AI; bỏ nhét EN |
+| O8 | *gánh nặng nhận thức (cognitive load)* | **gánh nặng theo dõi** / **theo dõi và tổng hợp thông tin** | N4 |
+| O9 | *một khả năng* / *là khả năng* (product) | **một tính năng** / **là tính năng** | M12 |
+| O10 | *ghép cặp* / trần *matching* (prose) | **đối sánh phản biện (reviewer matching)** | N3; nhãn diagram *Matching* có thể giữ EN |
+| O11 | *mối lo chính* | **mối quan ngại chính** | Bớt khẩu ngữ |
+| O12 | *kết quả lặp lại được* / *lặp lại ổn định* | **ổn định, có thể tái tạo** | N7 |
+| O13 | *bảo đảm* | **đảm bảo** | M17 |
+| O14 | ba lớp lần đầu: *A, thuật toán xác định và AI* | *A; thuật toán cố định và có thể kiểm chứng; AI* | M15/M26 |
+| O15 | *giảm tải* (công việc người dùng) | **giảm khối lượng công việc** | M9 |
+| O16 | caption *phản hồi ý kiến phản biện* | **phản hồi của tác giả (rebuttal)** | M5/N14 |
+
 ---
 
 ## 8. Checklist review (pass/fail)
@@ -534,6 +555,9 @@ Dùng cho mọi đoạn được chạm. **FAIL bất kỳ mục nào → sửa 
 | 23  | Deterministic property: **ổn định, có thể tái tạo** (không *lặp lại được*)?    | Có khi mô tả tính chất kết quả (N7) |
 | 19  | Liệt kê **ba lớp** (cốt lõi / deterministic / AI): dấu phẩy trong lớp giữa có làm thành 4 hạng mục không? | Không — dùng `;` giữa lớp hoặc `và` trong lớp giữa (M26) |
 | 20  | Câu “không tự quyết định / xem lại đầu ra AI” đã có **chủ thể** đúng (người dùng / hệ thống) chưa? | Có — không để *đầu ra AI* làm chủ ngữ quyết định (M27) |
+| 24  | Token kỹ thuật EN trong prose Ch3 (*submission*, *assignment*, *workspace*…): đã **chọn lọc**, không Việt hóa mù? | Có — chỉ khi câu gượng; giữ code/status/diagram/product (O4) |
+| 25  | *plugin* (tích hợp): không bắt Việt hóa nếu user/chương giữ EN kỹ thuật? | Có — Ch3 giữ *plugin* (O3) |
+| 26  | *data contract* / gloss kỹ thuật có giá trị: không xóa chỉ vì “dịch + nhét”? | Giữ khi bổ sung nghĩa (O5); xóa khi trùng nghĩa thuần |
 
 ---
 
@@ -581,6 +605,13 @@ phân công phản biện viên cho bài báo (không: với bài báo)
 đưa ra nhận định (không: tạo nhận định)
 hỗ trợ đọc hiểu (không: đọc hiểu đứng một mình trong chuỗi tính năng)
 khả năng giải thích (NFR; tránh: tính giải thích)
+mức độ sử dụng được (bản nhận xét; tránh: khả năng sử dụng (usability))
+đặc tả API / đặc tả OpenAPI (tránh: hợp đồng API — khác hợp đồng đầu ra mục 5.1)
+Chủ tọa/Đồng chủ tọa (Chair/Co-chair)
+giữ plugin khi prose kỹ thuật Ch3 (O3)
+token EN submission/assignment/workspace: Việt hóa chọn lọc (O4)
+giữ gloss (data contract) khi bổ nghĩa (O5)
+mối quan ngại chính (tránh: mối lo chính)
 ```
 
 ---
@@ -598,4 +629,4 @@ Không xóa quy tắc / ví dụ cũ nếu vẫn còn xuất hiện trong bản 
 
 **Thứ tự ưu tiên khi mâu thuẫn:** câu user chốt mới nhất > cụm trong mục 5/9 > ví dụ cũ trong mục 7 > thói quen diễn đạt của model.
 
-**Nhắc session sau (Ch1+Ch2 đã chốt):** reviewer = **phản biện viên** (không bắt buộc gloss EN); Chair = **Chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; *đảm bảo*; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng**; tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh *nhận thức* cho UX theo dõi (N4); product EN **Submission Autofill**; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30).
+**Nhắc session sau (Ch1–Ch3 đã chốt):** reviewer = **phản biện viên** (không *Người phản biện*; không bắt buộc gloss EN); Chair = **Chủ tọa** / **Chủ tọa/Đồng chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; *đảm bảo*; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng** (hoặc *cố định và có thể kiểm chứng* trong list `;`); tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh *nhận thức* cho UX theo dõi (N4); product EN **Submission Autofill** / **Reviewer Initial Analysis** / **Chair Decision Copilot** giữ; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30); Ch3: **giữ plugin** (O3); token EN *submission/assignment/workspace* **Việt hóa chọn lọc** (O4); **giữ gloss (data contract)** khi bổ nghĩa (O5); *hợp đồng API* → **đặc tả API** (O6).
