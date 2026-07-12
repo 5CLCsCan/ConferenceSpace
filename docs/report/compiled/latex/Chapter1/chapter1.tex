@@ -3,15 +3,15 @@
 
 \section{Đặt vấn đề}
 
-Số lượng bài báo gửi đến các hội nghị khoa học lớn đã tăng đáng kể trong thập kỷ qua. Trong lĩnh vực trí tuệ nhân tạo, một nghiên cứu trên 87.137 bài báo tại 11 hội nghị hàng đầu giai đoạn 2014--2023 ghi nhận xu hướng tăng nhất quán về số bài được công bố và số tác giả tham gia~\cite{ch1ref1}. Riêng NeurIPS nhận 21.575 bản thảo hợp lệ trong năm 2025 và phải huy động hơn 21.000 phản biện kỹ thuật cùng gần 2.000 Area Chair~\cite{ch1ref2}. Quy mô này làm gia tăng áp lực ở nhiều công đoạn, bao gồm kiểm tra bài nộp, lựa chọn phản biện phù hợp, phát hiện xung đột lợi ích (COI) và theo dõi chất lượng phản biện. Ở giai đoạn ra quyết định, Chair cũng phải tổng hợp thủ công thông tin từ các đánh giá, trao đổi và bằng chứng liên quan.
+Số lượng bài báo gửi đến các hội nghị khoa học lớn đã tăng đáng kể trong thập kỷ qua. Trong lĩnh vực trí tuệ nhân tạo, một nghiên cứu trên 87.137 bài báo tại 11 hội nghị hàng đầu giai đoạn 2014--2023 ghi nhận xu hướng tăng đều về số bài được công bố và số tác giả tham gia~\cite{ch1ref1}. Riêng NeurIPS nhận 21.575 bài hợp lệ trong năm 2025 và phải huy động hơn 21.000 phản biện viên cùng gần 2.000 Chủ tọa khu vực (Area Chair)~\cite{ch1ref2}. Quy mô này làm gia tăng áp lực ở nhiều công đoạn, bao gồm kiểm tra bài nộp, lựa chọn phản biện viên phù hợp, phát hiện xung đột lợi ích (COI) và theo dõi chất lượng nhận xét phản biện. Ở giai đoạn ra quyết định, Chủ tọa (Chair) cũng phải tổng hợp thủ công thông tin từ các đánh giá, trao đổi và bằng chứng liên quan.
 
-Các công cụ trí tuệ nhân tạo, đặc biệt là mô hình ngôn ngữ lớn, mở ra khả năng hỗ trợ một số công đoạn có khối lượng thông tin lớn. Một thử nghiệm ngẫu nhiên trên hơn 20.000 bản phản biện tại ICLR 2025 cho thấy phản hồi do AI tạo ra có thể giúp người phản biện làm cho nhận xét cụ thể hơn và có tính hành động hơn; nhóm nhận phản hồi cũng tham gia trao đổi tích cực hơn trong giai đoạn rebuttal~\cite{ch1ref3}. Tuy nhiên, kết quả này phản ánh hiệu quả của một cơ chế hỗ trợ được thiết kế và kiểm soát trong một bối cảnh cụ thể, không đồng nghĩa với việc AI có thể thay thế hoạt động đánh giá học thuật.
+Các công cụ trí tuệ nhân tạo, đặc biệt là mô hình ngôn ngữ lớn, mở ra khả năng hỗ trợ một số công đoạn có khối lượng thông tin lớn. Một thử nghiệm ngẫu nhiên trên hơn 20.000 bản phản biện tại ICLR 2025 cho thấy phản hồi do AI tạo ra có thể giúp phản biện viên làm cho nhận xét cụ thể hơn và dễ chuyển thành chỉnh sửa hơn; nhóm nhận phản hồi cũng tham gia trao đổi tích cực hơn trong giai đoạn phản hồi của tác giả (rebuttal)~\cite{ch1ref3}. Tuy nhiên, kết quả này phản ánh hiệu quả của một cơ chế hỗ trợ được thiết kế và kiểm soát trong một bối cảnh cụ thể, không có nghĩa là AI có thể thay thế hoạt động đánh giá học thuật.
 
-Việc đưa AI vào quy trình phản biện còn đặt ra các vấn đề về bảo mật bản thảo chưa công bố, độ tin cậy của nội dung sinh ra và trách nhiệm đối với quyết định cuối cùng. Khảo sát của \textit{Nature} với gần 5.000 nhà nghiên cứu cho thấy cộng đồng có quan điểm phân hóa về việc sử dụng AI trong viết và phản biện khoa học~\cite{ch1ref4}. Nếu AI trực tiếp tạo nhận định hoặc chi phối quyết định mà thiếu cơ chế kiểm tra, hệ thống có thể làm tăng rủi ro thay vì giảm tải cho người dùng. Vì vậy, bài toán trọng tâm không chỉ là bổ sung AI vào hệ thống, mà là xác định công đoạn nào nên được xử lý bằng nghiệp vụ ổn định, công đoạn nào cần thuật toán có thể kiểm chứng và công đoạn nào phù hợp để AI hỗ trợ dưới sự kiểm soát của con người.
+Việc đưa AI vào quy trình phản biện còn đặt ra các vấn đề về bảo mật bản thảo chưa công bố, độ tin cậy của nội dung do AI tạo ra và trách nhiệm đối với quyết định cuối cùng. Khảo sát của \textit{Nature} với gần 5.000 nhà nghiên cứu cho thấy cộng đồng có quan điểm không thống nhất về việc sử dụng AI trong viết và phản biện khoa học~\cite{ch1ref4}. Nếu AI trực tiếp đưa ra nhận định hoặc chi phối quyết định mà thiếu cơ chế kiểm tra, hệ thống có thể làm tăng rủi ro thay vì giảm khối lượng công việc cho người dùng. Vì vậy, bài toán trọng tâm không chỉ là bổ sung AI vào hệ thống, mà là xác định công đoạn nào nên được xử lý bằng nghiệp vụ cốt lõi, vận hành ổn định; công đoạn nào cần thuật toán cố định và có thể kiểm chứng; công đoạn nào phù hợp để AI hỗ trợ dưới sự kiểm soát của con người.
 
-Các nền tảng được sử dụng rộng rãi như EasyChair, HotCRP, Microsoft CMT và OpenReview đã hỗ trợ hiệu quả những nghiệp vụ nền tảng truyền thống của hội nghị, gồm tiếp nhận bản thảo, phân công phản biện, thu thập đánh giá và ra quyết định~\cite{ch1ref5,ch1ref6,ch1ref7,ch1ref8}. Tuy nhiên, trong phạm vi khảo sát của đề tài, các khả năng hỗ trợ nhập liệu, kiểm tra bản thảo, đọc hiểu và tổng hợp thông tin bằng AI chưa được tổ chức thành một quy trình thống nhất trong các nền tảng này. Khoảng trống này sẽ được khảo sát và đối chiếu chi tiết ở Chương 2.
+Các nền tảng được sử dụng rộng rãi như EasyChair, HotCRP, Microsoft CMT và OpenReview đã đáp ứng tốt những nghiệp vụ truyền thống của hội nghị, gồm tiếp nhận bản thảo, phân công phản biện viên, thu thập đánh giá và ra quyết định~\cite{ch1ref5,ch1ref6,ch1ref7,ch1ref8}. Tuy nhiên, trong phạm vi khảo sát của đề tài, các tính năng hỗ trợ nhập liệu, kiểm tra bản thảo, hỗ trợ đọc hiểu và tổng hợp thông tin bằng AI chưa được tích hợp trong một quy trình thống nhất trên các nền tảng này. Khoảng trống này sẽ được khảo sát và đối chiếu chi tiết ở Chương 2.
 
-Từ bối cảnh trên, nhóm xây dựng \textbf{ConferenceSpace}, một nền tảng web hỗ trợ các nghiệp vụ cần thiết cho vòng đời tổ chức hội nghị và xét duyệt bài báo. Đồng thời, hệ thống đóng vai trò là môi trường để đánh giá cách tích hợp AI có kiểm soát vào các quy trình học thuật truyền thống. ConferenceSpace được tổ chức theo ba lớp: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Cách tổ chức này nhằm duy trì khả năng vận hành khi dịch vụ AI không khả dụng, đồng thời bảo đảm quyết định học thuật cuối cùng vẫn thuộc về người dùng hoặc vai trò có thẩm quyền.
+Từ bối cảnh trên, nhóm xây dựng \textbf{ConferenceSpace}, một nền tảng web hỗ trợ các nghiệp vụ cần thiết cho vòng đời tổ chức hội nghị và xét duyệt bài báo. Đồng thời, hệ thống đóng vai trò là cơ sở thực nghiệm để đánh giá cách tích hợp AI có kiểm soát vào các quy trình học thuật truyền thống. ConferenceSpace được tổ chức theo ba lớp: nghiệp vụ cốt lõi; thuật toán cố định và có thể kiểm chứng; AI hỗ trợ. Cách tổ chức này nhằm duy trì khả năng vận hành khi dịch vụ AI không dùng được, đồng thời đảm bảo quyết định học thuật cuối cùng vẫn thuộc về người hoặc vai trò có thẩm quyền.
 
 \section{Mục tiêu đề tài}
 
@@ -20,26 +20,26 @@ Mục tiêu tổng quát của đề tài là xây dựng và đánh giá nền 
 Các mục tiêu cụ thể gồm:
 
 \begin{itemize}
-\item \textbf{Xây dựng quy trình nghiệp vụ cốt lõi} cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, phân công phản biện, thu thập đánh giá, rebuttal (phản hồi) đến ra quyết định.
-\item \textbf{Tổ chức hệ thống theo ba lớp trách nhiệm} gồm nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ, qua đó làm rõ loại tác vụ và cơ chế kiểm soát phù hợp với từng lớp.
-\item \textbf{Xây dựng các cơ chế có thể kiểm chứng} cho quy trình đề xuất phản biện viên và phát hiện xung đột lợi ích (COI), trong đó kết quả được trình bày dưới dạng đề xuất hoặc bằng chứng để Chair xem xét.
-\item \textbf{Tích hợp các workflow AI có kiểm soát} nhằm hỗ trợ nhập liệu, kiểm tra bản thảo, đọc hiểu và tổng hợp thông tin. Đầu ra AI phải cho phép người dùng xem lại, chỉnh sửa hoặc bỏ qua, và không được tự quyết định việc chấp nhận hay từ chối bài nộp của tác giả.
-\item \textbf{Đánh giá hệ thống bằng nhiều nhóm bằng chứng}, gồm hiệu năng nghiệp vụ, chất lượng và khả năng mở rộng của thuật toán xác định, độ chính xác và độ khả dụng của kết quả theo từng workflow AI, tính khả thi vận hành và phản hồi của người dùng. Kết quả đánh giá được dùng để xác định mục tiêu nào đã đạt, đạt một phần hoặc còn hạn chế.
+\item \textbf{Xây dựng quy trình nghiệp vụ cốt lõi} cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, phân công phản biện viên, thu thập đánh giá, giai đoạn phản hồi của tác giả (rebuttal) đến ra quyết định.
+\item \textbf{Tổ chức hệ thống theo ba lớp trách nhiệm} gồm nghiệp vụ cốt lõi; thuật toán cố định và có thể kiểm chứng; AI hỗ trợ, qua đó làm rõ loại tác vụ và cơ chế kiểm soát phù hợp với từng lớp.
+\item \textbf{Xây dựng các cơ chế có thể kiểm chứng} cho quy trình đề xuất phản biện viên và phát hiện xung đột lợi ích (COI), trong đó kết quả được trình bày dưới dạng đề xuất hoặc bằng chứng để Chủ tọa xem xét.
+\item \textbf{Tích hợp các luồng AI có kiểm soát} nhằm hỗ trợ nhập liệu, kiểm tra bản thảo, hỗ trợ đọc hiểu và tổng hợp thông tin. Người dùng phải được xem lại, chỉnh sửa hoặc bỏ qua đầu ra AI; hệ thống không được tự quyết định việc chấp nhận hay từ chối bài nộp của tác giả.
+\item \textbf{Đánh giá hệ thống bằng nhiều nhóm bằng chứng}, gồm hiệu năng nghiệp vụ, chất lượng và khả năng mở rộng của thuật toán có thể kiểm chứng, độ chính xác và mức độ sử dụng được của kết quả theo từng luồng AI, tính khả thi vận hành và phản hồi của người dùng. Kết quả đánh giá được dùng để xác định mục tiêu nào đã đạt, đạt một phần hoặc còn hạn chế.
 \end{itemize}
 
 Đóng góp của đề tài vì vậy nằm ở việc xây dựng và đánh giá một hệ thống tích hợp theo ranh giới trên, không phải ở việc thay thế các nền tảng quản lý hội nghị đã vận hành lâu năm hoặc tự động hóa quyết định học thuật.
 
 \section{Phạm vi đề tài}
 
-Đề tài tập trung vào quy trình xét duyệt bài báo tại hội nghị khoa học. Ba vai trò nghiệp vụ chính là \textbf{Tác giả}, \textbf{Người phản biện} và \textbf{Chủ tọa/Đồng chủ tọa}.
+Đề tài tập trung vào quy trình xét duyệt bài báo tại hội nghị khoa học. Ba vai trò nghiệp vụ chính là \textbf{Tác giả}, \textbf{Phản biện viên} và \textbf{Chủ tọa/Đồng chủ tọa}.
 
 \textbf{Phạm vi bao gồm:}
 
 \begin{itemize}
-\item Quy trình quản lý hội nghị liên quan trực tiếp đến xét duyệt bài báo: cấu hình hội nghị, nộp bài, phân công phản biện, khai báo và kiểm tra xung đột lợi ích, thu thập đánh giá, rebuttal, thảo luận và ra quyết định.
-\item Cơ chế phân công tự động phản biện viên với bài báo dựa trên thông tin chuyên môn, khối lượng công việc trong nền tảng và các ràng buộc nghiệp vụ; kết quả là danh sách đề xuất để Chair xem xét.
+\item Quy trình quản lý hội nghị liên quan trực tiếp đến xét duyệt bài báo: cấu hình hội nghị, nộp bài, phân công phản biện viên, khai báo và kiểm tra xung đột lợi ích, thu thập đánh giá, giai đoạn phản hồi của tác giả (rebuttal), thảo luận và ra quyết định.
+\item Cơ chế phân công tự động phản biện viên cho bài báo dựa trên thông tin chuyên môn, khối lượng công việc trong nền tảng và các ràng buộc nghiệp vụ; kết quả là danh sách đề xuất để Chủ tọa xem xét.
 \item Cơ chế phát hiện xung đột lợi ích từ nhiều nguồn bằng chứng, gồm quan hệ trực tiếp trong hệ thống, khai báo thủ công và quan hệ đồng tác giả khi có dữ liệu phù hợp.
-\item Sáu quy trình (workflow) có sử dụng AI, bao gồm: Tự động điền bài nộp (Submission Autofill), Kiểm tra trước khi nộp bài (Submission Gating), Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng phản biện (Review Quality Auditor), Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) và Chatbot Agent. Mỗi workflow phục vụ một công đoạn cụ thể trong quy trình và có cơ chế xác nhận của người dùng.
+\item Sáu luồng xử lý có sử dụng AI, bao gồm: Tự động điền bài nộp (Submission Autofill), Kiểm tra trước khi nộp bài (Submission Gating), Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét phản biện (Review Quality Auditor), Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) và Chatbot Agent. Mỗi luồng phục vụ một công đoạn cụ thể trong quy trình và có cơ chế xác nhận của người dùng.
 \item Đánh giá hệ thống ở quy mô thử nghiệm thông qua benchmark kỹ thuật, benchmark theo thành phần và khảo sát người dùng sau sử dụng.
 \end{itemize}
 
@@ -47,9 +47,9 @@ Các mục tiêu cụ thể gồm:
 
 \begin{itemize}
 \item Quản lý sự kiện hội nghị theo nghĩa rộng như bán vé, đăng ký tham dự, xếp lịch phòng, tổ chức chương trình và xuất bản kỷ yếu.
-\item Tự động đưa ra quyết định chấp nhận hoặc từ chối bài báo. Các quy tắc nghiệp vụ thủ công có thể ngăn một thao tác không hợp lệ, nhưng quyết định cuối cùng vẫn thuộc về người dùng có thẩm quyền.
-\item Bảo đảm phát hiện đầy đủ mọi xung đột lợi ích. Độ phủ của cơ chế này phụ thuộc vào dữ liệu khai báo và dữ liệu quan hệ học thuật từ nguồn bên ngoài.
-\item Bảo đảm chất lượng cố định của các workflow AI khi mô hình hoặc dịch vụ bên ngoài thay đổi. Đề tài đánh giá các workflow trong cấu hình và tập dữ liệu thử nghiệm được mô tả tại Chương 4.
+\item Tự động đưa ra quyết định chấp nhận hoặc từ chối bài báo. Các quy tắc nghiệp vụ thủ công có thể ngăn một thao tác không hợp lệ, nhưng quyết định cuối cùng vẫn thuộc về người hoặc vai trò có thẩm quyền.
+\item Đảm bảo phát hiện đầy đủ mọi xung đột lợi ích. Độ phủ của cơ chế này phụ thuộc vào dữ liệu khai báo và dữ liệu quan hệ học thuật từ nguồn bên ngoài.
+\item Đảm bảo chất lượng cố định của các luồng AI khi mô hình hoặc dịch vụ bên ngoài thay đổi. Đề tài đánh giá các luồng này trong cấu hình và tập dữ liệu thử nghiệm được mô tả tại Chương 4.
 \item Đánh giá tác động dài hạn của AI đối với văn hóa phản biện, hành vi của cộng đồng học thuật hoặc thiên vị mô hình. Khảo sát người dùng trong đề tài chỉ phản ánh trải nghiệm trong phạm vi và thời gian thử nghiệm.
 \end{itemize}
 
@@ -62,8 +62,8 @@ Báo cáo được tổ chức thành năm chương theo mạch từ xác địn
 \begin{itemize}
 \item \textbf{Chương 1 -- Mở đầu:} trình bày bối cảnh, vấn đề, mục tiêu, phạm vi đề tài và cấu trúc luận văn.
 \item \textbf{Chương 2 -- Khảo sát nhu cầu, hiện trạng và khoảng trống nghiên cứu:} phân tích nhu cầu của các nhóm người dùng, khảo sát các hệ thống liên quan, xác định khoảng trống thực tiễn và tổng hợp yêu cầu làm cơ sở cho thiết kế.
-\item \textbf{Chương 3 -- Xây dựng hệ thống:} trình bày use case, kiến trúc, thiết kế dữ liệu, cơ chế nghiệp vụ, thuật toán xác định, các workflow AI và môi trường triển khai.
-\item \textbf{Chương 4 -- Đánh giá thực nghiệm:} mô tả câu hỏi đánh giá, dữ liệu và phương pháp thực nghiệm; sau đó phân tích lớp nghiệp vụ cốt lõi, thuật toán xác định, từng workflow AI, tính khả thi vận hành và phản hồi người dùng.
+\item \textbf{Chương 3 -- Xây dựng hệ thống:} trình bày use case, kiến trúc, thiết kế dữ liệu, cơ chế nghiệp vụ, thuật toán có thể kiểm chứng, các luồng AI và môi trường triển khai.
+\item \textbf{Chương 4 -- Đánh giá thực nghiệm:} mô tả câu hỏi đánh giá, dữ liệu và phương pháp thực nghiệm; sau đó phân tích lớp nghiệp vụ cốt lõi, thuật toán xác định, từng luồng AI, tính khả thi vận hành và phản hồi người dùng.
 \item \textbf{Chương 5 -- Kết luận:} đối chiếu kết quả với mục tiêu của đề tài, tổng hợp các hạn chế được ghi nhận qua đánh giá và đề xuất hướng phát triển.
 \end{itemize}
 
