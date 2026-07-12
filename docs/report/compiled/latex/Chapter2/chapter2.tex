@@ -3,7 +3,7 @@
 
 Chương 1 đã nêu vấn đề trung tâm của đề tài: quy trình bình duyệt học thuật (peer review) trong các hội nghị khoa học đang chịu áp lực ngày càng lớn về quy mô. Bên cạnh đó, việc đưa AI vào quy trình học thuật cần được kiểm soát chặt chẽ để đảm bảo tính liêm chính, bảo mật và trách nhiệm ra quyết định. Vì vậy, Chương 2 không dừng ở việc trình bày khảo sát người dùng và các hệ thống hiện có, mà còn chuyển các kết quả này thành yêu cầu thiết kế cụ thể cho ConferenceSpace.
 
-Chương này được triển khai qua bốn bước. Mục 2.1 trình bày khảo sát nhu cầu ban đầu của nhóm theo ba vai trò chính: Tác giả, Phản biện viên và Chủ tọa. Mục 2.2 đối chiếu các nhu cầu đó với những nền tảng quản lý hội nghị đang được sử dụng rộng rãi như EasyChair, HotCRP, OpenReview và Microsoft CMT. Mục 2.3 rút ra các khoảng trống thực tiễn và nguyên tắc cho giải pháp. Cuối cùng, mục 2.4 tổng hợp các phân tích thành yêu cầu hệ thống, làm cơ sở cho phần thiết kế ở Chương 3 và phần đánh giá ở Chương 4.
+Chương này được triển khai qua bốn bước. Mục 2.1 trình bày khảo sát nhu cầu ban đầu của nhóm theo ba vai trò chính: Tác giả, Phản biện viên và Chủ tọa, đồng thời tổng hợp ý kiến cộng đồng và chính sách học thuật để củng cố các luận điểm từ khảo sát nội bộ. Mục 2.2 đối chiếu các nhu cầu đó với những nền tảng quản lý hội nghị đang được sử dụng rộng rãi như EasyChair, HotCRP, OpenReview và Microsoft CMT. Mục 2.3 rút ra các khoảng trống thực tiễn và nguyên tắc cho giải pháp. Cuối cùng, mục 2.4 tổng hợp các phân tích thành yêu cầu hệ thống, làm cơ sở cho phần thiết kế ở Chương 3 và phần đánh giá ở Chương 4.
 
 \section{Khảo sát nhu cầu người dùng}
 
@@ -57,7 +57,7 @@ Các nhóm câu hỏi chính gồm:
   \item Mức độ chấp nhận AI trong các tác vụ như tự động điền thông tin, kiểm tra sơ bộ bài nộp, hỗ trợ đọc bài, rà soát chất lượng phản biện và tổng hợp thông tin cho Chủ tọa.
 \end{itemize}
 
-Do nhóm triển khai khảo sát theo mẫu thuận tiện, kết quả khảo sát chỉ được dùng để định hướng thiết kế và ưu tiên tính năng, không được dùng để khẳng định xu hướng chung của toàn bộ cộng đồng nghiên cứu. Đây cũng là lý do Chương 2 cần kết hợp dữ liệu khảo sát nội bộ với các tài liệu bên ngoài về áp lực bình duyệt học thuật và các hệ thống quản lý hội nghị hiện có.
+Do nhóm triển khai khảo sát theo mẫu thuận tiện, kết quả khảo sát chỉ được dùng để định hướng thiết kế và ưu tiên tính năng, không được dùng để khẳng định xu hướng chung của toàn bộ cộng đồng nghiên cứu. Đây cũng là lý do Chương 2 kết hợp ba nguồn: khảo sát nội bộ, tổng hợp ý kiến cộng đồng và chính sách học thuật (mục~\ref{sec:ch2-community-synthesis}), cùng tài liệu về áp lực bình duyệt và các hệ thống quản lý hội nghị hiện có.
 
 \subsection{Kết quả khảo sát theo vấn đề nổi bật}
 
@@ -165,7 +165,65 @@ Tổng hợp các phản hồi, nhóm nhận thấy bốn nhu cầu nền tảng
 \item \textbf{Minh bạch trong sử dụng AI:} người dùng chấp nhận AI khi AI đóng vai trò hỗ trợ, có căn cứ và cho phép con người kiểm tra lại.
 \end{enumerate}
 
-Những kết luận này cần được đọc cùng ba giới hạn. Thứ nhất, khảo sát dùng mẫu thuận tiện với 71 phản hồi, nên kết quả không đủ để đại diện cho toàn bộ cộng đồng học thuật. Thứ hai, các nhóm Chủ tọa và Phản biện viên có kích thước nhỏ, do đó phân tích theo vai trò chỉ mang tính định hướng. Thứ ba, nhóm thực hiện khảo sát này trước khi người dùng sử dụng hệ thống; cách làm đó khác với khảo sát sau trải nghiệm sản phẩm được trình bày trong Chương 4.
+Những kết luận này cần được đọc cùng ba giới hạn. Thứ nhất, khảo sát dùng mẫu thuận tiện với 71 phản hồi, nên kết quả không đủ để đại diện cho toàn bộ cộng đồng học thuật. Thứ hai, các nhóm Chủ tọa và Phản biện viên có kích thước nhỏ, do đó phân tích theo vai trò chỉ mang tính định hướng. Thứ ba, nhóm thực hiện khảo sát này trước khi người dùng sử dụng hệ thống; cách làm đó khác với khảo sát sau trải nghiệm sản phẩm được trình bày trong Chương 4. Vì vậy, mục tiếp theo bổ sung tổng hợp thứ cấp từ diễn đàn, blog thực hành, tài liệu hệ thống và chính sách hội nghị nhằm kiểm tra tính lặp lại của các nhu cầu đã nêu, thay vì mở rộng mẫu khảo sát nội bộ.
+
+\subsection{Tổng hợp ý kiến cộng đồng và chính sách học thuật}
+\label{sec:ch2-community-synthesis}
+
+\subsubsection{Mục tiêu và phương pháp}
+
+Do khảo sát nhu cầu dùng mẫu thuận tiện và một số nhóm vai trò còn nhỏ, nhóm thực hiện thêm một bước tổng hợp thứ cấp các nguồn công khai nhằm củng cố luận điểm thiết kế. Mục tiêu không phải ước lượng tỷ lệ trong toàn cộng đồng học thuật, mà kiểm tra xem các khó khăn và nguyên tắc rút ra từ khảo sát nội bộ có lặp lại và tương thích với thực tiễn vận hành bên ngoài hay không.
+
+Nhóm thu thập và mã hóa các nguồn theo sáu chủ đề cố định trước khi tìm kiếm: (1)~ma sát trải nghiệm trên hệ thống quản lý hội nghị; (2)~gánh nặng nhập liệu và kiểm tra sớm khi nộp bài; (3)~nhu cầu của Chủ tọa về COI, phân công phản biện và theo dõi trạng thái; (4)~ranh giới chấp nhận AI của phản biện viên; (5)~khoảng trống sản phẩm so với EasyChair, HotCRP, OpenReview và Microsoft CMT; (6)~chuẩn mực ``con người giữ quyền quyết định cuối cùng''. Nguồn ưu tiên gồm blog và hướng dẫn của ban chương trình, FAQ và tài liệu chính thức của hệ thống quản lý hội nghị, issue công khai trên kho mã nguồn, chính sách AI của hội nghị và nhà xuất bản, cùng một số khảo sát quốc tế có công bố phương pháp. Với mỗi chủ đề, nhóm ghi nhận cả bằng chứng ủng hộ và phản chứng để hạn chế thiên lệch xác nhận.
+
+Cách làm này có ba giới hạn cần nêu rõ. Thứ nhất, diễn đàn và blog thường phản ánh trường hợp người dùng gặp khó khăn nhiều hơn trải nghiệm suôn sẻ. Thứ hai, kết quả là tổng hợp định tính, không suy ra tỷ lệ phần trăm cho toàn cộng đồng. Thứ ba, chính sách hội nghị có thể thay đổi theo năm. Vì vậy, các phát hiện dưới đây được dùng để củng cố hướng ưu tiên thiết kế, không thay thế bằng chứng đánh giá hệ thống ở Chương~4.
+
+\subsubsection{Kết quả tổng hợp theo chủ đề}
+
+\textbf{Ma sát trải nghiệm trên hệ thống hiện có.}
+Các hệ thống EasyChair, HotCRP, OpenReview và Microsoft CMT được cộng đồng coi là hạ tầng trưởng thành cho vòng đời nộp bài, phản biện và ra quyết định \cite{ch2ref20,ch1ref5,ch1ref6,ch1ref7,ch1ref8}. Đồng thời, blog tổ chức hội nghị, câu hỏi thường gặp của nhà cung cấp hệ thống và issue công khai lặp lại các ma sát về giao diện khó khám phá, chuyển vai trò không rõ, biểu mẫu dễ mất dữ liệu, kiểm tra đầu vào yếu, tài liệu dài hoặc lỗi thời, và thông báo email phân mảnh \cite{ch2ref21,ch2ref22,ch2ref23,ch2ref24,ch2ref25,ch2ref26,ch2ref4}. Mẫu lặp lại này phù hợp năm vấn đề nổi bật trong khảo sát nội bộ: không biết bước tiếp theo, biểu mẫu dài, hướng dẫn nhiều, thiếu kiểm tra sớm và thông báo rời rạc. Điểm quan trọng là các phàn nàn này ít khi nhằm vào việc hệ thống ``thiếu phân hệ nộp bài hay phản biện'', mà tập trung vào độ phức tạp thao tác và khả năng theo dõi trạng thái.
+
+\textbf{Nhu cầu của tác giả khi nộp bài.}
+Tài liệu hội nghị và hệ thống nộp bài cho thấy metadata, định dạng và lựa chọn chuyên đề (track) là ràng buộc cứng: sai template, vượt giới hạn trang, hồ sơ tác giả không đầy đủ hoặc chọn chuyên đề không phù hợp có thể dẫn đến loại bài sớm hoặc tăng rủi ro bị từ chối \cite{ch2ref27,ch2ref28,ch2ref29,ch2ref30}. Song song, các hệ thống xuất bản thương mại và chuẩn định danh học thuật đã chuẩn hóa luồng trích xuất hoặc điền sẵn metadata rồi yêu cầu tác giả rà soát trước khi gửi \cite{ch2ref31,ch2ref32}. Điều này củng cố lựa chọn phổ biến trong khảo sát nội bộ: hệ thống được phép tự điền nhưng phải để người dùng sửa và xác nhận, thay vì nộp bài thay tác giả.
+
+\textbf{Nhu cầu của Chủ tọa về COI, phân công và theo dõi.}
+Ở quy mô hội nghị lớn, phân công phản biện được mô hình hóa như bài toán tối ưu có ràng buộc về chuyên môn, tải công việc và COI, thường giải bằng điểm phù hợp và bộ tối ưu, không phải gán bài bằng mô hình ngôn ngữ lớn \cite{ch2ref8,ch2ref11,ch2ref33,ch2ref34}. Thực tiễn ban chương trình thường kết hợp tự động hóa với sự can thiệp của con người: một phần phản biện viên được gán tự động, phần còn lại do Chủ tọa khu vực chọn hoặc chỉnh; danh sách đề xuất có điểm phù hợp và cần bước áp dụng hoặc ghi đè thủ công \cite{ch2ref35,ch2ref36,ch2ref37}. Về COI, hướng dẫn dành cho Chủ tọa của HotCRP nêu rõ hệ thống không tự xác nhận mọi xung đột; các phân tích và công cụ như CLOSET cho thấy tỷ lệ COI chưa khai báo còn đáng kể nếu chỉ dựa vào tự khai báo \cite{ch2ref4,ch2ref38,ch2ref39}. Các quan sát này củng cố tín hiệu từ nhóm Chủ tọa trong khảo sát nội bộ về cảnh báo COI và bảng điều khiển, đồng thời giải thích vì sao gợi ý phân công cần minh bạch và có quyền ghi đè thay vì tự động hóa toàn phần.
+
+\textbf{Ranh giới chấp nhận AI của phản biện viên.}
+Chính sách hội nghị và nhà xuất bản hội tụ ở ba ràng buộc: phản biện viên chịu trách nhiệm về nhận xét, bản thảo chưa công bố phải được bảo mật, và AI không được thay thế phán đoán chuyên môn hay viết toàn bộ bản phản biện \cite{ch2ref15,ch2ref16,ch2ref40,ch2ref41,ch2ref42}. Thí nghiệm Review Feedback Agent tại ICLR 2025 và thí nghiệm hỗ trợ phản biện của NeurIPS 2026 cho thấy hướng được chấp nhận là AI hỗ trợ hiểu bài hoặc phản hồi trên bản phản biện do con người viết, với cơ chế tùy chọn và kiểm soát dữ liệu \cite{ch2ref17,ch2ref18,ch2ref19}. Một số chính sách còn siết chặt hơn khảo sát nội bộ: ví dụ ICML 2026 Policy~B cho phép dùng công cụ bảo mật để hiểu bài và chỉnh câu, nhưng hạn chế việc nhờ mô hình tóm tắt bài hoặc gợi ý điểm mạnh/yếu theo kiểu thay thế đánh giá \cite{ch2ref43}. Vì vậy, mức ủng hộ tóm tắt trung lập trong khảo sát nội bộ cần được đọc kèm khả năng cấu hình theo chính sách hội nghị, còn sự thận trọng với tính năng ``làm nổi bật điểm cần kiểm tra'' là phù hợp với ranh giới cộng đồng.
+
+\textbf{Định vị khoảng trống sản phẩm.}
+Đối chiếu tài liệu bốn hệ thống đối sánh cho thấy chúng đã bao phủ nghiệp vụ lõi: nộp bài, COI, phân công, thu thập phản biện và ra quyết định \cite{ch2ref1,ch2ref2,ch2ref3,ch2ref4,ch2ref5,ch2ref6,ch2ref7,ch2ref8}. Khoảng trống lặp lại nằm ở lớp hỗ trợ có kiểm soát và trải nghiệm hiện đại: giảm nhập liệu metadata, kiểm tra sớm, hỗ trợ đọc cho phản biện viên, tín hiệu chất lượng phản biện, tổng hợp bằng chứng cho Chủ tọa và trợ lý theo ngữ cảnh trong ứng dụng. ConferenceSpace không được định vị như hệ thống ``bổ sung phân hệ quản lý hội nghị còn thiếu'', mà như nền tảng bao phủ nghiệp vụ lõi đồng thời tích hợp lớp hỗ trợ nói trên, trong đó đối sánh phản biện và COI thuộc lớp thuật toán có thể kiểm chứng, không phải gán bài bằng AI tạo sinh.
+
+\textbf{Chuẩn mực con người giữ quyền quyết định cuối.}
+Các tổ chức liêm chính xuất bản và khảo sát quốc tế khẳng định AI có thể hỗ trợ nhưng không thay thế chuyên môn của con người; người dùng phải rà soát, chỉnh sửa hoặc bác bỏ đầu ra; trách nhiệm gắn với vai trò có tên; và việc khai báo sử dụng AI ngày càng được yêu cầu \cite{ch2ref44,ch2ref45,ch2ref46,ch1ref4}. Khảo sát Wiley ExplanAItions 2025 với 2.430 nhà nghiên cứu cho thấy hầu hết tình huống liên quan peer review vẫn nằm vùng ưu tiên phán đoán của con người; mức quan tâm AI cao hơn ở các tác vụ hỗ trợ hẹp khi phản biện viên còn quyền kiểm soát trực tiếp \cite{ch2ref46}. Chuẩn mực này neo bốn nguyên tắc thiết kế sẽ được nêu ở mục~2.3 và~2.4, thay vì chỉ dựa vào khảo sát nội bộ của nhóm.
+
+\begin{PrismLongTable}
+\begin{longtable}{|P{0.22\textwidth}|P{0.38\textwidth}|C{0.16\textwidth}|P{0.16\textwidth}|}
+\caption{Đối chiếu nhu cầu khảo sát nội bộ với tổng hợp ý kiến cộng đồng và chính sách}\LongTableCaptionSpace
+\hline
+\TableHeader{Nhu cầu/khoảng trống từ khảo sát}    &    \TableHeader{Phát hiện từ cộng đồng và chính sách}    &    \TableHeader{Mức khớp}    &    \TableHeader{Hàm ý thiết kế} \\ \hline
+\endfirsthead
+\LongTableHeaderBorder
+\TableHeader{Nhu cầu/khoảng trống từ khảo sát}    &    \TableHeader{Phát hiện từ cộng đồng và chính sách}    &    \TableHeader{Mức khớp}    &    \TableHeader{Hàm ý thiết kế} \\ \hline
+\endhead
+\LongTableFooterBorder
+\endfoot
+Không biết bước tiếp theo; hướng dẫn dài; thông báo rời rạc   &   Câu hỏi thường gặp và blog lặp lại khó chuyển vai trò, trạng thái ẩn, email phân mảnh trên hệ thống quản lý hội nghị hiện có   &   Khớp   &   Bảng điều khiển, quy trình từng bước, thông báo trong ứng dụng, chatbot theo quyền \\ \hline
+Biểu mẫu dài; thiếu kiểm tra sớm      &      Metadata, định dạng và chuyên đề là ràng buộc cứng; luồng trích xuất rồi để tác giả rà soát đã phổ biến trong xuất bản      &      Khớp      &      Submission Autofill và Submission Gating với xác nhận của tác giả \\ \hline
+Chủ tọa cần COI và bảng điều khiển; thận trọng phân công tự động     &     COI đa nguồn và rà soát còn thiếu; phân công là tối ưu có ràng buộc kèm quyền ghi đè     &     Khớp     &     COI đa tầng; đối sánh có điểm phù hợp và lý do; Chủ tọa quyết định cuối \\ \hline
+Phản biện viên chấp nhận AI hỗ trợ đọc; thận trọng AI định hướng      &      Chính sách cho phép hỗ trợ có kiểm soát; cấm AI viết phản biện hoặc thay phán đoán      &      Khớp, có siết chặt hơn      &      Hỗ trợ đọc/rà soát có thể cấu hình; hệ thống không sinh bản phản biện thay người \\ \hline
+Lo ngại AI thay thế quyết định học thuật     &     COPE, nhà xuất bản và khảo sát quốc tế yêu cầu con người giữ quyền kiểm soát     &     Khớp mạnh     &     AI hỗ trợ; con người xác nhận; bảo mật bản thảo; có căn cứ \\ \hline
+\end{longtable}
+\end{PrismLongTable}
+
+Bảng trên không khẳng định rằng cộng đồng ``đồng thuận tuyệt đối'' với mọi tính năng. Ngược lại, một số phản chứng cần được giữ trong thiết kế: các hệ thống quản lý hội nghị hiện có đủ nghiệp vụ và được dùng ở quy mô lớn; tự động hóa phân công là cần thiết khi số bài nộp tăng mạnh; một số hội nghị đã thử nghiệm hỗ trợ phản biện bằng LLM theo kiểu thí điểm; và mức cho phép tóm tắt bài bằng AI không đồng nhất giữa các chính sách \cite{ch2ref9,ch2ref10,ch2ref17,ch2ref18,ch2ref35,ch2ref43}. ConferenceSpace xử lý các điểm lệch này bằng cách giữ đối sánh phản biện và COI ở lớp thuật toán xác định, giới hạn AI ở vai trò hỗ trợ, và cho phép cấu hình theo chính sách hội nghị.
+
+\subsubsection{Hàm ý cho định hướng ConferenceSpace}
+
+Từ tổng hợp ý kiến cộng đồng và chính sách, nhóm củng cố bốn hướng đã rút từ khảo sát nội bộ. Thứ nhất, bài toán sản phẩm không phải thay thế EasyChair hay HotCRP bằng một hệ thống ``đủ nghiệp vụ hơn'', mà giảm ma sát thao tác và bổ sung lớp hỗ trợ có kiểm soát trên nền nghiệp vụ lõi đã chuẩn hóa. Thứ hai, tự động điền metadata và kiểm tra sớm là phản ứng hợp lý trước rủi ro loại bài sớm và gánh nặng nhập liệu, với điều kiện tác giả giữ bước xác nhận. Thứ ba, Chủ tọa cần COI đa nguồn, điểm phù hợp khi đối sánh có thể giải thích và quyền ghi đè, thay vì tin hoàn toàn vào tự khai báo hoặc tự động hóa kín. Thứ tư, AI chỉ được chấp nhận khi hỗ trợ đọc hiểu, rà soát hoặc tổng hợp bằng chứng dưới sự kiểm soát của con người, phù hợp chuẩn mực liêm chính hiện hành.
+
+Các hàm ý này được chuyển thành khoảng trống và nguyên tắc ở mục~2.3, rồi thành yêu cầu chức năng và phi chức năng ở mục~2.4. Hiệu lực của giải pháp không được suy ra từ tổng hợp ý kiến cộng đồng, mà được kiểm chứng bằng thực nghiệm và khảo sát sau sử dụng ở Chương~4.
 
 \section{Khảo sát hiện trạng các hệ thống quản lý hội nghị}
 
@@ -204,7 +262,7 @@ OpenReview đại diện cho mô hình phản biện mở và thảo luận mở
 
 \subsubsection{d) Microsoft CMT}
 
-Microsoft CMT hỗ trợ nhiều vai trò và nhiều track, đồng thời bao phủ toàn bộ vòng đời nộp bài. Các chức năng chính gồm biểu mẫu tùy chỉnh, quản lý xung đột, bidding, gợi ý phản biện, thảo luận, phản hồi của tác giả và phân công tích hợp với TPMS \cite{ch2ref6}. Tài liệu CMT về quản lý xung đột nêu hai cơ chế chính: xung đột theo cá nhân và xung đột theo domain; các xung đột này được xét trong quá trình phân công \cite{ch2ref7}. Tài liệu TPMS cho biết điểm TPMS nằm trong khoảng 0-1, điểm cao hơn thể hiện mức phù hợp tốt hơn giữa bài báo và phản biện viên \cite{ch2ref8}.
+Microsoft CMT hỗ trợ nhiều vai trò và nhiều chuyên đề (track), đồng thời bao phủ toàn bộ vòng đời nộp bài. Các chức năng chính gồm biểu mẫu tùy chỉnh, quản lý xung đột, bidding, gợi ý phản biện, thảo luận, phản hồi của tác giả và phân công tích hợp với TPMS \cite{ch2ref6}. Tài liệu CMT về quản lý xung đột nêu hai cơ chế chính: xung đột theo cá nhân và xung đột theo domain; các xung đột này được xét trong quá trình phân công \cite{ch2ref7}. Tài liệu TPMS cho biết điểm TPMS nằm trong khoảng 0-1, điểm cao hơn thể hiện mức phù hợp tốt hơn giữa bài báo và phản biện viên \cite{ch2ref8}.
 
 CMT là một đối tượng đối sánh quan trọng đối với bài toán quản lý hội nghị quy mô lớn. Tuy nhiên, đối sánh phản biện (reviewer matching) qua TPMS cần được hiểu như một hệ thống chấm điểm/xếp hạng có ràng buộc, không phải là một cơ chế ra quyết định tự động. ConferenceSpace tiếp cận bài toán này bằng cách đặt quy trình đối sánh phản biện trong lớp thuật toán xác định, kết hợp điểm phù hợp về chuyên môn với kiểm tra COI và trao quyền xác nhận cuối cùng cho Chủ tọa của hội nghị.
 
@@ -255,13 +313,13 @@ Các số liệu này cho thấy nhu cầu hỗ trợ Chủ tọa và Phản bi�
 
 \subsection{Hạn chế của các hệ thống hiện tại}
 
-Từ khảo sát người dùng và đối chiếu hệ thống hiện có, nhóm rút ra bốn khoảng trống chính.
+Từ khảo sát người dùng, tổng hợp ý kiến cộng đồng và đối chiếu hệ thống hiện có, nhóm rút ra bốn khoảng trống chính.
 
-\textbf{Thứ nhất, quy trình nộp bài vẫn còn nhiều thao tác thủ công.} Gần một nửa mẫu khảo sát chọn "biểu mẫu nhập liệu dài và lặp lại" là vấn đề nổi bật. Trong khi đó, các hệ thống hiện có chủ yếu cung cấp biểu mẫu linh hoạt, nhưng chưa tập trung vào việc tạo quy trình đọc bản thảo và trích xuất metadata nháp cho tác giả. Đây là cơ sở để ConferenceSpace thiết kế quy trình Submission Autofill và kiểm tra sơ bộ trước khi gửi (Submission Gating).
+\textbf{Thứ nhất, quy trình nộp bài vẫn còn nhiều thao tác thủ công.} Gần một nửa mẫu khảo sát chọn "biểu mẫu nhập liệu dài và lặp lại" là vấn đề nổi bật. Từ tổng hợp ý kiến cộng đồng, nhóm cũng nhận thấy metadata, định dạng và lựa chọn chuyên đề là nguồn lỗi tốn kém, trong khi các hệ thống hiện có chủ yếu cung cấp biểu mẫu linh hoạt chứ chưa tập trung vào trích xuất metadata nháp kèm xác nhận của tác giả \cite{ch2ref27,ch2ref28,ch2ref31}. Đây là cơ sở để ConferenceSpace thiết kế quy trình Submission Autofill và kiểm tra sơ bộ trước khi gửi (Submission Gating).
 
-\textbf{Thứ hai, quy trình đối sánh phản biện cần minh bạch và có ràng buộc COI.} TPMS đã cho thấy phân công phản biện có thể được hỗ trợ bằng chấm điểm/xếp hạng, nhưng đây vẫn là bài toán có nhiều ràng buộc như tải phản biện, xung đột lợi ích, chuyên môn theo lĩnh vực và quyết định của Chủ tọa \cite{ch2ref8,ch2ref11}. Vì vậy, ConferenceSpace không sử dụng LLM như cơ chế quyết định phản biện viên. Hệ thống cần thuật toán có thể kiểm chứng và giải thích, điểm phù hợp có thể kiểm tra và cơ chế xác định COI rõ ràng.
+\textbf{Thứ hai, quy trình đối sánh phản biện cần minh bạch và có ràng buộc COI.} TPMS và các hệ thống đối sánh phản biện hiện đại đã cho thấy phân công phản biện có thể được hỗ trợ bằng chấm điểm/xếp hạng và tối ưu ràng buộc, nhưng đây vẫn là bài toán có tải phản biện, xung đột lợi ích, chuyên môn theo lĩnh vực và quyết định của Chủ tọa \cite{ch2ref8,ch2ref11,ch2ref33,ch2ref35}. Vì vậy, ConferenceSpace không sử dụng LLM như cơ chế quyết định phản biện viên. Hệ thống cần thuật toán có thể kiểm chứng và giải thích, điểm phù hợp có thể kiểm tra và cơ chế xác định COI rõ ràng.
 
-\textbf{Thứ ba, COI không thể chỉ dựa vào tự khai báo.} ACM nhấn mạnh rằng một chính sách COI đáng tin cậy không thể chỉ dựa trên việc cá nhân tự xác định xung đột. Nguyên nhân là xung đột có thể tạo ra nghi ngờ về tính khách quan, ngay cả khi những người liên quan tin rằng mình trung thực và minh bạch \cite{ch2ref12}. Từ đó, ConferenceSpace kết hợp khai báo thủ công với kiểm tra quan hệ học thuật bằng dữ liệu bên ngoài và đồ thị đồng tác giả.
+\textbf{Thứ ba, COI không thể chỉ dựa vào tự khai báo.} ACM nhấn mạnh rằng một chính sách COI đáng tin cậy không thể chỉ dựa trên việc cá nhân tự xác định xung đột. Nguyên nhân là xung đột có thể tạo ra nghi ngờ về tính khách quan, ngay cả khi những người liên quan tin rằng mình trung thực và minh bạch \cite{ch2ref12}. Hướng dẫn vận hành và các công cụ audit công khai cũng cho thấy nhiều xung đột vẫn bị bỏ sót nếu chỉ dựa vào khai báo thủ công \cite{ch2ref4,ch2ref38,ch2ref39}. Từ đó, ConferenceSpace kết hợp khai báo thủ công với kiểm tra quan hệ học thuật bằng dữ liệu bên ngoài và đồ thị đồng tác giả.
 
 \textbf{Thứ tư, AI trong bình duyệt học thuật cần cơ chế kiểm soát.} Các hội nghị lớn đang tiếp cận thận trọng đối với việc sử dụng AI/LLM. ICLR 2026 yêu cầu khai báo khi sử dụng LLM và nhấn mạnh rằng người tham gia chịu trách nhiệm cuối cùng đối với nội dung do mình tạo ra \cite{ch2ref15}. ICML 2025 thậm chí cấm phản biện viên sử dụng AI tạo sinh để viết phản biện hoặc đưa nội dung bài nộp/phản biện vào công cụ AI \cite{ch2ref16}. Mặt khác, nghiên cứu Review Feedback Agent tại ICLR 2025 cho thấy phản hồi từ LLM có thể giúp cải thiện tính cụ thể và tính xây dựng của bài phản biện khi AI chỉ phản hồi trên bản phản biện của con người, không thay phản biện viên viết phản biện \cite{ch2ref17,ch2ref18}.
 
@@ -282,7 +340,7 @@ ConferenceSpace được thiết kế nhằm giải quyết trực tiếp bốn 
 \endhead
 \LongTableFooterBorder
 \endfoot
-Nộp bài thủ công, biểu mẫu dài   &   Submission Autofill trích xuất metadata từ bài nộp (PDF) và gợi ý track trong ngữ cảnh hội nghị   &   Đầu ra là bản nháp có thể sửa; tác giả xác nhận trước khi gửi \\ \hline
+Nộp bài thủ công, biểu mẫu dài   &   Submission Autofill trích xuất metadata từ bài nộp (PDF) và gợi ý chuyên đề trong ngữ cảnh hội nghị   &   Đầu ra là bản nháp có thể sửa; tác giả xác nhận trước khi gửi \\ \hline
 Thiếu kiểm tra lỗi sớm      &      Submission Gating kiểm tra điều kiện cơ bản trước khi bài nộp đi vào phản biện      &      Hệ thống cảnh báo hoặc chặn theo chính sách đã cấu hình; không tự động loại bài ngoài các quy tắc được xác định trước \\ \hline
 Đối sánh phản biện và COI khó kiểm soát     &     Thuật toán đối sánh phản biện (reviewer matching) có điểm số, kết hợp COI đa tầng     &     Đối sánh phản biện là lớp thuật toán xác định; Chủ tọa quyết định cuối cùng \\ \hline
 Phản biện viên thiếu hỗ trợ đọc hiểu ban đầu và phải tự ghi chú nhiều điểm cần kiểm tra      &      Reviewer Initial Analysis cung cấp tóm tắt trung lập, điểm cần kiểm tra và căn cứ liên quan      &      AI hỗ trợ định hướng đọc, giảm rà soát thủ công lặp lại, nhưng không thay thế việc đọc và đánh giá chuyên môn \\ \hline
@@ -323,10 +381,10 @@ Mục 2.4 tổng hợp các kết quả khảo sát và phân tích khoảng tr�
 \endhead
 \LongTableFooterBorder
 \endfoot
-F-AUTHOR-01   &   Tác giả có thể tìm và xem thông tin hội nghị, track, hạn chót và CFP.   &   Yêu cầu xuất phát từ nhu cầu theo dõi hạn chót và trạng thái tập trung. \\ \hline
+F-AUTHOR-01   &   Tác giả có thể tìm và xem thông tin hội nghị, chuyên đề (track), hạn chót và CFP.   &   Yêu cầu xuất phát từ nhu cầu theo dõi hạn chót và trạng thái tập trung. \\ \hline
 F-AUTHOR-02      &      Tác giả có thể nộp bài theo quy trình nhiều bước: thông tin bài, tác giả, tệp, COI, xem lại và gửi.      &      Các hệ thống hiện có đều chuẩn hóa vòng đời nộp bài; ConferenceSpace cần bao phủ nghiệp vụ lõi. \\ \hline
 F-AUTHOR-03     &     Hệ thống hỗ trợ tự động điền metadata từ bản thảo PDF, gồm tiêu đề, tóm tắt, tác giả, affiliation, email và keyword khi có thể.     &     Yêu cầu xuất phát từ vấn đề biểu mẫu nhập liệu dài và lặp lại. \\ \hline
-F-AUTHOR-04      &      Hệ thống gợi ý track trong Submission Autofill dựa trên track của hội nghị đang hoạt động và metadata bài nộp.      &      Yêu cầu xuất phát từ nhu cầu giảm thao tác nhập liệu và hỗ trợ tác giả khi chọn track. \\ \hline
+F-AUTHOR-04      &      Hệ thống gợi ý chuyên đề trong Submission Autofill dựa trên chuyên đề của hội nghị đang hoạt động và metadata bài nộp.      &      Yêu cầu xuất phát từ nhu cầu giảm thao tác nhập liệu và hỗ trợ tác giả khi chọn chuyên đề. \\ \hline
 F-AUTHOR-05     &     Hệ thống kiểm tra sơ bộ bài nộp trước khi gửi chính thức và hiển thị lỗi/cảnh báo có thể sửa.     &     Yêu cầu xuất phát từ vấn đề thiếu cơ chế kiểm tra lỗi sớm trước khi nộp bài. \\ \hline
 F-AUTHOR-06      &      Tác giả có thể lưu nháp, chỉnh sửa trước hạn chót, rút bài, xem nhận xét phản biện, gửi phản hồi của tác giả (rebuttal) và nộp camera-ready khi được yêu cầu.      &      Đây là nghiệp vụ hội nghị đầy đủ mà hệ thống cần bao phủ. \\ \hline
 \end{longtable}
@@ -364,7 +422,7 @@ F-REVIEWER-05     &     Hệ thống không được dùng AI để viết phả
 \endhead
 \LongTableFooterBorder
 \endfoot
-F-CHAIR-01   &   Chủ tọa có thể tạo và cấu hình hội nghị, track, hạn chót, biểu mẫu phản biện, hội đồng chương trình và chính sách.   &   Đây là nghiệp vụ lõi của EasyChair/CMT/OpenReview. \\ \hline
+F-CHAIR-01   &   Chủ tọa có thể tạo và cấu hình hội nghị, chuyên đề (track), hạn chót, biểu mẫu phản biện, hội đồng chương trình và chính sách.   &   Đây là nghiệp vụ lõi của EasyChair/CMT/OpenReview. \\ \hline
 F-CHAIR-02      &      Chủ tọa có bảng điều khiển để theo dõi số bài nộp, tiến độ phản biện, hạn chót, xung đột và các việc cần xử lý.      &      Yêu cầu xuất phát từ vấn đề thông báo/hạn chót rời rạc và nhu cầu bảng điều khiển của Chủ tọa. \\ \hline
 F-CHAIR-03     &     Hệ thống gợi ý phản biện viên bằng thuật toán xác định và hiển thị điểm phù hợp, lý do đề xuất cùng các ràng buộc liên quan.     &     Phân công phản biện là tác vụ quan trọng và có ràng buộc về khối lượng công việc phản biện/xung đột lợi ích \cite{ch2ref11}. \\ \hline
 F-CHAIR-04      &      Hệ thống phát hiện COI bằng nhiều lớp: tự khai báo, khai báo thủ công và đồ thị đồng tác giả hoặc dữ liệu học thuật bên ngoài khi phù hợp.      &      COI không nên chỉ dựa vào việc cá nhân tự xác định xung đột \cite{ch2ref12}. Dữ liệu như Semantic Scholar Academic Graph API có thể hỗ trợ làm giàu hồ sơ học thuật, nhưng không thay thế xác nhận của Chủ tọa \cite{ch2ref13}. \\ \hline
@@ -406,21 +464,21 @@ Hiệu năng      &      API nghiệp vụ thông thường cần phản hồi t
 Bảo mật     &     Hệ thống cần hỗ trợ HTTPS/TLS, xác thực, phân quyền theo vai trò, bảo vệ tệp bản thảo và không cung cấp dữ liệu ngoài phạm vi quyền truy cập cho chatbot hoặc các luồng AI. \\ \hline
 Khả năng giải thích      &      Gợi ý phản biện viên, cảnh báo COI và tổng hợp của AI cần hiển thị căn cứ đủ để người dùng kiểm tra. \\ \hline
 Khả năng sử dụng     &     Quy trình cần được tổ chức theo vai trò, có bảng điều khiển trạng thái, thông báo lỗi rõ ràng và cho phép người dùng quay lại để chỉnh sửa trước khi gửi. \\ \hline
-Khả năng mở rộng      &      Thiết kế cần hỗ trợ nhiều hội nghị, nhiều track, số lượng bài nộp/phản biện viên tăng và tích hợp dữ liệu học thuật bên ngoài. \\ \hline
+Khả năng mở rộng      &      Thiết kế cần hỗ trợ nhiều hội nghị, nhiều chuyên đề, số lượng bài nộp/phản biện viên tăng và tích hợp dữ liệu học thuật bên ngoài. \\ \hline
 Khả năng đánh giá     &     Hệ thống cần lưu đầu vào/đầu ra, trạng thái hoàn tất, thời gian xử lý và chỉ số phù hợp của các luồng xử lý quan trọng để đánh giá trong Chương 4. \\ \hline
 \end{longtable}
 \end{PrismLongTable}
 
 \subsection{Nguyên tắc sử dụng AI có trách nhiệm}
 
-Từ khảo sát người dùng và bối cảnh chính sách học thuật hiện nay, nhóm xác định các nguyên tắc bắt buộc khi đưa AI vào ConferenceSpace:
+Từ khảo sát người dùng, tổng hợp ý kiến cộng đồng và bối cảnh chính sách học thuật hiện nay, nhóm xác định các nguyên tắc bắt buộc khi đưa AI vào ConferenceSpace:
 
 \begin{itemize}
-\item \textbf{AI hỗ trợ, không thay thế:} AI không ra quyết định chấp nhận hoặc từ chối bài, không viết phản biện thay phản biện viên, không tự phân công phản biện viên và không tự loại bài ngoài các quy định đã được cấu hình trong hệ thống.
+\item \textbf{AI hỗ trợ, không thay thế:} AI không ra quyết định chấp nhận hoặc từ chối bài, không viết phản biện thay phản biện viên, không tự phân công phản biện viên và không tự loại bài ngoài các quy định đã được cấu hình trong hệ thống \cite{ch2ref44,ch2ref45,ch2ref46}.
 \item \textbf{Con người nắm quyền kiểm soát:} mọi đầu ra có ảnh hưởng đến nộp bài, phản biện hoặc ra quyết định đều cần được người dùng có thẩm quyền xem xét và xác nhận.
 \item \textbf{Minh bạch về nguồn gốc:} hệ thống cần phân biệt rõ dữ liệu do người dùng nhập, dữ liệu được trích xuất từ tệp, dữ liệu lấy từ nguồn học thuật và nhận định do AI tổng hợp.
 \item \textbf{Cho phép con người điều chỉnh hoặc bác bỏ đầu ra:} tác giả có thể sửa phần tự động điền; Chủ tọa có thể ghi đè đề xuất phản biện viên; phản biện viên có thể không sử dụng tóm tắt AI.
-\item \textbf{Bảo mật bản thảo:} mọi luồng AI xử lý nội dung bài nộp phải được thiết kế với giả định rằng bản thảo là dữ liệu nhạy cảm, đặc biệt khi sử dụng dịch vụ mô hình bên ngoài.
+\item \textbf{Bảo mật bản thảo:} mọi luồng AI xử lý nội dung bài nộp phải được thiết kế với giả định rằng bản thảo là dữ liệu nhạy cảm, đặc biệt khi sử dụng dịch vụ mô hình bên ngoài \cite{ch2ref40,ch2ref41,ch2ref42}.
 \item \textbf{Đánh giá theo luồng xử lý:} nhóm không dùng một chỉ số chung cho mọi đầu ra AI; mỗi luồng xử lý phải có tiêu chí riêng và giới hạn diễn giải riêng.
 \end{itemize}
 
@@ -439,7 +497,7 @@ Các nguyên tắc này phù hợp với xu hướng thận trọng của cộng
 \endhead
 \LongTableFooterBorder
 \endfoot
-Biểu mẫu nhập liệu dài và lặp lại   &   Tự động điền thông tin bài nộp, gợi ý track trong Submission Autofill, cho phép chỉnh sửa   &   Luồng nộp bài, dịch vụ AI, cấu trúc biểu mẫu nộp bài   &   Kiểm tra chất lượng tự động điền và mức độ người dùng cần chỉnh sửa trước khi gửi \\ \hline
+Biểu mẫu nhập liệu dài và lặp lại   &   Tự động điền thông tin bài nộp, gợi ý chuyên đề trong Submission Autofill, cho phép chỉnh sửa   &   Luồng nộp bài, dịch vụ AI, cấu trúc biểu mẫu nộp bài   &   Kiểm tra chất lượng tự động điền và mức độ người dùng cần chỉnh sửa trước khi gửi \\ \hline
 Không có kiểm tra lỗi sớm      &      Submission Gating trước khi gửi/chuyển trạng thái      &      Luồng kiểm tra sơ bộ và kiểm tra chính sách      &      Đối chiếu khả năng phát hiện lỗi/cảnh báo với các luật nộp bài đã cấu hình \\ \hline
 Không biết bước tiếp theo     &     Bảng điều khiển, quy trình từng bước, chatbot hỗ trợ thao tác     &     Frontend theo vai trò, thông báo và thành phần `agent query`     &     Khảo sát trải nghiệm theo vai trò và kiểm tra mức độ chatbot bám sát dữ liệu hệ thống \\ \hline
 COI khó phát hiện thủ công      &      COI đa tầng, đồ thị đồng tác giả      &      Neo4j, dữ liệu học thuật bên ngoài, COI detector      &      Kiểm tra các lớp phát hiện COI và phân tích những trường hợp hệ thống chưa phát hiện được \\ \hline

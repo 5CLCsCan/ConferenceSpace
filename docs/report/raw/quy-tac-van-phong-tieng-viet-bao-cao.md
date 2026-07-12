@@ -595,7 +595,7 @@ Dùng bảng 1 hàng hoặc block như sau:
 | P18 | _trong bộ nhớ chương trình_ (lặp sau micro-benchmark)         | **trong chương trình** + vẫn nêu _không bao gồm HTTP, cơ sở dữ liệu và mạng_                         | Tránh tautology _bộ nhớ … trong bộ nhớ_         |
 | P19 | _có khả năng giải thích_ (câu hỏi/tiêu chí)                   | **có thể giải thích** (khi nói gợi ý/cơ chế); giữ _khả năng giải thích_ khi là NFR danh từ           | Đồng bộ với _có thể tái tạo_                    |
 | P20 | _vs_ / _đáng kể_ trong nhận xét số liệu                       | **so với** / **rõ rệt**                                                                              | Bớt EN lẻ và khẩu ngữ                           |
-| P21 | _Submission Gating quy trình kiểm soát nội dung_              | **tuyến điều hướng nội dung của Submission Gating**                                                  | Chủ thể rõ, tránh dính danh từ                  |
+| P21 | _Submission Gating quy trình kiểm soát nội dung_ / _điều hướng nội dung_ | **tuyến cảnh báo nội dung của Submission Gating** / **cảnh báo nội dung** (superseded: không _điều hướng nội dung_ — calque content steering) | Content steering = cảnh báo mềm, không “điều hướng” |
 | P22 | _Hai tập… được phân tích độc lập hoặc hai chỉ số…_            | **Hai nhóm chỉ số được đo trên các tập mẫu riêng biệt**                                              | Câu gãy do replace; viết lại theo nghĩa         |
 | P23 | _Kết luận bảo vệ được_ / _sản phẩm hoàn chỉnh_                | **Kết luận trong phạm vi bằng chứng hiện tại** / **ổn định ở mức có thể triển khai rộng**           | Bớt biện hộ + calque product                    |
 | P24 | _đường ống xử lý_ (khi đã dùng _luồng_)                       | **luồng** / **luồng riêng**                                                                          | Thống nhất pipeline trong cùng chương           |
@@ -614,6 +614,52 @@ Dùng bảng 1 hàng hoặc block như sau:
 | P37 | _mức độ… được đo thông qua_ / _; cần mở rộng…_ / _cho thấy cần cải thiện_ | **chương này đo mức độ…** / **nhóm cần mở rộng…** / **nhóm/hệ thống cần cải thiện…**         | Chủ ngữ tường minh cho _cần_ / bị động đo       |
 | P38 | _không được đẩy thành phán quyết_                             | **không được dùng để đẩy thành phán quyết tự động**                                                  | Bị động có mục đích rõ                          |
 | P39 | _API, cơ sở dữ liệu và cơ sở dữ liệu đồ thị_                  | **API, cơ sở dữ liệu quan hệ và cơ sở dữ liệu đồ thị**                                               | Tránh lặp “cơ sở dữ liệu” không phân loại       |
+| P40 | _tỷ lệ thoái lui_ / _fallback rate_                           | **tỷ lệ chuyển sang phân công ngẫu nhiên** (user chốt 2026-07-13)                                    | Không calque _fallback/thoái lui_               |
+| P41 | _báo cáo Markdown/CSV ngoại tuyến_ / _chạy ngoại tuyến_       | **báo cáo Markdown/CSV**; **chạy trên bản sao lưu dữ liệu (snapshot) cục bộ, không gọi API lúc đánh giá** | Offline ≠ “ngoại tuyến” trong prose đánh giá |
+| P42 | _leave-one-out theo quyền tác giả_                            | **leave-one-out theo tác giả**                                                                       | Không _quyền_ (author-holdout ≠ author right)   |
+| P43 | _độ hồi tưởng luật_ / _recall luật_                           | **tỷ lệ nhận đúng mã luật**                                                                          | Recall metric → nhận đúng mã, không “hồi tưởng” |
+| P44 | _chặn nhầm_ / _false block_                                   | **chặn sai**                                                                                         | Ngắn, rõ hơn “nhầm”                             |
+| P45 | _điều hướng nội dung_ / _content steering_                    | **cảnh báo nội dung** (cùng họ P21/P26)                                                              | Soft warning, không “điều hướng”                |
+| P46 | _khả năng thu hồi rộng hơn_ (recall rộng)                     | **khả năng phủ rộng hơn**                                                                            | Không “thu hồi” cho retrieval recall            |
+| P47 | _ràng buộc đạo đức_ (khi nói COI)                             | **ràng buộc xung đột lợi ích**                                                                       | COI ≠ ethics generic                            |
+| P48 | _throughput_ (prose)                                          | **thông lượng**                                                                                      | Giữ EN chỉ trong log/code nếu cần               |
+| P49 | _đầu-cuối_ / _end-to-end_ (prose đo)                          | **xuyên suốt từ đầu đến cuối**                                                                       | Tránh gạch nối calque                           |
+| P50 | _Load StdDev_ / _Load Gini_ (prose/bảng)                      | **độ lệch chuẩn tải** / **hệ số Gini tải**                                                           | Việt hóa chỉ số trong bảng                      |
+| P51 | _MRR (hạng nghịch đảo…)_ / _nDCG (độ lợi tích lũy…)_          | **MRR (Mean Reciprocal Rank)** / **nDCG (normalized Discounted Cumulative Gain)** + giải thích VN ngắn | Giữ tên metric EN chuẩn, gloss đầy đủ        |
+| P52 | _gán lần lượt_ / _chỉ số nội tại_ (assignment)                | **gán tuần tự** / **chỉ số nội tại của phân công**                                                   | Round-robin + intrinsic metrics                 |
+| P53 | _chủ đề hạt giống_ / _láng giềng gần_ / _bất bình đẳng_ (Gini) | **chủ đề khởi tạo (seed)** / **lân cận xấp xỉ (ANN)** / **mức chênh lệch tải**                      | Bớt calque seed/neighbor/inequality             |
+| P54 | _dispatcher-worker_ / _Worker GPU_ / _JSON summary_           | **điều phối--xử lý (dispatcher-worker)** / **máy worker GPU** / **bản tóm tắt JSON**                 | Gloss EN khi cần kỹ thuật                       |
+| P55 | _track_ (prose gợi ý chuyên đề)                               | **chuyên đề** (giữ EN trong tên track hội nghị, vd. Short Paper Track)                               | Cùng họ O19/product track                       |
+| P56 | _metareview_ (prose)                                          | **metareview (nhận xét tổng hợp)** lần đầu/cột mốc; sau đó _metareview_ được                        | Giữ thuật ngữ lĩnh vực + gloss                  |
+
+### S. Phụ lục danh mục thuật ngữ (2026-07-13)
+
+| ID  | Trước / lỗi glossary                                              | Sau / quy tắc chốt                                                                 | Ghi chú |
+| --- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------- |
+| S1  | Mục không xuất hiện Ch1–5 (AI-native, DTO, Guardrail, …)          | **Xóa** khỏi `danh-muc-thuat-ngu.tex`                                              | Chỉ giữ thuật ngữ load-bearing |
+| S2  | Reviewer = _Người phản biện_                                      | **phản biện viên** + tách sản phẩm **nhận xét / bản phản biện**                    | Đồng bộ Ch1–5 |
+| S3  | Chair = _Chủ tọa / người điều phối_                               | **Chủ tọa (Chair)** / **Chủ tọa/Đồng chủ tọa**                                     | Bỏ “người điều phối” loãng |
+| S4  | Contract = _Hợp đồng dữ liệu_                                       | **ràng buộc dữ liệu (data contract)** / **chuẩn đầu ra**                           | Cấm calque hợp đồng |
+| S5  | TCA = Truthfulness-Coverage-Additionality                         | **TCA (Textual Claim-based Assessment)** + giải thích 3 trục                       | Không ghép sai tên |
+| S6  | Proxy = _Chỉ báo thay thế_; Load StdDev/Gini EN                   | **chỉ số gián tiếp (proxy)**; **độ lệch chuẩn tải** / **hệ số Gini tải**           | P5, P50 |
+| S7  | Permission safety / Stream duration / Fallback rate (nhãn EN ảo)  | **khả năng tuân thủ quyền truy cập** / **thời lượng luồng phản hồi** / **tỷ lệ chuyển sang phân công ngẫu nhiên** | Đặt tên theo prose báo cáo |
+| S8  | Product workflows rời rạc nhiều hàng                              | **Một mục “Sáu luồng AI chính”** giữ tên EN + gloss VN ngắn                        | Tránh phình glossary |
+| S9  | Thiếu HITL, agent, Area Chair, snapshot, deterministic            | **Thêm** theo cụm đã chốt cheat sheet                                              | Load-bearing Ch1/3/5 |
+
+### T. Chương 2 — Tổng hợp ý kiến cộng đồng (user chốt 2026-07-13)
+
+| ID  | Trước                                                          | Sau                                                                 | Ghi chú |
+| --- | -------------------------------------------------------------- | ------------------------------------------------------------------- | ------- |
+| T1  | _tiếng nói cộng đồng_ / _tổng hợp tiếng nói cộng đồng_         | **tổng hợp ý kiến cộng đồng**                                       | User chốt; tránh ẩn dụ “tiếng nói” |
+| T2  | _tổng hợp cộng đồng_ (rút gọn mơ)                              | **tổng hợp ý kiến cộng đồng**                                       | Giữ danh từ trung tâm “ý kiến” |
+| T3  | _nghiên cứu ý kiến cộng đồng_ (khi chỉ secondary synthesis)   | **tổng hợp ý kiến cộng đồng** (hoặc _tổng hợp thứ cấp ý kiến…_)     | Tránh overclaim nghiên cứu sơ cấp |
+| T4  | _FAQ vendor_                                                   | **câu hỏi thường gặp của nhà cung cấp hệ thống** / **FAQ của hệ thống** | Bớt jargon EN trong prose |
+| T5  | _hướng dẫn Chair của HotCRP_                                   | **hướng dẫn dành cho Chủ tọa của HotCRP**                           | Chair → Chủ tọa (đã chốt) |
+| T6  | _vòng kiểm soát_ (HITL trong bảng Ch2)                         | **sự can thiệp của con người (human-in-the-loop)** / **quyền kiểm soát của con người** | Q17; không “vòng kiểm soát” |
+| T7  | _CMS hiện có_ / _matching/COI_ (prose)                         | **hệ thống quản lý hội nghị hiện có** / **đối sánh phản biện và COI** | Việt hóa khi không cần acronym |
+| T8  | _desk-reject_ / _autofill metadata_ / _điểm số matching_ (prose) | **loại bài sớm** / **tự động điền metadata** / **điểm phù hợp khi đối sánh** | Product EN Submission Autofill giữ ở tên luồng |
+| T9  | _track/chuyên đề_ (lặp kép)                                    | **chuyên đề (track)** lần đầu; sau **chuyên đề**                    | P55 |
+| T10 | _Tổng hợp … cho phép nhóm củng cố_                             | **Từ tổng hợp …, nhóm củng cố…**                                    | R10 — chủ thể nhóm làm hành động |
 
 ### Q. Chương 5 — Kết luận (user review 2026-07-13)
 
@@ -708,6 +754,9 @@ Dùng cho mọi đoạn được chạm. **FAIL bất kỳ mục nào → sửa 
 | 40  | Submission Gating “finding”: đã dùng **cảnh báo nội dung** (không _từng phát hiện_ trần)?                         | Có (P26, P31)                                                                        |
 | 41  | _đầu ra vận hành được_ / _dùng không kiểm tra_ / _vòng kiểm soát HITL_: đã thay cụm chốt?                         | Có (P30, P35, P36)                                                                   |
 | 42  | Câu nhận xét số liệu thiếu chủ ngữ (_Không ghi nhận…_, _Cùng thử nghiệm đã chạy…_): đã neo *thử nghiệm/nhóm*?     | Có (P32)                                                                             |
+| 43  | Fallback/offline/recall/content steering: đã dùng cụm chốt P40–P46 (không _thoái lui_ / _ngoại tuyến_ / _hồi tưởng_ / _điều hướng_)? | Có (P40–P46)                                                              |
+| 44  | Chỉ số ranking/assignment: MRR/nDCG giữ EN + gloss; Load StdDev/Gini Việt hóa; leave-one-out **theo tác giả**?   | Có (P42, P50–P51)                                                                    |
+| 45  | _track_ prose → **chuyên đề**; _metareview_ → gloss **nhận xét tổng hợp** khi lần đầu/cột mốc?                   | Có (P55–P56)                                                                         |
 
 ---
 
@@ -807,6 +856,34 @@ Nếu hệ thống được…, nó cần…  (mệnh đề Nếu có chủ ng�
 nhóm cần bổ sung…  (không: Ở lớp…, cần bổ sung — Q31)
 nếu có doanh thu thì doanh thu đó nên…  (Q32)
 không phải là việc A, mà là việc B  (Q35)
+
+tỷ lệ chuyển sang phân công ngẫu nhiên  (không: tỷ lệ thoái lui — P40)
+chạy trên bản sao lưu dữ liệu (snapshot) cục bộ, không gọi API lúc đánh giá  (không: chạy ngoại tuyến — P41)
+báo cáo Markdown/CSV  (không: …ngoại tuyến — P41)
+leave-one-out theo tác giả  (không: theo quyền tác giả — P42)
+tỷ lệ nhận đúng mã luật  (không: độ hồi tưởng luật — P43)
+chặn sai  (không: chặn nhầm — P44)
+cảnh báo nội dung  (không: điều hướng nội dung / content steering — P45)
+khả năng phủ rộng hơn  (không: khả năng thu hồi rộng hơn — P46)
+ràng buộc xung đột lợi ích  (không: ràng buộc đạo đức khi nói COI — P47)
+thông lượng  (không: throughput trong prose — P48)
+xuyên suốt từ đầu đến cuối  (không: đầu-cuối — P49)
+độ lệch chuẩn tải / hệ số Gini tải  (không: Load StdDev / Load Gini — P50)
+MRR (Mean Reciprocal Rank) / nDCG (normalized Discounted Cumulative Gain)  (P51)
+gán tuần tự / chỉ số nội tại của phân công  (P52)
+chủ đề khởi tạo (seed) / lân cận xấp xỉ (ANN) / mức chênh lệch tải  (P53)
+điều phối--xử lý (dispatcher-worker) / máy worker GPU / bản tóm tắt JSON  (P54)
+chuyên đề  (không: track trong prose gợi ý — P55)
+metareview (nhận xét tổng hợp)  (P56)
+tổng hợp ý kiến cộng đồng  (không: tiếng nói cộng đồng / tổng hợp cộng đồng / nghiên cứu ý kiến cộng đồng khi chỉ secondary — T1–T3)
+hướng dẫn dành cho Chủ tọa  (không: hướng dẫn Chair — T5)
+hệ thống quản lý hội nghị hiện có  (không: CMS hiện có trong prose — T7)
+loại bài sớm / tự động điền metadata / điểm phù hợp khi đối sánh  (không: desk-reject / autofill / điểm số matching trần — T8)
+
+glossary phụ lục: chỉ mục xuất hiện Ch1–5; cột 2 bám cụm chốt; không invent nhãn EN ảo (S1–S9)
+TCA = Textual Claim-based Assessment  (không: Truthfulness-Coverage-Additionality — S5)
+ràng buộc dữ liệu (data contract) / chuẩn đầu ra  (không: hợp đồng — S4)
+tỷ lệ chuyển sang phân công ngẫu nhiên  (cột chính glossary; tỷ lệ thoái lui chỉ phụ — S7/P40)
 ```
 
 ---
@@ -824,4 +901,4 @@ Không xóa quy tắc / ví dụ cũ nếu vẫn còn xuất hiện trong bản 
 
 **Thứ tự ưu tiên khi mâu thuẫn:** câu user chốt mới nhất > cụm trong mục 5/9 > ví dụ cũ trong mục 7 > thói quen diễn đạt của model.
 
-**Nhắc session sau (Ch1–Ch5 đã chốt):** reviewer = **phản biện viên** (không _Người phản biện_; không bắt buộc gloss EN; viết hoa chỉ đầu mục/caption); Chair = **Chủ tọa** / **Chủ tọa/Đồng chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; _đảm bảo_; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng** (hoặc _cố định và có thể kiểm chứng_ trong list `;`); tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh _nhận thức_ cho UX theo dõi (N4); product EN **Submission Autofill** / **Reviewer Initial Analysis** / **Chair Decision Copilot** giữ; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30); Ch2 chủ–vị (nhóm R): *nhóm thực hiện khảo sát*; *hệ thống cần…*; *yêu cầu xuất phát từ…*; *hệ thống không được dùng AI…*; *nhóm không dùng một chỉ số…*; bullet/ô bảng phải có chủ ngữ tường minh; Ch3: **giữ plugin** (O3); prose **thông báo / chuỗi thảo luận / tin nhắn / bài nộp / bản nháp / phân công / ban chương trình** (O17–O20); chủ–vị: *Hệ thống/Nhóm/Báo cáo + động từ* (O21); **giữ gloss (data contract)** khi bổ nghĩa (O5); _hợp đồng API_ → **đặc tả API** (O6); product EN *Submission Autofill* giữ; Ch4: micro-benchmark = **thời gian xử lý và mức sử dụng bộ nhớ, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng** (P2, không viết tắt CSDL); snapshot = **bản sao lưu dữ liệu (snapshot)** (P3); proxy = **chỉ số gián tiếp (proxy)** (P5); **phản hồi tức thời** (P4); **tác nhân (agent)** (P6); _hợp đồng đầu ra_ / _tất định_ → cụm mục 5; contract testing = **kiểm thử theo chuẩn đầu ra (contract testing)** (P1); **đọc câu theo ngữ cảnh** — không bulk-replace cứng (P17/P22); TCA = **đánh giá** khi ngữ cảnh đã rõ; _production_ = **đang dùng**; _vs/đáng kể_ → **so với/rõ rệt**; finding Gating = **cảnh báo nội dung** (P26/P31, không _từng phát hiện_); _vận hành được_ → **dùng được trong vận hành** (P30); chủ–vị: **Kết luận của chương…**, **Thử nghiệm/Nhóm…**, **hệ thống/nhóm cần…** (P29–P39); Ch5: human-in-the-loop = **sự can thiệp của con người (human-in-the-loop)**; ReAct = **ReAct (Reasoning and Acting)** một lớp EN; quyết định = **cơ sở thông tin** không _cơ sở dữ liệu_; _kết luận có cơ sở_ không _bảo vệ được_; bidding = **đăng ký/chọn bài phản biện (bidding)**.
+**Nhắc session sau (Ch1–Ch5 đã chốt):** Ch2 secondary evidence = **tổng hợp ý kiến cộng đồng** (T1–T3; không _tiếng nói_ / không overclaim _nghiên cứu_ khi chỉ forum-policy); reviewer = **phản biện viên** (không _Người phản biện_; không bắt buộc gloss EN; viết hoa chỉ đầu mục/caption); Chair = **Chủ tọa** / **Chủ tọa/Đồng chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; _đảm bảo_; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng** (hoặc _cố định và có thể kiểm chứng_ trong list `;`); tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh _nhận thức_ cho UX theo dõi (N4); product EN **Submission Autofill** / **Reviewer Initial Analysis** / **Chair Decision Copilot** giữ; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30); Ch2 chủ–vị (nhóm R): *nhóm thực hiện khảo sát*; *hệ thống cần…*; *yêu cầu xuất phát từ…*; *hệ thống không được dùng AI…*; *nhóm không dùng một chỉ số…*; bullet/ô bảng phải có chủ ngữ tường minh; Ch3: **giữ plugin** (O3); prose **thông báo / chuỗi thảo luận / tin nhắn / bài nộp / bản nháp / phân công / ban chương trình** (O17–O20); chủ–vị: *Hệ thống/Nhóm/Báo cáo + động từ* (O21); **giữ gloss (data contract)** khi bổ nghĩa (O5); _hợp đồng API_ → **đặc tả API** (O6); product EN *Submission Autofill* giữ; Ch4: micro-benchmark = **thời gian xử lý và mức sử dụng bộ nhớ, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng** (P2, không viết tắt CSDL); snapshot = **bản sao lưu dữ liệu (snapshot)** (P3); proxy = **chỉ số gián tiếp (proxy)** (P5); **phản hồi tức thời** (P4); **tác nhân (agent)** (P6); _hợp đồng đầu ra_ / _tất định_ → cụm mục 5; contract testing = **kiểm thử theo chuẩn đầu ra (contract testing)** (P1); **đọc câu theo ngữ cảnh** — không bulk-replace cứng (P17/P22); TCA = **đánh giá** khi ngữ cảnh đã rõ; _production_ = **đang dùng**; _vs/đáng kể_ → **so với/rõ rệt**; finding Gating = **cảnh báo nội dung** (P26/P31/P45, không _từng phát hiện_ / _điều hướng nội dung_); _vận hành được_ → **dùng được trong vận hành** (P30); chủ–vị: **Kết luận của chương…**, **Thử nghiệm/Nhóm…**, **hệ thống/nhóm cần…** (P29–P39); fallback = **tỷ lệ chuyển sang phân công ngẫu nhiên** (P40, user chốt); offline = **chạy cục bộ / không gọi API lúc đánh giá**, không _ngoại tuyến_ (P41); leave-one-out **theo tác giả** (P42); recall luật = **tỷ lệ nhận đúng mã luật** (P43); chặn sai (P44); _track_ prose = **chuyên đề** (P55); _metareview_ + gloss **nhận xét tổng hợp** (P56); Ch5: human-in-the-loop = **sự can thiệp của con người (human-in-the-loop)**; ReAct = **ReAct (Reasoning and Acting)** một lớp EN; quyết định = **cơ sở thông tin** không _cơ sở dữ liệu_; _kết luận có cơ sở_ không _bảo vệ được_; bidding = **đăng ký/chọn bài phản biện (bidding)**; phụ lục glossary: chỉ giữ thuật ngữ load-bearing Ch1–5, TCA đúng **Textual Claim-based Assessment**, không calque _hợp đồng_, metric đặt tên theo prose VN đã chốt (S1–S9).
