@@ -1,15 +1,15 @@
 \chapter{Xây dựng hệ thống}
 \label{Chapter3}
 
-Chương 1 đã xác định bài toán trung tâm của đề tài là xây dựng một nền tảng quản lý quy trình xét duyệt bài báo có khả năng tích hợp AI, đồng thời vẫn bảo toàn trách nhiệm học thuật của con người. Chương 2 tiếp tục chuyển bài toán đó thành các nhu cầu cụ thể: giảm thao tác thủ công cho tác giả, hỗ trợ phản biện viên đọc và kiểm tra bài hiệu quả hơn, đồng thời giúp Chủ tọa kiểm soát tiến độ, phân công, xung đột lợi ích và tổng hợp bằng chứng phục vụ quyết định. Vì vậy, Chương 3 không chỉ mô tả các chức năng đã được xây dựng, mà còn giải thích cách các quyết định thiết kế đáp ứng trực tiếp những vấn đề đã đặt ra.
+Chương 1 đã xác định bài toán trung tâm của đề tài là xây dựng một nền tảng quản lý quy trình xét duyệt bài báo có khả năng tích hợp AI, đồng thời vẫn bảo toàn trách nhiệm học thuật của con người. Chương 2 tiếp tục chuyển bài toán đó thành các nhu cầu cụ thể: giảm thao tác thủ công cho tác giả, hỗ trợ phản biện viên đọc và kiểm tra bài hiệu quả hơn, đồng thời giúp Chủ tọa kiểm soát tiến độ, phân công, xung đột lợi ích và tổng hợp bằng chứng phục vụ quyết định. Vì vậy, Chương 3 không chỉ mô tả các chức năng nhóm đã xây dựng, mà còn giải thích cách các quyết định thiết kế đáp ứng trực tiếp những vấn đề đã đặt ra.
 
-Nguyên tắc xuyên suốt của ConferenceSpace là \textbf{tách rõ ba lớp trách nhiệm}: nghiệp vụ cốt lõi; thuật toán cố định và có thể kiểm chứng; AI hỗ trợ. Lớp nghiệp vụ chịu trách nhiệm về vòng đời hội nghị và quyền truy cập. Lớp thuật toán xác định xử lý các tác vụ ảnh hưởng đến tính công bằng của quy trình, đặc biệt là đối sánh phản biện và phát hiện xung đột lợi ích; các kết quả này cần nhất quán, có thể giải thích và có thể kiểm tra lại. Lớp AI chỉ tham gia vào các tác vụ trích xuất, rà soát, tóm tắt và tổng hợp; đầu ra luôn là bằng chứng hoặc gợi ý để con người kiểm tra. Cách phân lớp này nhằm giải quyết mối quan ngại chính của đề tài: AI có thể hỗ trợ giảm khối lượng công việc, nhưng không được trở thành chủ thể ra quyết định học thuật.
+Nguyên tắc xuyên suốt của ConferenceSpace là \textbf{tách rõ ba lớp trách nhiệm}: nghiệp vụ cốt lõi; thuật toán cố định và có thể kiểm chứng; AI hỗ trợ. Lớp nghiệp vụ chịu trách nhiệm về vòng đời hội nghị và quyền truy cập. Lớp thuật toán xác định xử lý các tác vụ ảnh hưởng đến tính công bằng của quy trình, đặc biệt là đối sánh phản biện và phát hiện xung đột lợi ích; các kết quả của lớp này phải nhất quán, có thể giải thích và có thể kiểm tra lại. Lớp AI chỉ tham gia vào các tác vụ trích xuất, rà soát, tóm tắt và tổng hợp; đầu ra luôn là bằng chứng hoặc gợi ý để con người kiểm tra. Cách phân lớp này nhằm giải quyết mối quan ngại chính của đề tài: AI có thể hỗ trợ giảm khối lượng công việc, nhưng không được trở thành chủ thể ra quyết định học thuật.
 
 \section{Tổng quan hệ thống}
 
 ConferenceSpace là nền tảng web phục vụ toàn bộ vòng đời xét duyệt bài báo trong hội nghị khoa học: tạo và cấu hình hội nghị, mở nhận bài, nộp bản thảo, kiểm tra sơ bộ, phân công phản biện, thu thập đánh giá, phản hồi của tác giả, tổng hợp phản biện và ra quyết định. Hệ thống phục vụ ba nhóm người dùng chính: \textbf{Tác giả}, \textbf{Phản biện viên}, và \textbf{Chủ tọa/Đồng chủ tọa}. Ngoài ra, hệ thống còn có các tác nhân hỗ trợ như quản trị hệ thống, AI service và các tác vụ nền.
 
-ConferenceSpace không tích hợp AI như các plugin độc lập, mà đặt các luồng xử lý AI vào những điểm nghẽn của quy trình đã được xác định ở Chương 2. Các luồng xử lý này gồm Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent. Phần định nghĩa chi tiết được trình bày tập trung ở Mục 3.5.2 nhằm tránh lặp lại trong từng use case.
+ConferenceSpace không tích hợp AI như các plugin độc lập, mà đặt các luồng xử lý AI vào những điểm nghẽn của quy trình đã được xác định ở Chương 2. Các luồng xử lý này gồm Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent. Báo cáo trình bày phần định nghĩa chi tiết tập trung ở Mục 3.5.2 nhằm tránh lặp lại trong từng use case.
 
 \subsection{Mô hình phân lớp của hệ thống}
 \tikzset{
@@ -149,9 +149,9 @@ ConferenceSpace không tích hợp AI như các plugin độc lập, mà đặt 
 
 Lớp nghiệp vụ cốt lõi do backend Go đảm nhiệm. Đây là lớp xử lý các trạng thái quan trọng của hệ thống: hội nghị, track, bài nộp, phân công, phản biện, phản hồi của tác giả, quyết định và quyền truy cập. Lớp này phải hoạt động ổn định ngay cả khi dịch vụ AI không khả dụng, vì vòng đời hội nghị không thể phụ thuộc hoàn toàn vào mô hình bên ngoài.
 
-Lớp thuật toán xác định xử lý đối sánh phản biện và phát hiện xung đột lợi ích. Đây là các tác vụ ảnh hưởng trực tiếp đến tính công bằng của quy trình xét duyệt, nên kết quả phải nhất quán, có thể giải thích và có thể kiểm tra lại. ConferenceSpace dùng điểm tương đồng Domain Jaccard để tính mức phù hợp giữa bài nộp và phản biện viên, đồng thời loại bỏ các cặp có xung đột lợi ích trước khi gợi ý phân công. Chủ tọa vẫn có quyền xem, điều chỉnh và xác nhận kết quả cuối cùng.
+Lớp thuật toán xác định xử lý đối sánh phản biện và phát hiện xung đột lợi ích. Đây là các tác vụ ảnh hưởng trực tiếp đến tính công bằng của quy trình xét duyệt, nên kết quả thuật toán phải nhất quán, có thể giải thích và có thể kiểm tra lại. ConferenceSpace dùng điểm tương đồng Domain Jaccard để tính mức phù hợp giữa bài nộp và phản biện viên, đồng thời loại bỏ các cặp có xung đột lợi ích trước khi gợi ý phân công. Chủ tọa vẫn có quyền xem, điều chỉnh và xác nhận kết quả cuối cùng.
 
-Lớp AI được tách khỏi luồng nghiệp vụ chính để lỗi hoặc độ trễ của mô hình không làm gián đoạn các thao tác bắt buộc của hội nghị. Dịch vụ này chỉ xử lý các tác vụ hỗ trợ như đọc hiểu tài liệu, trích xuất metadata, tổng hợp nội dung và kiểm tra chất lượng văn bản. Các tác vụ sử dụng LLM trong hệ thống đều dùng \texttt{gemini-3.1-flash-lite} thông qua OpenRouter hoặc model router tương thích OpenAI API của nhóm. Tuy nhiên, các tác vụ này cùng tuân thủ một nguyên tắc: đầu ra chỉ là bằng chứng hoặc gợi ý để người dùng kiểm tra, không phải quyết định cuối cùng.
+Nhóm tách lớp AI khỏi luồng nghiệp vụ chính để lỗi hoặc độ trễ của mô hình không làm gián đoạn các thao tác bắt buộc của hội nghị. Dịch vụ này chỉ xử lý các tác vụ hỗ trợ như đọc hiểu tài liệu, trích xuất metadata, tổng hợp nội dung và kiểm tra chất lượng văn bản. Các tác vụ sử dụng LLM trong hệ thống đều dùng \texttt{gemini-3.1-flash-lite} thông qua OpenRouter hoặc model router tương thích OpenAI API của nhóm. Tuy nhiên, các tác vụ này cùng tuân thủ một nguyên tắc: đầu ra chỉ là bằng chứng hoặc gợi ý để người dùng kiểm tra, không phải quyết định cuối cùng.
 
 \subsection{Nguyên tắc thiết kế hệ thống}
 
@@ -165,13 +165,13 @@ Từ các yêu cầu ở Chương 2, nhóm xác định năm nguyên tắc thi�
 
 \textbf{Thứ tư, suy giảm chức năng có kiểm soát.} Khi dịch vụ AI, Semantic Scholar hoặc Neo4j không khả dụng, hệ thống vẫn phải giữ được các luồng nghiệp vụ chính. Người dùng có thể nhập thủ công, Chủ tọa có thể phân công thủ công, và lỗi AI được trả về như lỗi có kiểm soát.
 
-\textbf{Thứ năm, thuận lợi cho kiểm tra và đánh giá.} Các luồng xử lý quan trọng cần lưu trạng thái, thời gian xử lý, dấu vết dữ liệu hoặc kết quả trung gian đủ để đánh giá ở Chương 4. Điều này đặc biệt quan trọng với AI, vì chất lượng đầu ra chỉ có thể được bảo vệ khi có dữ liệu để kiểm chứng.
+\textbf{Thứ năm, thuận lợi cho kiểm tra và đánh giá.} Các luồng xử lý quan trọng cần lưu trạng thái, thời gian xử lý, dấu vết dữ liệu hoặc kết quả trung gian đủ để đánh giá ở Chương 4. Điều này đặc biệt quan trọng với AI, vì chất lượng đầu ra chỉ kiểm soát được khi có dữ liệu để kiểm chứng.
 
 \subsection{Lựa chọn công nghệ ở mức tổng quan}
 
-Các công nghệ trong ConferenceSpace được chọn để phục vụ kiến trúc có ranh giới rõ, không phải để liệt kê công nghệ một cách rời rạc. Frontend dùng Next.js App Router, React và TypeScript vì giao diện phải tổ chức nhiều không gian làm việc theo vai trò, nhiều biểu mẫu có trạng thái phức tạp và nhiều đặc tả API cần được kiểm soát sớm \cite{ch3ref1,ch3ref2,ch3ref3}. Backend dùng Go và Gin vì lớp nghiệp vụ cần hiệu năng tốt, xử lý đồng thời gọn cho các tác vụ vào/ra, định tuyến rõ và triển khai thành tệp thực thi đơn giản \cite{ch3ref6,ch3ref7}.
+Nhóm chọn các công nghệ trong ConferenceSpace để phục vụ kiến trúc có ranh giới rõ, không phải để liệt kê công nghệ một cách rời rạc. Frontend dùng Next.js App Router, React và TypeScript vì giao diện phải tổ chức nhiều không gian làm việc theo vai trò, nhiều biểu mẫu có trạng thái phức tạp và nhiều đặc tả API cần được kiểm soát sớm \cite{ch3ref1,ch3ref2,ch3ref3}. Backend dùng Go và Gin vì lớp nghiệp vụ cần hiệu năng tốt, xử lý đồng thời gọn cho các tác vụ vào/ra, định tuyến rõ và triển khai thành tệp thực thi đơn giản \cite{ch3ref6,ch3ref7}.
 
-PostgreSQL là nguồn dữ liệu nghiệp vụ chính vì dữ liệu hội nghị có quan hệ và ràng buộc giao dịch rõ. JSONB được dùng cho các kết quả trung gian hoặc cấu hình bán cấu trúc, nhưng không thay thế mô hình quan hệ cốt lõi \cite{ch3ref8}. Neo4j được dùng cho bài toán xung đột lợi ích dạng đồ thị, nơi cần truy vấn đường đi đồng tác giả nhiều bậc \cite{ch3ref9}. Redis giữ bộ nhớ đệm, phiên làm việc và trạng thái chạy ngắn hạn \cite{ch3ref10}. AI service dùng FastAPI/Pydantic vì luồng AI cần endpoint bất đồng bộ, kiểm tra lược đồ dữ liệu và đặc tả OpenAPI rõ \cite{ch3ref12,ch3ref13}.
+PostgreSQL là nguồn dữ liệu nghiệp vụ chính vì dữ liệu hội nghị có quan hệ và ràng buộc giao dịch rõ. Hệ thống dùng JSONB cho các kết quả trung gian hoặc cấu hình bán cấu trúc, nhưng không thay thế mô hình quan hệ cốt lõi \cite{ch3ref8}. Hệ thống dùng Neo4j cho bài toán xung đột lợi ích dạng đồ thị, nơi cần truy vấn đường đi đồng tác giả nhiều bậc \cite{ch3ref9}. Redis giữ bộ nhớ đệm, phiên làm việc và trạng thái chạy ngắn hạn \cite{ch3ref10}. AI service dùng FastAPI/Pydantic vì luồng AI cần endpoint bất đồng bộ, kiểm tra lược đồ dữ liệu và đặc tả OpenAPI rõ \cite{ch3ref12,ch3ref13}.
 
 Ở lớp vận hành, Docker Compose mô tả cấu trúc triển khai production gồm nhiều service; Caddy đóng vai trò reverse proxy và hỗ trợ HTTPS tự động; GitHub Actions build và đẩy container image lên GitHub Container Registry trước khi triển khai lên VPS \cite{ch3ref17,ch3ref18,ch3ref19,ch3ref20,ch3ref21}. Các lựa chọn này giúp quá trình triển khai có thể lặp lại, không phụ thuộc vào môi trường cục bộ của từng thành viên trong nhóm.
 
@@ -189,7 +189,7 @@ ConferenceSpace phục vụ ba tác nhân nghiệp vụ chính tương ứng v�
 
 Ngoài ba tác nhân chính, hệ thống còn có \textbf{tác nhân hỗ trợ}. Quản trị hệ thống thực hiện các thao tác vận hành có xác thực riêng; AI service xử lý các tác vụ hỗ trợ và chỉ truy vấn dữ liệu qua ranh giới được kiểm soát; các tác vụ nền xử lý trạng thái quá hạn hoặc đồng bộ dữ liệu. Thành viên ban chương trình có thể được cấp quyền đọc trong phạm vi hội nghị, nhưng không được xem là một vai trò nghiệp vụ chính độc lập trong phạm vi báo cáo.
 
-Discussion là use case liên quan đến nhiều vai trò, nhưng quyền hạn của mỗi vai trò khác nhau: phản biện viên có quyền tạo thread, tác giả chỉ tham gia trả lời, còn Chủ tọa chỉ quan sát. Trong triển khai hiện tại, phản biện viên được phân công là người khởi tạo thread; phản biện viên và tác giả có thể trao đổi trong thread đó, còn Chủ tọa có quyền quan sát toàn bộ trao đổi của bài nộp để theo dõi quá trình xử lý và đối chiếu bằng chứng.
+Discussion là use case liên quan đến nhiều vai trò, nhưng quyền hạn của mỗi vai trò khác nhau: phản biện viên có quyền tạo chuỗi thảo luận, tác giả chỉ tham gia trả lời, còn Chủ tọa chỉ quan sát. Trong triển khai hiện tại, phản biện viên được phân công là người khởi tạo chuỗi thảo luận; phản biện viên và tác giả có thể trao đổi trong chuỗi đó, còn Chủ tọa có quyền quan sát toàn bộ trao đổi của bài nộp để theo dõi quá trình xử lý và đối chiếu bằng chứng.
 
 \subsection{Các use case chính}
 
@@ -265,7 +265,7 @@ Discussion là use case liên quan đến nhiều vai trò, nhưng quyền hạn
   \label{fig:ch3-02}
 \end{figure}
 
-Mười use case trên được chọn theo vòng đời nghiệp vụ thay vì theo endpoint. Ba use case đầu bao phủ hành trình của tác giả từ khám phá hội nghị đến kết quả cuối; hai use case tiếp theo bao phủ quá trình phản biện viên nhận việc và hoàn tất phản biện; ba use case của Chủ tọa bao phủ cấu hình, phân công, giám sát và ra quyết định. Discussion và Chatbot Agent được tách thành hai luồng xuyên vai trò vì chúng phục vụ nhiều không gian làm việc nhưng vẫn chịu cùng một ranh giới phân quyền.
+Nhóm chọn mười use case trên theo vòng đời nghiệp vụ thay vì theo endpoint. Ba use case đầu bao phủ hành trình của tác giả từ khám phá hội nghị đến kết quả cuối; hai use case tiếp theo bao phủ quá trình phản biện viên nhận việc và hoàn tất phản biện; ba use case của Chủ tọa bao phủ cấu hình, phân công, giám sát và ra quyết định. Báo cáo tách Discussion và Chatbot Agent thành hai luồng xuyên vai trò vì chúng phục vụ nhiều không gian làm việc nhưng vẫn chịu cùng một ranh giới phân quyền.
 
 \begin{figure}[htbp]
   \centering
@@ -294,7 +294,7 @@ Mười use case trên được chọn theo vòng đời nghiệp vụ thay vì 
   \label{fig:ch3-03}
 \end{figure}
 
-Notification và phân quyền không được tách thành use case độc lập vì đây là các cơ chế xuyên suốt. Notification được phát sinh từ các thay đổi trạng thái hoặc trao đổi có liên quan; phân quyền kiểm tra danh tính, vai trò và quyền trên tài nguyên trước khi cho phép thao tác. Cách trình bày này tránh biến các cơ chế kỹ thuật nền thành use case độc lập không tương ứng với mục tiêu người dùng, đồng thời làm rõ cách chúng hỗ trợ toàn bộ vòng đời hệ thống.
+Báo cáo không tách thông báo và phân quyền thành use case độc lập vì đây là các cơ chế xuyên suốt. Hệ thống phát thông báo khi có thay đổi trạng thái hoặc trao đổi liên quan; phân quyền kiểm tra danh tính, vai trò và quyền trên tài nguyên trước khi cho phép thao tác. Cách trình bày này tránh biến các cơ chế kỹ thuật nền thành use case độc lập không tương ứng với mục tiêu người dùng, đồng thời làm rõ cách chúng hỗ trợ toàn bộ vòng đời hệ thống.
 
 
 \begingroup
@@ -442,7 +442,7 @@ Use case này chỉ mô tả hành trình tìm và chọn hội nghị. Việc �
 \textbf{Luồng chính.}
 
 \begin{enumerate}
-  \item Tác giả tạo draft và tải bản thảo.
+  \item Tác giả tạo bản nháp và tải bản thảo.
   \item Khi tác giả yêu cầu Autofill, hệ thống trích xuất metadata và có thể gợi ý track trong danh sách hợp lệ của hội nghị.
   \item Tác giả kiểm tra, chỉnh sửa hoặc nhập bổ sung tiêu đề, tóm tắt, keyword, thông tin tác giả và track.
   \item Tác giả khai báo xung đột lợi ích và xem lại toàn bộ bài nộp.
@@ -452,7 +452,7 @@ Use case này chỉ mô tả hành trình tìm và chọn hội nghị. Việc �
 
 \textbf{Luồng thay thế và lỗi.} Nếu file không đọc được hoặc Autofill lỗi, biểu mẫu thủ công vẫn hoạt động. Kết quả \texttt{warn} cho phép tác giả xem cảnh báo và tiếp tục theo chính sách; kết quả \texttt{block} chỉ ngăn gửi khi lỗi hình thức hoặc chính sách có căn cứ chưa được sửa. Nếu hạn chót đã qua, hệ thống không cho phép chuyển bài nộp sang trạng thái \texttt{published}.
 
-\textbf{Hậu điều kiện.} Submission được lưu ở trạng thái draft hoặc chuyển sang trạng thái đã gửi sau khi tác giả xác nhận.
+\textbf{Hậu điều kiện.} Hệ thống lưu bài nộp ở trạng thái bản nháp hoặc chuyển sang trạng thái đã gửi sau khi tác giả xác nhận.
 
 \begin{figure}[htbp]
   \centering
@@ -523,7 +523,7 @@ Gợi ý track không phải một luồng xử lý độc lập; như đã trì
 
 \subsubsection{UC-03. Quản lý vòng đời bài nộp}
 
-\textbf{Mục tiêu.} Cho phép tác giả theo dõi và thực hiện các thao tác hợp lệ trên bài nộp từ draft đến kết quả cuối, thay vì chỉ hỗ trợ thời điểm nộp bài ban đầu.
+\textbf{Mục tiêu.} Cho phép tác giả theo dõi và thực hiện các thao tác hợp lệ trên bài nộp từ bản nháp đến kết quả cuối, thay vì chỉ hỗ trợ thời điểm nộp bài ban đầu.
 
 \textbf{Tác nhân.} Tác giả; Chủ tọa là tác nhân tạo quyết định hoặc mở các giai đoạn liên quan.
 
@@ -535,16 +535,16 @@ Gợi ý track không phải một luồng xử lý độc lập; như đã trì
 
 \begin{enumerate}
   \item Tác giả xem danh sách bài, trạng thái và hạn chót liên quan.
-  \item Với draft, tác giả tiếp tục chỉnh sửa; biểu mẫu định kỳ autosave các thay đổi.
+  \item Với bản nháp, tác giả tiếp tục chỉnh sửa; biểu mẫu định kỳ tự lưu các thay đổi.
   \item Với bài đã gửi, tác giả theo dõi trạng thái và xem phản biện khi được công bố.
   \item Khi phản hồi được mở, tác giả gửi phản hồi theo cấu hình hội nghị.
   \item Sau khi Chủ tọa công bố quyết định, tác giả xem kết quả.
   \item Nếu bài được chấp nhận, tác giả tải lên bản camera-ready theo yêu cầu hội nghị.
 \end{enumerate}
 
-\textbf{Luồng thay thế và lỗi.} Việc sửa, rút bài hoặc gửi phản hồi bị từ chối nếu trạng thái hoặc hạn chót không cho phép. Camera-ready chỉ được nhận khi bài nộp đã được chấp nhận và file tải lên hợp lệ. Nếu autosave lỗi, hệ thống giữ trạng thái chưa lưu để tác giả chủ động thử lại.
+\textbf{Luồng thay thế và lỗi.} Hệ thống từ chối sửa, rút bài hoặc gửi phản hồi nếu trạng thái hoặc hạn chót không cho phép. Hệ thống chỉ nhận camera-ready khi bài nộp đã được chấp nhận và file tải lên hợp lệ. Nếu tự lưu lỗi, hệ thống giữ trạng thái chưa lưu để tác giả chủ động thử lại.
 
-\textbf{Hậu điều kiện.} Trạng thái bài nộp hoặc kết quả liên quan được cập nhật theo đúng chuyển trạng thái nghiệp vụ.
+\textbf{Hậu điều kiện.} Hệ thống cập nhật trạng thái bài nộp hoặc kết quả liên quan theo đúng chuyển trạng thái nghiệp vụ.
 
 \begin{figure}[htbp]
   \centering
@@ -628,9 +628,9 @@ Hệ thống hiện hỗ trợ tác giả tải lên và truy xuất bản camer
   \item Phản biện viên chọn phân công hợp lệ và chuyển sang không gian làm việc phản biện ở UC-05.
 \end{enumerate}
 
-\textbf{Luồng thay thế và lỗi.} Token lời mời không hợp lệ hoặc đã hết hiệu lực không được chấp nhận. Nếu phản biện viên từ chối, lý do được ghi nhận để Chủ tọa điều chỉnh phân công. Người dùng không có quyền đối với phân công sẽ bị từ chối truy cập.
+\textbf{Luồng thay thế và lỗi.} Hệ thống từ chối token lời mời không hợp lệ hoặc đã hết hiệu lực. Nếu phản biện viên từ chối, hệ thống ghi nhận lý do để Chủ tọa điều chỉnh phân công. Hệ thống từ chối truy cập khi người dùng không có quyền đối với phân công.
 
-\textbf{Hậu điều kiện.} Trạng thái lời mời được cập nhật; phân công hợp lệ trở thành đầu vào của quá trình phản biện.
+\textbf{Hậu điều kiện.} Hệ thống cập nhật trạng thái lời mời; phân công hợp lệ trở thành đầu vào của quá trình phản biện.
 
 \begin{figure}[htbp]
   \centering
@@ -640,11 +640,11 @@ Hệ thống hiện hỗ trợ tác giả tải lên và truy xuất bản camer
       \draw[prismLifeline] (0.00,-0.49) -- (0.00,-17.50);
       \node[prismSeqParticipant] (BE) at (4.40,0.00) {Backend};
       \draw[prismLifeline] (4.40,-0.49) -- (4.40,-17.50);
-      \node[prismSeqParticipant, text width=34mm] (Mail) at (8.80,0.00) {Email/\\Notification};
+      \node[prismSeqParticipant, text width=34mm] (Mail) at (8.80,0.00) {Email/\\Thông báo};
       \draw[prismLifeline] (8.80,-0.49) -- (8.80,-17.50);
       \node[prismSeqParticipant] (phản biện viên) at (13.20,0.00) {Phản biện viên};
       \draw[prismLifeline] (13.20,-0.49) -- (13.20,-17.50);
-      \node[prismSeqParticipant, text width=32mm] (UI) at (17.60,0.00) {Reviewer\\workspace};
+      \node[prismSeqParticipant, text width=32mm] (UI) at (17.60,0.00) {Không gian\\phản biện viên};
       \draw[prismLifeline] (17.60,-0.49) -- (17.60,-17.50);
       \draw[prismArrow] (0.00,-1.39) -- node[prismSeqLabel] {Gửi lời mời} (4.40,-1.39);
       \draw[prismArrow] (4.40,-2.64) -- node[prismSeqLabel] {Phát thông báo hoặc email} (8.80,-2.64);
@@ -686,7 +686,7 @@ Các màn hình làm việc của phản biện viên trong UC-04 được trìn
   \label{fig:uc04-accept-deny-assignment}
 \end{figure}
 
-Use case này kết thúc ở thời điểm phản biện viên mở phân công. Hoạt động đọc, lưu nháp và gửi phản biện được tách sang UC-05 để giữ mỗi đặc tả có một mục tiêu chính.
+Use case này kết thúc ở thời điểm phản biện viên mở phân công. Báo cáo tách hoạt động đọc, lưu nháp và gửi phản biện sang UC-05 để giữ mỗi đặc tả có một mục tiêu chính.
 
 \subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
@@ -704,7 +704,7 @@ Use case này kết thúc ở thời điểm phản biện viên mở phân côn
   \item Hệ thống tải bản thảo, metadata, hạn chót và biểu mẫu phản biện.
   \item Phản biện viên có thể yêu cầu Reviewer Initial Analysis để nhận bản định hướng ban đầu.
   \item Phản biện viên đọc bài, đối chiếu phần định hướng với bản thảo và tự hình thành đánh giá.
-  \item Phản biện viên nhập điểm, nhận xét, khuyến nghị và mức độ tự tin; bản nháp có thể được lưu qua nhiều phiên.
+  \item Phản biện viên nhập điểm, nhận xét, khuyến nghị và mức độ tự tin; hệ thống có thể lưu bản nháp qua nhiều phiên.
   \item Trước khi gửi, Review Quality Auditor kiểm tra bản phản biện có đủ các phần bắt buộc, có lập luận rõ và không tự mâu thuẫn hay không.
   \item Phản biện viên xem các phát hiện, chỉnh sửa khi cần và xác nhận gửi phản biện.
   \item Khi có phản hồi của tác giả, phản biện viên có thể xác nhận đã đọc và cập nhật đánh giá nếu bằng chứng mới làm thay đổi nhận định.
@@ -712,7 +712,7 @@ Use case này kết thúc ở thời điểm phản biện viên mở phân côn
 
 \textbf{Luồng thay thế và lỗi.} Nếu Initial Analysis không khả dụng hoặc kết quả phân tích đã lỗi thời, phản biện viên vẫn đọc bài và tiếp tục thủ công. Auditor trả \texttt{warn} để phản biện viên cân nhắc; \texttt{block} chỉ áp dụng cho nhóm lỗi nặng khi gửi phản biện chính thức. Nếu AI lỗi hoặc tạo cảnh báo chặn sai, phản biện viên phải nhận được thông báo rõ; giới hạn và hướng hậu kiểm được giải thích ở mục 3.5.2.4.
 
-\textbf{Hậu điều kiện.} Bản phản biện được lưu nháp hoặc gửi chính thức; mọi thay đổi sau phản hồi của tác giả được gắn với bài được phân công tương ứng.
+\textbf{Hậu điều kiện.} Hệ thống lưu bản phản biện dạng nháp hoặc ghi nhận bản gửi chính thức; mọi thay đổi sau phản hồi của tác giả được gắn với bài được phân công tương ứng.
 
 \begin{figure}[H]
   \centering
@@ -805,12 +805,12 @@ Vai trò của Reviewer Initial Analysis và Review Quality Auditor trong UC-05 
   \item Cặp có COI bị loại khỏi tập ứng viên.
   \item Thuật toán greedy tạo đề xuất phân công theo điểm, số lượng bài đã phân công cho phản biện viên và số phản biện viên cần thiết.
   \item Chủ tọa xem điểm, lý do, các bài chưa đủ phản biện viên và điều chỉnh khi cần.
-  \item Chủ tọa xác nhận đề xuất phân công trước khi phân công được lưu.
+  \item Chủ tọa xác nhận đề xuất phân công trước khi hệ thống lưu phân công.
 \end{enumerate}
 
 \textbf{Luồng thay thế và lỗi.} Nếu Neo4j hoặc nguồn dữ liệu học thuật không khả dụng, hệ thống vẫn giữ các lớp COI còn lại và nêu rõ phần bằng chứng bị thiếu. Fallback có thể giảm ngưỡng điểm hoặc tăng giới hạn số bài cho phản biện viên, nhưng không được bỏ qua COI. Khi tín hiệu phù hợp quá yếu hoặc thiếu phản biện viên, Chủ tọa chuyển sang phân công thủ công.
 
-\textbf{Hậu điều kiện.} Proposal được tạo để Chủ tọa xem hoặc phân công được lưu sau xác nhận.
+\textbf{Hậu điều kiện.} Hệ thống tạo đề xuất phân công để Chủ tọa xem, hoặc lưu phân công sau khi Chủ tọa xác nhận.
 
 \begin{figure}[htbp]
   \centering
@@ -888,14 +888,14 @@ Các màn hình chức năng của Chủ tọa trong UC-06 được trình bày 
 
 \begin{enumerate}
   \item Chủ tọa tạo hoặc cập nhật thông tin hội nghị, track, hạn chót, biểu mẫu phản biện và chính sách.
-  \item Chủ tọa mời và quản lý committee/phản biện viên.
+  \item Chủ tọa mời và quản lý ban chương trình cùng phản biện viên.
   \item Bảng điều khiển tổng hợp số bài, tiến độ phản biện, COI và các trường hợp cần xử lý.
   \item Chủ tọa chuyển tới luồng phân công khi dữ liệu đầu vào đã sẵn sàng.
   \item Sau giai đoạn phản biện, Chủ tọa cấu hình, mở và kết thúc phản hồi.
   \item Chủ tọa theo dõi phản biện, Discussion và thay đổi sau phản hồi trước khi chuyển sang UC-09.
 \end{enumerate}
 
-\textbf{Luồng thay thế và lỗi.} Cấu hình có hạn chót không hợp lệ hoặc thiếu trường bắt buộc không được lưu. Nếu thiếu phản biện viên hoặc phản biện chưa đủ, bảng điều khiển giữ trạng thái cần xử lý và không xem đó là giai đoạn đã hoàn tất. Người dùng không có quyền bị từ chối thao tác ghi.
+\textbf{Luồng thay thế và lỗi.} Hệ thống không lưu cấu hình có hạn chót không hợp lệ hoặc thiếu trường bắt buộc. Nếu thiếu phản biện viên hoặc phản biện chưa đủ, bảng điều khiển giữ trạng thái cần xử lý và không xem đó là giai đoạn đã hoàn tất. Hệ thống từ chối thao tác ghi khi người dùng không có quyền.
 
 \textbf{Hậu điều kiện.} Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật.
 
@@ -912,7 +912,7 @@ Các màn hình chức năng của Chủ tọa trong UC-06 được trình bày 
       \node[prismNode] (f0) at (0.00,0.00) {Tạo hoặc mở hội nghị};
       \node[prismNode] (f1) at (0.00,-2.20) {Cấu hình track, hạn chót, biểu mẫu và chính sách};
       \node[prismDecision] (f2) at (0.00,-4.40) {Cấu hình hợp lệ?};
-      \node[prismNode] (f3) at (0.00,-6.60) {Mời committee và phản biện viên};
+      \node[prismNode] (f3) at (0.00,-6.60) {Mời ban chương trình và phản biện viên};
       \node[prismNode] (f4) at (0.00,-8.80) {Theo dõi bài nộp, phản biện và COI};
       \node[prismDecision] (f5) at (0.00,-11.00) {Có điểm nghẽn?};
       \node[prismNode, text width=3.4cm] (f6) at (-6.60,-13.40) {Điều chỉnh lời mời hoặc phân công};
@@ -964,7 +964,7 @@ Các màn hình quản lý của Chủ tọa trong UC-07 được trình bày t�
   \label{fig:uc07-committee-management}
 \end{figure}
 
-Bảng điều khiển không chỉ hiển thị thống kê mà còn giúp Chủ tọa nhận biết các trạng thái chưa đủ điều kiện để chuyển giai đoạn. Các cơ chế hạn chót, notification và chuyển trạng thái được trình bày tại mục 3.4.4.
+Bảng điều khiển không chỉ hiển thị thống kê mà còn giúp Chủ tọa nhận biết các trạng thái chưa đủ điều kiện để chuyển giai đoạn. Các cơ chế hạn chót, thông báo và chuyển trạng thái được trình bày tại mục 3.4.4.
 
 \subsubsection{UC-08. Trao đổi theo bài nộp}
 
@@ -972,24 +972,24 @@ Bảng điều khiển không chỉ hiển thị thống kê mà còn giúp Ch�
 
 \textbf{Tác nhân.} Phản biện viên được phân công và tác giả là hai bên trao đổi; Chủ tọa/Đồng chủ tọa là tác nhân giám sát.
 
-\textbf{Sự kiện kích hoạt.} Phản biện viên được phân công tạo một thread trong giai đoạn reviewing.
+\textbf{Sự kiện kích hoạt.} Phản biện viên được phân công tạo một chuỗi thảo luận trong giai đoạn reviewing.
 
-\textbf{Điều kiện tiên quyết.} Submission tồn tại; conference ở trạng thái reviewing; phản biện viên có phân công hợp lệ.
+\textbf{Điều kiện tiên quyết.} Bài nộp tồn tại; hội nghị ở trạng thái reviewing; phản biện viên có phân công hợp lệ.
 
 \textbf{Luồng chính.}
 
 \begin{enumerate}
-  \item Phản biện viên tạo thread với tiêu đề và message đầu tiên.
-  \item Hệ thống liên kết thread với bài nộp, conference và phản biện viên tạo thread.
-  \item Tác giả nhận notification và mở thread liên quan đến bài của mình.
-  \item Tác giả và phản biện viên sở hữu thread trao đổi message; participant hợp lệ có thể dùng tệp đính kèm.
-  \item Phản biện viên chỉ xem thread của mình; Chủ tọa xem toàn bộ thread và message của bài nộp.
+  \item Phản biện viên tạo chuỗi thảo luận với tiêu đề và tin nhắn đầu tiên.
+  \item Hệ thống liên kết chuỗi thảo luận với bài nộp, hội nghị và phản biện viên tạo chuỗi.
+  \item Tác giả nhận thông báo và mở chuỗi thảo luận liên quan đến bài của mình.
+  \item Tác giả và phản biện viên sở hữu chuỗi trao đổi tin nhắn; người tham gia hợp lệ có thể dùng tệp đính kèm.
+  \item Phản biện viên chỉ xem chuỗi của mình; Chủ tọa xem toàn bộ chuỗi thảo luận và tin nhắn của bài nộp.
   \item Nội dung Discussion trở thành một nguồn bằng chứng cho Chair Decision Copilot.
 \end{enumerate}
 
-\textbf{Luồng thay thế và lỗi.} Tác giả hoặc Chủ tọa không thể tạo thread theo chính sách backend hiện tại. Phản biện viên khác không được xem hoặc ghi vào thread không thuộc mình. Khi conference không ở giai đoạn reviewing, hệ thống từ chối tạo thread hoặc thêm message. Tệp vượt giới hạn hoặc người dùng không phải participant bị từ chối.
+\textbf{Luồng thay thế và lỗi.} Tác giả hoặc Chủ tọa không thể tạo chuỗi thảo luận theo chính sách backend hiện tại. Phản biện viên khác không được xem hoặc ghi vào chuỗi không thuộc mình. Khi hội nghị không ở giai đoạn reviewing, hệ thống từ chối tạo chuỗi thảo luận hoặc thêm tin nhắn. Hệ thống từ chối tệp vượt giới hạn hoặc người dùng không phải người tham gia.
 
-\textbf{Hậu điều kiện.} Thread và message được lưu; bên liên quan nhận notification; lịch sử trao đổi gắn với bài nộp.
+\textbf{Hậu điều kiện.} Hệ thống lưu chuỗi thảo luận và tin nhắn; gửi thông báo cho bên liên quan; lịch sử trao đổi gắn với bài nộp.
 
 \begin{figure}[htbp]
   \centering
@@ -1001,24 +1001,24 @@ Bảng điều khiển không chỉ hiển thị thống kê mà còn giúp Ch�
       \draw[prismLifeline] (4.40,-0.49) -- (4.40,-16.25);
       \node[prismSeqParticipant] (DB) at (8.80,0.00) {PostgreSQL};
       \draw[prismLifeline] (8.80,-0.49) -- (8.80,-16.25);
-      \node[prismSeqParticipant] (N) at (13.20,0.00) {Notification};
+      \node[prismSeqParticipant] (N) at (13.20,0.00) {Thông báo};
       \draw[prismLifeline] (13.20,-0.49) -- (13.20,-16.25);
-      \node[prismSeqParticipant] (Author) at (17.60,0.00) {Author};
+      \node[prismSeqParticipant] (Author) at (17.60,0.00) {Tác giả};
       \draw[prismLifeline] (17.60,-0.49) -- (17.60,-16.25);
       \node[prismSeqParticipant] (Chủ tọa) at (22.00,0.00) {Chủ tọa};
       \draw[prismLifeline] (22.00,-0.49) -- (22.00,-16.25);
-      \draw[prismArrow] (0.00,-1.39) -- node[prismSeqLabel] {Tạo thread cho bài nộp} (4.40,-1.39);
+      \draw[prismArrow] (0.00,-1.39) -- node[prismSeqLabel] {Tạo chuỗi thảo luận cho bài nộp} (4.40,-1.39);
       \draw[prismArrow] (4.40,-2.64) -- ++(1.15,0) -- ++(0,-0.55) -- ++(-1.15,0);
       \node[anchor=west, font=\footnotesize, align=left, text width=3.0cm, fill=white, inner sep=1pt] at (5.65,-2.92) {Kiểm tra phân công và trạng thái reviewing};
-      \draw[prismArrow] (4.40,-3.89) -- node[prismSeqLabel] {Lưu thread và message đầu tiên} (8.80,-3.89);
+      \draw[prismArrow] (4.40,-3.89) -- node[prismSeqLabel] {Lưu chuỗi thảo luận và tin nhắn đầu tiên} (8.80,-3.89);
       \draw[prismArrow] (4.40,-5.14) -- node[prismSeqLabel] {Thông báo cho tác giả} (13.20,-5.14);
       \draw[prismDashedArrow] (13.20,-6.39) -- node[prismSeqLabel] {Có Discussion mới} (17.60,-6.39);
-      \draw[prismArrow] (17.60,-7.64) -- node[prismSeqLabel] {Mở thread và gửi phản hồi} (4.40,-7.64);
-      \draw[prismArrow] (4.40,-8.89) -- node[prismSeqLabel] {Lưu message} (8.80,-8.89);
+      \draw[prismArrow] (17.60,-7.64) -- node[prismSeqLabel] {Mở chuỗi thảo luận và gửi phản hồi} (4.40,-7.64);
+      \draw[prismArrow] (4.40,-8.89) -- node[prismSeqLabel] {Lưu tin nhắn} (8.80,-8.89);
       \draw[prismArrow] (4.40,-10.14) -- node[prismSeqLabel] {Thông báo phản biện viên} (13.20,-10.14);
       \draw[prismArrow] (0.00,-11.39) -- node[prismSeqLabel] {Tiếp tục trao đổi} (4.40,-11.39);
-      \draw[prismArrow] (4.40,-12.64) -- node[prismSeqLabel] {Lưu message} (8.80,-12.64);
-      \draw[prismArrow] (22.00,-13.89) -- node[prismSeqLabel] {Xem toàn bộ thread của bài nộp} (4.40,-13.89);
+      \draw[prismArrow] (4.40,-12.64) -- node[prismSeqLabel] {Lưu tin nhắn} (8.80,-12.64);
+      \draw[prismArrow] (22.00,-13.89) -- node[prismSeqLabel] {Xem toàn bộ chuỗi thảo luận của bài nộp} (4.40,-13.89);
       \draw[prismDashedArrow] (4.40,-15.14) -- node[prismSeqLabel] {Lịch sử Discussion ở chế độ quan sát} (22.00,-15.14);
     \end{tikzpicture}
   \end{adjustbox}
@@ -1040,7 +1040,7 @@ Bảng điều khiển không chỉ hiển thị thống kê mà còn giúp Ch�
 %   \label{fig:uc08-discussion-chat}
 % \end{figure}
 
-Cơ sở dữ liệu đã có trường \texttt{visibility} cho thread, nhưng truy vấn backend hiện chưa áp dụng đầy đủ cơ chế lọc thread theo các mức visibility. Do đó, phân quyền hiển thị nhiều tầng vẫn là phần thiết kế chưa hoàn thiện. Giao diện Chủ tọa cũng còn nút điều khiển tạo thread và gửi message, trong khi backend từ chối hai thao tác này. Vì vậy, báo cáo chỉ khẳng định mô hình quyền đã được kiểm chứng ở backend và bằng các kiểm thử hiện có: phản biện viên tạo thread, Author/phản biện viên trao đổi, còn Chủ tọa quan sát. Cơ chế visibility nhiều tầng được xem là phần chưa hoàn thiện, không phải đảm bảo bảo mật đã được chứng minh.
+Cơ sở dữ liệu đã có trường \texttt{visibility} cho chuỗi thảo luận, nhưng truy vấn backend hiện chưa áp dụng đầy đủ cơ chế lọc chuỗi theo các mức visibility. Do đó, phân quyền hiển thị nhiều tầng vẫn là phần thiết kế chưa hoàn thiện. Giao diện Chủ tọa cũng còn nút điều khiển tạo chuỗi thảo luận và gửi tin nhắn, trong khi backend từ chối hai thao tác này. Vì vậy, báo cáo chỉ khẳng định mô hình quyền đã được kiểm chứng ở backend và bằng các kiểm thử hiện có: phản biện viên tạo chuỗi thảo luận, tác giả và phản biện viên trao đổi, còn Chủ tọa quan sát. Cơ chế visibility nhiều tầng được xem là phần chưa hoàn thiện, không phải đảm bảo bảo mật đã được chứng minh.
 
 \subsubsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
@@ -1058,14 +1058,14 @@ Cơ sở dữ liệu đã có trường \texttt{visibility} cho thread, nhưng t
   \item Backend thu thập phản biện, điểm số, phản hồi, thay đổi sau phản hồi và Discussion.
   \item Hệ thống tạo dấu vết trạng thái của gói bằng chứng và kiểm tra bản tổng hợp đã lưu.
   \item Nếu bản tổng hợp đã lưu còn hợp lệ, hệ thống trả lại bản đó; nếu đã lỗi thời hoặc chưa có, Chair Decision Copilot tạo bản tổng hợp mới.
-  \item Đầu ra làm rõ các điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan.
+  \item Bản tổng hợp làm rõ các điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan.
   \item Chủ tọa đối chiếu đầu ra với dữ liệu gốc.
   \item Chủ tọa tự đưa ra và lưu quyết định cuối cùng.
 \end{enumerate}
 
 \textbf{Luồng thay thế và lỗi.} Nếu dữ liệu chưa đủ, hệ thống nêu rõ phần bằng chứng bị thiếu. Khi AI service lỗi, Chủ tọa vẫn xem phản biện, phản hồi tác giả và Discussion gốc để tiếp tục xử lý. Bản tổng hợp cũ bị đánh dấu không còn hiện hành khi bằng chứng thay đổi.
 
-\textbf{Hậu điều kiện.} Bản tổng hợp có cấu trúc được lưu để hỗ trợ Chủ tọa; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận.
+\textbf{Hậu điều kiện.} Hệ thống lưu bản tổng hợp có cấu trúc để hỗ trợ Chủ tọa; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận.
 
 \begin{figure}[H]
   \centering
@@ -1136,7 +1136,7 @@ Copilot không sinh quyết định hoặc khuyến nghị chấp nhận/từ ch
   \item Nếu cần dữ liệu, agent gửi yêu cầu có cấu trúc tới backend query endpoint.
   \item Backend kiểm tra user token, service token, resource registry, trường và quyền trên tài nguyên.
   \item Backend trả dữ liệu tối thiểu được phép; agent tổng hợp câu trả lời theo vai trò.
-  \item Câu trả lời và trạng thái công cụ (Tool status) call được trả về giao diện.
+  \item Hệ thống trả câu trả lời và trạng thái lời gọi công cụ về giao diện.
 \end{enumerate}
 
 \textbf{Luồng thay thế và lỗi.} Truy vấn ngoài danh mục tài nguyên cho phép, trường không được phép hoặc tài nguyên vượt quyền bị từ chối. Nếu tool call hoặc AI service lỗi, hệ thống trả lỗi rõ thay vì tạo dữ liệu giả. Với câu hỏi không cần dữ liệu, agent có thể trả lời hướng dẫn mà không gọi backend.
@@ -1158,7 +1158,7 @@ Copilot không sinh quyết định hoặc khuyến nghị chấp nhận/từ ch
       \node[prismSeqParticipant] (DB) at (17.60,0.00) {Nguồn dữ liệu nghiệp vụ};
       \draw[prismLifeline] (17.60,-0.49) -- (17.60,-18.75);
       \draw[prismArrow] (0.00,-1.39) -- node[prismSeqLabel] {Gửi câu hỏi} (4.40,-1.39);
-      \draw[prismArrow] (4.40,-2.64) -- node[prismSeqLabel] {Message, thread và page context} (8.80,-2.64);
+      \draw[prismArrow] (4.40,-2.64) -- node[prismSeqLabel] {Tin nhắn, chuỗi thảo luận và ngữ cảnh trang} (8.80,-2.64);
       \draw[prismArrow] (8.80,-3.89) -- ++(1.15,0) -- ++(0,-0.55) -- ++(-1.15,0);
       \node[anchor=west, font=\footnotesize, align=left, text width=3.0cm, fill=white, inner sep=1pt] at (10.05,-4.17) {Xác định có cần dữ liệu hệ thống};
       \node[prismSeqNote] (note1) at (8.80,-5.14) {Cần dữ liệu};
@@ -1188,19 +1188,19 @@ Copilot không sinh quyết định hoặc khuyến nghị chấp nhận/từ ch
 %   \label{fig:uc10-chatbot-interface}
 % \end{figure}
 
-Chatbot Agent là tính năng dùng chung của nền tảng, không thuộc riêng Chủ tọa. Cơ chế xác thực kép và resource registry đảm bảo rằng service token chỉ được dùng trong phạm vi truy vấn đã kiểm soát, thay vì trở thành quyền truy cập dữ liệu không giới hạn.
+Chatbot Agent là tính năng dùng chung của nền tảng, không thuộc riêng Chủ tọa. Cơ chế xác thực kép và resource registry đảm bảo service token chỉ dùng trong phạm vi truy vấn đã kiểm soát, không trở thành quyền truy cập dữ liệu không giới hạn.
 
 \section{Thiết kế kỹ thuật}
 
 \subsection{Kiến trúc tổng thể}
 
-ConferenceSpace được triển khai theo mô hình nhiều service ở tầng vận hành, trong khi backend nghiệp vụ chính vẫn được tổ chức như một monolith phân lớp. Quyết định này giúp hệ thống tránh độ phức tạp không cần thiết của microservices, đồng thời vẫn cô lập được AI service, các kho dữ liệu và gateway.
+Nhóm triển khai ConferenceSpace theo mô hình nhiều service ở tầng vận hành, trong khi backend nghiệp vụ chính vẫn được tổ chức như một monolith phân lớp. Quyết định này giúp hệ thống tránh độ phức tạp không cần thiết của microservices, đồng thời vẫn cô lập được AI service, các kho dữ liệu và gateway.
 
 Các thành phần chính gồm:
 
 \begin{itemize}
   \item \textbf{Frontend Next.js}: cung cấp giao diện theo vai trò, các route bảng điều khiển, biểu mẫu nộp bài, biểu mẫu phản biện và màn hình dành cho Chủ tọa.
-  \item \textbf{Backend Go/Gin}: API nghiệp vụ, phân quyền, validation, đối sánh phản biện, xung đột lợi ích, quy trình phản biện, notification và tích hợp service ngoài.
+  \item \textbf{Backend Go/Gin}: API nghiệp vụ, phân quyền, validation, đối sánh phản biện, xung đột lợi ích, quy trình phản biện, thông báo và tích hợp service ngoài.
   \item \textbf{AI Service FastAPI}: thực thi các luồng xử lý AI, kiểm tra đầu vào/đầu ra bằng Pydantic và gọi model thông qua LLM client/model router.
   \item \textbf{PostgreSQL}: lưu dữ liệu nghiệp vụ bền vững và các kết quả cần theo dõi lại.
   \item \textbf{Redis}: lưu session, cache, trạng thái chạy ngắn hạn và kết quả tạm thời của các tool.
@@ -1280,9 +1280,9 @@ UI sử dụng Radix UI và Tailwind CSS để chuẩn hóa các primitive tươ
   \label{fig:ch3-15}
 \end{figure}
 
-Frontend cũng đóng vai trò kiểm soát trải nghiệm AI. Kết quả AI không được trình bày như kết luận cuối cùng, mà như bản nháp, cảnh báo hoặc bằng chứng cần kiểm tra. Ví dụ, gợi ý track trong Submission Autofill được hiển thị để tác giả lựa chọn hoặc chỉnh sửa; Reviewer Initial Analysis được trình bày như bản định hướng đọc bài; Chair Decision Copilot được trình bày như bản tổng hợp để Chủ tọa đối chiếu với các bản phản biện gốc.
+Frontend cũng đóng vai trò kiểm soát trải nghiệm AI. Giao diện không trình bày kết quả AI như kết luận cuối cùng, mà như bản nháp, cảnh báo hoặc bằng chứng cần kiểm tra. Ví dụ, giao diện hiển thị gợi ý track trong Submission Autofill để tác giả lựa chọn hoặc chỉnh sửa; trình bày Reviewer Initial Analysis như bản định hướng đọc bài; trình bày Chair Decision Copilot như bản tổng hợp để Chủ tọa đối chiếu với các bản phản biện gốc.
 
-Ba không gian làm việc hiện thực hóa các vòng đời đã đặc tả ở mục 3.2. Không gian của Author nối luồng khám phá, nộp bài và quản lý bài nộp; không gian của phản biện viên nối lời mời, bài được phân công, trình soạn phản biện và Discussion; màn hình của Chủ tọa nối cấu hình hội nghị, phân công, giám sát tiến độ, Discussion và quyết định. Chatbot Agent và thông báo xuất hiện xuyên suốt các không gian này nhưng luôn dùng cùng ngữ cảnh xác thực và quyền trên tài nguyên.
+Ba không gian làm việc hiện thực hóa các vòng đời đã đặc tả ở mục 3.2. Không gian của tác giả nối luồng khám phá, nộp bài và quản lý bài nộp; không gian của phản biện viên nối lời mời, bài được phân công, trình soạn phản biện và Discussion; màn hình của Chủ tọa nối cấu hình hội nghị, phân công, giám sát tiến độ, Discussion và quyết định. Chatbot Agent và thông báo xuất hiện xuyên suốt các không gian này nhưng luôn dùng cùng ngữ cảnh xác thực và quyền trên tài nguyên.
 
 \subsection{Thiết kế backend, API và phân quyền}
 
@@ -1327,9 +1327,9 @@ Backend được tổ chức theo các module có trách nhiệm rõ trong \text
   \label{fig:ch3-16}
 \end{figure}
 
-Luồng phụ thuộc được giữ một chiều để tránh controller chứa nghiệp vụ hoặc service phụ thuộc ngược vào framework HTTP. Assignment được tách thành domain riêng vì đối sánh phản biện và phát hiện xung đột lợi ích có logic đủ quan trọng để cần kiểm thử, giải thích và đánh giá độc lập ở Chương 4.
+Luồng phụ thuộc được giữ một chiều để tránh controller chứa nghiệp vụ hoặc service phụ thuộc ngược vào framework HTTP. Backend tách phân công thành domain riêng vì đối sánh phản biện và phát hiện xung đột lợi ích có logic đủ quan trọng để cần kiểm thử, giải thích và đánh giá độc lập ở Chương 4.
 
-Phân quyền được thiết kế theo vai trò trong từng hội nghị, không theo quyền toàn cục. Cùng một người dùng có thể là tác giả ở hội nghị này, phản biện viên ở hội nghị khác và Chủ tọa ở một hội nghị khác nữa. Vì vậy, mỗi request cần xét cả danh tính người dùng và vai trò của họ trong tài nguyên cụ thể.
+Nhóm thiết kế phân quyền theo vai trò trong từng hội nghị, không theo quyền toàn cục. Cùng một người dùng có thể là tác giả ở hội nghị này, phản biện viên ở hội nghị khác và Chủ tọa ở một hội nghị khác nữa. Vì vậy, mỗi request cần xét cả danh tính người dùng và vai trò của họ trong tài nguyên cụ thể.
 
 
 \begingroup
@@ -1339,18 +1339,18 @@ Phân quyền được thiết kế theo vai trò trong từng hội nghị, kh�
 \begin{longtable}{|C{0.23\textwidth}|C{0.23\textwidth}|P{0.23\textwidth}|C{0.23\textwidth}|}
   \caption{Quyền hiện hành trong Discussion theo bài nộp}\\
   \hline
-   \TableHeader{Vai trò}    &    \TableHeader{Tạo thread}    &    \TableHeader{Xem thread}    &    \TableHeader{Gửi message} \\ \hline
+   \TableHeader{Vai trò}    &    \TableHeader{Tạo chuỗi thảo luận}    &    \TableHeader{Xem chuỗi thảo luận}    &    \TableHeader{Gửi tin nhắn} \\ \hline
   \endfirsthead
   \hline
-   \TableHeader{Vai trò}    &    \TableHeader{Tạo thread}    &    \TableHeader{Xem thread}    &    \TableHeader{Gửi message} \\ \hline
+   \TableHeader{Vai trò}    &    \TableHeader{Tạo chuỗi thảo luận}    &    \TableHeader{Xem chuỗi thảo luận}    &    \TableHeader{Gửi tin nhắn} \\ \hline
   \endhead
-  Phản biện viên được phân công   &   Có   &   Chỉ thread do mình tạo trong bài nộp   &   Có, trong thread do mình sở hữu \\ \hline
-  Tác giả của bài nộp      &      Không      &      Các thread gắn với bài nộp của mình      &      Có, trong thread liên quan \\ \hline
-  Chủ tọa/Đồng chủ tọa     &     Không     &     Toàn bộ thread và message của bài nộp     &     Không \\ \hline
+  Phản biện viên được phân công   &   Có   &   Chỉ chuỗi do mình tạo trong bài nộp   &   Có, trong chuỗi do mình sở hữu \\ \hline
+  Tác giả của bài nộp      &      Không      &      Các chuỗi gắn với bài nộp của mình      &      Có, trong chuỗi liên quan \\ \hline
+  Chủ tọa/Đồng chủ tọa     &     Không     &     Toàn bộ chuỗi thảo luận và tin nhắn của bài nộp     &     Không \\ \hline
 \end{longtable}
 \endgroup
 
-Ma trận trên phản ánh các quyền đang được backend cưỡng chế và được kiểm chứng bằng kiểm thử API, thay vì chỉ suy diễn từ các nút điều khiển trên giao diện. Trường \texttt{visibility} đã tồn tại trong dữ liệu Discussion nhưng chưa được áp dụng nhất quán vào truy vấn danh sách thread; vì vậy, hệ thống chưa thể tuyên bố đã hoàn thiện cơ chế phân quyền hiển thị nhiều tầng.
+Ma trận trên phản ánh các quyền backend đang cưỡng chế và đã kiểm chứng bằng kiểm thử API, thay vì chỉ suy diễn từ các nút điều khiển trên giao diện. Trường \texttt{visibility} đã tồn tại trong dữ liệu Discussion nhưng chưa được áp dụng nhất quán vào truy vấn danh sách chuỗi thảo luận; vì vậy, hệ thống chưa thể tuyên bố đã hoàn thiện cơ chế phân quyền hiển thị nhiều tầng.
 
 Ngoài JWT Bearer token cho người dùng cuối, hệ thống có hai header phục vụ vận hành và tích hợp service: \texttt{X-Admin-Token} cho tác vụ quản trị nội bộ và \texttt{X-Agent-Service-Token} cho AI service khi cần gọi backend query endpoint. Thiết kế này giúp tách quyền người dùng cuối khỏi quyền service-to-service, tránh để AI service truy cập dữ liệu vượt phạm vi được phép.
 
@@ -1358,13 +1358,13 @@ Ngoài JWT Bearer token cho người dùng cuối, hệ thống có hai header p
 
 Mục này là phần thiết kế cơ sở dữ liệu của ConferenceSpace. Hệ thống không dùng một kho dữ liệu duy nhất cho mọi bài toán: PostgreSQL lưu dữ liệu nghiệp vụ và các kết quả cần giao dịch nhất quán; Neo4j lưu quan hệ học thuật dạng đồ thị phục vụ phát hiện xung đột lợi ích; Redis lưu cache, phiên làm việc và trạng thái ngắn hạn của các luồng xử lý. Cách tách này giúp mỗi loại dữ liệu được đặt ở nơi phù hợp với cách truy vấn và mức độ nhất quán cần thiết.
 
-Thiết kế dữ liệu của ConferenceSpace không chỉ trả lời câu hỏi "lưu ở đâu", mà còn xác định vai trò của từng loại dữ liệu trong quy trình học thuật. Cách tổ chức này giúp hệ thống giữ được ba nguyên tắc đã đặt ra từ Chương 1 và Chương 2: nghiệp vụ cốt lõi phải nhất quán, các cảnh báo rủi ro phải có bằng chứng kiểm tra được, và đầu ra AI phải có khả năng theo dõi thay vì trở thành kết luận mơ hồ.
+Thiết kế dữ liệu của ConferenceSpace không chỉ trả lời câu hỏi "lưu ở đâu", mà còn xác định vai trò của từng loại dữ liệu trong quy trình học thuật. Cách tổ chức này giúp hệ thống giữ được ba nguyên tắc đã đặt ra từ Chương 1 và Chương 2: nghiệp vụ cốt lõi phải nhất quán, các cảnh báo rủi ro phải có bằng chứng kiểm tra được, và đầu ra AI phải theo dõi được (có dấu vết) thay vì trở thành kết luận mơ hồ.
 
 Nhóm thứ nhất là \textbf{dữ liệu nghiệp vụ quan hệ trong PostgreSQL}. Các thực thể như \texttt{users}, \texttt{conferences}, \CodeBreak{conference\_user\_roles}, \CodeBreak{conference\_submissions}, \CodeBreak{paper\_assignments}, \CodeBreak{rebuttal\_points}, \CodeBreak{discussion\_threads}, \CodeBreak{discussion\_messages} và \CodeBreak{notifications} mô tả vòng đời chính của một hội nghị. Trong nhóm này, \CodeBreak{paper\_assignments} là thực thể trung tâm vì nó nối bài nộp với phản biện viên, đồng thời lưu trạng thái phân công, điểm đối sánh, trạng thái phản biện, nội dung phản biện có cấu trúc và metadata audit. Nhờ vậy, hệ thống không tách rời "gợi ý phân công" khỏi quá trình phản biện thực tế.
 
 Nhóm thứ hai là \textbf{dữ liệu quan hệ học thuật và xung đột lợi ích trong PostgreSQL/Neo4j}. ConferenceSpace lưu cache hồ sơ học thuật qua \CodeBreak{scholar\_profiles}, \CodeBreak{scholar\_papers}, \CodeBreak{scholar\_profile\_papers} và \CodeBreak{semantic\_scholar\_cache}, đồng thời lưu kết quả phát hiện xung đột lợi ích trong \CodeBreak{coi\_relationships}. Với \CodeBreak{coi\_relationships}, mỗi cảnh báo không chỉ là một giá trị boolean, mà còn có loại quan hệ, mức độ nghiêm trọng, nguồn phát hiện và bằng chứng đi kèm. Phần graph trong Neo4j dùng để mô hình hóa quan hệ đồng tác giả giữa các tác giả/phản biện viên, sau đó kết quả có ý nghĩa nghiệp vụ được đồng bộ về PostgreSQL để Chủ tọa kiểm tra trong cùng luồng phân công.
 
-Nhóm thứ ba là \textbf{dữ liệu AI và trạng thái vận hành trong schema \texttt{ai} và Redis}. Các luồng xử lý AI không được thiết kế như một hộp đen tách khỏi hệ thống chính. Schema \texttt{ai} lưu phiên hội thoại, tin nhắn, kiểm toán lời gọi công cụ, các lượt chạy của Submission Gating, Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot, cùng kết quả JSON, dấu vết dữ liệu, trạng thái, thời điểm tạo và bản ghi theo từng bước. Thiết kế này cho phép hệ thống biết một kết quả AI được sinh từ bài nộp hoặc bài được phân công nào, dựa trên trạng thái dữ liệu nào và hiện còn hợp lệ hay không. Đây cũng là nền để Chương 4 đánh giá luồng xử lý AI bằng đầu vào, đầu ra, thời gian xử lý và các trường hợp lỗi, thay vì chỉ dựa vào cảm nhận người dùng.
+Nhóm thứ ba là \textbf{dữ liệu AI và trạng thái vận hành trong schema \texttt{ai} và Redis}. Nhóm không thiết kế các luồng xử lý AI như một hộp đen tách khỏi hệ thống chính. Schema \texttt{ai} lưu phiên hội thoại, tin nhắn, kiểm toán lời gọi công cụ, các lượt chạy của Submission Gating, Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot, cùng kết quả JSON, dấu vết dữ liệu, trạng thái, thời điểm tạo và bản ghi theo từng bước. Thiết kế này cho phép hệ thống biết một kết quả do AI tạo ra gắn với bài nộp hoặc bài được phân công nào, dựa trên trạng thái dữ liệu nào và hiện còn hợp lệ hay không. Đây cũng là nền để Chương 4 đánh giá luồng xử lý AI bằng đầu vào, đầu ra, thời gian xử lý và các trường hợp lỗi, thay vì chỉ dựa vào cảm nhận người dùng.
 
 \begingroup
 \small
@@ -1378,7 +1378,7 @@ Nhóm thứ ba là \textbf{dữ liệu AI và trạng thái vận hành trong sc
   \hline
    \TableHeader{Nhóm dữ liệu}    &    \TableHeader{Thực thể tiêu biểu}    &    \TableHeader{Vai trò trong thiết kế} \\ \hline
   \endhead
-  Nghiệp vụ hội nghị   &   \texttt{conferences}, \CodeBreak{conference\_submissions}, \CodeBreak{paper\_assignments}, \CodeBreak{rebuttal\_points}   &   Bảo toàn vòng đời submission-review-rebuttal và các ràng buộc giao dịch \\ \hline
+  Nghiệp vụ hội nghị   &   \texttt{conferences}, \CodeBreak{conference\_submissions}, \CodeBreak{paper\_assignments}, \CodeBreak{rebuttal\_points}   &   Bảo toàn vòng đời nộp bài--phản biện--phản hồi và các ràng buộc giao dịch \\ \hline
   Phân quyền và phối hợp      &      \texttt{users}, \CodeBreak{conference\_user\_roles}, \CodeBreak{discussion\_threads}, \CodeBreak{notifications}      &      Đảm bảo mỗi vai trò chỉ thao tác trong phạm vi được phép và nhận đúng tín hiệu vận hành \\ \hline
   Học thuật và COI     &     \CodeBreak{scholar\_profiles}, \CodeBreak{scholar\_papers}, \CodeBreak{coi\_relationships}, Neo4j co-author graph     &     Phát hiện quan hệ rủi ro và cung cấp bằng chứng để Chủ tọa kiểm tra \\ \hline
   Kết quả AI và kiểm toán      &      \texttt{ai.*\_runs}, \texttt{ai.*\_artifacts}, \texttt{ai.*\_stage\_records}, \texttt{ai\_tool\_audit}      &      Theo dõi đầu vào, đầu ra, trạng thái và lỗi của các luồng AI \\ \hline
@@ -1477,7 +1477,7 @@ Nhóm thứ ba là \textbf{dữ liệu AI và trạng thái vận hành trong sc
   \label{fig:ch3-19}
 \end{figure}
 
-Điểm quan trọng của thiết kế trên là dữ liệu AI luôn gắn với dữ liệu nghiệp vụ cụ thể. Ví dụ, Reviewer Initial Analysis gắn với \CodeBreak{assignment\_id} và \CodeBreak{submission\_id}, Review Quality Auditor gắn với bản phản biện đang được lưu trong \CodeBreak{paper\_assignments}, còn Chair Decision Copilot gắn với bài nộp và dấu vết gói bằng chứng tại thời điểm sinh gợi ý. Vì vậy, khi bài nộp, phản biện hoặc phản hồi tác giả thay đổi, hệ thống có cơ sở để xác định kết quả cũ còn phù hợp hay cần được tạo lại.
+Điểm quan trọng của thiết kế trên là dữ liệu AI luôn gắn với dữ liệu nghiệp vụ cụ thể. Ví dụ, Reviewer Initial Analysis gắn với \CodeBreak{assignment\_id} và \CodeBreak{submission\_id}, Review Quality Auditor gắn với bản phản biện hệ thống đang lưu trong \CodeBreak{paper\_assignments}, còn Chair Decision Copilot gắn với bài nộp và dấu vết gói bằng chứng tại thời điểm sinh gợi ý. Vì vậy, khi bài nộp, phản biện hoặc phản hồi tác giả thay đổi, hệ thống có cơ sở để xác định kết quả cũ còn phù hợp hay cần được tạo lại.
 
 \subsection{Luồng xử lý hệ thống}
 
@@ -1505,15 +1505,15 @@ Nhóm thứ ba là \textbf{dữ liệu AI và trạng thái vận hành trong sc
       \draw[prismDashedArrow] (13.20,-6.39) -- node[prismSeqLabel] {Metadata và gợi ý track} (8.80,-6.39);
       \draw[prismDashedArrow] (8.80,-7.64) -- node[prismSeqLabel] {Trả bản nháp cho tác giả} (4.40,-7.64);
       \draw[prismArrow] (0.00,-8.89) -- node[prismSeqLabel] {Kiểm tra, chỉnh sửa, xác nhận} (4.40,-8.89);
-      \draw[prismArrow] (4.40,-10.14) -- node[prismSeqLabel] {Lưu draft và yêu cầu kiểm tra nộp bài} (8.80,-10.14);
-      \draw[prismArrow] (8.80,-11.39) -- node[prismSeqLabel] {Yêu cầu Submission Gating trên draft} (13.20,-11.39);
+      \draw[prismArrow] (4.40,-10.14) -- node[prismSeqLabel] {Lưu bản nháp và yêu cầu kiểm tra nộp bài} (8.80,-10.14);
+      \draw[prismArrow] (8.80,-11.39) -- node[prismSeqLabel] {Yêu cầu Submission Gating trên bản nháp} (13.20,-11.39);
       \draw[prismArrow] (13.20,-12.64) -- ++(1.15,0) -- ++(0,-0.55) -- ++(-1.15,0);
       \node[anchor=west, font=\footnotesize, align=left, text width=3.0cm, fill=white, inner sep=1pt] at (14.45,-12.92) {Kiểm tra policy, format, section và nội dung cần rà soát};
       \draw[prismDashedArrow] (13.20,-13.89) -- node[prismSeqLabel] {Kết quả pass/warn/block và guidance} (8.80,-13.89);
       \draw[prismDashedArrow] (8.80,-15.14) -- node[prismSeqLabel] {Hiển thị cảnh báo hoặc cho phép gửi chính thức} (4.40,-15.14);
       \draw[prismArrow] (0.00,-16.39) -- node[prismSeqLabel] {Sửa nếu cần và xác nhận gửi} (4.40,-16.39);
-      \draw[prismArrow] (4.40,-17.64) -- node[prismSeqLabel] {Gửi submission chính thức sau gating} (8.80,-17.64);
-      \draw[prismArrow] (8.80,-18.89) -- node[prismSeqLabel] {Lưu submission, authors, files, COI declarations} (17.60,-18.89);
+      \draw[prismArrow] (4.40,-17.64) -- node[prismSeqLabel] {Gửi bài nộp chính thức sau gating} (8.80,-17.64);
+      \draw[prismArrow] (8.80,-18.89) -- node[prismSeqLabel] {Lưu bài nộp, tác giả, tệp và khai báo COI} (17.60,-18.89);
     \end{tikzpicture}
   \end{adjustbox}
   \caption{Luồng nộp bài có AI hỗ trợ}
@@ -1563,7 +1563,7 @@ Nhóm cơ chế này gồm đối sánh phản biện (reviewer matching), phát
 
 \subsection{Đối sánh phản biện (reviewer matching)}
 
-Đối sánh phản biện (reviewer matching) được triển khai như một thuật toán cố định, có thể kiểm chứng dựa trên Domain Jaccard Similarity và greedy assignment. Mục tiêu của thuật toán không phải là thay Chủ tọa chọn phản biện viên, mà là tạo một đề xuất phân công có thể giải thích, kiểm tra và chỉnh sửa.
+Hệ thống triển khai đối sánh phản biện (reviewer matching) như một thuật toán cố định, có thể kiểm chứng dựa trên Domain Jaccard Similarity và phân công tham lam (greedy assignment). Mục tiêu của thuật toán không phải là thay Chủ tọa chọn phản biện viên, mà là tạo một đề xuất phân công có thể giải thích, kiểm tra và chỉnh sửa.
 
 Đầu vào của thuật toán gồm:
 
@@ -1579,7 +1579,7 @@ Nhóm cơ chế này gồm đối sánh phản biện (reviewer matching), phát
   \hline
    \TableHeader{Nhóm dữ liệu}    &    \TableHeader{Nội dung sử dụng} \\ \hline
   \endhead
-  Submission   &   Track, keyword, domain và trạng thái hợp lệ để phân công \\ \hline
+  Bài nộp   &   Track, keyword, domain và trạng thái hợp lệ để phân công \\ \hline
   Phản biện viên      &      Domain chuyên môn, trạng thái tham gia hội nghị, tải phản biện hiện tại và giới hạn số bài có thể nhận \\ \hline
   Cấu hình hội nghị     &     Số phản biện viên cần cho mỗi bài, ngưỡng phù hợp tối thiểu nếu có và giới hạn tải \\ \hline
   COI      &      Các cặp bài nộp--phản biện viên bị loại do \texttt{self-author}, khai báo thủ công hoặc quan hệ đồng tác giả \\ \hline
@@ -1594,7 +1594,7 @@ R = set of domains from the Reviewer
 score(S, R) = |S INTERSECT R| / |S UNION R|
 \end{lstlisting}
 
-Nếu cả hai tập rỗng, cặp ứng viên không được xem là có bằng chứng phù hợp và được đặt score bằng 0. Công thức Jaccard được chọn vì dễ giải thích với Chủ tọa: điểm tăng khi phản biện viên có nhiều domain trùng với keyword/domain của bài nộp, và giảm khi hai tập domain có ít phần giao nhau.
+Nếu cả hai tập rỗng, cặp ứng viên không được xem là có bằng chứng phù hợp và được đặt score bằng 0. Nhóm chọn công thức Jaccard vì dễ giải thích với Chủ tọa: điểm tăng khi phản biện viên có nhiều domain trùng với keyword/domain của bài nộp, và giảm khi hai tập domain có ít phần giao nhau.
 
 \begin{figure}[htbp]
   \centering
@@ -1629,7 +1629,7 @@ Quá trình tạo đề xuất phân công diễn ra theo bốn bước:
   \item Tạo ma trận ứng viên từ tất cả cặp bài nộp-phản biện viên hợp lệ.
   \item Loại bỏ mọi cặp có COI trước khi sắp xếp điểm.
   \item Sắp xếp ứng viên theo điểm giảm dần; khi bằng điểm, ưu tiên phản biện viên có tải thấp hơn; nếu vẫn bằng nhau, dùng thứ tự ổn định theo định danh để kết quả ổn định, có thể tái tạo.
-  \item Gán phản biện viên theo greedy assignment cho đến khi mỗi bài nộp đạt số phản biện viên yêu cầu hoặc không còn ứng viên hợp lệ.
+  \item Gán phản biện viên theo phân công tham lam cho đến khi mỗi bài nộp đạt số phản biện viên yêu cầu hoặc không còn ứng viên hợp lệ.
 \end{enumerate}
 
 Load balancing được xử lý như một ràng buộc phụ sau COI. Phản biện viên đã đạt giới hạn tải sẽ không được chọn thêm; phản biện viên có tải thấp được ưu tiên khi cần phá hòa điểm, nhằm tránh để đề xuất phân công dồn quá nhiều bài vào một người. Tuy nhiên, hệ thống không hạ chuẩn COI hoặc tạo phân công không có phản biện viên hợp lệ chỉ để đạt đủ số lượng.
@@ -1663,7 +1663,7 @@ Thuật toán này không cố gắng mô phỏng toàn bộ quyết định c�
 
 \subsection{Phát hiện xung đột lợi ích}
 
-Phát hiện xung đột lợi ích được triển khai theo nhiều lớp để giảm rủi ro bỏ sót quan hệ hiển nhiên:
+Hệ thống triển khai phát hiện xung đột lợi ích theo nhiều lớp để giảm rủi ro bỏ sót quan hệ hiển nhiên:
 
 \begin{enumerate}
   \item \textbf{Self-author detector} phát hiện trường hợp phản biện viên là tác giả hoặc đồng tác giả của bài.
@@ -1699,7 +1699,7 @@ Phát hiện xung đột lợi ích được triển khai theo nhiều lớp đ�
   \label{fig:ch3-23}
 \end{figure}
 
-Trong luồng phân công, COI là ràng buộc cứng và được áp dụng trước khi tính phân công cuối. Thuật toán có thể fallback khi thiếu phản biện viên phù hợp, nhưng không được bỏ qua COI để lấp đủ số lượng. Mỗi cảnh báo COI được lưu kèm loại quan hệ, nguồn phát hiện và bằng chứng để Chủ tọa kiểm tra.
+Trong luồng phân công, COI là ràng buộc cứng và hệ thống áp dụng trước khi tính phân công cuối. Thuật toán có thể fallback khi thiếu phản biện viên phù hợp, nhưng không được bỏ qua COI để lấp đủ số lượng. Hệ thống lưu mỗi cảnh báo COI kèm loại quan hệ, nguồn phát hiện và bằng chứng để Chủ tọa kiểm tra.
 
 Kết quả COI không chỉ là giá trị đúng/sai. Với mỗi cặp bị loại, hệ thống cần lưu nguồn phát hiện, loại quan hệ và bằng chứng đủ để Chủ tọa hiểu vì sao Phản biện viên không được đề xuất. Cách lưu này quan trọng vì COI mang tính chất nghiệp vụ: Chủ tọa cần biết khác biệt giữa Phản biện viên là đồng tác giả, Phản biện viên do Tác giả khai báo xung đột, và Phản biện viên chỉ có quan hệ đồng tác giả gián tiếp trong graph học thuật.
 
@@ -1712,7 +1712,7 @@ Bên cạnh đối sánh phản biện và COI, hệ thống có nhiều cơ ch�
   \item \textbf{Deadline gating} kiểm tra thời điểm nộp bài, chỉnh sửa, gửi phản biện và phản hồi của tác giả.
   \item \textbf{Camera-ready upload guard} chỉ cho phép tải file camera-ready khi bài ở trạng thái \texttt{accepted} và file tải lên hợp lệ. Trong phiên bản hiện tại, hạn chót camera-ready chưa được cưỡng chế ở thời điểm chạy.
   \item \textbf{RBAC theo hội nghị} kiểm tra vai trò của người dùng trên từng tài nguyên.
-  \item \textbf{Notification routing} gửi thông báo đúng người, đúng thời điểm, đúng ngữ cảnh.
+  \item \textbf{Định tuyến thông báo} gửi thông báo đúng người, đúng thời điểm, đúng ngữ cảnh.
   \item \textbf{Schema validation} kiểm tra request/response trước khi ghi dữ liệu bền vững.
 \end{itemize}
 
@@ -1806,7 +1806,7 @@ Submission Autofill là luồng xử lý đầu tiên Tác giả tiếp cận tr
 \end{longtable}
 \endgroup
 
-Điểm quan trọng trong thiết kế hệ thống là kết quả do AI xử lý chỉ được dùng để tạo bản nháp. Giao diện người dùng không khóa các trường dữ liệu do AI điền tự động, và backend chỉ lưu bài nộp chính thức sau khi Tác giả đã kiểm tra và xác nhận. Nếu lượng văn bản trích xuất từ tệp tin quá ít hoặc thiếu các thông tin quan trọng, luồng xử lý sẽ trả về cảnh báo thay vì tự suy đoán dữ liệu. Nhờ vậy, Submission Autofill giúp đẩy nhanh tốc độ nhập dữ liệu nhưng vẫn đảm bảo trách nhiệm kiểm tra cuối cùng thuộc về Tác giả.
+Điểm quan trọng trong thiết kế hệ thống là kết quả do AI xử lý chỉ dùng để tạo bản nháp. Giao diện người dùng không khóa các trường dữ liệu do AI điền tự động, và backend chỉ lưu bài nộp chính thức sau khi Tác giả đã kiểm tra và xác nhận. Nếu lượng văn bản trích xuất từ tệp tin quá ít hoặc thiếu các thông tin quan trọng, luồng xử lý sẽ trả về cảnh báo thay vì tự suy đoán dữ liệu. Nhờ vậy, Submission Autofill giúp đẩy nhanh tốc độ nhập dữ liệu nhưng vẫn đảm bảo trách nhiệm kiểm tra cuối cùng thuộc về Tác giả.
 
 \subsubsection{Submission Gating}
 
@@ -1929,7 +1929,7 @@ Reviewer Initial Analysis tạo bản định hướng ban đầu trước khi P
       \node[prismNode, text width=3.8cm] (f4) at (-4.40,-11.00) {Trả bản định hướng từ bộ nhớ đệm};
       \node[prismNode, text width=4.0cm] (f5) at (4.40,-11.00) {AI Service tạo bản định hướng và chú thích};
       \node[prismNode, text width=3.8cm] (f6) at (4.40,-13.80) {Validate đầu ra có cấu trúc};
-      \node[prismNode, text width=4.0cm] (f7) at (4.40,-16.60) {Lưu kết quả theo assignment/submission};
+      \node[prismNode, text width=4.0cm] (f7) at (4.40,-16.60) {Lưu kết quả theo phân công/bài nộp};
       \node[prismNode] (f8) at (0.00,-19.40) {Phản biện viên đọc bản định hướng trong giao diện phản biện};
       \node[prismNode] (f9) at (0.00,-22.00) {Phản biện viên đọc bài gốc và viết phản biện};
       \draw[prismArrow] (f0) -- (f1);
@@ -1963,7 +1963,7 @@ Reviewer Initial Analysis tạo bản định hướng ban đầu trước khi P
    \TableHeader{Nhóm dữ liệu}    &    \TableHeader{Nội dung} \\ \hline
   \endhead
   Dữ liệu bài nộp   &   Tiêu đề, tóm tắt, từ khóa, chuyên đề và trạng thái bản thảo \\ \hline
-  Ngữ cảnh Phản biện viên      &      Thông tin phân công (assignment), Phản biện viên đang đăng nhập và nhãn lĩnh vực chuyên môn nếu có \\ \hline
+  Ngữ cảnh Phản biện viên      &      Thông tin phân công, Phản biện viên đang đăng nhập và nhãn lĩnh vực chuyên môn nếu có \\ \hline
   Dấu vết dữ liệu     &     Dấu vết trạng thái bài nộp để xác định kết quả phân tích cũ có còn hợp lệ hay không \\ \hline
 \end{longtable}
 \endgroup
@@ -2103,7 +2103,7 @@ Review Quality Auditor không đánh giá chất lượng học thuật (đạt 
 
 \subsubsection{Chair Decision Copilot}
 
-Chair Decision Copilot hỗ trợ Chủ tọa đọc nhanh toàn bộ gói bằng chứng của một bài nộp (submission). Ở giai đoạn ra quyết định, Chủ tọa phải đối chiếu nhiều nguồn thông tin: điểm số, nội dung phản biện, thay đổi sau phản hồi, thảo luận nội bộ, phản hồi tác giả và trạng thái hội nghị. Copilot tổng hợp các nguồn này thành một bản tổng hợp có cấu trúc để Chủ tọa kiểm tra nhanh hơn.
+Chair Decision Copilot hỗ trợ Chủ tọa đọc nhanh toàn bộ gói bằng chứng của một bài nộp. Ở giai đoạn ra quyết định, Chủ tọa phải đối chiếu nhiều nguồn thông tin: điểm số, nội dung phản biện, thay đổi sau phản hồi, thảo luận nội bộ, phản hồi tác giả và trạng thái hội nghị. Copilot tổng hợp các nguồn này thành một bản tổng hợp có cấu trúc để Chủ tọa kiểm tra nhanh hơn.
 
 \begin{figure}[htbp]
   \centering
@@ -2118,7 +2118,7 @@ Chair Decision Copilot hỗ trợ Chủ tọa đọc nhanh toàn bộ gói bằn
       },
       prismDecision/.append style={font=\footnotesize, text width=3.4cm}
     ]
-      \node[copilotNode] (f0) at (0.00,0.00) {Chủ tọa mở trang chi tiết bài nộp (submission detail)};
+      \node[copilotNode] (f0) at (0.00,0.00) {Chủ tọa mở trang chi tiết bài nộp};
       \node[copilotNode] (f1) at (0.00,-2.60) {Backend thu thập gói bằng chứng};
       \node[copilotNode] (f2) at (0.00,-5.20) {Tạo dấu vết gói bằng chứng và từng thành phần};
       \node[prismDecision] (f3) at (0.00,-8.00) {Artifact còn hợp lệ?};
@@ -2161,7 +2161,7 @@ Chair Decision Copilot hỗ trợ Chủ tọa đọc nhanh toàn bộ gói bằn
   Lời mời nộp bài và bài nộp   &   Tên hội nghị, lĩnh vực chuyên môn, chuyên đề, tiêu đề bài, trạng thái, từ khóa và thời điểm cập nhật \\ \hline
   Bằng chứng từ phản biện      &      Khuyến nghị, mức độ tự tin, điểm số, tóm tắt, điểm mạnh, điểm yếu, câu hỏi và điểm số theo từng tiêu chí \\ \hline
   Phân tích phản biện     &     Phân bố khuyến nghị, phân bố mức độ tự tin, tiêu chí mạnh/yếu và mức độ đầy đủ của phản biện \\ \hline
-  Thảo luận (Discussion) và phản hồi tác giả      &      Các luồng thảo luận (threads), nội dung phản hồi của tác giả, trạng thái xác nhận đã đọc và các điểm còn bỏ ngỏ \\ \hline
+  Thảo luận (Discussion) và phản hồi tác giả      &      Các chuỗi thảo luận, nội dung phản hồi của tác giả, trạng thái xác nhận đã đọc và các điểm còn bỏ ngỏ \\ \hline
 \end{longtable}
 \endgroup
 
@@ -2186,7 +2186,7 @@ Chair Decision Copilot hỗ trợ Chủ tọa đọc nhanh toàn bộ gói bằn
 \end{longtable}
 \endgroup
 
-Luồng xử lý này hoàn toàn không tự động sinh ra quyết định chấp nhận hay từ chối bài viết. Nếu hệ thống đưa ra khuyến nghị dưới dạng một kết luận sẵn có, điều này có thể làm ảnh hưởng hoặc làm sai lệch vai trò chịu trách nhiệm chuyên môn của con người. Vì vậy, kết quả đầu ra của Copilot được thiết kế như một bản tổng hợp thông tin hỗ trợ Chủ tọa đọc nhanh và đối chiếu trực tiếp với dữ liệu gốc. Trạng thái không còn hiện hành (\texttt{stale}) đóng vai trò quan trọng: khi phản biện, phản hồi của tác giả hoặc các thảo luận thay đổi, bản tổng hợp cũ lập tức được đánh dấu là không còn hiện hành.
+Luồng xử lý này hoàn toàn không tự động sinh ra quyết định chấp nhận hay từ chối bài viết. Nếu hệ thống đưa ra khuyến nghị dưới dạng một kết luận sẵn có, điều này có thể làm ảnh hưởng hoặc làm sai lệch vai trò chịu trách nhiệm chuyên môn của con người. Vì vậy, nhóm thiết kế đầu ra Copilot như một bản tổng hợp thông tin hỗ trợ Chủ tọa đọc nhanh và đối chiếu trực tiếp với dữ liệu gốc. Trạng thái không còn hiện hành (\texttt{stale}) đóng vai trò quan trọng: khi phản biện, phản hồi của tác giả hoặc các thảo luận thay đổi, hệ thống lập tức đánh dấu bản tổng hợp cũ là không còn hiện hành.
 
 \subsubsection{Chatbot Agent của nền tảng}
 
@@ -2207,7 +2207,7 @@ Chatbot Agent là công cụ hỗ trợ chung của nền tảng, phục vụ ch
       }
     ]
       \node[agentNode] (f0) at (0.00,0.00) {Người dùng gửi câu hỏi};
-      \node[agentNode] (f1) at (0.00,-2.40) {Dịch vụ AI nhận luồng thảo luận (thread), tin nhắn (message) và ngữ cảnh trang (page context)};
+      \node[agentNode] (f1) at (0.00,-2.40) {Dịch vụ AI nhận chuỗi thảo luận, tin nhắn và ngữ cảnh trang};
       \node[agentNode] (f2) at (0.00,-4.80) {Trợ lý (agent) xác định có cần gọi công cụ (tool) hay không};
       \node[agentNode, text width=3.6cm] (f3) at (-4.80,-8.00) {Trả lời theo ngữ cảnh hội thoại};
       \node[agentNode, text width=3.8cm] (f4) at (4.80,-8.00) {Gọi \texttt{query\_engine} với tài nguyên (resource), trường chọn (select), bộ lọc (filter), sắp xếp (sort)};
@@ -2414,7 +2414,7 @@ LLM_REQUEST_TIMEOUT_SECONDS=60
 
 \subsection{Tích hợp nguồn dữ liệu học thuật bên ngoài}
 
-Semantic Scholar API được dùng để làm giàu hồ sơ học thuật, hỗ trợ đối sánh, khớp nối hồ sơ (matching) và phát hiện xung đột lợi ích \cite{ch3ref16}. Với ConferenceSpace, nguồn dữ liệu này hữu ích vì hệ thống cần dữ liệu về các mối quan hệ hợp tác học thuật (như đồng tác giả, đồng nghiên cứu) thay vì chỉ dựa vào khai báo thủ công của người dùng.
+Hệ thống dùng Semantic Scholar API để làm giàu hồ sơ học thuật, hỗ trợ đối sánh, khớp nối hồ sơ (matching) và phát hiện xung đột lợi ích \cite{ch3ref16}. Với ConferenceSpace, nguồn dữ liệu này hữu ích vì hệ thống cần dữ liệu về các mối quan hệ hợp tác học thuật (như đồng tác giả, đồng nghiên cứu) thay vì chỉ dựa vào khai báo thủ công của người dùng.
 
 Tuy nhiên, dữ liệu bên ngoài chỉ là nguồn hỗ trợ. Nếu thông tin trong hồ sơ tác giả bị khuyết thiếu hoặc dữ liệu không đầy đủ, Chủ tọa vẫn cần có quyền kiểm tra và ghi đè. Đây là một rào cản/giới hạn đáng lưu ý khi áp dụng các nguồn thông tin học thuật tự động trong quy trình có tầm ảnh hưởng trực tiếp đến tính công bằng của công tác phản biện.
 
@@ -2422,21 +2422,21 @@ Tuy nhiên, dữ liệu bên ngoài chỉ là nguồn hỗ trợ. Nếu thông t
 
 Ưu điểm lớn nhất của các luồng xử lý AI là giảm thiểu số lượng thao tác và gánh nặng theo dõi ở những điểm người dùng đã phản ánh trong Chương 2. Tác giả không phải nhập lại siêu dữ liệu (metadata) đã có trong bản thảo. Phản biện viên có thêm bản định hướng đọc ban đầu và công cụ kiểm tra bản nháp phản biện. Chủ tọa có thêm bản tổng hợp gói bằng chứng để đối chiếu và ra quyết định nhanh chóng hơn.
 
-Tuy nhiên, các lợi ích này chỉ có giá trị nếu được diễn giải đúng phạm vi. AI có thể giúp Phản biện viên giảm số lần phải đọc lại toàn bộ bản thảo để tìm kiếm các điểm cần lưu ý, nhưng hoàn toàn không thể thay thế việc đọc và đánh giá bản thảo trực tiếp. AI có thể giúp Chủ tọa nhận diện được các điểm đồng thuận và bất đồng, nhưng không thể đưa ra quyết định thay thế cho vai trò của Chủ tọa. AI có thể giúp Tác giả phát hiện lỗi sớm, nhưng không đảm bảo bản thảo đạt chuẩn học thuật.
+Tuy nhiên, các lợi ích này chỉ có giá trị nếu người dùng diễn giải đúng phạm vi. AI có thể giúp Phản biện viên giảm số lần phải đọc lại toàn bộ bản thảo để tìm kiếm các điểm cần lưu ý, nhưng hoàn toàn không thể thay thế việc đọc và đánh giá bản thảo trực tiếp. AI có thể giúp Chủ tọa nhận diện được các điểm đồng thuận và bất đồng, nhưng không thể đưa ra quyết định thay thế cho vai trò của Chủ tọa. AI có thể giúp Tác giả phát hiện lỗi sớm, nhưng không đảm bảo bản thảo đạt chuẩn học thuật.
 
-Các giới hạn chính bao gồm: sự phụ thuộc vào chất lượng tệp tin đầu vào, nguy cơ xảy ra hiện tượng ảo giác thông tin (hallucination) hoặc nhận định thiếu căn cứ, token, giới hạn tần suất gọi API (rate limit) từ nhà cung cấp (provider), rủi ro về bảo mật dữ liệu bản thảo, và sự chênh lệch chất lượng đầu ra giữa các lĩnh vực chuyên môn. Vì vậy, mọi kết quả đầu ra từ AI trong hệ thống đều phải được con người kiểm tra (human-in-the-loop), được xác thực cấu trúc (schema validation) và có tiêu chí đánh giá riêng ở Chương 4.
+Các giới hạn chính bao gồm: sự phụ thuộc vào chất lượng tệp tin đầu vào, nguy cơ xảy ra hiện tượng ảo giác thông tin (hallucination) hoặc nhận định thiếu căn cứ, token, giới hạn tần suất gọi API (rate limit) từ nhà cung cấp (provider), rủi ro về bảo mật dữ liệu bản thảo, và sự chênh lệch chất lượng đầu ra giữa các lĩnh vực chuyên môn. Vì vậy, mọi kết quả đầu ra từ AI trong hệ thống đều phải do con người kiểm tra (human-in-the-loop); hệ thống phải xác thực cấu trúc (schema validation) và có tiêu chí đánh giá riêng ở Chương 4.
 
 \section{Môi trường triển khai và vận hành}
 
 \subsection{Môi trường phát triển cục bộ}
 
-Môi trường phát triển cục bộ của ConferenceSpace được thiết kế để nhóm phát triển có thể xây dựng tính năng, cập nhật dữ liệu (migration), kiểm tra API, kiểm thử luồng xử lý AI và tái tạo lỗi vận hành trên máy cá nhân. Môi trường này được chuẩn hóa bằng ba nhóm cơ chế: Docker Compose cho các dịch vụ có trạng thái, Makefile cho luồng khởi động phần xử lý phía máy chủ (backend), cơ sở dữ liệu và dịch vụ AI, cùng các biến môi trường mẫu cho cấu hình thời gian chạy (runtime).
+Nhóm thiết kế môi trường phát triển cục bộ của ConferenceSpace để có thể xây dựng tính năng, cập nhật dữ liệu (migration), kiểm tra API, kiểm thử luồng xử lý AI và tái tạo lỗi vận hành trên máy cá nhân. Môi trường này được chuẩn hóa bằng ba nhóm cơ chế: Docker Compose cho các dịch vụ có trạng thái, Makefile cho luồng khởi động phần xử lý phía máy chủ (backend), cơ sở dữ liệu và dịch vụ AI, cùng các biến môi trường mẫu cho cấu hình thời gian chạy (runtime).
 
 Trong môi trường phát triển, các service như PostgreSQL, Redis, Neo4j và AI service được container hóa để giảm thao tác cài đặt thủ công. Backend có thể chạy trực tiếp bằng Go để giữ vòng lặp sửa code nhanh, trong khi frontend chạy bằng dev server của Next.js.
 
 \subsubsection{Quy trình khởi động môi trường}
 
-Quy trình khởi động môi trường được thiết kế nhằm đồng bộ hóa việc thiết lập phần xử lý phía máy chủ (backend), cơ sở dữ liệu (database), kho đồ thị (graph store), bộ nhớ đệm (cache) và dịch vụ AI thay vì cấu hình thủ công rời rạc. Các target chính như sau:
+Nhóm thiết kế quy trình khởi động môi trường nhằm đồng bộ hóa việc thiết lập phần xử lý phía máy chủ (backend), cơ sở dữ liệu (database), kho đồ thị (graph store), bộ nhớ đệm (cache) và dịch vụ AI thay vì cấu hình thủ công rời rạc. Các target chính như sau:
 
 \begin{lstlisting}
 dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server
@@ -2712,7 +2712,7 @@ Mọi secret phải được cấu hình ở server hoặc GitHub Secrets. Báo 
 
 \subsection{Reverse proxy, HTTPS và routing}
 
-Caddy đóng vai trò gateway nhận lưu lượng từ Internet và định tuyến vào các service nội bộ. Trình duyệt không truy cập trực tiếp backend, AI service, PostgreSQL, Redis hoặc Neo4j. WebSocket notification được định tuyến riêng về backend, còn giao diện web được định tuyến về Next.js.
+Caddy đóng vai trò gateway nhận lưu lượng từ Internet và định tuyến vào các service nội bộ. Trình duyệt không truy cập trực tiếp backend, AI service, PostgreSQL, Redis hoặc Neo4j. Thông báo WebSocket được định tuyến riêng về backend, còn giao diện web được định tuyến về Next.js.
 
 Cấu hình Caddy production hiện tại:
 
