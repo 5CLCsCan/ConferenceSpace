@@ -506,6 +506,35 @@ Dùng bảng 1 hàng hoặc block như sau:
 | N14 | xem **review**, gửi **rebuttal**                           | xem **nhận xét phản biện**, gửi **phản hồi của tác giả (rebuttal)**                | M3 + M5                                        |
 | N15 | **Tính giải thích** (NFR label)                            | **Khả năng giải thích**                                                            | Tự nhiên hơn calque explainability             |
 
+### R. Chương 2 — Chủ ngữ–vị ngữ / chủ thể hành động (user accept full 2026-07-13)
+
+| ID | Trước | Sau | Ghi chú |
+| -- | ----- | --- | ------- |
+| R1 | **Khảo sát … được thực hiện** nhằm… | **Nhóm thực hiện khảo sát** nhằm… | Bị động vô chủ thể → chủ thể *nhóm* |
+| R2 | …**được sử dụng như** nguồn… **để xác định**… | …**đóng vai trò** nguồn… **để nhóm xác định**… | Ai dùng / ai xác định |
+| R3 | Thông tin này **là cần thiết** | Thông tin này **cần thiết** | Rút copula thừa |
+| R4 | **Cần lưu ý rằng**… | **Nhóm lưu ý rằng**… | Chủ ngữ tường minh |
+| R5 | Do **khảo sát được triển khai**… **kết quả được dùng**… **không dùng**… | Do **nhóm triển khai khảo sát**… **kết quả … chỉ được dùng**… **không được dùng**… | Chủ thể + nhất quán bị động |
+| R6 | **Cần** thông báo trong hệ thống… | **Hệ thống cần cung cấp** thông báo nội bộ… | Ô bảng thiếu chủ ngữ |
+| R7 | **Được đánh giá** hữu ích | **Tính năng này được đánh giá** hữu ích | Ô bảng thiếu chủ ngữ |
+| R8 | **đầu ra nên là** gợi ý… | **đầu ra của hệ thống nên là** gợi ý… | Chủ thể của đầu ra |
+| R9 | AI phù hợp hơn **ở vai trò**… **, để** phản biện viên… | …**khi đóng vai trò**… **, nhờ đó** phản biện viên… | Vị ngữ + hệ quả (không mục đích mơ) |
+| R10 | **Tổng hợp các phản hồi cho thấy**… | **Tổng hợp các phản hồi, nhóm nhận thấy**… | Chủ thể *nhóm* |
+| R11 | …71 phản hồi, **nên không đủ**… | …71 phản hồi, **nên kết quả không đủ**… | Chủ ngữ mệnh đề kết quả |
+| R12 | **khảo sát này được thực hiện** trước…, **khác với**… | **nhóm thực hiện khảo sát này** trước…; **cách làm đó khác với**… | Chủ thể + so sánh |
+| R13 | Bullet tiêu chí: **Hỗ trợ… / Đại diện… / Có…** | **Hệ thống được chọn hỗ trợ… / đại diện… / có…** | List thiếu chủ ngữ |
+| R14 | matching **vẫn cần được hiểu như**… | matching **cần được hiểu như**… | Bớt “vẫn” thừa |
+| R15 | **Thứ hai, đối sánh phản biện cần**… | **Thứ hai, quy trình đối sánh phản biện cần**… | Danh từ trung tâm cho chủ ngữ trừu tượng |
+| R16 | AI **được dùng** ở đâu… **được kiểm soát** ra sao… | **hệ thống dùng AI** ở đâu… **ai kiểm soát AI** ra sao… | Chủ thể chủ động song song |
+| R17 | Ô nguyên tắc: **Cảnh báo…; Không sinh…; Trả lời phải…; Trạng thái tập trung…** | **Hệ thống cảnh báo…; Hệ thống không sinh…; Câu trả lời phải…; Hệ thống giữ trạng thái…** | Ô bảng thiếu chủ ngữ |
+| R18 | **Gợi ý … cần** điểm…; **cảnh báo COI cần** nêu… | **Gợi ý … cần có** điểm…; **cảnh báo COI cần nêu rõ**… | Vị ngữ đầy đủ |
+| R19 | **Không dùng** một chỉ số… | **Nhóm không dùng** một chỉ số… | Mệnh lệnh → chủ thể *nhóm* |
+| R20 | Cột cơ sở: **Vấn đề về… / Nghiệp vụ… / Cần giảm…** | **Yêu cầu xuất phát từ… / Đây là nghiệp vụ… / Hệ thống cần giảm…** | Cụm danh từ → câu có chủ–vị |
+| R21 | **AI không được sử dụng** để viết… | **Hệ thống không được dùng AI** để viết… | Cấm thuộc hệ thống/chính sách |
+| R22 | **Không biến AI** thành… | **Hệ thống không được biến AI** thành… | Chủ ngữ yêu cầu |
+| R23 | Các luồng … **cần lưu được**… | **Hệ thống cần lưu** … của các luồng… | Chủ thể lưu trữ |
+| R24 | đánh giá **mức độ ConferenceSpace giải quyết**… | …**mức độ ConferenceSpace giải quyết được**… | Vị ngữ hoàn chỉnh |
+
 ### O. Chương 3 — Xây dựng hệ thống (user review 2026-07-13)
 
 | ID  | Trước                                                                   | Sau                                                                                                | Ghi chú                                                                                |
@@ -556,9 +585,20 @@ Dùng bảng 1 hàng hoặc block như sau:
 | P23 | _Kết luận bảo vệ được_ / _sản phẩm hoàn chỉnh_                | **Kết luận trong phạm vi bằng chứng hiện tại** / **ổn định ở mức có thể triển khai rộng**           | Bớt biện hộ + calque product                    |
 | P24 | _đường ống xử lý_ (khi đã dùng _luồng_)                       | **luồng** / **luồng riêng**                                                                          | Thống nhất pipeline trong cùng chương           |
 | P25 | Vai trò trong câu thường                                      | **phản biện viên** (thường); **Phản biện viên** chỉ ở đầu mục/caption/nhãn bảng khi cần              | Không viết hoa mọi chỗ                          |
-| P26 | _gán nhãn thủ công cho mức độ bám chứng cứ, mức độ dễ chuyển thành chỉnh sửa và mức độ nghiêm trọng_ | **chưa có người đánh giá thủ công từng phát hiện: liệu cảnh báo có bám chứng cứ, có dễ dùng để chỉnh sửa bài, và mức nghiêm trọng đến đâu** | Calque metric stack — viết lại câu hỏi tự nhiên |
+| P26 | _gán nhãn thủ công cho mức độ bám chứng cứ…_ / _chưa có người đánh giá thủ công từng phát hiện_ | **chưa có người đọc lại từng cảnh báo nội dung do hệ thống đưa ra: liệu cảnh báo có bám chứng cứ, có dễ dùng để chỉnh sửa bài, và mức nghiêm trọng đến đâu** | Finding ≠ “phát hiện” trần; nêu rõ cảnh báo nội dung + chủ thể hệ thống |
 | P27 | _khớp nhãn quyết định_ / _đo khớp nhãn quyết định_            | **đối chiếu với quyết định chấp nhận/từ chối do Chủ tọa đưa ra**                                    | Không calque _label matching_                   |
 | P28 | _để kết luận X_ / _không kết luận X_ (động từ trần)           | **để đưa ra kết luận về X** / **không đưa ra kết luận về X**                                         | Động từ đầy đủ khi nói phạm vi kết luận         |
+| P29 | _Kết luận cần tập trung…_ (thiếu chủ thể)                     | **Kết luận của chương này cần tập trung…**                                                           | Chủ ngữ trừu tượng phải neo chương/đề tài       |
+| P30 | _đầu ra vận hành được_                                        | **đầu ra dùng được trong vận hành**                                                                  | Calque operational output                       |
+| P31 | _sinh phát hiện… và bị kiểm tra_ / _được kiểm bằng số phát hiện_ | **sinh cảnh báo nội dung; hệ thống kiểm tra…** / **được kiểm tra bằng số cảnh báo nội dung**       | Ai kiểm tra? Cái gì bị kiểm? — chủ–vị tường minh |
+| P32 | _Không ghi nhận vi phạm…_ / _Cùng thử nghiệm đã chạy…_        | **Thử nghiệm không ghi nhận…** / **Nhóm đã chạy cùng thử nghiệm…**                                   | Thiếu chủ ngữ hành động                         |
+| P33 | _kết quả này cần giao diện…_ / _Đây đều là các điểm cần phản ánh vào giao diện_ | **hệ thống cần giao diện…** / **Hệ thống cần phản ánh các điểm này vào giao diện…**  | Kết quả/điểm không “cần giao diện”              |
+| P34 | _chạy độc lập, điểm kiểm tra… và truy ngược…_ (song song hỏng) | **chạy độc lập, có điểm kiểm tra… và truy ngược được đầu ra…**                                      | Danh từ giữa hai động từ                        |
+| P35 | _dùng không kiểm tra_                                         | **dùng mà không kiểm tra lại**                                                                       | Calque _use without checking_                   |
+| P36 | _con người trong vòng kiểm soát (human-in-the-loop)_          | **sự can thiệp của con người (human-in-the-loop)** / **với sự can thiệp…**                           | Q17; không _vòng kiểm soát_                     |
+| P37 | _mức độ… được đo thông qua_ / _; cần mở rộng…_ / _cho thấy cần cải thiện_ | **chương này đo mức độ…** / **nhóm cần mở rộng…** / **nhóm/hệ thống cần cải thiện…**         | Chủ ngữ tường minh cho _cần_ / bị động đo       |
+| P38 | _không được đẩy thành phán quyết_                             | **không được dùng để đẩy thành phán quyết tự động**                                                  | Bị động có mục đích rõ                          |
+| P39 | _API, cơ sở dữ liệu và cơ sở dữ liệu đồ thị_                  | **API, cơ sở dữ liệu quan hệ và cơ sở dữ liệu đồ thị**                                               | Tránh lặp “cơ sở dữ liệu” không phân loại       |
 
 ### Q. Chương 5 — Kết luận (user review 2026-07-13)
 
@@ -586,6 +626,19 @@ Dùng bảng 1 hàng hoặc block như sau:
 | Q20 | _chọn bài phản biện (bidding)_                                 | **đăng ký/chọn bài phản biện (bidding)**                                          | Đồng bộ bidding                                    |
 | Q21 | _đồng Tác giả_                                                 | **đồng tác giả**                                                                  | Viết hoa                                           |
 | Q22 | _context_ được truyền…                                         | **ngữ cảnh** được truyền…                                                         | Việt hóa khi không proper name                     |
+| Q23 | _các đề xuất không ghi nhận vi phạm_                           | **các đề xuất không chứa vi phạm** / **thử nghiệm không ghi nhận vi phạm trong các đề xuất** | Chủ ngữ lệch — đề xuất không “ghi nhận”            |
+| Q24 | _chỉ số… cho thấy…, nhưng chưa đo_                             | _chỉ số… cho thấy…; **tuy nhiên, thử nghiệm chưa đo**_                            | Chủ ngữ lệch — chỉ số không “đo”                   |
+| Q25 | sau “:” chuỗi động từ không chủ ngữ (_giảm…, gom…_)            | **vì giúp** giảm… / **cần** giảm…                                                | Neo vị ngữ vào chủ ngữ trước dấu hai chấm          |
+| Q26 | _không dùng AI tạo sinh_ (mệnh đề tĩnh từ)                     | **và không dựa trên AI tạo sinh**                                                 | Chủ ngữ/động từ rõ trong liệt kê                   |
+| Q27 | _có thể kết luận ConferenceSpace đáp ứng_                      | **có thể kết luận rằng** ConferenceSpace đáp ứng                                  | Bổ ngữ mệnh đề cần *rằng*                           |
+| Q28 | _cần có giải thích… hoặc xác nhận bởi X_                       | **cần được giải thích, cho phép ghi đè, hoặc được X xác nhận**                    | Song song bị động–chủ động                         |
+| Q29 | _kết luận hệ thống đang… và không làm ảnh hưởng_               | **kết luận liệu hệ thống có… hay không**                                          | Yes/no học thuật + chủ–vị rõ                       |
+| Q30 | _Nếu phát triển tiếp…, hệ thống cần_                           | **Nếu hệ thống được phát triển tiếp…, nó cần**                                    | Mệnh đề *Nếu* thiếu chủ ngữ                        |
+| Q31 | _Ở lớp…, cần bổ sung_                                          | **Ở lớp…, nhóm cần bổ sung**                                                      | Câu mệnh lệnh ẩn — bổ chủ ngữ                      |
+| Q32 | _doanh thu nếu có nên dựa_                                     | **nếu có doanh thu thì doanh thu đó nên dựa**                                     | Điều kiện lồng trong vị ngữ                        |
+| Q33 | _Chatbot Agent còn tỷ lệ lỗi_                                  | **Chatbot Agent vẫn còn tỷ lệ lỗi**                                               | Thiếu động từ/trợ động từ                          |
+| Q34 | _tham khảo từ lỗi vận hành_                                    | **rút kinh nghiệm từ sự cố vận hành**                                             | Calque + song song danh từ                         |
+| Q35 | _không phải là trao quyền…, mà là để agent_                    | **không phải là việc trao quyền…, mà là việc agent**                              | Cân bằng *không phải A mà là B*                    |
 
 ---
 
@@ -609,6 +662,8 @@ Dùng cho mọi đoạn được chạm. **FAIL bất kỳ mục nào → sửa 
 | 12  | User vừa chốt / sửa wording khác bản hệ thống — đã ghi ví dụ vào mục 7 (và 5/9 nếu cần) chưa?                     | Có, theo mục 7.0 — hoặc N/A nếu không đủ điều kiện ghi                               |
 | 13  | Vai trò reviewer đã thành **phản biện viên**; sản phẩm review là **nhận xét / bản phản biện**?                    | Có, không trộn vai trò với nội dung                                                  |
 | 14  | Câu có **chủ thể** rõ (ai tạo / ai quyết / hệ thống hay AI)?                                                      | Có                                                                                   |
+| 24  | Bị động *được thực hiện / được dùng / được triển khai* có **chủ thể** tường minh không?                            | Có — ưu tiên *nhóm/hệ thống + động từ chủ động* khi ngữ cảnh cho phép (R1–R5)        |
+| 25  | Ô bảng / bullet / cột “Cơ sở” có chủ–vị đủ, không chỉ cụm danh từ hoặc mệnh lệnh?                                 | Có — *Hệ thống cần… / Yêu cầu xuất phát từ… / Nhóm không dùng…* (R6–R7, R13, R17, R19–R22) |
 | 15  | Đã **rút gọn** mệnh đề thừa khi cùng ý chưa (không chỉ đổi synonym)?                                              | Có hoặc N/A                                                                          |
 | 16  | Lần đầu nói deterministic layer: **thuật toán cố định, có thể kiểm chứng**?                                       | Có; lần sau được xen kẽ cụm ngắn hơn                                                 |
 | 17  | Dùng **đảm bảo** (không _bảo đảm_) khi khẳng định trách nhiệm / kết quả?                                          | Có, thống nhất báo cáo                                                               |
@@ -630,6 +685,13 @@ Dùng cho mọi đoạn được chạm. **FAIL bất kỳ mục nào → sửa 
 | 33  | Quyết định học thuật: **cơ sở thông tin** (không _cơ sở dữ liệu_ khi không nói database)?                         | Có (Q8)                                                                              |
 | 34  | Cụm TCA/hậu kiểm: đã **viết lại theo ngữ cảnh** (không dán cùng một cụm mọi câu)?                                 | Có (P17)                                                                             |
 | 35  | Câu gãy do bulk-replace: đã **đọc lại và viết lại** thay vì chỉ đổi token?                                        | Có (P22)                                                                             |
+| 36  | Chủ ngữ–vị ngữ: chủ ngữ có **làm được** hành động vị ngữ không (không *đề xuất ghi nhận*, *chỉ số đo*)?            | Có (Q23–Q24)                                                                         |
+| 37  | Sau dấu hai chấm liệt kê hành động: đã neo bằng *vì giúp* / *cần* / *gồm*?                                        | Có (Q25)                                                                             |
+| 38  | Mệnh đề *Nếu…*: đã có chủ ngữ rõ?                                                                                 | Có (Q30)                                                                             |
+| 39  | Câu *cần + động từ* không chủ ngữ: đã bổ *nhóm* / *hệ thống*?                                                     | Có (Q31)                                                                             |
+| 40  | Submission Gating “finding”: đã dùng **cảnh báo nội dung** (không _từng phát hiện_ trần)?                         | Có (P26, P31)                                                                        |
+| 41  | _đầu ra vận hành được_ / _dùng không kiểm tra_ / _vòng kiểm soát HITL_: đã thay cụm chốt?                         | Có (P30, P35, P36)                                                                   |
+| 42  | Câu nhận xét số liệu thiếu chủ ngữ (_Không ghi nhận…_, _Cùng thử nghiệm đã chạy…_): đã neo *thử nghiệm/nhóm*?     | Có (P32)                                                                             |
 
 ---
 
@@ -657,11 +719,15 @@ so với / rõ rệt  (không: vs / đáng kể trong nhận xét số)
 luồng / luồng riêng  (không: đường ống khi chương đã dùng luồng)
 phản biện viên  (thường); Phản biện viên  (đầu mục/caption)
 gán nhãn thủ công cho mức độ A, B, C
-chưa có người đánh giá thủ công từng phát hiện: liệu …, có …, và …
-khớp nhãn quyết định
-đối chiếu với quyết định chấp nhận/từ chối do Chủ tọa đưa ra
-để kết luận X / không kết luận X
-để đưa ra kết luận về X / không đưa ra kết luận về X
+chưa có người đọc lại từng cảnh báo nội dung do hệ thống đưa ra: liệu …, có …, và …
+(tránh: từng phát hiện trần; gán nhãn thủ công cho mức độ A, B, C)
+khớp nhãn quyết định → đối chiếu với quyết định chấp nhận/từ chối do Chủ tọa đưa ra
+để đưa ra kết luận về X / không đưa ra kết luận về X  (không: để kết luận X)
+đầu ra dùng được trong vận hành  (không: đầu ra vận hành được)
+hệ thống cần giao diện… / nhóm cần mở rộng…  (không: kết quả cần giao diện; ; cần mở rộng)
+dùng mà không kiểm tra lại  (không: dùng không kiểm tra)
+sự can thiệp của con người (human-in-the-loop)  (không: vòng kiểm soát)
+Thử nghiệm không ghi nhận… / Nhóm đã chạy…  (không: Không ghi nhận…; Cùng thử nghiệm đã chạy…)
 liệu … hay không
 để kiểm tra …
 
@@ -687,6 +753,11 @@ Phản biện viên (không bắt buộc gloss Reviewer nếu đã chốt)
 đối sánh phản biện (reviewer matching)
 ổn định, có thể tái tạo  (tránh: lặp lại được — N7)
 giảm gánh nặng theo dõi / giảm khối lượng thao tác  (tránh: giảm tải nhận thức — N4)
+Nhóm thực hiện khảo sát…  (tránh: Khảo sát được thực hiện… — R1)
+Hệ thống cần… / Hệ thống không được…  (ô bảng, yêu cầu — R6, R17, R21)
+Yêu cầu xuất phát từ… / Đây là nghiệp vụ…  (cột Cơ sở — R20)
+Nhóm không dùng một chỉ số…  (tránh: Không dùng… mệnh lệnh — R19)
+Tổng hợp …, nhóm nhận thấy…  (tránh: Tổng hợp … cho thấy… — R10)
 luồng AI / luồng xử lý (tránh lặp workflow trừ tên riêng)
 mức độ sử dụng được (tránh: độ khả dụng — metric AI, khác NFR “không khả dụng”)
 ba lớp: A; B và C; D  (tránh: A, B, C và D khi B đã có dấu phẩy nội bộ)
@@ -707,6 +778,14 @@ ReAct (Reasoning and Acting)  (không nhét "- Suy luận và Hành động" —
 cơ sở thông tin đầy đủ hơn  (tránh: cơ sở dữ liệu toàn diện hơn khi nói quyết định — Q8)
 kết luận có cơ sở  (tránh: kết luận bảo vệ được — Q9)
 đăng ký/chọn bài phản biện (bidding)
+các đề xuất không chứa vi phạm  (không: đề xuất không ghi nhận — Q23)
+thử nghiệm chưa đo…  (không: chỉ số… nhưng chưa đo — Q24)
+vì giúp / cần  sau dấu hai chấm khi liệt kê hành động (Q25)
+kết luận rằng… / liệu… hay không
+Nếu hệ thống được…, nó cần…  (mệnh đề Nếu có chủ ngữ — Q30)
+nhóm cần bổ sung…  (không: Ở lớp…, cần bổ sung — Q31)
+nếu có doanh thu thì doanh thu đó nên…  (Q32)
+không phải là việc A, mà là việc B  (Q35)
 ```
 
 ---
@@ -724,4 +803,4 @@ Không xóa quy tắc / ví dụ cũ nếu vẫn còn xuất hiện trong bản 
 
 **Thứ tự ưu tiên khi mâu thuẫn:** câu user chốt mới nhất > cụm trong mục 5/9 > ví dụ cũ trong mục 7 > thói quen diễn đạt của model.
 
-**Nhắc session sau (Ch1–Ch5 đã chốt):** reviewer = **phản biện viên** (không _Người phản biện_; không bắt buộc gloss EN; viết hoa chỉ đầu mục/caption); Chair = **Chủ tọa** / **Chủ tọa/Đồng chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; _đảm bảo_; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng** (hoặc _cố định và có thể kiểm chứng_ trong list `;`); tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh _nhận thức_ cho UX theo dõi (N4); product EN **Submission Autofill** / **Reviewer Initial Analysis** / **Chair Decision Copilot** giữ; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30); Ch3: **giữ plugin** (O3); token EN _submission/assignment/workspace_ **Việt hóa chọn lọc** (O4); **giữ gloss (data contract)** khi bổ nghĩa (O5); _hợp đồng API_ → **đặc tả API** (O6); Ch4: micro-benchmark = **thời gian xử lý và mức sử dụng bộ nhớ, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng** (P2, không viết tắt CSDL); snapshot = **bản sao lưu dữ liệu (snapshot)** (P3); proxy = **chỉ số gián tiếp (proxy)** (P5); **phản hồi tức thời** (P4); **tác nhân (agent)** (P6); _hợp đồng đầu ra_ / _tất định_ → cụm mục 5; contract testing = **kiểm thử theo chuẩn đầu ra (contract testing)** (P1); **đọc câu theo ngữ cảnh** — không bulk-replace cứng (P17/P22); TCA = **đánh giá** khi ngữ cảnh đã rõ; _production_ = **đang dùng**; _vs/đáng kể_ → **so với/rõ rệt**; Ch5: human-in-the-loop = **sự can thiệp của con người (human-in-the-loop)** (Q17); ReAct = **ReAct (Reasoning and Acting)** một lớp EN (Q18); quyết định = **cơ sở thông tin** không _cơ sở dữ liệu_ (Q8); _kết luận có cơ sở_ không _bảo vệ được_ (Q9); bidding = **đăng ký/chọn bài phản biện (bidding)** (Q20).
+**Nhắc session sau (Ch1–Ch5 đã chốt):** reviewer = **phản biện viên** (không _Người phản biện_; không bắt buộc gloss EN; viết hoa chỉ đầu mục/caption); Chair = **Chủ tọa** / **Chủ tọa/Đồng chủ tọa**; Area Chair = **Chủ tọa khu vực (Area Chair)**; matching = **đối sánh phản biện (reviewer matching)**; _đảm bảo_; lần đầu deterministic = **thuật toán cố định, có thể kiểm chứng** (hoặc _cố định và có thể kiểm chứng_ trong list `;`); tính chất = **ổn định, có thể tái tạo**; **không khả dụng** hợp lệ NFR (N6); **nghiệp vụ nền tảng** giữ nếu không chồng platform (N5); tránh _nhận thức_ cho UX theo dõi (N4); product EN **Submission Autofill** / **Reviewer Initial Analysis** / **Chair Decision Copilot** giữ; ba lớp dùng `;` (M26); **hỗ trợ đọc hiểu** (M30); Ch2 chủ–vị (nhóm R): *nhóm thực hiện khảo sát*; *hệ thống cần…*; *yêu cầu xuất phát từ…*; *hệ thống không được dùng AI…*; *nhóm không dùng một chỉ số…*; bullet/ô bảng phải có chủ ngữ tường minh; Ch3: **giữ plugin** (O3); token EN _submission/assignment/workspace_ **Việt hóa chọn lọc** (O4); **giữ gloss (data contract)** khi bổ nghĩa (O5); _hợp đồng API_ → **đặc tả API** (O6); Ch4: micro-benchmark = **thời gian xử lý và mức sử dụng bộ nhớ, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng** (P2, không viết tắt CSDL); snapshot = **bản sao lưu dữ liệu (snapshot)** (P3); proxy = **chỉ số gián tiếp (proxy)** (P5); **phản hồi tức thời** (P4); **tác nhân (agent)** (P6); _hợp đồng đầu ra_ / _tất định_ → cụm mục 5; contract testing = **kiểm thử theo chuẩn đầu ra (contract testing)** (P1); **đọc câu theo ngữ cảnh** — không bulk-replace cứng (P17/P22); TCA = **đánh giá** khi ngữ cảnh đã rõ; _production_ = **đang dùng**; _vs/đáng kể_ → **so với/rõ rệt**; finding Gating = **cảnh báo nội dung** (P26/P31, không _từng phát hiện_); _vận hành được_ → **dùng được trong vận hành** (P30); chủ–vị: **Kết luận của chương…**, **Thử nghiệm/Nhóm…**, **hệ thống/nhóm cần…** (P29–P39); Ch5: human-in-the-loop = **sự can thiệp của con người (human-in-the-loop)**; ReAct = **ReAct (Reasoning and Acting)** một lớp EN; quyết định = **cơ sở thông tin** không _cơ sở dữ liệu_; _kết luận có cơ sở_ không _bảo vệ được_; bidding = **đăng ký/chọn bài phản biện (bidding)**.
