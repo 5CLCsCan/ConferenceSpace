@@ -90,7 +90,7 @@
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\newcommand{\CodeBreak}[1]{\texttt{\seqsplit{#1}}}
+\newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
 \newcommand{\TableHeader}[1]{\centering\arraybackslash\textbf{#1}}
 % Template bảng dùng lại:
 % - PrismTableCenter: bảng thường dùng với \captionof{table}, \TableCaptionSpace và tabular full border.
@@ -107,7 +107,6 @@
 }
 \newenvironment{PrismTableCenter}{%
   \begin{center}
-  \small
   \setlength{\tabcolsep}{2pt}%
   \renewcommand{\arraystretch}{1.15}%
 }{%
@@ -115,18 +114,14 @@
 }
 \newenvironment{PrismLongTable}{%
   \begingroup
-  \small
   \setlength{\tabcolsep}{2pt}%
   \setlength{\LTleft}{0pt}%
   \setlength{\LTright}{0pt}%
 }{%
-  \endgroup% 
+  \endgroup%
 }
 \captionsetup[figure]{position=bottom,justification=centering,singlelinecheck=false}
 \captionsetup[table]{justification=centering,singlelinecheck=false}
-\AtBeginEnvironment{table}{\small}
-\AtBeginEnvironment{longtable}{\small}
-\AtBeginEnvironment{tabular}{\small}
 
 % Đổi tên mặc định
 \renewcommand{\chaptername}{Chương}
@@ -182,7 +177,7 @@
 \tikzset{
   prismNode/.style={draw, rounded corners=2pt, fill=blue!4, align=center, font=\scriptsize, inner sep=4pt, text width=34mm, minimum height=8mm},
   prismDecision/.style={draw, diamond, aspect=2.2, fill=orange!8, align=center, font=\scriptsize, inner sep=2pt, text width=30mm},
-  prismEntity/.style={draw, rounded corners=2pt, fill=green!5, align=center, font=\scriptsize\ttfamily, inner sep=4pt, text width=35mm, minimum height=8mm},
+  prismEntity/.style={draw, rounded corners=2pt, fill=green!5, align=center, font=\scriptsize\itshape, inner sep=4pt, text width=35mm, minimum height=8mm},
   prismArrow/.style={->, thick},
   prismDashedArrow/.style={->, thick, dashed},
   prismEdgeLabel/.style={midway, fill=white, inner sep=1pt, font=\scriptsize, align=center},
