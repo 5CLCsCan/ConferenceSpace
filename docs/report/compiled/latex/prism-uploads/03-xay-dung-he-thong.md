@@ -174,29 +174,29 @@ Notification và phân quyền không được tách thành use case độc lậ
 
 **Bảng 3.1. Truy vết yêu cầu Chương 2 đến use case và thiết kế Chương 3**
 
-| Mã yêu cầu | Use case đáp ứng | Mục thiết kế liên quan |
-|---|---|---|
-| F-AUTHOR-01 | UC-01 | 3.3.2, 3.4.4 |
-| F-AUTHOR-02 | UC-02 | 3.3.2, 3.3.3, 3.3.4 |
-| F-AUTHOR-03 | UC-02 | 3.5.2.1 |
-| F-AUTHOR-04 | UC-02 | 3.5.2.1 |
-| F-AUTHOR-05 | UC-02 | 3.5.2.2 |
-| F-AUTHOR-06 | UC-03, UC-08 | 3.3.2, 3.3.4, 3.4.4 |
-| F-REVIEWER-01 | UC-04 | 3.3.2, 3.3.3 |
-| F-REVIEWER-02 | UC-04, UC-05, UC-08 | 3.3.2, 3.3.3 |
-| F-REVIEWER-03 | UC-05 | 3.3.2, 3.3.4 |
-| F-REVIEWER-04 | UC-05 | 3.5.2.3 |
-| F-REVIEWER-05 | UC-05 | 3.5.2.3, 3.5.2.4 |
-| F-CHAIR-01 | UC-07 | 3.3.2, 3.3.3 |
-| F-CHAIR-02 | UC-07, UC-08 | 3.3.2, 3.4.4 |
-| F-CHAIR-03 | UC-06 | 3.4.2 |
-| F-CHAIR-04 | UC-06 | 3.4.3 |
-| F-CHAIR-05 | UC-06 | 3.4.2, 3.4.3 |
-| F-CHAIR-06 | UC-05 | 3.5.2.4 |
-| F-CHAIR-07 | UC-09 | 3.5.2.5 |
-| F-COMMON-01 | UC-10 | 3.5.2.6 |
-| F-COMMON-02 | Xuyên suốt UC-02 đến UC-09 | 3.3.2, 3.4.4 |
-| F-COMMON-03 | Xuyên suốt cả mười use case | 3.3.3, 3.6.7 |
+| Mã yêu cầu    | Use case đáp ứng            | Mục thiết kế liên quan |
+| ------------- | --------------------------- | ---------------------- |
+| F-AUTHOR-01   | UC-01                       | 3.3.2, 3.4.4           |
+| F-AUTHOR-02   | UC-02                       | 3.3.2, 3.3.3, 3.3.4    |
+| F-AUTHOR-03   | UC-02                       | 3.5.2.1                |
+| F-AUTHOR-04   | UC-02                       | 3.5.2.1                |
+| F-AUTHOR-05   | UC-02                       | 3.5.2.2                |
+| F-AUTHOR-06   | UC-03, UC-08                | 3.3.2, 3.3.4, 3.4.4    |
+| F-REVIEWER-01 | UC-04                       | 3.3.2, 3.3.3           |
+| F-REVIEWER-02 | UC-04, UC-05, UC-08         | 3.3.2, 3.3.3           |
+| F-REVIEWER-03 | UC-05                       | 3.3.2, 3.3.4           |
+| F-REVIEWER-04 | UC-05                       | 3.5.2.3                |
+| F-REVIEWER-05 | UC-05                       | 3.5.2.3, 3.5.2.4       |
+| F-CHAIR-01    | UC-07                       | 3.3.2, 3.3.3           |
+| F-CHAIR-02    | UC-07, UC-08                | 3.3.2, 3.4.4           |
+| F-CHAIR-03    | UC-06                       | 3.4.2                  |
+| F-CHAIR-04    | UC-06                       | 3.4.3                  |
+| F-CHAIR-05    | UC-06                       | 3.4.2, 3.4.3           |
+| F-CHAIR-06    | UC-05                       | 3.5.2.4                |
+| F-CHAIR-07    | UC-09                       | 3.5.2.5                |
+| F-COMMON-01   | UC-10                       | 3.5.2.6                |
+| F-COMMON-02   | Xuyên suốt UC-02 đến UC-09  | 3.3.2, 3.4.4           |
+| F-COMMON-03   | Xuyên suốt cả mười use case | 3.3.3, 3.6.7           |
 
 ### 3.2.3. Đặc tả use case quan trọng
 
@@ -755,11 +755,11 @@ Phân quyền được thiết kế theo vai trò trong từng hội nghị, kh�
 
 **Bảng 3.2. Quyền hiện hành trong Discussion theo submission**
 
-| Vai trò | Tạo thread | Xem thread | Gửi message |
-|---|---|---|---|
-| Reviewer được phân công | Có | Chỉ thread do mình tạo trong submission | Có, trong thread do mình sở hữu |
-| Tác giả của submission | Không | Các thread gắn với submission của mình | Có, trong thread liên quan |
-| Chair/Co-chair | Không | Toàn bộ thread và message của submission | Không |
+| Vai trò                 | Tạo thread | Xem thread                               | Gửi message                     |
+| ----------------------- | ---------- | ---------------------------------------- | ------------------------------- |
+| Reviewer được phân công | Có         | Chỉ thread do mình tạo trong submission  | Có, trong thread do mình sở hữu |
+| Tác giả của submission  | Không      | Các thread gắn với submission của mình   | Có, trong thread liên quan      |
+| Chair/Co-chair          | Không      | Toàn bộ thread và message của submission | Không                           |
 
 Ma trận trên phản ánh quyền đang được backend và API test cưỡng chế, không suy diễn từ control trên giao diện. Trường `visibility` đã tồn tại trong dữ liệu Discussion nhưng chưa được áp dụng nhất quán vào truy vấn danh sách thread; vì vậy, hệ thống chưa thể tuyên bố đã hoàn thiện phân quyền visibility nhiều tầng.
 
@@ -892,12 +892,12 @@ Reviewer matching được triển khai như một thuật toán xác định d�
 
 Đầu vào của thuật toán gồm:
 
-| Nhóm dữ liệu | Nội dung sử dụng |
-|---|---|
-| Submission | Track, keyword, domain và trạng thái hợp lệ để phân công |
-| Reviewer | Domain chuyên môn, trạng thái tham gia hội nghị, tải phản biện hiện tại và giới hạn số bài có thể nhận |
-| Cấu hình hội nghị | Số reviewer cần cho mỗi bài, ngưỡng phù hợp tối thiểu nếu có và giới hạn tải |
-| COI | Các cặp submission-reviewer bị loại do self-author, khai báo thủ công hoặc quan hệ đồng tác giả |
+| Nhóm dữ liệu      | Nội dung sử dụng                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| Submission        | Track, keyword, domain và trạng thái hợp lệ để phân công                                               |
+| Reviewer          | Domain chuyên môn, trạng thái tham gia hội nghị, tải phản biện hiện tại và giới hạn số bài có thể nhận |
+| Cấu hình hội nghị | Số reviewer cần cho mỗi bài, ngưỡng phù hợp tối thiểu nếu có và giới hạn tải                           |
+| COI               | Các cặp submission-reviewer bị loại do self-author, khai báo thủ công hoặc quan hệ đồng tác giả        |
 
 Với mỗi cặp submission-reviewer không bị loại bởi COI, hệ thống chuẩn hóa hai tập domain:
 
@@ -938,12 +938,12 @@ Ví dụ, một bài có domain `{machine learning, information retrieval}` và 
 
 Các failure cases chính được xử lý như sau:
 
-| Tình huống | Cách xử lý |
-|---|---|
-| Bài không đủ reviewer không có COI | Đánh dấu thiếu reviewer để Chair mời thêm hoặc phân công thủ công |
+| Tình huống                                   | Cách xử lý                                                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------------ |
+| Bài không đủ reviewer không có COI           | Đánh dấu thiếu reviewer để Chair mời thêm hoặc phân công thủ công              |
 | Reviewer thiếu domain hoặc profile học thuật | Vẫn có thể xuất hiện với score thấp nếu không có COI, nhưng không được ưu tiên |
-| Dữ liệu COI graph không khả dụng | Giữ các lớp COI còn lại và thông báo nguồn evidence bị thiếu |
-| Tất cả ứng viên tốt đều có COI | Không gán tự động; COI là ràng buộc cứng |
+| Dữ liệu COI graph không khả dụng             | Giữ các lớp COI còn lại và thông báo nguồn evidence bị thiếu                   |
+| Tất cả ứng viên tốt đều có COI               | Không gán tự động; COI là ràng buộc cứng                                       |
 
 Thuật toán này không cố gắng mô phỏng toàn bộ quyết định của Chair. Nó cung cấp một danh sách ứng viên có điểm phù hợp và lý do đủ rõ để Chair kiểm tra. Đây là cách cân bằng giữa tự động hóa và trách nhiệm học thuật: hệ thống giảm công tìm kiếm thủ công, nhưng quyết định phân công vẫn thuộc về Chair.
 
@@ -1259,14 +1259,14 @@ Ranh giới này đặc biệt quan trọng vì chatbot là nơi dễ phát sinh
 
 Các workflow AI khác nhau về vai trò và dữ liệu, nhưng dùng chung một số kiểm soát kiến trúc. Các kiểm soát này là phần giúp hệ thống giữ được nguyên tắc "AI hỗ trợ, con người quyết định" xuyên suốt Chương 1 và Chương 2.
 
-| Workflow | Output chính | Điểm kiểm soát của con người | Không được làm gì |
-|---|---|---|---|
-| Submission Autofill | Metadata, keyword và gợi ý track trong danh sách hợp lệ | Tác giả kiểm tra, chỉnh sửa và xác nhận trước khi gửi | Không tự gửi bài; không tự chọn track ngoài cấu hình hội nghị |
-| Submission Gating | Verdict `pass`, `warn`, `block` và lý do kiểm tra | Tác giả sửa lỗi hoặc xác nhận tiếp tục khi policy cho phép | Không đánh giá giá trị học thuật của paper |
-| Reviewer Initial Analysis | Briefing, điểm cần chú ý và annotation hỗ trợ đọc | Reviewer đọc bài gốc và tự hình thành nhận định chuyên môn | Không thay reviewer đọc bài; không sinh điểm hoặc recommendation |
-| Review Quality Auditor | Finding về độ cụ thể, nhất quán và mức độ bám form của review | Reviewer sửa hoặc xác nhận bản review trước khi gửi | Không đổi điểm, recommendation hoặc đánh giá bài báo thay reviewer |
-| Chair Decision Copilot | Tổng hợp evidence, đồng thuận, bất đồng và vấn đề còn mở | Chair đối chiếu evidence gốc và tự lưu quyết định cuối cùng | Không sinh quyết định accept/reject |
-| Chatbot Agent | Câu trả lời hoặc truy vấn dữ liệu trong phạm vi quyền | Người dùng kiểm tra câu trả lời; backend kiểm soát dữ liệu được trả | Không truy vấn database trực tiếp; không bỏ qua RBAC |
+| Workflow                  | Output chính                                                  | Điểm kiểm soát của con người                                        | Không được làm gì                                                  |
+| ------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Submission Autofill       | Metadata, keyword và gợi ý track trong danh sách hợp lệ       | Tác giả kiểm tra, chỉnh sửa và xác nhận trước khi gửi               | Không tự gửi bài; không tự chọn track ngoài cấu hình hội nghị      |
+| Submission Gating         | Verdict `pass`, `warn`, `block` và lý do kiểm tra             | Tác giả sửa lỗi hoặc xác nhận tiếp tục khi policy cho phép          | Không đánh giá giá trị học thuật của paper                         |
+| Reviewer Initial Analysis | Briefing, điểm cần chú ý và annotation hỗ trợ đọc             | Reviewer đọc bài gốc và tự hình thành nhận định chuyên môn          | Không thay reviewer đọc bài; không sinh điểm hoặc recommendation   |
+| Review Quality Auditor    | Finding về độ cụ thể, nhất quán và mức độ bám form của review | Reviewer sửa hoặc xác nhận bản review trước khi gửi                 | Không đổi điểm, recommendation hoặc đánh giá bài báo thay reviewer |
+| Chair Decision Copilot    | Tổng hợp evidence, đồng thuận, bất đồng và vấn đề còn mở      | Chair đối chiếu evidence gốc và tự lưu quyết định cuối cùng         | Không sinh quyết định accept/reject                                |
+| Chatbot Agent             | Câu trả lời hoặc truy vấn dữ liệu trong phạm vi quyền         | Người dùng kiểm tra câu trả lời; backend kiểm soát dữ liệu được trả | Không truy vấn database trực tiếp; không bỏ qua RBAC               |
 
 **Hình 3.28. Kiểm soát chung quanh output AI**
 
@@ -1745,14 +1745,14 @@ Trọng tâm thiết kế của chương là tách các quyết định cần t�
 
 Các claim thiết kế chính của chương được nối với bằng chứng đánh giá ở Chương 4 như sau:
 
-| Claim thiết kế ở Chương 3 | Thành phần hiện thực hóa | Bằng chứng cần đối chiếu ở Chương 4 |
-|---|---|---|
-| Hệ thống đáp ứng vòng đời chính của hội nghị học thuật | Use case, frontend theo vai trò, backend API và state machine | Kiểm thử chức năng, UAT và luồng nghiệp vụ end-to-end |
-| Reviewer matching có thể giải thích và không phụ thuộc vào AI sinh ngôn ngữ | Domain Jaccard, greedy assignment, tie-break theo tải và proposal để Chair xác nhận | Đánh giá thuật toán, ví dụ phân công, failure cases và mức độ chấp nhận của Chair |
-| COI là ràng buộc cứng trong phân công | Self-author detector, declared conflict và co-author graph detector | Kiểm thử COI, dữ liệu graph và các trường hợp bị chặn đúng |
-| AI hỗ trợ nhưng không thay người dùng ra quyết định học thuật | Artifact schema, fingerprint, stale state, human review và bảng kiểm soát workflow AI | Đánh giá output AI, phân tích lỗi, độ trễ, chi phí và khảo sát người dùng |
-| Chatbot Agent không phá vỡ phân quyền dữ liệu | Backend query endpoint, service token, resource registry và RBAC theo tài nguyên | Kiểm thử quyền truy cập, truy vấn hợp lệ/không hợp lệ và log tool call |
-| Production deployment có thể tái lập | Docker Compose, image GHCR theo commit SHA, Caddy, network isolation và CI/CD | Kết quả deploy, healthcheck, migration, quan sát runtime và giới hạn vận hành |
+| Claim thiết kế ở Chương 3                                                   | Thành phần hiện thực hóa                                                              | Bằng chứng cần đối chiếu ở Chương 4                                               |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Hệ thống đáp ứng vòng đời chính của hội nghị học thuật                      | Use case, frontend theo vai trò, backend API và state machine                         | Kiểm thử chức năng, UAT và luồng nghiệp vụ end-to-end                             |
+| Reviewer matching có thể giải thích và không phụ thuộc vào AI sinh ngôn ngữ | Domain Jaccard, greedy assignment, tie-break theo tải và proposal để Chair xác nhận   | Đánh giá thuật toán, ví dụ phân công, failure cases và mức độ chấp nhận của Chair |
+| COI là ràng buộc cứng trong phân công                                       | Self-author detector, declared conflict và co-author graph detector                   | Kiểm thử COI, dữ liệu graph và các trường hợp bị chặn đúng                        |
+| AI hỗ trợ nhưng không thay người dùng ra quyết định học thuật               | Artifact schema, fingerprint, stale state, human review và bảng kiểm soát workflow AI | Đánh giá output AI, phân tích lỗi, độ trễ, chi phí và khảo sát người dùng         |
+| Chatbot Agent không phá vỡ phân quyền dữ liệu                               | Backend query endpoint, service token, resource registry và RBAC theo tài nguyên      | Kiểm thử quyền truy cập, truy vấn hợp lệ/không hợp lệ và log tool call            |
+| Production deployment có thể tái lập                                        | Docker Compose, image GHCR theo commit SHA, Caddy, network isolation và CI/CD         | Kết quả deploy, healthcheck, migration, quan sát runtime và giới hạn vận hành     |
 
 Nhờ cách tách lớp này, Chương 4 có thể đánh giá từng nhóm claim theo đúng bản chất của nó: hệ thống và backend được đánh giá bằng tính đúng, hiệu năng và độ ổn định; thuật toán xác định được đánh giá bằng khả năng giải thích và xử lý trường hợp biên; workflow AI được đánh giá bằng chất lượng output hỗ trợ, rủi ro lỗi và mức độ hữu ích đối với người dùng.
 
