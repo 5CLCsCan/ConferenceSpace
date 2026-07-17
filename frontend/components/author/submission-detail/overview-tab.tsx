@@ -68,7 +68,7 @@ function AbstractCard({ abstract, keywords }: { abstract: string; keywords: stri
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.author.submission-detail.overview-tab.text_abstract")} {" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_abstract")}{" "}
       </h3>
       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{abstract}</p>
       {keywords.length > 0 && (
@@ -113,10 +113,10 @@ function SubmissionFilesCard({
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-          {t("runtime.components.author.submission-detail.overview-tab.text_submission_files")} {" "}
+          {t("runtime.components.author.submission-detail.overview-tab.text_submission_files")}{" "}
         </h3>
         <span className="text-[10px] text-slate-400">
-          {t("runtime.components.author.submission-detail.overview-tab.text_last_updated")} {" "}
+          {t("runtime.components.author.submission-detail.overview-tab.text_last_updated")}{" "}
           {lastUpdated}
         </span>
       </div>
@@ -128,8 +128,8 @@ function SubmissionFilesCard({
               {submission.file.original_name}
             </h4>
             <p className="text-[10px] text-slate-500">
-              {(submission.file.size / 1024 / 1024).toFixed(1)} {" "}
-              {t("runtime.components.author.submission-detail.overview-tab.text_mb")} {" "}
+              {(submission.file.size / 1024 / 1024).toFixed(1)}{" "}
+              {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}
               {submission.file.mime_type?.split("/")[1]?.toUpperCase() || "File"}
             </p>
           </div>
@@ -183,7 +183,7 @@ function CoverLetterCard({
             mail
           </span>
           <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white tracking-tight">
-            {t("runtime.components.author.submission-detail.overview-tab.text_cover_letter")} {" "}
+            {t("runtime.components.author.submission-detail.overview-tab.text_cover_letter")}{" "}
           </h3>
         </div>
         <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "20px" }}>
@@ -205,8 +205,8 @@ function CoverLetterCard({
                   {submission.cover_letter.original_name}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)} {" "}
-                  {t("runtime.components.author.submission-detail.overview-tab.text_mb_2")} {" "}
+                  {(submission.cover_letter.size / 1024 / 1024).toFixed(2)}{" "}
+                  {t("runtime.components.author.submission-detail.overview-tab.text_mb_2")}{" "}
                 </p>
               </div>
               <a
@@ -214,7 +214,7 @@ function CoverLetterCard({
                 download={submission.cover_letter.original_name}
                 className="text-[11px] font-medium text-[#1B3C53] hover:underline"
               >
-                {t("runtime.components.author.submission-detail.overview-tab.text_download")} {" "}
+                {t("runtime.components.author.submission-detail.overview-tab.text_download")}{" "}
               </a>
             </div>
           ) : (
@@ -244,12 +244,12 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        {t("runtime.components.author.submission-detail.overview-tab.text_submission_meta")} {" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_meta")}{" "}
       </h3>
       <div className="space-y-6">
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            {t("runtime.components.author.submission-detail.overview-tab.text_author_s")} {" "}
+            {t("runtime.components.author.submission-detail.overview-tab.text_author_s")}{" "}
           </h4>
           <div className="space-y-3">
             {authors.map((author, idx) => (
@@ -271,7 +271,9 @@ function SubmissionMetaCard({ submission }: { submission: Submission }) {
 
         <div>
           <h4 className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            {t("runtime.components.author.submission-detail.overview-tab.text_conflicts_of_interest")} {" "}
+            {t(
+              "runtime.components.author.submission-detail.overview-tab.text_conflicts_of_interest",
+            )}{" "}
           </h4>
           <div className="space-y-2">
             {declaredConflicts.length > 0 ? (
@@ -309,25 +311,54 @@ interface StatusStep {
   pending?: boolean
 }
 
-export function SubmissionStatusCard({ submission }: { submission: Submission }) {
+export function SubmissionStatusCard({
+  submission,
+  conference,
+}: {
+  submission: Submission
+  conference?: Conference | null
+}) {
   const { t } = useTranslation()
 
-  const stepIndex = (step: "submitted" | "bidding" | "rebuttal" | "decision") => {
-    return { submitted: 0, bidding: 1, rebuttal: 2, decision: 3 }[step]
+  const stepIndex = (step: "submitted" | "under_review" | "rebuttal" | "decision") => {
+    return { submitted: 0, under_review: 1, rebuttal: 2, decision: 3 }[step]
   }
 
-  const currentStepIndex: number =
-    {
-      draft: 0,
-      published: 1,
-      reviewing: 2,
-      accepted: 3,
-      rejected: 3,
-      withdrawn: 1,
-    }[submission.status] ?? 0
+  const getStepIndex = (): number => {
+    if (submission.status === "draft") return 0
+    if (submission.status === "published") {
+      return 1
+    }
+    if (submission.status === "reviewing") {
+      // Rebuttal is active only if rebuttal settings are enabled and now is within start_at and end_at
+      const rebuttalSettings = conference?.configurations?.rebuttal_settings
+      if (
+        rebuttalSettings?.enabled !== false &&
+        rebuttalSettings?.start_at &&
+        rebuttalSettings?.end_at
+      ) {
+        const start = new Date(rebuttalSettings.start_at)
+        const end = new Date(rebuttalSettings.end_at)
+        const now = new Date()
+        if (now >= start && now <= end) {
+          return 2 // Rebuttal is current
+        }
+      }
+      return 1 // Under Review is current
+    }
+    if (submission.status === "accepted" || submission.status === "rejected") {
+      return 3 // Decision is current/completed
+    }
+    if (submission.status === "withdrawn") {
+      return 1
+    }
+    return 0
+  }
+
+  const currentStepIndex = getStepIndex()
 
   const makeStep = (
-    id: "submitted" | "bidding" | "rebuttal" | "decision",
+    id: "submitted" | "under_review" | "rebuttal" | "decision",
     label: string,
     date: string,
   ): StatusStep => {
@@ -341,6 +372,126 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
     return { id, label, date, pending: true }
   }
 
+  // Calculate Under Review Step Date text
+  let underReviewDateText = t(
+    "runtime.components.author.submission-detail.overview-tab.text_expected",
+  )
+  if (currentStepIndex > 1) {
+    underReviewDateText = t(
+      "runtime.components.author.submission-detail.overview-tab.text_completed",
+    )
+  } else if (currentStepIndex === 1) {
+    if (submission.status === "reviewing") {
+      underReviewDateText = t(
+        "runtime.components.author.submission-detail.overview-tab.text_in_progress",
+      )
+    } else {
+      const subDeadlineStr =
+        conference?.configurations?.full_paper_submission_deadline ||
+        conference?.submission_deadline
+      if (subDeadlineStr) {
+        const subDeadline = new Date(subDeadlineStr)
+        const now = new Date()
+        if (now < subDeadline) {
+          underReviewDateText = t(
+            "runtime.components.author.submission-detail.overview-tab.text_expected_after",
+            { date: formatDate(subDeadlineStr) },
+          )
+        } else {
+          underReviewDateText = t(
+            "runtime.components.author.submission-detail.overview-tab.text_expected",
+          )
+        }
+      } else {
+        underReviewDateText = t(
+          "runtime.components.author.submission-detail.overview-tab.text_expected",
+        )
+      }
+    }
+  }
+
+  // Calculate Rebuttal Step Date text
+  const rebuttalSettings = conference?.configurations?.rebuttal_settings
+  const rebuttalEnabled = rebuttalSettings?.enabled !== false
+  let rebuttalDateText = ""
+
+  if (!rebuttalEnabled) {
+    rebuttalDateText = t(
+      "runtime.components.author.submission-detail.overview-tab.text_not_configured",
+    )
+  } else if (rebuttalSettings?.start_at && rebuttalSettings?.end_at) {
+    const start = new Date(rebuttalSettings.start_at)
+    const end = new Date(rebuttalSettings.end_at)
+    const now = new Date()
+
+    if (now < start) {
+      rebuttalDateText = t(
+        "runtime.components.author.submission-detail.overview-tab.text_starts_on",
+        { date: formatDate(rebuttalSettings.start_at) },
+      )
+    } else if (now >= start && now <= end) {
+      const diffTime = end.getTime() - now.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (diffDays > 1) {
+        rebuttalDateText = t(
+          "runtime.components.author.submission-detail.overview-tab.text_ends_in_days",
+          { days: diffDays },
+        )
+      } else if (diffDays === 1) {
+        rebuttalDateText = t(
+          "runtime.components.author.submission-detail.overview-tab.text_ends_in_day",
+        )
+      } else {
+        const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+        if (diffHours > 1) {
+          rebuttalDateText = t(
+            "runtime.components.author.submission-detail.overview-tab.text_ends_in_hours",
+            { hours: diffHours },
+          )
+        } else if (diffHours === 1) {
+          rebuttalDateText = t(
+            "runtime.components.author.submission-detail.overview-tab.text_ends_in_hour",
+          )
+        } else {
+          rebuttalDateText = t(
+            "runtime.components.author.submission-detail.overview-tab.text_ends_today",
+          )
+        }
+      }
+    } else {
+      rebuttalDateText = t(
+        "runtime.components.author.submission-detail.overview-tab.text_completed",
+      )
+    }
+  } else {
+    if (currentStepIndex > 2) {
+      rebuttalDateText = t(
+        "runtime.components.author.submission-detail.overview-tab.text_completed",
+      )
+    } else if (currentStepIndex === 2) {
+      rebuttalDateText = t(
+        "runtime.components.author.submission-detail.overview-tab.text_in_progress",
+      )
+    } else {
+      rebuttalDateText = t("runtime.components.author.submission-detail.overview-tab.text_expected")
+    }
+  }
+
+  // Calculate Decision Step Date text
+  let decisionDateText = t("runtime.components.author.submission-detail.overview-tab.text_expected")
+  if (submission.status === "accepted") {
+    decisionDateText = t("runtime.components.author.submission-detail.overview-tab.text_accepted")
+  } else if (submission.status === "rejected") {
+    decisionDateText = t("runtime.components.author.submission-detail.overview-tab.text_rejected")
+  } else if (submission.status === "withdrawn") {
+    decisionDateText = t("runtime.components.author.submission-detail.overview-tab.text_withdrawn")
+  } else if (conference?.notification_date) {
+    decisionDateText = t(
+      "runtime.components.author.submission-detail.overview-tab.text_expected_on",
+      { date: formatDate(conference.notification_date) },
+    )
+  }
+
   const statusSteps: StatusStep[] = [
     makeStep(
       "submitted",
@@ -348,32 +499,26 @@ export function SubmissionStatusCard({ submission }: { submission: Submission })
       formatDate(submission.created_at),
     ),
     makeStep(
-      "bidding",
-      t("runtime.components.author.submission-detail.overview-tab.prop_label_bidding_phase"),
-      "Completed",
+      "under_review",
+      t("runtime.components.author.submission-detail.overview-tab.prop_label_under_review"),
+      underReviewDateText,
     ),
     makeStep(
       "rebuttal",
       t("runtime.components.author.submission-detail.overview-tab.prop_label_rebuttal_phase"),
-      "Ends in 3 days",
+      rebuttalDateText,
     ),
     makeStep(
       "decision",
       t("runtime.components.author.submission-detail.overview-tab.prop_label_final_decision"),
-      submission.status === "accepted"
-        ? "Accepted"
-        : submission.status === "rejected"
-          ? "Rejected"
-          : submission.status === "withdrawn"
-            ? "Withdrawn"
-            : "Expected",
+      decisionDateText,
     ),
   ]
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">
-        {t("runtime.components.author.submission-detail.overview-tab.text_submission_status")} {" "}
+        {t("runtime.components.author.submission-detail.overview-tab.text_submission_status")}{" "}
       </h3>
       <div className="relative pl-2 space-y-6">
         <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100 dark:bg-slate-700" />
@@ -472,7 +617,7 @@ function WithdrawSubmissionCard({
       <p className="text-xs text-red-600 dark:text-red-400/80 mb-3 leading-relaxed">
         {t(
           "runtime.components.author.submission-detail.overview-tab.text_withdrawing_your_paper_will_remove_it",
-        )} {" "}
+        )}{" "}
       </p>
       {error && <p className="text-[11px] text-red-700 dark:text-red-300 mb-2">{error}</p>}
       <button
@@ -481,7 +626,9 @@ function WithdrawSubmissionCard({
         disabled={!canWithdraw || isWithdrawing}
         className="w-full h-8 bg-white dark:bg-transparent border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 font-bold rounded-md text-[11px] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isWithdrawing ? "Withdrawing..." : t("runtime.components.author.submission-detail.overview-tab.text_withdraw_paper")} {" "}
+        {isWithdrawing
+          ? "Withdrawing..."
+          : t("runtime.components.author.submission-detail.overview-tab.text_withdraw_paper")}{" "}
       </button>
     </div>
   )
@@ -520,7 +667,9 @@ function CameraReadySection({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-4 tracking-tight">
-        {t("runtime.components.author.submission-detail.overview-tab.text_camera_ready_version")} {" "}
+        {t(
+          "runtime.components.author.submission-detail.overview-tab.text_camera_ready_version",
+        )}{" "}
       </h3>
       {submission.camera_ready ? (
         <div className="flex items-center gap-3 mb-4">
@@ -532,14 +681,16 @@ function CameraReadySection({
               {submission.camera_ready.original_name}
             </p>
             <p className="text-xs text-slate-500">
-              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)} {" "}
-              {t("runtime.components.author.submission-detail.overview-tab.text_mb")} {" "}
+              {(submission.camera_ready.size / 1024 / 1024).toFixed(1)}{" "}
+              {t("runtime.components.author.submission-detail.overview-tab.text_mb")}{" "}
             </p>
           </div>
         </div>
       ) : (
         <p className="text-xs text-slate-500 mb-4">
-          {t("runtime.components.author.submission-detail.overview-tab.text_no_camera_ready_version_uploaded_yet")}
+          {t(
+            "runtime.components.author.submission-detail.overview-tab.text_no_camera_ready_version_uploaded_yet",
+          )}
         </p>
       )}
       {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
@@ -598,7 +749,7 @@ export function OverviewTab({
 
       <div className="space-y-6">
         <SubmissionMetaCard submission={localSubmission} />
-        <SubmissionStatusCard submission={localSubmission} />
+        <SubmissionStatusCard submission={localSubmission} conference={conference} />
         <WithdrawSubmissionCard
           submission={localSubmission}
           conference={conference}
