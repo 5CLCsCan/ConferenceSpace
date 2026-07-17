@@ -32,7 +32,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import useAssignmentReview from "@/hooks/use-assignment-review"
 import useReviewAudit from "@/hooks/use-review-audit"
 import type { Paper } from "@/lib/types"
-import type { ReviewAuditFinding, ReviewAuditResponse } from "@/lib/api/review-audit"
+import type { ReviewAuditFinding } from "@/lib/api/review-audit"
 import type { ReviewData } from "@/lib/api/reviews"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { trackUsageEvent } from "@/lib/usage-events"
@@ -72,7 +72,6 @@ export function SubmissionReviewScreen({
     runAudit,
     dismissFinding,
     undismissFinding,
-    replaceAudit,
   } = useReviewAudit(conferenceId, assignmentId)
   const { toast } = useToast()
   const hasInitialized = useRef(false)
@@ -189,7 +188,6 @@ export function SubmissionReviewScreen({
             code?: string
             message?: string
             override_allowed?: boolean
-            audit?: ReviewAuditResponse
           }
         }
       )?.data ?? null
@@ -265,21 +263,13 @@ export function SubmissionReviewScreen({
     }
 
     const payload = toReviewPayload()
-    const preflight = await runAudit({
+    // Preflight still runs so critical findings populate the audit panel.
+    // status "block" is advisory highlight only — it must not stop submit.
+    await runAudit({
       mode: "submit_preflight",
       review_score: reviewScore,
       review_data: payload,
     })
-    if (preflight.success && preflight.data?.status === "block") {
-      toast({
-        variant: "destructive",
-        title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-        description: t(
-          "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
-        ),
-      })
-      return
-    }
 
     const { success, error, errorData } = await saveReview({
       review_score: reviewScore,
@@ -302,17 +292,6 @@ export function SubmissionReviewScreen({
       })
     } else {
       const detail = parseReviewErrorDetail(errorData)
-      if (detail?.code === "review_audit_blocked" && detail.audit) {
-        replaceAudit(detail.audit)
-        toast({
-          variant: "destructive",
-          title: t("runtime.components.reviewer.submission-review.prop_title_submission_blocked"),
-          description: t(
-            "runtime.components.reviewer.submission-review.prop_description_resolve_the_active_blocking_audit_findings",
-          ),
-        })
-        return
-      }
       if (detail?.code === "review_audit_failed" && detail.override_allowed) {
         setAuditOverridePrompt(detail.message || "Review audit could not be completed.")
         return

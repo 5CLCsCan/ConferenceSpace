@@ -76,6 +76,7 @@
 \makeatother
 
 % Bảng biểu
+\usepackage{float}
 \usepackage{multirow}
 \usepackage{array}
 \usepackage{tabularx}
@@ -100,7 +101,7 @@
 \newcommand{\LongTableHeaderBorder}{\hline}
 \newcommand{\LongTableFooterBorder}{\hline}
 \newenvironment{PrismFigure}{%
-  \begin{figure}[htbp]
+  \begin{figure}[H]
   \centering
 }{%
   \end{figure}%
@@ -198,6 +199,28 @@
 
 \begin{document}
 
+\ifdefined\ChapterTwoOnly
+  \pagenumbering{arabic}
+  \setcounter{chapter}{1}
+  \include{Chapter2/chapter2}
+  \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+  \printbibliography[title={Tài liệu tham khảo}]
+\else\ifdefined\ChapterThreeOnly
+  \pagenumbering{arabic}
+  \setcounter{chapter}{2}
+  \ifdefined\ChapterThreeOverviewOnly
+    \input{Chapter3/chapter3}
+  \else
+    \include{Chapter3/chapter3}
+  \fi
+\else\ifdefined\ChapterFourOnly
+  \pagenumbering{arabic}
+  \setcounter{chapter}{3}
+  \include{Chapter4/chapter4}
+  \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+  \printbibliography[title={Tài liệu tham khảo}]
+\else
+
 \input{Title/title.tex}
 % Sasu trang Title, các bạn chèn nhận xét gủa GVHD và GVPB. Nhận xét sẽ được giáo vụ phát sau buổi bảo vệ để các bạn đóng quyển.
 
@@ -267,5 +290,7 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Danh mục thuật ngữ và từ viết tắt}
 \include{Appendix/danh-muc-thuat-ngu}
+
+\fi\fi\fi
 
 \end{document} 

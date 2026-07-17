@@ -6,7 +6,6 @@ import { SubmissionReviewScreen } from "../../submission-review"
 const mockToast = vi.fn()
 const mockSaveReview = vi.fn()
 const mockRunAudit = vi.fn()
-const mockReplaceAudit = vi.fn()
 
 vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: mockToast }),
@@ -57,7 +56,7 @@ vi.mock("@/hooks/use-review-audit", () => ({
     runAudit: mockRunAudit,
     dismissFinding: vi.fn(),
     undismissFinding: vi.fn(),
-    replaceAudit: mockReplaceAudit,
+    replaceAudit: vi.fn(),
   }),
 }))
 
@@ -126,40 +125,25 @@ describe("SubmissionReviewScreen", () => {
     mockRunAudit.mockResolvedValue({
       success: true,
       data: {
-        status: "warn",
-        active_findings: [],
+        status: "block",
+        active_findings: [
+          {
+            code: "quality.review_too_generic_to_submit",
+            severity: "blocking",
+            field: "review",
+            rationale: "Missing paper-specific evidence.",
+            message: "The review is too generic to submit.",
+            suggestion: "Engage the paper concretely.",
+            condition_fingerprint: "sha256:block",
+          },
+        ],
         dismissed_findings: [],
       },
     })
+    mockSaveReview.mockResolvedValue({ success: true })
   })
 
-  it("hydrates blocked audit findings from submit response", async () => {
-    mockSaveReview.mockResolvedValueOnce({
-      success: false,
-      error: "review audit found priority issues",
-      errorData: {
-        data: {
-          code: "review_audit_blocked",
-          audit: {
-            status: "block",
-            active_findings: [
-              {
-                code: "consistency.recommendation_conflicts_with_written_review",
-                severity: "blocking",
-                field: "recommendation",
-                rationale:
-                  "The finding is raised because the narrative does not explain the recommendation.",
-                message: "The written review does not support the final recommendation.",
-                suggestion: "Reconcile the recommendation with the written reasoning.",
-                condition_fingerprint: "sha256:test",
-              },
-            ],
-            dismissed_findings: [],
-          },
-        },
-      },
-    })
-
+  it("still submits when audit preflight returns block status", async () => {
     render(
       <SubmissionReviewScreen
         conferenceId="62"
@@ -172,22 +156,18 @@ describe("SubmissionReviewScreen", () => {
     fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
 
     await waitFor(() => {
-      expect(mockReplaceAudit).toHaveBeenCalledWith({
-        status: "block",
-        active_findings: [
-          {
-            code: "consistency.recommendation_conflicts_with_written_review",
-            severity: "blocking",
-            field: "recommendation",
-            rationale:
-              "The finding is raised because the narrative does not explain the recommendation.",
-            message: "The written review does not support the final recommendation.",
-            suggestion: "Reconcile the recommendation with the written reasoning.",
-            condition_fingerprint: "sha256:test",
-          },
-        ],
-        dismissed_findings: [],
-      })
+      expect(mockRunAudit).toHaveBeenCalledWith(
+        expect.objectContaining({ mode: "submit_preflight" }),
+      )
+      expect(mockSaveReview).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "submitted" }),
+      )
     })
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringMatching(/submitted/i),
+      }),
+    )
   })
 })

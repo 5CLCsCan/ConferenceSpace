@@ -235,7 +235,9 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 			return nil, err
 		}
 
-		auditResponse, _, _, _, auditFailed, auditFailureMessage, err := c.executeReviewAudit(
+		// Audit still runs on submit so findings stay available to the client.
+		// status "block" is advisory highlight only and must not prevent submission.
+		_, _, _, _, auditFailed, auditFailureMessage, err := c.executeReviewAudit(
 			ginCtx,
 			req.AssignmentID,
 			req.ConferenceID,
@@ -266,29 +268,6 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 				EventType:    reviewAuditEventSubmitOverrideAfterAuditFailed,
 				Payload: map[string]interface{}{
 					"reason": auditFailureMessage,
-				},
-			})
-		}
-		if !auditFailed && auditResponse != nil && auditResponse.Status == "block" {
-			if !req.AuditFailureOverrideConfirmed {
-				return nil, handler.NewDetailedErrorResponse(
-					http.StatusConflict,
-					"review audit found blocking issues",
-					map[string]interface{}{
-						"code":  "review_audit_blocked",
-						"audit": auditResponse,
-					},
-				)
-			}
-			// Record override event when reviewer confirms override for a blocking audit
-			_ = c.assignmentStorage.AppendReviewAuditEvent(ctx, &dto.ReviewAuditEvent{
-				AssignmentID: assignment.ID,
-				ConferenceID: assignment.ConferenceID,
-				ActorID:      userID,
-				ActorEmail:   userEmail,
-				EventType:    "review_audit_override_blocked",
-				Payload: map[string]interface{}{
-					"audit": auditResponse,
 				},
 			})
 		}

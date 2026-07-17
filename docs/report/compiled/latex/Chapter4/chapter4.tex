@@ -6,12 +6,12 @@
 
 \section{Mục tiêu và câu hỏi đánh giá}
 
-Chương 3 đã trình bày ConferenceSpace theo ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán tất định có thể kiểm chứng và AI hỗ trợ. Chương này trả lời câu hỏi tổng quát: trong điều kiện thử nghiệm, mỗi lớp thực hiện trách nhiệm được giao đến mức nào? Các nhóm bằng chứng được phân tách theo bản chất của từng tác vụ thay vì dùng một thước đo chung:
+Chương 3 đã trình bày ConferenceSpace theo ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định có thể kiểm chứng và AI hỗ trợ. Chương này trả lời câu hỏi tổng quát: trong điều kiện thử nghiệm, mỗi lớp thực hiện trách nhiệm được giao đến mức nào? Các nhóm bằng chứng được phân tách theo bản chất của từng tác vụ thay vì dùng một thước đo chung:
 
 \begin{itemize}
   \item \textbf{Lớp nghiệp vụ cốt lõi:} nhóm dùng công cụ k6 để kiểm thử chịu tải HTTP và giám sát mức sử dụng tài nguyên. Phép đánh giá xác định hiệu năng và khả năng chịu tải của hệ thống trong các kịch bản thử nghiệm.
-  \item \textbf{Lớp thuật toán:} nhóm đánh giá chức năng đối sánh phản biện viên và phát hiện xung đột lợi ích. Kiểm thử vi mô bằng Go đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ của thuật toán, không bao gồm chi phí HTTP, cơ sở dữ liệu và mạng. Thử nghiệm trên tập dữ liệu tổng hợp mô phỏng lược đồ (schema) Semantic Scholar đánh giá hành vi xếp hạng và phân công.
-  \item \textbf{Lớp AI hỗ trợ:} nhóm đánh giá qua hai bước. Trước hết, các luồng AI xử lý dữ liệu đầu vào để tạo kết quả; sau đó, bộ kiểm thử TCA (Textual Claim-based Assessment) đánh giá các kết quả này theo độ trung thực (Truthfulness), độ phủ (Coverage) và khả năng bổ sung (Additionality). Với đầu ra có dữ liệu tham chiếu trực tiếp như Submission Autofill, chương sử dụng các chỉ số đối sánh như Exact Match, ROUGE và F1. Với Chatbot Agent, chương thử nghiệm thủ công theo các kịch bản hội thoại để kiểm tra tỷ lệ gọi công cụ thành công, khả năng tuân thủ quyền truy cập và trải nghiệm luồng phản hồi.
+  \item \textbf{Lớp thuật toán:} nhóm đánh giá chức năng đối sánh phản biện viên và phát hiện xung đột lợi ích. Go microbenchmark đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ của thuật toán, không bao gồm chi phí HTTP, cơ sở dữ liệu và mạng. Thử nghiệm trên tập dữ liệu tổng hợp mô phỏng lược đồ (schema) Semantic Scholar đánh giá hành vi xếp hạng và phân công.
+  \item \textbf{Lớp AI hỗ trợ:} nhóm đánh giá qua hai bước. Trước hết, các luồng AI xử lý dữ liệu đầu vào để tạo kết quả; sau đó, bộ kiểm thử TCA (Textual Claim-based Assessment) đánh giá các kết quả này theo độ trung thực (Truthfulness), độ phủ (Coverage) và Additionality. Với đầu ra có dữ liệu tham chiếu trực tiếp như Submission Autofill, chương sử dụng các chỉ số đối sánh như Exact Match, ROUGE và F1. Với Chatbot Agent, chương thử nghiệm thủ công theo các kịch bản hội thoại để kiểm tra tỷ lệ gọi công cụ thành công, khả năng tuân thủ quyền truy cập và trải nghiệm luồng phản hồi.
   \item Cuối cùng, chương này dùng UAT để đo mức độ đáp ứng nhu cầu của người dùng ở ba vai trò: Tác giả, Phản biện viên và Chủ tọa.
 \end{itemize}
 
@@ -33,7 +33,7 @@ Chương tổ chức việc đánh giá theo bốn nhóm bằng chứng, tương
   \LongTableFooterBorder
   \endfoot
   Nghiệp vụ cốt lõi     &     API của backend, cơ sở dữ liệu và các endpoint trong ba kịch bản tải     &     Đo hiệu năng của các đường xử lý đã chọn trong điều kiện thử nghiệm; không thay thế kiểm thử chức năng toàn bộ vòng đời hoặc thử nghiệm cô lập lỗi AI \\ \hline
-  Thuật toán tất định, có thể kiểm chứng      &      Đối sánh phản biện viên, phát hiện xung đột lợi ích và các chỉ số chất lượng xếp hạng, phân công      &      Cung cấp bằng chứng rằng cơ chế tất định và có thể kiểm chứng xử lý các tác vụ đòi hỏi kết quả ổn định, có thể tái tạo và giải thích, qua đó tránh phụ thuộc vào tính ngẫu nhiên của mô hình AI tạo sinh \\ \hline
+  Thuật toán xác định, có thể kiểm chứng      &      Đối sánh phản biện viên, phát hiện xung đột lợi ích và các chỉ số chất lượng xếp hạng, phân công      &      Cung cấp bằng chứng rằng cơ chế xác định và có thể kiểm chứng xử lý các tác vụ đòi hỏi kết quả ổn định, có thể tái tạo và giải thích, qua đó tránh phụ thuộc vào tính ngẫu nhiên của mô hình AI tạo sinh \\ \hline
   Luồng xử lý AI hỗ trợ     &     Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent     &     Kiểm tra giá trị hỗ trợ của AI tại từng điểm nghẽn, đồng thời bảo đảm AI không thay thế quyết định học thuật \\ \hline
   Phản hồi người dùng      &      Khảo sát sau sử dụng theo các vai trò chính      &      Đối chiếu kết quả kỹ thuật với cảm nhận và nhu cầu thực tế của người dùng sau khi trải nghiệm hệ thống \\ \hline
 \end{longtable}
@@ -57,8 +57,8 @@ Chương này tập trung trả lời các câu hỏi đánh giá sau:
   \LongTableFooterBorder
   \endfoot
   Liệu hệ thống nghiệp vụ có đủ nhanh và ổn định trong điều kiện tải thử nghiệm hay không?     &     k6 kiểm thử tải, giám sát mức sử dụng tài nguyên và thống kê lỗi yêu cầu     &     Độ trễ p95, thông lượng, tỷ lệ lỗi và tài nguyên tiêu thụ trong các kịch bản CRUD, đối sánh phản biện viên và xung đột lợi ích \\ \hline
-  Liệu đối sánh phản biện viên và xung đột lợi ích có thể chạy nhanh, có thể giải thích và có đường cơ sở so sánh hay không?      &      Kiểm thử vi mô bằng Go và thử nghiệm xếp hạng/phân công trên dữ liệu tổng hợp mô phỏng lược đồ (schema) Semantic Scholar      &      Thời gian xử lý, Hit@k, MRR, nDCG, độ phủ, mức độ đồng đều của phân công, tỷ lệ dùng lượt dự phòng và số ca tự gán \\ \hline
-  Liệu các luồng xử lý AI có tạo đầu ra đủ bám bằng chứng để hỗ trợ người dùng hay không?     &     Bộ thực thi luồng xử lý, bộ thử nghiệm TCA, đối chiếu với chuẩn đã định sẵn và thử nghiệm hội thoại     &     Tỷ lệ hoàn tất, độ trễ, số token được xử lý, độ trung thực, độ phủ, khả năng bổ sung, tính hợp lệ, tỷ lệ vừa bám nguồn vừa hợp lệ và khả năng tuân thủ quyền truy cập \\ \hline
+  Liệu đối sánh phản biện viên và xung đột lợi ích có thể chạy nhanh, có thể giải thích và có đường cơ sở so sánh hay không?      &      Go microbenchmark và thử nghiệm xếp hạng/phân công trên dữ liệu tổng hợp mô phỏng lược đồ (schema) Semantic Scholar      &      Thời gian xử lý, Hit@k, MRR, nDCG, độ phủ, mức độ đồng đều của phân công, tỷ lệ dùng lượt dự phòng và số ca tự gán \\ \hline
+  Liệu các luồng xử lý AI có tạo đầu ra đủ bám bằng chứng để hỗ trợ người dùng hay không?     &     Bộ thực thi luồng xử lý, bộ thử nghiệm TCA, đối chiếu với chuẩn đã định sẵn và thử nghiệm hội thoại     &     Tỷ lệ hoàn tất, độ trễ, số token được xử lý, độ trung thực, độ phủ, Additionality, tính hợp lệ, tỷ lệ vừa bám nguồn vừa hợp lệ và khả năng tuân thủ quyền truy cập \\ \hline
   Liệu kết quả kỹ thuật có tương ứng với trải nghiệm người dùng hay không?      &      Khảo sát sau sử dụng trong chương này      &      Mức hài lòng, phản hồi định tính, điểm còn gây khó chịu và đề xuất cải thiện \\ \hline
 \end{longtable}
 \end{PrismLongTable}
@@ -97,7 +97,7 @@ Do đó, Chương 4 không chỉ báo cáo số liệu rời rạc. Vai trò c�
 
 Với lớp AI hỗ trợ, nhóm xây dựng tập dữ liệu thử nghiệm từ một tập con chọn lọc của ReviewRebuttal (Re2), bộ dữ liệu chứa hồ sơ phản biện bài báo qua nhiều giai đoạn từ OpenReview~\cite{ch4ref1}. Nhóm chỉ đánh giá các luồng AI trên dữ liệu nghiên cứu được phép sử dụng cho mục đích thử nghiệm; kết quả không chứng minh ConferenceSpace phù hợp để gửi bản thảo hoặc nội dung phản biện mật tới nhà cung cấp AI bên ngoài. Thay vì dùng toàn bộ dữ liệu gốc, nhóm chọn các bản ghi có đủ thông tin để tái tạo những luồng xử lý chính của ConferenceSpace: bài nộp, siêu dữ liệu, nhận xét phản biện, phản hồi hoặc bản tổng hợp nhận xét (metareview) khi có, cùng ngữ cảnh hội nghị. Cách chọn này giúp thử nghiệm đo đúng các luồng xử lý đã triển khai thay vì buộc hệ thống xử lý những bản ghi thiếu dữ liệu.
 
-Bộ thực thi luồng xử lý được thử nghiệm trên 1.127 bài báo từ tám hội nghị hoặc chuyên đề khác nhau. Tập này được dùng để tạo đầu ra của các luồng AI, đồng thời ghi lại thời gian xử lý, số token tiêu thụ, trạng thái hoàn tất và các chỉ số đối sánh trực tiếp khi có dữ liệu tham chiếu rõ ràng. Trong số đó, 1.097 kết quả đủ điều kiện được đưa vào bộ thử nghiệm TCA để đánh giá chất lượng đầu ra tự luận. Hai nhóm chỉ số được đo trên các tập mẫu riêng: bộ thực thi luồng xử lý đo khả năng tạo đầu ra và vận hành, còn TCA đo mức độ bám bằng chứng của đầu ra đã tạo.
+Bộ thực thi luồng xử lý được thử nghiệm trên 1.127 bài báo từ tám hội nghị hoặc chuyên đề khác nhau. Tập này được dùng để tạo đầu ra của các luồng AI, đồng thời ghi lại thời gian xử lý, số token tiêu thụ, trạng thái hoàn tất và các chỉ số đối sánh trực tiếp khi có dữ liệu tham chiếu rõ ràng. Trong số đó, 1.097 kết quả đủ điều kiện được đưa vào bộ thử nghiệm TCA để đánh giá chất lượng đầu ra dạng văn bản tự do. Hai nhóm chỉ số được đo trên các tập mẫu riêng: bộ thực thi luồng xử lý đo khả năng tạo đầu ra và vận hành, còn TCA đo mức độ bám bằng chứng của đầu ra đã tạo.
 
 
 \begin{PrismLongTable}
@@ -135,12 +135,12 @@ Với lớp nghiệp vụ cốt lõi và lớp thuật toán, các mục sau tr�
 
 \subsection{Môi trường thực nghiệm}
 
-Nhóm thực hiện từng nhóm thực nghiệm trong môi trường phù hợp với loại hành vi cần đo. Bảng 4.2 tóm tắt môi trường, công cụ và tư liệu chính của từng nhóm.
+Nhóm thực hiện từng nhóm thực nghiệm trong môi trường phù hợp với loại hành vi cần đo. Bảng~\ref{tab:ch4-environments} tóm tắt môi trường, công cụ và tư liệu chính của từng nhóm.
 
 
 \begin{PrismLongTable}
 \begin{longtable}{|P{0.235\textwidth}|P{0.235\textwidth}|P{0.235\textwidth}|P{0.235\textwidth}|}
-  \caption{Môi trường và tư liệu thực nghiệm}\LongTableCaptionSpace
+  \caption{Môi trường và tư liệu thực nghiệm}\label{tab:ch4-environments}\LongTableCaptionSpace
   \hline
   \TableHeader{Nhóm thực nghiệm}    &    \TableHeader{Môi trường/công cụ}    &    \TableHeader{Tư liệu đầu ra}    &    \TableHeader{Mục đích} \\ \hline
   \endfirsthead
@@ -149,25 +149,37 @@ Nhóm thực hiện từng nhóm thực nghiệm trong môi trường phù hợp
   \endhead
   \LongTableFooterBorder
   \endfoot
-  Kiểm thử hiệu năng HTTP của backend     &     Backend gồm PostgreSQL, Neo4j, Redis và bộ chứa API; k6 tạo tải HTTP     &     Bản tóm tắt JSON theo kịch bản, nhật ký tài nguyên và bản tóm tắt mức sử dụng tài nguyên     &     Đo độ trễ, thông lượng, tỷ lệ lỗi yêu cầu và mức tài nguyên tiêu thụ của lớp nghiệp vụ \\ \hline
-  Kiểm thử vi mô bằng Go      &      Bộ kiểm thử Go chạy trực tiếp trên mã thuật toán      &      Tệp \textit{micro.txt} chứa thời gian mỗi thao tác (ns/op), bộ nhớ cấp phát mỗi thao tác (B/op) và số lần cấp phát bộ nhớ mỗi thao tác (allocs/op)      &      Tách thời gian xử lý và mức sử dụng bộ nhớ của thuật toán khỏi chi phí HTTP, cơ sở dữ liệu và mạng \\ \hline
+  Kiểm thử hiệu năng HTTP của backend     &     Backend gồm PostgreSQL, Neo4j, Redis và container API; k6 tạo tải HTTP     &     Bản tóm tắt JSON theo kịch bản, nhật ký tài nguyên và bản tóm tắt mức sử dụng tài nguyên     &     Đo độ trễ, thông lượng, tỷ lệ lỗi yêu cầu và mức tài nguyên tiêu thụ của lớp nghiệp vụ \\ \hline
+  Go microbenchmark      &      Bộ kiểm thử Go chạy trực tiếp trên mã thuật toán      &      Tệp \textit{micro.txt} chứa thời gian mỗi thao tác (ns/op), bộ nhớ cấp phát mỗi thao tác (B/op) và số lần cấp phát bộ nhớ mỗi thao tác (allocs/op)      &      Tách thời gian xử lý và mức sử dụng bộ nhớ của thuật toán khỏi chi phí HTTP, cơ sở dữ liệu và mạng \\ \hline
   Hành vi truy hồi và phân công     &     Bộ kiểm thử Go chạy trên tập dữ liệu tổng hợp mô phỏng lược đồ (schema) Semantic Scholar, không gọi API trong quá trình đánh giá     &     Báo cáo Markdown/CSV về Hit@k, MRR, nDCG, độ phủ và mức độ đồng đều của phân công     &     Đo khả năng truy hồi hồ sơ tác giả theo chủ đề và các chỉ số nội tại của phân công trên dữ liệu tổng hợp; không đo mức độ phù hợp của phản biện viên \\ \hline
   Bộ thực thi luồng xử lý      &      Kiến trúc gồm bộ điều phối và các worker; mỗi tác vụ tương ứng với một bài nộp      &      Gói kết quả gồm ngữ cảnh nguồn, đầu ra của luồng xử lý, điểm kiểm tra theo giai đoạn, số token và thời gian xử lý      &      Tạo đầu ra của các luồng AI trên tập 1.127 bài \\ \hline
-  Bộ thử nghiệm TCA     &     Worker sử dụng GPU L4 trên nền tảng đám mây, 2 CPU và 4 GB RAM; \CodeBreak{dleemiller/ModernCE-large-nli} với độ dài ngữ cảnh 8.192; \CodeBreak{Qwen/Qwen3.5-2B} và \CodeBreak{Qwen/Qwen3.5-0.8B} để chuẩn hóa mệnh đề~\cite{ch4ref2,ch4ref3}     &     Tệp JSONL chứa kết quả TCA theo từng bài và từng nhóm B1/B2/B3/B5     &     Đánh giá đầu ra tự luận theo độ trung thực (Truthfulness), độ phủ (Coverage) và khả năng bổ sung (Additionality) \\ \hline
+  Bộ thử nghiệm TCA     &     Worker sử dụng GPU L4 trên nền tảng đám mây, 2 CPU và 4 GB RAM; \CodeBreak{dleemiller/ModernCE-large-nli} với độ dài ngữ cảnh 8.192; \CodeBreak{Qwen/Qwen3.5-2B} và \CodeBreak{Qwen/Qwen3.5-0.8B} để chuẩn hóa mệnh đề~\cite{ch4ref2,ch4ref3}     &     Tệp JSONL chứa kết quả TCA theo từng bài và từng nhóm B1/B2/B3/B5     &     Đánh giá đầu ra dạng văn bản tự do theo độ trung thực (Truthfulness), độ phủ (Coverage) và Additionality \\ \hline
   Submission Gating và gợi ý chuyên đề      &      Đối chiếu với chuẩn đã định sẵn cho kiểm tra luật, cảnh báo nội dung và chuyên đề hợp lệ      &      Chỉ số tổng hợp, đầu ra đã chuẩn hóa và các trường hợp lỗi      &      Kiểm tra quy tắc cố định, phạm vi cảnh báo mềm và tính hợp lệ của chuyên đề được gợi ý \\ \hline
   Chatbot Agent     &     Thử nghiệm hội thoại theo 8 nhóm kịch bản, mỗi nhóm 5 biến thể     &     Bản ghi hội thoại, đánh giá thủ công, nhật ký gọi công cụ và thông tin thời gian     &     Đánh giá kết quả hội thoại, quyền truy cập, tỷ lệ gọi công cụ thành công và trải nghiệm luồng phản hồi \\ \hline
 \end{longtable}
 \end{PrismLongTable}
 
-Bộ thực thi luồng xử lý dùng bộ định tuyến mô hình và Gemini 3.1 Flash Lite để tạo đầu ra. Bộ thử nghiệm TCA đọc lại gói kết quả đã lưu, dùng \CodeBreak{dleemiller/ModernCE-large-nli} để phân loại quan hệ bằng chứng--mệnh đề, \CodeBreak{Qwen/Qwen3.5-2B} để chuẩn hóa điểm chú ý hoặc lập luận và \CodeBreak{Qwen/Qwen3.5-0.8B} cho bước phân loại hỗ trợ~\cite{ch4ref2,ch4ref3}. Việc tách hai môi trường giúp phân biệt khả năng tạo đầu ra với quy trình đánh giá đầu ra; tuy nhiên, phép đánh giá vẫn chưa được hiệu chuẩn bằng nhãn chuyên gia trong lĩnh vực phản biện học thuật.
+Bộ thực thi luồng xử lý dùng bộ định tuyến mô hình và Gemini 3.1 Flash Lite để tạo đầu ra. Bộ thử nghiệm TCA đọc lại gói kết quả đã lưu, dùng \CodeBreak{dleemiller/ModernCE-large-nli} để phân loại quan hệ bằng chứng--mệnh đề, \CodeBreak{Qwen/Qwen3.5-2B} để chuẩn hóa điểm cần lưu ý hoặc lập luận và \CodeBreak{Qwen/Qwen3.5-0.8B} cho bước phân loại hỗ trợ~\cite{ch4ref2,ch4ref3}. Việc tách hai môi trường giúp phân biệt khả năng tạo đầu ra với quy trình đánh giá đầu ra.
+
+\subsection{Bộ dữ liệu tham chiếu và quy trình chấm điểm thử nghiệm}
+
+Các luồng xử lý AI dùng ba kiểu đánh giá, tương ứng với mức độ sẵn có của dữ liệu tham chiếu:
+
+\begin{itemize}
+  \item \textbf{Đối chiếu trực tiếp với dữ liệu hoặc quy tắc tham chiếu:} Submission Autofill được so sánh với siêu dữ liệu bài nộp bằng Exact Match, ROUGE và F1. Submission Gating được kiểm tra bằng các trường hợp có sẵn phán quyết và mã luật kỳ vọng.
+  \item \textbf{Đánh giá quan hệ mệnh đề--bằng chứng:} TCA đánh giá Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot bằng Truthfulness, Coverage và Additionality. Truthfulness ước lượng tỷ lệ mệnh đề có bằng chứng hỗ trợ; Coverage đo mức trùng khớp với nội dung tham chiếu do con người tạo; Additionality đo tỷ lệ mệnh đề được bộ chấm xem là có căn cứ nhưng không trùng trực tiếp với tham chiếu. Đây là phép chấm thăm dò tự động, chưa được hiệu chuẩn bằng nhãn chuyên gia và không tự xác nhận tính hữu ích học thuật của đầu ra.
+  \item \textbf{Đánh giá theo hành vi hội thoại:} Chatbot Agent được kiểm tra qua các hội thoại mô phỏng theo vai trò Tác giả, Phản biện viên và Chủ tọa. Kết quả được chấm theo mức độ hoàn tất yêu cầu, mức độ bám dữ liệu nền tảng, khả năng tuân thủ quyền truy cập và khả năng kiểm soát phạm vi.
+\end{itemize}
+
+Tư liệu thô gồm các tệp JSON, JSONL và CSV của bộ thực thi luồng xử lý, TCA, Submission Gating, gợi ý chuyên đề trong Submission Autofill và Chatbot Agent. Các tệp này cho phép truy ngược từ số liệu tổng hợp đến từng tác vụ, phản hồi, cảnh báo hoặc phát hiện. Với thuật toán đối sánh, nhãn leave-one-out và các đường cơ sở chỉ phục vụ so sánh nội bộ trên dữ liệu tổng hợp; với khảo sát người dùng, phiếu trả lời là nguồn dữ liệu tham chiếu cho các thống kê mô tả theo vai trò.
 
 \subsection{Kịch bản và chỉ số đánh giá}
 
-Mỗi nhóm thực nghiệm trả lời một câu hỏi đánh giá riêng nhưng cùng tuân theo một khung phương pháp: xác định đầu vào và tiền điều kiện, mô tả thao tác hệ thống phải thực hiện, xác định đầu ra kỳ vọng, ghi nhận đầu ra thực tế dưới dạng tư liệu có thể truy xuất, sau đó tính chỉ số và xác định giới hạn diễn giải. Bảng 4.3 cung cấp bản đồ tổng quan; phần chi tiết của từng nhóm được trình bày ngay sau bảng theo thứ tự các lớp hệ thống đã nêu ở Mục 4.1.
+Mỗi nhóm thực nghiệm trả lời một câu hỏi đánh giá riêng nhưng cùng tuân theo một khung phương pháp: xác định đầu vào và tiền điều kiện, mô tả thao tác hệ thống phải thực hiện, xác định đầu ra kỳ vọng, ghi nhận đầu ra thực tế dưới dạng tư liệu có thể truy xuất, sau đó tính chỉ số và xác định giới hạn diễn giải. Bảng~\ref{tab:ch4-scenario-map} cung cấp bản đồ tổng quan; phần chi tiết của từng nhóm được trình bày ngay sau bảng theo thứ tự các lớp hệ thống đã nêu ở Mục 4.1.
 
 \begin{PrismLongTable}
 \begin{longtable}{|P{0.20\textwidth}|P{0.24\textwidth}|C{0.14\textwidth}|P{0.20\textwidth}|C{0.12\textwidth}|}
-  \caption{Tổng quan kịch bản đánh giá và chỉ số chính}\LongTableCaptionSpace
+  \caption{Tổng quan kịch bản đánh giá và chỉ số chính}\label{tab:ch4-scenario-map}\LongTableCaptionSpace
   \hline
   \TableHeader{Nhóm đánh giá}    &    \TableHeader{Câu hỏi cần trả lời}    &    \TableHeader{Quy mô mẫu}    &    \TableHeader{Chỉ số chính}    &    \TableHeader{Nơi trình bày kết quả} \\ \hline
   \endfirsthead
@@ -177,10 +189,10 @@ Mỗi nhóm thực nghiệm trả lời một câu hỏi đánh giá riêng như
   \LongTableFooterBorder
   \endfoot
   Backend và giám sát mức sử dụng tài nguyên     &     Liệu hệ thống nghiệp vụ có ổn định dưới tải thử nghiệm hay không?     &     300 hội nghị; 15.000 bài nộp; 9.000 phản biện viên     &     Thông lượng, độ trễ p95, tỷ lệ lỗi, CPU/RAM     &     Mục 4.3 \\ \hline
-  Kiểm thử vi mô bằng Go      &      Đối sánh phản biện viên và phát hiện xung đột lợi ích tiêu tốn bao nhiêu thời gian xử lý và bộ nhớ, không bao gồm chi phí HTTP, cơ sở dữ liệu và mạng?      &      Nhiều quy mô dữ liệu thử nghiệm thuật toán      &      \textit{ns/op}, \textit{B/op}, \textit{allocs/op}      &      Mục 4.4.1 \\ \hline
+  Go microbenchmark      &      Đối sánh phản biện viên và phát hiện xung đột lợi ích tiêu tốn bao nhiêu thời gian xử lý và bộ nhớ, không bao gồm chi phí HTTP, cơ sở dữ liệu và mạng?      &      Nhiều quy mô dữ liệu thử nghiệm thuật toán      &      \textit{ns/op}, \textit{B/op}, \textit{allocs/op}      &      Mục 4.4.1 \\ \hline
   Truy hồi hồ sơ tác giả và hành vi phân công     &     Jaccard có truy hồi quan hệ tác giả--chủ đề và thể hiện sự đánh đổi nội tại của thủ tục phân công hay không?     &     60 hồ sơ tác giả; 2.565 bài báo tổng hợp     &     Hit@k, MRR, nDCG, độ phủ đủ số phản biện viên, mức độ đồng đều, lượt dự phòng và ca tự gán     &     Mục 4.4.2 \\ \hline
   Bộ thực thi luồng xử lý      &      Liệu các luồng xử lý AI có tạo được đầu ra đáp ứng yêu cầu vận hành hay không?      &      1.127 bài      &      Tỷ lệ hoàn tất, độ trễ, số token và tính hợp lệ theo lược đồ (schema)      &      Mục 4.5 và 4.6 \\ \hline
-  Phép chấm TCA thăm dò     &     Liệu đầu ra tự luận có bám bằng chứng nguồn hay không?     &     1.097 gói kết quả     &     Truthfulness, Coverage, Additionality, Validity     &     Mục 4.5 \\ \hline
+  Phép chấm TCA thăm dò     &     Liệu đầu ra dạng văn bản tự do có bám bằng chứng nguồn hay không?     &     1.097 gói kết quả     &     Truthfulness, Coverage, Additionality, Validity     &     Mục 4.5 \\ \hline
   Submission Autofill      &      Liệu siêu dữ liệu có khớp dữ liệu tham chiếu và chuyên đề có hợp lệ hay không?      &      Siêu dữ liệu của 1.127 bài; 48 trường hợp chuyên đề      &      Exact Match, ROUGE, F1 và tỷ lệ chuyên đề không hợp lệ      &      Mục 4.5.3 \\ \hline
   Submission Gating     &     Liệu quy tắc cố định có cho kết quả đúng và cảnh báo mềm có giữ đúng phạm vi hay không?     &     8 trường hợp kiểm tra luật; 24 trường hợp cảnh báo nội dung     &     Độ chính xác của phán quyết, tỷ lệ nhận đúng mã luật, số lần chặn sai và số vi phạm quy tắc kiểm tra đầu ra     &     Mục 4.5.4 \\ \hline
   Chatbot Agent      &      Liệu trợ lý có tra cứu đúng, tuân thủ quyền truy cập và hoàn tất hội thoại hay không?      &      40 hội thoại; 8 nhóm kịch bản      &      Kết quả hội thoại, tỷ lệ gọi công cụ thành công, khả năng tuân thủ quyền truy cập và thời gian đến token đầu tiên (TTFT)      &      Mục 4.5.8 \\ \hline
@@ -192,7 +204,7 @@ Mỗi nhóm thực nghiệm trả lời một câu hỏi đánh giá riêng như
 
 Nhóm đánh giá lớp nghiệp vụ cốt lõi trước vì các thao tác được chọn đi qua API và cơ sở dữ liệu của hệ thống. Kịch bản k6 đo độ trễ, tỷ lệ lỗi yêu cầu và mức sử dụng tài nguyên trên các đường HTTP đã xác định; phép đo không kiểm tra tính đúng chức năng của toàn bộ vòng đời và không cho phép suy rộng kết quả thành khả năng chịu tải của một hội nghị thực tế.
 
-\textbf{Đầu vào.} Trước khi đo, nhóm khởi tạo hệ thống bằng bộ dữ liệu tổng hợp gồm 300 hội nghị, 50 bài nộp cho mỗi hội nghị và 30 phản biện viên cho mỗi hội nghị, tương ứng với 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Môi trường đo gồm bộ chứa API, PostgreSQL, Neo4j và Redis. Cấu hình tải mặc định sử dụng 20 người dùng ảo trong 30 giây cho mỗi kịch bản k6.
+\textbf{Đầu vào.} Trước khi đo, nhóm khởi tạo hệ thống bằng bộ dữ liệu tổng hợp gồm 300 hội nghị, 50 bài nộp cho mỗi hội nghị và 30 phản biện viên cho mỗi hội nghị, tương ứng với 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Môi trường đo gồm container API, PostgreSQL, Neo4j và Redis. Cấu hình tải mặc định sử dụng 20 người dùng ảo trong 30 giây cho mỗi kịch bản k6.
 
 \textbf{Các kịch bản và thao tác.} Ba kịch bản phản ánh các nhóm yêu cầu phổ biến nhất của nền tảng:
 
@@ -206,13 +218,13 @@ Trong lúc chạy tải, bộ giám sát mức sử dụng tài nguyên lấy m�
 
 \textbf{Đầu ra kỳ vọng.} Mỗi yêu cầu hợp lệ phải hoàn tất với mã trạng thái thành công; hệ thống phải ghi nhận số yêu cầu, thông lượng và các phân vị độ trễ. Bộ giám sát mức sử dụng tài nguyên phải tạo đủ chuỗi mẫu để so sánh mức tiêu thụ giữa API, PostgreSQL, Neo4j và Redis.
 
-\textbf{Đầu ra thực tế và chỉ số.} Tư liệu chính gồm bản tóm tắt JSON theo từng kịch bản, nhật ký tài nguyên và bản tóm tắt mức sử dụng tài nguyên. Các chỉ số dùng để diễn giải gồm số yêu cầu, thông lượng, độ trễ trung vị, p90, p95, độ trễ tối đa, tỷ lệ lỗi, cùng mức sử dụng CPU và bộ nhớ trung bình hoặc cao nhất theo tiến trình hay bộ chứa. Kết quả định lượng được trình bày tại Mục 4.3. Kiểm thử này chỉ đo tải trong điều kiện có kiểm soát, không thay thế kiểm thử chịu tải dài hạn hoặc phép ước lượng quy mô cho mọi môi trường triển khai.
+\textbf{Đầu ra thực tế và chỉ số.} Tư liệu chính gồm bản tóm tắt JSON theo từng kịch bản, nhật ký tài nguyên và bản tóm tắt mức sử dụng tài nguyên. Các chỉ số dùng để diễn giải gồm số yêu cầu, thông lượng, độ trễ trung vị, p90, p95, độ trễ tối đa, tỷ lệ lỗi, cùng mức sử dụng CPU và bộ nhớ trung bình hoặc cao nhất theo tiến trình hay container. Kết quả định lượng được trình bày tại Mục 4.3. Kiểm thử này chỉ đo tải trong điều kiện có kiểm soát, không thay thế kiểm thử chịu tải dài hạn hoặc phép ước lượng quy mô cho mọi môi trường triển khai.
 
 \subsubsection{Kịch bản thuật toán đối sánh phản biện viên và xung đột lợi ích}
 
 Sau khi đo hành vi đầu cuối qua API, chương tách chi phí thuật toán khỏi hành vi xếp hạng và phân công. Việc tách này cần thiết vì một endpoint đối sánh có độ trễ thấp vẫn có thể sử dụng thuật toán tốn tài nguyên; ngược lại, một thuật toán chạy nhanh vẫn có thể tạo danh sách xếp hạng kém chất lượng.
 
-\textbf{Kiểm thử vi mô bằng Go.}
+\textbf{Go microbenchmark.}
 
 \begin{itemize}
   \item \textbf{Đầu vào:} bộ dữ liệu thử cho thuật toán đối sánh và xung đột lợi ích ở nhiều quy mô, từ vài chục đến vài nghìn bài nộp/phản biện viên. Kiểm thử chạy trực tiếp trên mã Go, không đi qua HTTP, tuần tự hóa hay cơ sở dữ liệu.
@@ -231,11 +243,11 @@ Sau khi đo hành vi đầu cuối qua API, chương tách chi phí thuật toá
   \item \textbf{Đầu ra thực tế và chỉ số:} báo cáo Markdown/CSV và các bảng tại Mục 4.4.2, gồm Hit@k, MRR, nDCG@k, độ phủ, độ lệch chuẩn của số bài được phân công, hệ số Gini, điểm Jaccard trung bình, tỷ lệ dùng lượt dự phòng và số ca tự gán.
 \end{itemize}
 
-Kiểm thử vi mô và đánh giá hành vi cung cấp hai nhóm bằng chứng bổ sung cho nhau: kiểm thử vi mô đo thời gian xử lý của mã thuật toán, còn đánh giá hành vi đo khả năng truy hồi quan hệ tác giả--chủ đề và các chỉ số nội tại của phân công. Cả hai phép đánh giá đều không có nhãn về phản biện viên phù hợp hoặc dữ liệu phân công thực do Chủ tọa xác nhận; vì vậy, chúng không trả lời trực tiếp liệu gợi ý có đủ chất lượng để sử dụng trong vận hành hay không.
+Microbenchmark và đánh giá hành vi cung cấp hai nhóm bằng chứng bổ sung cho nhau: microbenchmark đo thời gian xử lý của mã thuật toán, còn đánh giá hành vi đo khả năng truy hồi quan hệ tác giả--chủ đề và các chỉ số nội tại của phân công. Cả hai phép đánh giá đều không có nhãn về phản biện viên phù hợp hoặc dữ liệu phân công thực do Chủ tọa xác nhận; vì vậy, chúng không trả lời trực tiếp liệu gợi ý có đủ chất lượng để sử dụng trong vận hành hay không.
 
 \subsubsection{Kịch bản tạo đầu ra và đánh giá luồng xử lý AI}
 
-Lớp AI được đánh giá theo hai bước nối tiếp thay vì bằng một chỉ số duy nhất. Bước thứ nhất kiểm tra liệu luồng xử lý có tạo được đầu ra đáp ứng yêu cầu vận hành hay không. Bước thứ hai kiểm tra liệu đầu ra tự luận đã tạo có bám bằng chứng nguồn hay không. Việc tách bộ tạo đầu ra khỏi bộ đánh giá giúp báo cáo phân biệt khả năng vận hành với độ tin cậy của nội dung.
+Lớp AI được đánh giá theo hai bước nối tiếp thay vì bằng một chỉ số duy nhất. Bước thứ nhất kiểm tra liệu luồng xử lý có tạo được đầu ra đáp ứng yêu cầu vận hành hay không. Bước thứ hai kiểm tra liệu đầu ra dạng văn bản tự do đã tạo có bám bằng chứng nguồn hay không. Việc tách bộ tạo đầu ra khỏi bộ đánh giá giúp báo cáo phân biệt khả năng vận hành với độ tin cậy của nội dung.
 
 \textbf{Bộ thực thi luồng xử lý.}
 
@@ -251,11 +263,11 @@ Lớp AI được đánh giá theo hai bước nối tiếp thay vì bằng mộ
 \begin{itemize}
   \item \textbf{Đầu vào:} 1.097 gói kết quả đủ điều kiện từ Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot. Bằng chứng đối chiếu gồm bài nộp, nhận xét phản biện hoặc bản tổng hợp nhận xét (metareview) tùy luồng xử lý.
   \item \textbf{Thao tác:} hệ thống trích mệnh đề từ đầu ra, ghép bằng chứng--mệnh đề, dùng NLI để gán trạng thái Truthfulness; Coverage và Additionality chỉ được tính trên các mệnh đề đã qua Truthfulness.
-  \item \textbf{Đầu ra kỳ vọng:} mỗi mệnh đề có trạng thái bám nguồn có thể truy ngược; mỗi luồng xử lý có các điểm Truthfulness, Coverage, Additionality, Validity, tỷ lệ vừa bám nguồn vừa hợp lệ hoặc tỷ lệ rủi ro cao tương ứng. Đây là điểm thăm dò tự động vì quy trình chưa được hiệu chuẩn bằng mẫu gán nhãn chuyên gia, chưa báo cáo độ tin cậy của bước trích mệnh đề và chưa có ngưỡng quyết định được xác lập trước.
+  \item \textbf{Đầu ra kỳ vọng:} mỗi mệnh đề có trạng thái bám nguồn có thể truy ngược; mỗi luồng xử lý có các điểm Truthfulness, Coverage, Additionality, Validity, tỷ lệ vừa bám nguồn vừa hợp lệ hoặc tỷ lệ rủi ro cao tương ứng.
   \item \textbf{Đầu ra thực tế và chỉ số:} JSONL theo từng bài và các bảng tại Mục 4.5.5--4.5.7.
 \end{itemize}
 
-Hai bước này liên kết trực tiếp: bộ thực thi tạo tập đầu ra thực nghiệm, còn TCA chỉ đánh giá tập đó mà không tạo lại đầu ra. Do đó, độ trễ thấp ở bộ thực thi chưa đủ để kết luận về chất lượng học thuật; chỉ số Truthfulness cao ở TCA cũng không có nghĩa là hệ thống có thể thay thế Phản biện viên hoặc Chủ tọa.
+Bộ thực thi tạo tập đầu ra thực nghiệm; TCA đọc lại tập này mà không tạo lại đầu ra. Cách tách này giữ riêng bằng chứng vận hành và bằng chứng về mức độ bám nguồn.
 
 \subsubsection{Kịch bản đối chiếu đầu ra với chuẩn của Submission Autofill và Submission Gating}
 
@@ -322,52 +334,22 @@ Chương đặt khảo sát người dùng ở cuối chuỗi đánh giá vì kh
 
 \textbf{Đầu ra thực tế và chỉ số.} Phiếu khảo sát và các bảng tổng hợp tại Mục 4.7. Chỉ số chính là mức hài lòng trung bình, tỷ lệ đánh giá tích cực theo tính năng và các chủ đề định tính lặp lại. Giới hạn diễn giải là cỡ mẫu và thiết kế khảo sát sau sử dụng không thay cho nghiên cứu người dùng quy mô lớn hay thử nghiệm A/B.
 
-Nhìn tổng thể, các kịch bản trên tạo thành một chuỗi bằng chứng theo thứ tự. Trước hết, nhóm đo hiệu năng của các đường nghiệp vụ đã chọn. Tiếp theo, nhóm đo thời gian xử lý và hành vi xếp hạng, phân công của thuật toán tất định trên bộ thử. Sau đó, nhóm đánh giá từng luồng AI trên tác vụ cụ thể. Cuối cùng, phản hồi của người dùng bổ sung góc nhìn về trải nghiệm. Các mục từ 4.3 đến 4.7 báo cáo kết quả theo phương pháp đã xác định tại đây.
-
-\subsection{Phạm vi và giới hạn của thực nghiệm}
-
-Thực nghiệm hiện tại cung cấp bằng chứng cho ba nhóm kết luận. Thứ nhất, ba endpoint đã chọn của backend và mã thuật toán được kiểm thử có thời gian xử lý thấp trong cấu hình thử nghiệm. Thứ hai, các luồng AI có thể tạo đầu ra trên hơn một nghìn bài nộp; một phần đầu ra được đánh giá bằng chỉ số mệnh đề--bằng chứng. Thứ ba, một số luồng đã có bằng chứng vận hành hoặc chuẩn đầu ra rõ ràng, chẳng hạn phép kiểm tra luật của Submission Gating, khả năng trích xuất siêu dữ liệu của Submission Autofill và khả năng tuân thủ ranh giới quyền truy cập của Chatbot Agent.
-
-Tuy nhiên, thực nghiệm không cho thấy AI có thể thay thế Phản biện viên hoặc Chủ tọa. TCA chỉ cung cấp các chỉ số tự động gián tiếp về mức độ bám bằng chứng và không thay thế đánh giá đầy đủ của chuyên gia. Gợi ý chuyên đề trong Submission Autofill chưa có nhãn chuyên gia để đánh giá độ chính xác khi chọn chuyên đề. Phần cảnh báo mềm của Submission Gating cũng chưa được con người rà soát từng cảnh báo nội dung. Chair Decision Copilot chưa được đối chiếu với quyết định chấp nhận hoặc từ chối của Chủ tọa, nên không được trình bày như một bộ phân loại quyết định. Chatbot Agent mới được đánh giá trên 40 hội thoại; quy mô này đủ cho nhận định ban đầu theo kịch bản nhưng chưa đủ để kết luận về độ ổn định dài hạn.
-
-\subsection{Bộ dữ liệu tham chiếu và quy trình chấm điểm thử nghiệm}
-
-Các luồng xử lý AI dùng ba kiểu đánh giá khác nhau:
-
-\begin{itemize}
-\item \textbf{Đánh giá bằng dữ liệu tham chiếu:} Với chức năng Submission Autofill, kết quả được so sánh trực tiếp với thông tin tham chiếu trong dữ liệu bài nộp thông qua các chỉ số so khớp trực tiếp như Exact Match, ROUGE và F1. Đối với Submission Gating, hệ thống được kiểm tra bằng bộ dữ liệu có sẵn kết quả kỳ vọng, bao gồm phán quyết cuối cùng và mã luật tương ứng.
-
-\item \textbf{Đánh giá dựa trên mệnh đề và bằng chứng:} TCA đánh giá Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot nhằm ước lượng mức độ phù hợp giữa nhận định do hệ thống tạo ra và bằng chứng trong bài báo, bản phản biện hoặc bản tổng hợp. Độ phủ đo mức trùng khớp với nội dung tham chiếu do con người tạo. Khả năng bổ sung đo tỷ lệ mệnh đề được bộ chấm xem là có căn cứ nhưng không trùng trực tiếp với tham chiếu; chỉ số này không tự chứng minh thông tin mới hữu ích về mặt học thuật.
-
-\item \textbf{Đánh giá theo tình huống sử dụng:} Nhóm kiểm tra Chatbot Agent qua các đoạn hội thoại mô phỏng theo ba vai trò: Tác giả, Phản biện viên và Chủ tọa. Nhóm đánh giá thủ công kết quả theo ba tiêu chí: câu trả lời có giải quyết đúng yêu cầu, có dựa trên dữ liệu được cung cấp và có tuân thủ phạm vi quyền truy cập của từng vai trò hay không.
-\end{itemize}
-
-Tư liệu thô gồm các tệp JSON, JSONL và CSV của bộ thực thi luồng xử lý, TCA, Submission Gating, gợi ý chuyên đề trong Submission Autofill và Chatbot Agent. Các đầu ra này cho phép truy ngược từ số liệu tổng hợp đến từng tác vụ, phản hồi, cảnh báo hoặc phát hiện khi cần kiểm tra lại. Các bảng trong báo cáo sử dụng số liệu từ báo cáo thử nghiệm đã tổng hợp; đầu ra thô cung cấp bằng chứng để truy xuất và kiểm tra nguồn gốc dữ liệu.
+Nhìn tổng thể, các kịch bản trên tạo thành một chuỗi bằng chứng theo thứ tự. Trước hết, nhóm đo hiệu năng của các đường nghiệp vụ đã chọn. Tiếp theo, nhóm đo thời gian xử lý và hành vi xếp hạng, phân công của thuật toán xác định trên bộ thử. Sau đó, nhóm đánh giá từng luồng AI trên tác vụ cụ thể. Cuối cùng, phản hồi của người dùng bổ sung góc nhìn về trải nghiệm. Các mục từ 4.3 đến 4.7 báo cáo kết quả theo phương pháp đã xác định tại đây.
 
 \par\noindent\rule{\textwidth}{0.4pt}\par
 
 \section{Đánh giá lớp nghiệp vụ cốt lõi}
 
-Phần này đo hiệu năng vận hành của một số đường xử lý thuộc lớp nghiệp vụ cốt lõi: đăng nhập, truy vấn danh sách, đối sánh phản biện viên và kiểm tra xung đột lợi ích. Các kịch bản không gọi dịch vụ AI, nhưng việc tách đường gọi không chứng minh toàn bộ vòng đời vẫn hoạt động khi AI ngừng hoạt động; nhận định đó cần thử nghiệm chèn lỗi đầu cuối riêng.
-
-\subsection{Kịch bản tải HTTP}
-
-Bộ kiểm thử hiệu năng của backend kết hợp hai lớp đo bổ sung cho nhau. k6 đo độ trễ và thông lượng đầu cuối qua các endpoint HTTP thực tế, qua đó phản ánh thời gian xử lý sau khi yêu cầu đi qua API, cơ sở dữ liệu và tầng trung gian. Kiểm thử vi mô bằng Go đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ của thuật toán trong chương trình, không bao gồm chi phí HTTP, cơ sở dữ liệu và mạng. Ba kịch bản tải HTTP được thực thi trên tập dữ liệu gồm 300 hội nghị, 15.000 bài nộp và 9.000 phản biện viên; giai đoạn khởi tạo dữ liệu không phát sinh lỗi:
-
-\begin{itemize}
-  \item \textbf{Nhóm truy vấn đọc:} sau bước đăng nhập trong giai đoạn thiết lập, mỗi vòng lặp lần lượt liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng; kịch bản không tạo, cập nhật hoặc xóa bản ghi.
-  \item \textbf{Gợi ý phản biện viên:} gọi endpoint \CodeBreak{reviewer-suggestions}; kịch bản không tự động lưu phân công.
-  \item \textbf{Xung đột lợi ích:} gọi endpoint kiểm tra xung đột lợi ích, bao gồm cả truy vấn đồ thị đồng tác giả trên Neo4j.
-\end{itemize}
+Phần này báo cáo kết quả tải HTTP của ba nhóm thao tác đã xác định tại Mục 4.2: truy vấn đọc, gợi ý phản biện viên và kiểm tra xung đột lợi ích. Phép đo dùng tập dữ liệu gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị; cấu hình tải và chỉ số được giữ nguyên như mô tả trong phần thiết lập thực nghiệm.
 
 \subsection{Kết quả hiệu năng backend}
 
-Cả ba kịch bản đều ghi nhận tỷ lệ lỗi yêu cầu bằng 0\% với toàn bộ điều kiện kiểm tra đều đạt. Bảng 4.4 tổng hợp kết quả đo được:
+Cả ba kịch bản đều ghi nhận tỷ lệ lỗi yêu cầu bằng 0\% với toàn bộ điều kiện kiểm tra đều đạt. Bảng~\ref{tab:ch4-http-load-results} tổng hợp kết quả đo được:
 
 
 \begin{PrismLongTable}
 \begin{longtable}{|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|C{0.112\textwidth}|}
-  \caption{Kết quả tải HTTP theo kịch bản k6}\LongTableCaptionSpace
+  \caption{Kết quả tải HTTP theo kịch bản k6}\label{tab:ch4-http-load-results}\LongTableCaptionSpace
   \hline
   \TableHeader{Kịch bản}    &    \TableHeader{Số yêu cầu}    &    \TableHeader{Thông lượng}    &    \TableHeader{Trung vị}    &    \TableHeader{p90}    &    \TableHeader{p95}    &    \TableHeader{Tối đa}    &    \TableHeader{Trung bình} \\ \hline
   \endfirsthead
@@ -386,7 +368,7 @@ Cả ba kịch bản đều ghi nhận tỷ lệ lỗi yêu cầu bằng 0\% v�
 
 \subsection{Tài nguyên tiêu thụ và điểm nghẽn vận hành}
 
-Trong suốt quá trình chạy tải, bộ chứa API sử dụng trung bình 28\% công suất của một nhân CPU, đạt mức cao nhất 43\%, và dùng khoảng 30 MB RAM. PostgreSQL tiêu thụ nhiều tài nguyên nhất, với mức sử dụng CPU trung bình khoảng 115\% của một nhân, mức cao nhất 163\%, mức sử dụng RAM khoảng 204 MB và mức cao nhất 222 MB. Trong các kịch bản này, Neo4j dùng khoảng 508 MB RAM nhưng dưới 1\% CPU, còn Redis dùng khoảng 9 MB RAM.
+Trong suốt quá trình chạy tải, container API sử dụng trung bình 28\% công suất của một nhân CPU, đạt mức cao nhất 43\%, và dùng khoảng 30 MB RAM. PostgreSQL tiêu thụ nhiều tài nguyên nhất, với mức sử dụng CPU trung bình khoảng 115\% của một nhân, mức cao nhất 163\%, mức sử dụng RAM khoảng 204 MB và mức cao nhất 222 MB. Trong các kịch bản này, Neo4j dùng khoảng 508 MB RAM nhưng dưới 1\% CPU, còn Redis dùng khoảng 9 MB RAM.
 
 Trong ba kịch bản và cấu hình tài nguyên đã đo, PostgreSQL tiêu thụ CPU cao hơn tầng ứng dụng và là điểm cần ưu tiên khi tối ưu. Kết quả này không đủ để kết luận điểm nghẽn duy nhất ở quy mô hoặc cấu hình triển khai khác, và không đánh giá tác động khi dịch vụ AI gặp lỗi.
 
@@ -398,12 +380,12 @@ Trong ba kịch bản và cấu hình tài nguyên đã đo, PostgreSQL tiêu th
 
 Thuật toán dùng chỉ số Domain Jaccard Similarity để tính độ tương đồng chuyên môn giữa lĩnh vực của phản biện viên (lấy từ hồ sơ Semantic Scholar) và chủ đề bài nộp, kết hợp thuật toán gán tham lam có xét ràng buộc mức độ đồng đều của phân công. Vì thuật toán cố định và có thể kiểm chứng, hệ thống có thể hiển thị điểm phù hợp và lý do đề xuất cho từng cặp phản biện viên--bài nộp, giúp Chủ tọa hiểu vì sao một phản biện viên được đề xuất thay vì chỉ nhận một danh sách ``hộp đen''.
 
-Kết quả kiểm thử vi mô bằng Go ghi nhận thời gian xử lý từ 131 \(\mu\)s đến 56 ms tùy quy mô dữ liệu, không bao gồm HTTP, cơ sở dữ liệu, mạng hoặc thời gian hiển thị. Phép đo cho thấy chi phí tính toán của mã thuật toán thấp ở các quy mô đã thử, nhưng không tự chứng minh thời gian phản hồi tức thời của toàn hệ thống.
+Kết quả Go microbenchmark ghi nhận thời gian xử lý từ 131 \(\mu\)s đến 56 ms tùy quy mô dữ liệu, không bao gồm HTTP, cơ sở dữ liệu, mạng hoặc thời gian hiển thị. Phép đo cho thấy chi phí tính toán của mã thuật toán thấp ở các quy mô đã thử, nhưng không tự chứng minh thời gian phản hồi tức thời của toàn hệ thống.
 
 
 \begin{PrismLongTable}
 \begin{longtable}{|C{0.235\textwidth}|P{0.235\textwidth}|P{0.235\textwidth}|P{0.235\textwidth}|}
-  \caption{Kết quả kiểm thử vi mô bằng Go theo thuật toán}\LongTableCaptionSpace
+  \caption{Kết quả Go microbenchmark theo thuật toán}\label{tab:ch4-go-microbenchmark}\LongTableCaptionSpace
   \hline
   \TableHeader{Thuật toán}    &    \TableHeader{Quy mô nhỏ}    &    \TableHeader{Quy mô trung bình}    &    \TableHeader{Quy mô lớn} \\ \hline
   \endfirsthead
@@ -421,11 +403,11 @@ Kết quả kiểm thử vi mô bằng Go ghi nhận thời gian xử lý từ 1
 
 \subsection{Hành vi xếp hạng và phân công của thuật toán đối sánh}
 
-Phần này đánh giá hành vi xếp hạng và phân công của thuật toán đối sánh phản biện viên trên tập dữ liệu tổng hợp lưu tại \CodeBreak{testdata/s2\_snapshot.json}. Tập dữ liệu mô phỏng lược đồ (schema) dữ liệu Semantic Scholar; nhóm chạy phép đánh giá cục bộ mà không gọi API. Cách thực hiện này cố định đầu vào và cho phép chạy lại cơ chế xếp hạng tất định, nhưng kết quả không phải bằng chứng trên dữ liệu Semantic Scholar thực.
+Theo thiết lập tại Mục 4.2, phép đánh giá dùng tập tổng hợp \CodeBreak{testdata/s2\_snapshot.json} gồm 60 hồ sơ tác giả và 2.565 bài báo, không gọi API Semantic Scholar trong quá trình chạy. Kết quả dưới đây vì vậy chỉ so sánh hành vi của các phương pháp trên cùng một đầu vào có thể tái tạo.
 
-\subsubsection{Dữ liệu và phương pháp nhãn tham chiếu}
+\subsubsection{Dữ liệu và nhãn tham chiếu}
 
-Tập dữ liệu được lưu cùng mã nguồn là dữ liệu tổng hợp vì tại thời điểm tạo dữ liệu, nhóm không có khóa truy cập Semantic Scholar khả dụng. Tập này gồm 60 hồ sơ tác giả và 2.565 bản ghi bài báo, được tổ chức theo lược đồ (schema) dự kiến của bộ thu thập dữ liệu. Vì vậy, các chủ đề và quan hệ tác giả--bài báo phản ánh dữ liệu mô phỏng, không phải mẫu quan sát từ cộng đồng nghiên cứu. Báo cáo giữ nguyên quy mô và kết quả để đánh giá khả năng tái tạo thuật toán trên bộ thử này, đồng thời giới hạn kết luận ở phép so sánh nội bộ giữa các phương pháp trên dữ liệu tổng hợp.
+Tập dữ liệu mô phỏng lược đồ (schema) Semantic Scholar và quan hệ tác giả--bài báo; đây không phải mẫu quan sát từ cộng đồng nghiên cứu thực. Bảng dưới cung cấp các đặc trưng cần thiết để diễn giải quy mô và độ thưa của tín hiệu chủ đề.
 
 
 \begin{PrismLongTable}
@@ -483,7 +465,7 @@ Thuật toán đang triển khai dùng Jaccard Similarity trên tập từ khóa
 
 \textit{Nhận xét:} Trên tập dữ liệu tổng hợp, Jaccard đạt MRR = 0,392, cao gấp khoảng 5 lần đường cơ sở ngẫu nhiên (0,078). Giá trị MRR ngẫu nhiên khớp với giá trị lý thuyết $H(N)/N$ khi $N=60$, qua đó kiểm tra tính nhất quán của phép tính chỉ số. Hit@5 = 55\% và Hit@10 = 65\% nghĩa là hồ sơ tác giả gốc xuất hiện tương ứng trong 5 và 10 vị trí đầu ở số truy vấn nêu trên. Các giá trị này chưa cho biết mức thu hẹp công việc của Chủ tọa hoặc khả năng tìm được phản biện viên phù hợp trong hội nghị thật.
 
-Đáng chú ý, \CodeBreak{overlap\_count} vượt trội Jaccard ở Hit@10 và nDCG@10 (0,733 so với 0,650 và 0,463 so với 0,442). Trong tập thử này, đếm số chủ đề chung đạt Hit@10 và nDCG@10 cao hơn, còn Jaccard đạt Hit@1 cao hơn nhẹ (0,250 so với 0,233). Chênh lệch nhỏ và cỡ mẫu 60 truy vấn chưa đủ để khẳng định ưu thế ổn định của một phương pháp; Jaccard được giữ như đường cơ sở xác định của hệ thống.
+Đáng chú ý, \CodeBreak{overlap\_count} vượt trội Jaccard ở Hit@10 và nDCG@10 (0,733 so với 0,650 và 0,463 so với 0,442). Trong tập thử này, đếm số chủ đề chung đạt Hit@10 và nDCG@10 cao hơn, còn Jaccard đạt Hit@1 cao hơn nhẹ (0,250 so với 0,233). Chênh lệch nhỏ và cỡ mẫu 60 truy vấn chưa đủ để khẳng định ưu thế ổn định của một phương pháp; Jaccard được giữ như phương pháp đối chứng xác định của hệ thống.
 
 \subsubsection{Hành vi của thuật toán phân công}
 
@@ -547,39 +529,21 @@ Nhóm đã chạy cùng thử nghiệm trên một tập tổng hợp nhỏ hơn
 
 \textit{Nhận xét:} Các chỉ số thay đổi đáng kể giữa hai bộ tổng hợp: MRR tăng 22\%, trong khi Hit@5 giảm 19\%, Hit@10 giảm 25\% và điểm phân công trung bình giảm 97\%. Do quy trình tạo dữ liệu tổng hợp sinh ra cả hai bộ, báo cáo không quy các chênh lệch này cho hành vi của tác giả thực. Kết quả chỉ cho thấy phương pháp dựa trên giao từ khóa nhạy với quy mô và cách phân bố từ vựng của bộ thử; cần dữ liệu học thuật thực cùng phân tích độ nhạy để tách nguyên nhân.
 
-\subsubsection{Giới hạn và ý nghĩa}
-
-\textbf{Giới hạn biểu diễn và dữ liệu:} Điểm Jaccard trung bình 0,011 cho thấy tín hiệu giao từ khóa thưa trên bộ tổng hợp mở rộng. Kết quả có thể xuất phát từ phương pháp tạo dữ liệu, mức độ chuẩn hóa thuật ngữ hoặc giới hạn của cách biểu diễn bằng tập từ khóa; thử nghiệm hiện tại chưa tách riêng các nguyên nhân. Các giá trị MRR 0,392 và điểm trung bình 0,011 chỉ là đường cơ sở tái tạo được trên bộ thử này để so sánh với phương pháp khác trong tương lai.
-
-\textbf{Nhãn tham chiếu gián tiếp:} Phương pháp leave-one-out dùng tác giả gốc làm nhãn truy hồi, trong khi chính tác giả đó phải bị loại khi chọn phản biện viên. Vì vậy, chỉ số đo khả năng khôi phục quan hệ tác giả--chủ đề đã mã hóa trong dữ liệu, không đo chất lượng đối sánh phản biện viên hoặc chất lượng phản biện sau phân công.
-
-\textbf{Quy mô dữ liệu:} 60 hồ sơ tác giả cho phép so sánh thuật toán và đường cơ sở trong cùng bộ thử, nhưng quá nhỏ và quá đơn giản để đại diện cho hội nghị thật. Kết quả có thể dùng để phát hiện sơ bộ đánh đổi giữa điểm từ khóa, độ phủ và tải; chưa đủ để suy luận yêu cầu thuật toán ở quy mô lớn nếu chưa có phép đo độ phức tạp và dữ liệu vận hành tương ứng.
-
 \subsection{Cơ chế phát hiện xung đột lợi ích đa tầng}
 
 Hệ thống triển khai cơ chế phát hiện xung đột lợi ích theo ba lớp bổ sung cho nhau: (1) kiểm tra tự gán, nhằm phát hiện trường hợp phản biện viên đồng thời là tác giả bài nộp; (2) khai báo thủ công, cho phép người dùng tự khai báo quan hệ xung đột; và (3) phân tích đồ thị đồng tác giả trên Neo4j, nhằm tìm liên kết đồng tác giả trực tiếp hoặc gián tiếp từ một đến ba bậc trong khoảng thời gian có thể cấu hình, chẳng hạn quan hệ đồng tác giả trong ba năm gần nhất. Thiết kế theo mẫu Composite tách lớp kiểm tra tự gán và khai báo thủ công khỏi lớp Neo4j có thể bật hoặc tắt bằng cấu hình. Đường xử lý này được thiết kế để giảm phụ thuộc vào dữ liệu đồ thị; tuy nhiên, chương chưa có thử nghiệm chèn lỗi đầu cuối để xác nhận hành vi khi Neo4j ngừng hoạt động.
 
-Về hiệu năng, Bảng 4.5 cho thấy kiểm thử vi mô của hai bộ phát hiện \textit{self-author} và xung đột đã khai báo tốn 14,9 \(\mu\)s đến 653 \(\mu\)s tùy quy mô dữ liệu. Phép đo không bao gồm bộ phát hiện quan hệ đồng tác giả trên Neo4j: kiểm thử đồ thị riêng chỉ chạy khi có môi trường Neo4j đã gieo dữ liệu và không có kết quả được dùng trong bảng. Vì vậy, số liệu không đại diện cho thời gian của toàn bộ cơ chế xung đột lợi ích đa tầng.
+Về hiệu năng, Bảng~\ref{tab:ch4-go-microbenchmark} cho thấy microbenchmark của hai bộ phát hiện \textit{self-author} và xung đột đã khai báo tốn 14,9 \(\mu\)s đến 653 \(\mu\)s tùy quy mô dữ liệu. Phép đo không bao gồm bộ phát hiện quan hệ đồng tác giả trên Neo4j: kiểm thử đồ thị riêng chỉ chạy khi có môi trường Neo4j đã gieo dữ liệu và không có kết quả được dùng trong bảng. Vì vậy, số liệu không đại diện cho thời gian của toàn bộ cơ chế xung đột lợi ích đa tầng.
 
-\subsection{Giới hạn hiện tại của phép đánh giá đối sánh}
-
-Dữ liệu thực nghiệm hiện tại không chỉ đo thời gian chạy mà còn gồm phép leave-one-out và các chỉ số nội tại của phân công trên dữ liệu tổng hợp. Tuy nhiên, Hit@k, MRR và nDCG đo khả năng truy hồi hồ sơ tác giả gốc; độ phủ, độ đồng đều và tỷ lệ dùng lượt dự phòng mô tả hành vi của thuật toán gán. Chúng chưa phải bằng chứng về mức phù hợp chuyên môn do Chủ tọa xác nhận. Vì vậy, chương chỉ kết luận thuật toán tái tạo được một tín hiệu giao từ khóa và bộc lộ rõ đánh đổi độ phủ--điểm số trên bộ thử; chưa kết luận về mức chấp nhận đề xuất hoặc chất lượng phản biện thực tế.
-
-Tương tự, dữ liệu hiện có chưa lượng hóa được số lượng quan hệ xung đột lợi ích ẩn mà lớp phân tích đồ thị phát hiện thêm so với chỉ dựa vào khai báo thủ công --- chỉ số quan trọng để đánh giá giá trị gia tăng thực sự của lớp Neo4j. Đây là những hạn chế được ghi nhận rõ ràng để bổ sung ở giai đoạn thực nghiệm tiếp theo.
+Phép đánh giá xung đột lợi ích hiện mới xác nhận chi phí của hai bộ kiểm tra xác định; chưa lượng hóa số quan hệ ẩn mà lớp đồ thị phát hiện thêm so với khai báo thủ công. Khoảng trống bằng chứng này được tổng hợp cùng các hạn chế toàn chương tại Mục 4.8.
 
 \par\noindent\rule{\textwidth}{0.4pt}\par
 
 \section{Đánh giá các luồng xử lý AI}
 
-\subsection{Kiến trúc thử nghiệm luồng xử lý AI và nguyên tắc diễn giải kết quả}
+\subsection{Nguyên tắc trình bày kết quả}
 
-Các luồng AI của ConferenceSpace tạo ra những loại đầu ra khác nhau, nên chương không dùng một chỉ số chung như ``độ chính xác'' cho toàn bộ lớp AI. Submission Autofill tạo siêu dữ liệu có dữ liệu tham chiếu rõ ràng. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot tạo đầu ra tự luận, cần được kiểm tra theo quan hệ mệnh đề--bằng chứng. Chatbot Agent tương tác với các công cụ nội bộ, nên phép đánh giá dựa trên kết quả hội thoại và khả năng tuân thủ quyền truy cập.
-
-Thử nghiệm gồm hai lớp chính. Lớp thứ nhất là bộ thực thi luồng xử lý, dùng để chạy các luồng đã triển khai trên tập dữ liệu, đồng thời lưu đầu ra, thời gian xử lý, số token tiêu thụ, trạng thái hoàn tất và các chỉ số đối sánh trực tiếp khi có thể tính được. Lớp thứ hai là bộ thử nghiệm TCA, đọc lại đầu ra đã lưu để đánh giá độ trung thực, độ phủ và khả năng bổ sung. Việc tách bộ tạo đầu ra khỏi bộ đánh giá giúp báo cáo không đánh đồng khả năng tạo đầu ra với chỉ số gián tiếp về mức độ bám bằng chứng.
-
-TCA gồm ba chỉ số: (1) độ trung thực (Truthfulness), là tỷ lệ mệnh đề được bộ chấm NLI xác định có bằng chứng hỗ trợ; (2) độ phủ (Coverage), là mức độ trùng khớp với đầu ra tham chiếu do con người tạo; và (3) khả năng bổ sung (Additionality), là tỷ lệ mệnh đề được xem là có căn cứ nhưng không trùng trực tiếp với tham chiếu. Khả năng bổ sung không đo trực tiếp tính mới hoặc mức độ hữu ích về học thuật. Độ phủ thấp cũng không mặc nhiên là lỗi vì nhận xét phản biện và nhận xét tổng hợp chỉ ghi lại một phần nội dung đã được cân nhắc; ngược lại, báo cáo cũng không mặc nhiên xem mọi phần nằm ngoài tham chiếu là giá trị bổ sung.
-
-Nguyên tắc quan trọng nhất khi diễn giải các kết quả dưới đây là giới hạn kết luận trong phạm vi bằng chứng. Mức độ bám bằng chứng cao không cho thấy AI có thể thay thế phản biện viên. Độ trễ thấp không cho thấy đầu ra đúng. Chuyên đề hợp lệ không đồng nghĩa với chuyên đề được chuyên gia đánh giá là phù hợp. Bản tóm tắt quyết định có độ trung thực cao cũng không cho thấy hệ thống dự đoán đúng quyết định chấp nhận hoặc từ chối.
+Mục 4.2 đã xác định dữ liệu, môi trường, quy trình chấm điểm và chỉ số cho từng loại đầu ra AI. Phần này chỉ báo cáo kết quả theo từng luồng xử lý; bảng tổng hợp mở đầu xác định phạm vi kết luận tương ứng để phân biệt bằng chứng trực tiếp, chỉ số mệnh đề--bằng chứng và đánh giá theo kịch bản.
 
 \subsection{Tổng hợp mức bằng chứng theo luồng xử lý}
 
@@ -598,9 +562,9 @@ Nguyên tắc quan trọng nhất khi diễn giải các kết quả dưới đ�
   Siêu dữ liệu của Submission Autofill     &     Bộ thực thi luồng xử lý     &     1.127 bài     &     Tỷ lệ khớp tiêu đề, F1 theo token của tiêu đề, ROUGE, F1 của từ khóa và tác giả, tỷ lệ hoàn tất     &     Mức độ khớp giữa bản nháp siêu dữ liệu và dữ liệu tham chiếu; không đo thời gian thực tế người dùng tiết kiệm \\ \hline
   Gợi ý chuyên đề trong Submission Autofill      &      Đối chiếu với chuẩn đã định sẵn      &      48 trường hợp      &      Tỷ lệ hoàn tất, tỷ lệ chuyên đề không hợp lệ và độ trễ      &      Khả năng hoàn tất luồng và giới hạn chuyên đề trong danh sách hợp lệ; chưa kết luận về độ chính xác theo đánh giá chuyên gia \\ \hline
   Submission Gating     &     Thử nghiệm kiểm tra luật và cảnh báo nội dung     &     8 trường hợp kiểm tra luật; 24 trường hợp cảnh báo nội dung     &     Độ chính xác của phán quyết, tỷ lệ nhận đúng mã luật, số lần chặn sai và số vi phạm quy tắc kiểm tra đầu ra     &     Mức độ chính xác của kiểm tra luật trên bộ ca hiện tại và khả năng giữ đúng phạm vi của cảnh báo mềm \\ \hline
-  Reviewer Initial Analysis      &      Bộ thực thi luồng xử lý và TCA      &      1.127 lượt thực thi; 1.097 gói TCA      &      Tỷ lệ trích dẫn bám nguồn, tỷ lệ bịa đặt, độ trung thực của điểm chú ý, độ phủ và khả năng bổ sung      &      Mức độ bám nguồn theo bộ chấm và rủi ro của điểm chú ý; không thay thế đánh giá chuyên gia \\ \hline
+  Reviewer Initial Analysis      &      Bộ thực thi luồng xử lý và TCA      &      1.127 lượt thực thi; 1.097 gói TCA      &      Tỷ lệ trích dẫn bám nguồn, tỷ lệ bịa đặt, độ trung thực của điểm cần lưu ý, độ phủ và Additionality      &      Mức độ bám nguồn theo bộ chấm và rủi ro của điểm cần lưu ý; không thay thế đánh giá chuyên gia \\ \hline
   Review Quality Auditor     &     Bộ thực thi luồng xử lý và TCA     &     3.658 lượt kiểm tra vận hành; 2.637--3.472 đơn vị chấm tùy chỉ số TCA     &     Số phát hiện, phân bố trạng thái, độ trung thực, tính hợp lệ và tỷ lệ vừa bám nguồn vừa hợp lệ     &     Mức độ bám nguồn và mức nhiễu của phát hiện; không chứng minh phát hiện hữu ích cho quyết định thực tế \\ \hline
-  Chair Decision Copilot      &      Bộ thực thi luồng xử lý và TCA      &      1.127 lượt thực thi; 1.097 gói TCA      &      Độ trung thực của cơ sở bằng chứng và bản đồ bất đồng, khả năng bổ sung, tỷ lệ rủi ro cao      &      Mức độ bám nguồn của bản tổng hợp; không đo độ chính xác của quyết định chấp nhận hoặc từ chối hay thiên lệch tự động hóa \\ \hline
+  Chair Decision Copilot      &      Bộ thực thi luồng xử lý và TCA      &      1.127 lượt thực thi; 1.097 gói TCA      &      Độ trung thực của cơ sở bằng chứng và bản tổng hợp các điểm bất đồng, Additionality, tỷ lệ rủi ro cao      &      Mức độ bám nguồn của bản tổng hợp; không đo độ chính xác của quyết định chấp nhận hoặc từ chối hay thiên lệch tự động hóa \\ \hline
   Chatbot Agent     &     Thử nghiệm thủ công dựa trên bằng chứng     &     40 hội thoại     &     Kết quả hội thoại, tỷ lệ gọi công cụ thành công, khả năng tuân thủ quyền truy cập, thời gian đến token đầu tiên (TTFT) và thời lượng luồng phản hồi     &     Hành vi trong tám nhóm kịch bản; không thay thế kiểm toán bảo mật hoặc đánh giá độ ổn định dài hạn \\ \hline
 \end{longtable}
 \end{PrismLongTable}
@@ -712,15 +676,15 @@ Về vận hành, bộ thực thi ghi nhận thời gian xử lý trung bình 39
   Tỷ lệ trích dẫn bám nguồn     &     96,22\%     &     100,00\%     &     55,17\%     &     100,00\% \\ \hline
   Tỷ lệ bịa đặt      &      3,78\%      &      0,00\%      &      0,00\%      &      44,83\% \\ \hline
   Số trích dẫn mỗi bài     &     26,32     &     26,00     &     12,00     &     43,00 \\ \hline
-  Độ trung thực của điểm chú ý      &      69,86\%      &      75,00\%      &      0,00\%      &      100,00\% \\ \hline
+  Độ trung thực của điểm cần lưu ý      &      69,86\%      &      75,00\%      &      0,00\%      &      100,00\% \\ \hline
   Độ phủ     &     4,49\%     &     0,00\%     &     0,00\%     &     100,00\% \\ \hline
-  Khả năng bổ sung      &      92,23\%      &      100,00\%      &      0,00\%      &      100,00\% \\ \hline
+  Additionality      &      92,23\%      &      100,00\%      &      0,00\%      &      100,00\% \\ \hline
 \end{longtable}
 \end{PrismLongTable}
 
-Theo bộ chấm tự động, tỷ lệ trích dẫn được phân loại là bám nguồn đạt 96,22\% và tỷ lệ bị phân loại là không bám nguồn trung bình là 3,78\%. Kết quả cho thấy bộ chấm nhận diện phần lớn trích dẫn là có căn cứ trong nguồn, nhưng chưa phải bằng chứng mạnh về tính đúng đắn vì phép chấm chưa được hiệu chuẩn với nhãn chuyên gia. Độ trung thực của điểm chú ý thấp hơn, đạt 69,86\%, vì điểm cần chú ý thường là diễn giải hoặc gợi ý điều cần chú ý, khó kiểm chứng trực tiếp hơn trích dẫn.
+Theo bộ chấm tự động, 96,22\% trích dẫn được phân loại là bám nguồn và 3,78\% bị phân loại là không bám nguồn. Độ trung thực của điểm cần lưu ý thấp hơn, đạt 69,86\%, vì nhóm nội dung này chứa nhiều diễn giải hoặc gợi ý khó đối chiếu trực tiếp hơn trích dẫn. Các tỷ lệ này được diễn giải theo phạm vi của phép chấm TCA đã nêu tại Mục 4.2.
 
-Độ phủ thấp (4,49\%) không có nghĩa là luồng kém, vì nhận xét phản biện của con người thường chỉ ghi lại những điểm nổi bật, không bao phủ toàn bộ các nhận xét mà người đọc đã cân nhắc. Do đó, so sánh trực tiếp độ phủ sẽ không phản ánh đúng chất lượng của bản định hướng. Reviewer Initial Analysis được tạo trước khi phản biện viên viết nhận xét, còn nhận xét của con người thường chỉ ghi một số vấn đề nổi bật sau khi đọc sâu. Khả năng bổ sung 92,23\% cho biết bộ chấm xếp phần lớn mệnh đề có căn cứ vào nhóm không trùng trực tiếp với nhận xét tham chiếu; chỉ số này không xác nhận các mệnh đề đó mới hoặc hữu ích đối với phản biện viên. Khi đối chiếu với UAT cỡ mẫu nhỏ, kết quả gợi ý luồng có thể phục vụ vai trò định hướng đọc, nhưng mọi điểm cần chú ý vẫn phải được phản biện viên kiểm tra trên bài gốc.
+Độ phủ thấp (4,49\%) không có nghĩa là luồng kém, vì nhận xét phản biện của con người thường chỉ ghi lại những điểm nổi bật, không bao phủ toàn bộ các nhận xét mà người đọc đã cân nhắc. Do đó, so sánh trực tiếp độ phủ sẽ không phản ánh đúng chất lượng của bản định hướng. Reviewer Initial Analysis được tạo trước khi phản biện viên viết nhận xét, còn nhận xét của con người thường chỉ ghi một số vấn đề nổi bật sau khi đọc sâu. Additionality 92,23\% cho biết bộ chấm xếp phần lớn mệnh đề có căn cứ vào nhóm không trùng trực tiếp với nhận xét tham chiếu; chỉ số này không xác nhận các mệnh đề đó mới hoặc hữu ích đối với phản biện viên. Khi đối chiếu với UAT cỡ mẫu nhỏ, kết quả gợi ý luồng có thể phục vụ vai trò định hướng đọc, nhưng mọi điểm cần chú ý vẫn phải được phản biện viên kiểm tra trên bài gốc.
 
 \subsection{Review Quality Auditor}
 
@@ -747,11 +711,11 @@ Luồng xử lý 1.127 bài và tạo 3.658 lượt kiểm tra, với trung bìn
 \end{longtable}
 \end{PrismLongTable}
 
-Theo bộ chấm tự động, 71,04\% phát hiện được phân loại là hợp lệ, 46,99\% vừa bám nguồn vừa hợp lệ và độ trung thực trung bình đạt 58,28\%. Phép chấm chưa được hiệu chuẩn bằng nhãn chuyên gia; tuy vậy, ngay theo thước đo nội bộ, mức nhiễu đã quá lớn để biện minh cho cơ chế chặn tự động. Cách triển khai hiện tại ánh xạ phát hiện ở mức \textit{blocking} sang trạng thái \textit{block} và chưa cung cấp cơ chế ghi đè tương ứng. Vì vậy, luồng này chưa đáp ứng nguyên tắc ``AI hỗ trợ, con người giữ quyền kiểm soát''. Trước khi triển khai thực tế, các phát hiện của AI phải được hạ xuống mức cảnh báo; chỉ các quy tắc xác định đối với trường bắt buộc hoặc trạng thái nghiệp vụ mới được phép chặn. Ngay cả khi bổ sung quyền ghi đè, hệ thống vẫn phải đánh giá tỷ lệ chặn sai và hành vi người dùng; quyền ghi đè không đủ để biện minh cho cơ chế chặn theo xác suất trong cấu hình hiện tại.
+Theo bộ chấm tự động, 71,04\% phát hiện được phân loại là hợp lệ, 46,99\% vừa bám nguồn vừa hợp lệ và độ trung thực trung bình đạt 58,28\%. Ngay theo thước đo nội bộ và phạm vi TCA đã nêu tại Mục 4.2, mức nhiễu này không đủ để biện minh cho cơ chế chặn tự động. Cách triển khai hiện tại ánh xạ phát hiện ở mức \textit{blocking} sang trạng thái \textit{block} và chưa cung cấp cơ chế ghi đè tương ứng. Vì vậy, luồng này chưa đáp ứng nguyên tắc ``AI hỗ trợ, con người giữ quyền kiểm soát''. Trước khi triển khai thực tế, các phát hiện của AI phải được hạ xuống mức cảnh báo; chỉ các quy tắc xác định đối với trường bắt buộc hoặc trạng thái nghiệp vụ mới được phép chặn. Ngay cả khi bổ sung quyền ghi đè, hệ thống vẫn phải đánh giá tỷ lệ chặn sai và hành vi người dùng; quyền ghi đè không đủ để biện minh cho cơ chế chặn theo xác suất trong cấu hình hiện tại.
 
 \subsection{Chair Decision Copilot}
 
-Chair Decision Copilot hỗ trợ Chủ tọa tổng hợp nhận xét phản biện, phản hồi của tác giả và các tín hiệu đồng thuận hoặc bất đồng trước khi ra quyết định. Đầu ra gồm cơ sở bằng chứng, điểm mạnh, điểm yếu, câu hỏi cần làm rõ, điểm đồng thuận, điểm bất đồng và các vấn đề chưa được giải quyết. Vì luồng này nằm gần điểm quyết định cuối cùng, phần đánh giá tập trung vào độ trung thực của cơ sở bằng chứng, bản đồ bất đồng và tỷ lệ rủi ro cao, thay vì đo nhãn chấp nhận/từ chối.
+Chair Decision Copilot hỗ trợ Chủ tọa tổng hợp nhận xét phản biện, phản hồi của tác giả và các tín hiệu đồng thuận hoặc bất đồng trước khi ra quyết định. Đầu ra gồm cơ sở bằng chứng, điểm mạnh, điểm yếu, câu hỏi cần làm rõ, điểm đồng thuận, điểm bất đồng và các vấn đề chưa được giải quyết. Vì luồng này nằm gần điểm quyết định cuối cùng, phần đánh giá tập trung vào độ trung thực của cơ sở bằng chứng, bản tổng hợp các điểm bất đồng và tỷ lệ rủi ro cao, thay vì đo nhãn chấp nhận/từ chối.
 
 Về vận hành, luồng có thời gian xử lý trung bình 21,68 giây, trung vị 20,59 giây và tối đa 116,74 giây. Số token trung bình là 6.242. Mỗi bài có trung bình 6,18 mục cơ sở bằng chứng, 4,30 điểm mạnh, 5,13 điểm yếu, 4,62 câu hỏi, 3,79 điểm đồng thuận, 3,18 điểm bất đồng và 4,32 vấn đề chưa giải quyết. Cấu trúc này giúp Chủ tọa rà soát các nội dung cần cân nhắc; thử nghiệm chưa đánh giá trực tiếp mức độ phù hợp, mức độ hữu ích hoặc thời gian đọc tiết kiệm được.
 
@@ -769,14 +733,14 @@ Về vận hành, luồng có thời gian xử lý trung bình 21,68 giây, trun
   \endfoot
   Độ trung thực của cơ sở bằng chứng     &     87,34\%     &     100,00\%     &     0,00\%     &     100,00\% \\ \hline
   Độ phủ của cơ sở bằng chứng      &      5,27\%      &      0,00\%      &      0,00\%      &      100,00\% \\ \hline
-  Khả năng bổ sung của cơ sở bằng chứng     &     91,63\%     &     100,00\%     &     0,00\%     &     100,00\% \\ \hline
+  Additionality của cơ sở bằng chứng     &     91,63\%     &     100,00\%     &     0,00\%     &     100,00\% \\ \hline
   Tỷ lệ rủi ro cao      &      1,28\%      &      -      &      -      &      - \\ \hline
-  Độ trung thực của bản đồ bất đồng     &     87,11\%     &     100,00\%     &     0,00\%     &     100,00\% \\ \hline
-  Độ phủ của bản đồ bất đồng      &      13,82\%      &      0,00\%      &      0,00\%      &      100,00\% \\ \hline
+  Độ trung thực của bản tổng hợp các điểm bất đồng     &     87,11\%     &     100,00\%     &     0,00\%     &     100,00\% \\ \hline
+  Độ phủ của bản tổng hợp các điểm bất đồng      &      13,82\%      &      0,00\%      &      0,00\%      &      100,00\% \\ \hline
 \end{longtable}
 \end{PrismLongTable}
 
-Theo bộ chấm TCA, cơ sở bằng chứng đạt 87,34\% và bản đồ bất đồng đạt 87,11\% về độ trung thực. Khả năng bổ sung 91,63\% cho biết nhiều mệnh đề được chấm là có căn cứ nhưng không trùng trực tiếp với bản tổng hợp nhận xét; kết quả không tự chứng minh các mệnh đề này hữu ích hoặc nên ảnh hưởng quyết định. Độ phủ thấp cũng không thể được xem là lỗi hay lợi thế nếu chưa có Chủ tọa đánh giá độ đầy đủ của bản tổng hợp trong bối cảnh ra quyết định.
+Theo bộ chấm TCA, cơ sở bằng chứng đạt 87,34\% và bản tổng hợp các điểm bất đồng đạt 87,11\% về độ trung thực. Additionality 91,63\% cho biết nhiều mệnh đề được chấm là có căn cứ nhưng không trùng trực tiếp với bản tổng hợp nhận xét; kết quả không tự chứng minh các mệnh đề này hữu ích hoặc nên ảnh hưởng quyết định. Độ phủ thấp cũng không thể được xem là lỗi hay lợi thế nếu chưa có Chủ tọa đánh giá độ đầy đủ của bản tổng hợp trong bối cảnh ra quyết định.
 
 Tỷ lệ rủi ro cao 1,28\% tương đương khoảng 14 bài trong tập TCA. Tỷ lệ này tuy thấp nhưng vẫn cần được xem xét kỹ vì các trường hợp rủi ro cao liên quan trực tiếp đến quyết định học thuật. Do luồng nằm gần điểm ra quyết định, hệ thống cần đánh dấu rõ các trường hợp này. Trong phạm vi bằng chứng hiện tại, Chair Decision Copilot tạo được bản tổng hợp có mức bám nguồn đo được, nhưng TCA vẫn xác định khoảng 14 ca rủi ro cao. Thử nghiệm chưa đo thời gian Chủ tọa tiết kiệm được, mức độ hữu ích do chuyên gia xác nhận, độ chính xác của phán quyết hoặc thiên lệch tự động hóa; vì vậy, không có cơ sở để kết luận hệ thống cải thiện quyết định cuối cùng.
 
@@ -820,20 +784,6 @@ Tỷ lệ gọi công cụ thành công 75,78\% không tương đương tỷ l�
 
 Về khả năng tuân thủ quyền truy cập, thử nghiệm không ghi nhận lộ dữ liệu riêng tư trong kịch bản ranh giới quyền truy cập. Điểm yếu nằm ở cách diễn đạt: một số lượt trả lời giống lỗi truy vấn kỹ thuật thay vì giải thích rõ người dùng không có quyền xem dữ liệu đó. Ngoài ra, kịch bản yêu cầu ngoài phạm vi vẫn có một lượt chatbot viết báo cáo thị trường, cho thấy hệ thống cần kiểm soát chặt hơn phạm vi hoạt động của trợ lý nền tảng.
 
-\subsection{Các giới hạn chung của lớp AI}
-
-Các luồng AI cung cấp bằng chứng ban đầu cho một số tác vụ hỗ trợ, nhưng chưa đủ để kết luận cách tích hợp hiện tại đã kiểm soát đầy đủ mọi ranh giới trách nhiệm. Các giới hạn cần giữ xuyên suốt báo cáo gồm:
-
-\begin{itemize}
-  \item \textbf{Thiếu nhãn chuyên gia cho một số đầu ra.} Gợi ý chuyên đề trong Submission Autofill chỉ có bằng chứng tỷ lệ hoàn tất và tỷ lệ chuyên đề không hợp lệ, chưa có nhãn Chủ tọa hoặc chuyên gia lĩnh vực để đo độ chính xác.
-  \item \textbf{TCA là chỉ số gián tiếp, không thay thế chuyên gia.} Độ trung thực, độ phủ và khả năng bổ sung giúp đo mức độ bám bằng chứng và xu hướng bổ sung thông tin, nhưng không thể xác định toàn bộ chất lượng học thuật của một nhận xét.
-  \item \textbf{Một số luồng còn nhiễu.} Review Quality Auditor có tỷ lệ vừa bám nguồn vừa hợp lệ 46,99\%, nên mọi phát hiện quan trọng phải được Chủ tọa xác nhận.
-  \item \textbf{Độ trễ phù hợp với tác vụ bất đồng bộ hơn là tức thời.} Reviewer Initial Analysis và Review Quality Auditor có trường hợp vượt 2 phút, phù hợp để chạy nền hoặc chạy trước khi người dùng mở màn hình.
-  \item \textbf{Chatbot Agent chưa đủ ổn định để triển khai rộng.} Nhóm cần giảm số lần gọi công cụ thất bại và diễn đạt rõ ranh giới quyền truy cập trước khi dùng trong trình diễn hoặc môi trường thực tế.
-\end{itemize}
-
-Những giới hạn này xác định ranh giới triển khai của lớp AI: Autofill và kiểm tra luật có bằng chứng trực tiếp hơn, còn các luồng tạo nội dung gần hoạt động phản biện hoặc quyết định chỉ nên được xem là thử nghiệm. Riêng Quality Auditor chưa thể được xem là công cụ hỗ trợ có kiểm soát khi các phát hiện theo xác suất vẫn có thể chặn thao tác mà người dùng không thể ghi đè.
-
 \section{Phân tích tính khả thi vận hành}
 
 Bên cạnh chất lượng đầu ra, một hệ thống AI trong môi trường hội nghị học thuật phải đáp ứng các yêu cầu vận hành về thời gian phản hồi, chi phí quan sát được và khả năng mở rộng. Các số liệu dưới đây lấy từ thử nghiệm các luồng AI và trả lời ba câu hỏi: (1) tác vụ nào có thể trả kết quả trực tiếp cho người dùng, (2) tác vụ nào nên chạy nền, và (3) rủi ro vận hành nào cần được xử lý trước khi triển khai thật.
@@ -845,7 +795,7 @@ Với các luồng trong bộ thực thi, thời gian xử lý được tính ch
 
 \begin{PrismLongTable}
 \begin{longtable}{|P{0.152\textwidth}|C{0.152\textwidth}|C{0.152\textwidth}|C{0.152\textwidth}|C{0.152\textwidth}|P{0.152\textwidth}|}
-  \caption{Độ trễ và lượng token theo luồng xử lý AI}\LongTableCaptionSpace
+  \caption{Độ trễ và lượng token theo luồng xử lý AI}\label{tab:ch4-ai-latency-token}\LongTableCaptionSpace
   \hline
   \TableHeader{Luồng xử lý}    &    \TableHeader{Thời gian trung bình}    &    \TableHeader{Trung vị}    &    \TableHeader{Cao nhất}    &    \TableHeader{Số token trung bình}    &    \TableHeader{Cách vận hành phù hợp} \\ \hline
   \endfirsthead
@@ -884,35 +834,21 @@ Chi phí hội nghị = tổng chi phí luồng xử lý theo số bài, số b�
 
 Cách tiếp cận này tránh gắn kết luận thực nghiệm với một bảng giá có thể lỗi thời, đồng thời vẫn cho thấy hệ thống đã đo được số token của từng luồng để phục vụ việc tính toán chi phí vận hành.
 
-\subsection{Khả năng mở rộng và giới hạn}
+\subsection{Khả năng mở rộng và yêu cầu vận hành}
 
-Kiến trúc gồm bộ điều phối và các worker lưu gói kết quả riêng cho từng luồng AI, tạo điểm kiểm tra theo giai đoạn và cho phép truy ngược đầu ra sau thử nghiệm. Cấu trúc này hỗ trợ cô lập trạng thái theo luồng ở mức thiết kế; chưa có thử nghiệm chèn lỗi đầu cuối để xác nhận hành vi khi dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động.
+Kiến trúc gồm bộ điều phối và các worker lưu gói kết quả riêng cho từng luồng AI, tạo điểm kiểm tra theo giai đoạn và cho phép truy ngược đầu ra sau thử nghiệm. Tuy nhiên, chương mới xác nhận cấu trúc này ở mức thiết kế; thử nghiệm chưa chèn lỗi đầu cuối để đo hành vi khi dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động.
 
-Các giới hạn chính hiện tại gồm:
-
-\begin{itemize}
-  \item \textbf{Các trường hợp có độ trễ cao:} Submission Autofill, Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot đều có trường hợp vượt 100 giây. Hệ thống cần quy định thời gian chờ tối đa, cơ chế thử lại, trạng thái xử lý và chế độ chạy nền cho các luồng dài.
-  \item \textbf{Chất lượng dữ liệu đầu vào:} Các luồng phụ thuộc vào trích xuất PDF và dữ liệu nhận xét phản biện. Khi PDF khó đọc hoặc bản phản biện quá ngắn, chất lượng đầu ra và chất lượng thử nghiệm đều giảm.
-  \item \textbf{Lỗi gọi công cụ của Chatbot Agent:} 31/128 lượt gọi công cụ thất bại trong thử nghiệm. Dù nhiều hội thoại vẫn hoàn tất, tỷ lệ này cần giảm trước khi chatbot được xem là ổn định để triển khai.
-  \item \textbf{TCA không thay thế kiểm duyệt chuyên gia:} TCA giúp đánh giá trên quy mô lớn sau khi đã có kết quả, nhưng các trường hợp rủi ro cao hoặc phát hiện quan trọng vẫn cần người dùng xác nhận.
-  \item \textbf{Thiếu nhãn chuyên gia ở một số bài toán:} Để nâng gợi ý chuyên đề trong Submission Autofill và nội dung mềm của Submission Gating từ mức đối chiếu với chuẩn đã định sẵn lên mức đánh giá chất lượng chuyên môn, nhóm cần có nhãn do Chủ tọa hoặc chuyên gia lĩnh vực xác nhận.
-\end{itemize}
-
-Vì vậy, tính khả thi vận hành của ConferenceSpace không nên được trình bày như ``AI chạy tự động từ đầu đến cuối''. Kết luận phù hợp với bằng chứng là hệ thống có nền tảng vận hành để đưa AI vào các điểm hỗ trợ cụ thể, với điều kiện giao diện thể hiện rõ trạng thái, nguồn bằng chứng, mức rủi ro và quyền xác nhận cuối cùng của con người.
+Các số liệu tại Bảng~\ref{tab:ch4-ai-latency-token} dẫn đến ba yêu cầu vận hành trực tiếp: hệ thống cần chuyển các luồng có trường hợp vượt 100 giây sang chế độ chạy nền; giao diện cần hiển thị tiến độ và trạng thái lỗi; Chatbot Agent cần giảm 31/128 lượt gọi công cụ thất bại. Các giới hạn về chất lượng đầu ra và nhãn chuyên gia được tổng hợp tại Mục 4.8, thay vì lặp lại trong phân tích vận hành.
 
 \section{Khảo sát người dùng}
 
 Để bổ sung cho đánh giá kỹ thuật, nhóm thực hiện khảo sát sau sử dụng với ba vai trò chính trong hệ thống: Tác giả, Phản biện viên và Chủ tọa. Sau khi người tham gia trải nghiệm hệ thống, khảo sát thu thập mức độ hài lòng, nhận định về mức độ dễ sử dụng, mức độ chấp nhận AI và ý kiến mở. Các câu trả lời phản ánh cảm nhận của người tham gia; do không có nhóm đối chứng, khảo sát không cho phép so sánh trực tiếp với quy trình khác.
 
-\subsection{Phương pháp và mẫu khảo sát}
+\subsection{Thành phần mẫu khảo sát}
 
-Khảo sát sử dụng bảng hỏi trực tuyến gồm câu hỏi mở và thang Likert 5 mức. Ba tệp dữ liệu gốc chứa 91 phản hồi có xác nhận đồng thuận và đủ dữ liệu cho các chỉ số chính, gồm 76 phản hồi của Tác giả, 7 phản hồi của Phản biện viên và 8 phản hồi của Chủ tọa. Mẫu được tuyển theo phương pháp thuận tiện và không có nhóm đối chứng. Vai trò Chủ tọa hoặc vị trí tương đương đòi hỏi kinh nghiệm chuyên môn và điều phối; trong khi đó, nguồn lực tuyển mẫu của nhóm còn hạn chế. Vì vậy, nhóm gặp khó khăn khi mời đúng đối tượng và chuyển phiếu dành cho Chủ tọa sang hình thức ẩn danh để giảm rào cản tham gia. Theo quy trình thu thập của nhóm, tám phản hồi này đến từ tám lượt tham gia ẩn danh; do lựa chọn ẩn danh, tệp xuất ghi cùng một địa chỉ đại diện chứ không phải các bản ghi trùng lặp. Tuy nhiên, quy trình không cấp mã riêng cho từng người tham gia, nên tệp xuất không cho phép kiểm chứng độc lập tính duy nhất, danh tính hoặc hồ sơ chuyên môn của mẫu Chủ tọa. Nhóm Tác giả chiếm phần lớn mẫu, còn hai nhóm đòi hỏi kinh nghiệm chuyên môn cao hơn có cỡ mẫu nhỏ. Vì vậy, kết quả chỉ mô tả trải nghiệm của mẫu tham gia, không đại diện cho toàn bộ cộng đồng hội nghị.
+Theo phương pháp đã nêu tại Mục 4.2, tập phân tích gồm 91 phản hồi có xác nhận đồng thuận và đủ dữ liệu cho các chỉ số chính: 76 phản hồi của Tác giả, 7 phản hồi của Phản biện viên và 8 phản hồi ẩn danh của Chủ tọa. Hình~\ref{fig:ch4-uat-role-distribution} cho thấy nhóm Tác giả chiếm 83,5\% mẫu, trong khi Phản biện viên và Chủ tọa lần lượt chiếm 7,7\% và 8,8\%. Mẫu thuận tiện, sự chênh lệch quy mô giữa các vai trò và việc không thể kiểm chứng độc lập đặc điểm của nhóm Chủ tọa giới hạn kết quả ở mức thống kê mô tả cho mẫu tham gia.
 
-Các câu hỏi chính bao gồm: (1) mức độ hài lòng tổng thể và theo chức năng, (2) mức đồng ý rằng AI giúp giảm thao tác thủ công hoặc tiết kiệm thời gian, (3) những khó khăn gặp phải và (4) đề xuất cải thiện. Mục (2) là nhận định trên thang đo, không phải phép đo thời gian thao tác.
-
-Tương tự khảo sát nhu cầu ở Chương 2, việc trực quan hóa thành phần mẫu là cần thiết để người đọc hiểu đúng mức độ khái quát của kết quả. Hình~\ref{fig:ch4-uat-role-distribution} cho thấy nhóm Tác giả chiếm 83,5\% mẫu phân tích, trong khi Phản biện viên và Chủ tọa lần lượt chiếm 7,7\% và 8,8\%. Tám phản hồi Chủ tọa cho phép tổng hợp phân bố ban đầu theo vai trò, nhưng cỡ mẫu nhỏ và quy trình ẩn danh vẫn không cho phép suy rộng thống kê hoặc kiểm chứng độc lập đặc điểm của nhóm này.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{adjustbox}{max width=\textwidth}
     \begin{tikzpicture}[x=0.62cm,y=0.75cm]
@@ -1010,13 +946,13 @@ Chương này trả lời câu hỏi trách nhiệm theo từng lớp thay vì �
   \endfoot
   Hiệu năng các endpoint đã chọn & Ba kịch bản k6; p95 dưới 120 ms; 0\% lỗi yêu cầu & Có bằng chứng trực tiếp trong cấu hình thử nghiệm & Chỉ đo ba endpoint đọc, gợi ý và kiểm tra; không thay thế kiểm thử chức năng toàn vòng đời hoặc chứng minh hệ thống sẵn sàng triển khai thực tế \\ \hline
   Truy hồi hồ sơ tác giả và hành vi phân công & Trên dữ liệu tổng hợp: phép leave-one-out theo tác giả, các phương pháp cơ sở, MRR 0,392; Hit@5 = 55\%; Hit@10 = 65\%; các chỉ số nội tại của phân công & Chỉ có chỉ số gián tiếp & Nhãn tác giả gốc đo quan hệ chủ đề, không đo mức độ phù hợp của phản biện viên; chưa có dữ liệu về mức chấp nhận của Chủ tọa \\ \hline
-  Phát hiện xung đột lợi ích & Kiểm thử vi mô cho ca tự gán và xung đột đã khai báo; không có ca tự gán trong tập phân công & Chưa đo chất lượng xung đột lợi ích đa tầng & Chưa kiểm thử lớp đồ thị hoặc xây dựng tập cặp xung đột do chuyên gia gán nhãn \\ \hline
+  Phát hiện xung đột lợi ích & Microbenchmark cho ca tự gán và xung đột đã khai báo; không có ca tự gán trong tập phân công & Chưa đo chất lượng xung đột lợi ích đa tầng & Chưa kiểm thử lớp đồ thị hoặc xây dựng tập cặp xung đột do chuyên gia gán nhãn \\ \hline
   Submission Autofill và Submission Gating theo luật & Siêu dữ liệu của 1.127 bài; 8/8 ca kiểm tra luật; 24 ca cảnh báo mềm & Có bằng chứng trực tiếp cho siêu dữ liệu và bộ ca kiểm tra luật & Các trường phức tạp có trường hợp thất bại; gợi ý chuyên đề và cảnh báo mềm thiếu nhãn chuyên gia; chưa đo số thao tác \\ \hline
-  Initial Analysis & Điểm TCA thăm dò trên 1.097 gói; 96,22\% trích dẫn bám nguồn và 69,86\% điểm chú ý trung thực theo bộ chấm & Chỉ có chỉ số gián tiếp & TCA/NLI chưa hiệu chuẩn; đầu ra có thể ảnh hưởng nội dung phản biện; chưa đo mức độ hữu ích, mức độ phụ thuộc hoặc sự phù hợp với chính sách \\ \hline
+  Initial Analysis & Điểm TCA thăm dò trên 1.097 gói; 96,22\% trích dẫn bám nguồn và 69,86\% điểm cần lưu ý trung thực theo bộ chấm & Chỉ có chỉ số gián tiếp & TCA/NLI chưa hiệu chuẩn; đầu ra có thể ảnh hưởng nội dung phản biện; chưa đo mức độ hữu ích, mức độ phụ thuộc hoặc sự phù hợp với chính sách \\ \hline
   Quality Auditor & 3.658 lượt kiểm tra; 2.637--3.472 đơn vị chấm tùy chỉ số; 46,99\% vừa bám nguồn vừa hợp lệ & Chưa đáp ứng ranh giới trách nhiệm & Nhiễu cao; phát hiện xác suất có thể chặn gửi và chưa có quyền ghi đè; chưa đo tỷ lệ chặn sai \\ \hline
   Chair Copilot & Điểm TCA thăm dò; cơ sở bằng chứng 87,34\%; bất đồng 87,11\%; UAT Chủ tọa có tám phản hồi ẩn danh & Chỉ có chỉ số gián tiếp và cảm nhận theo câu hỏi gộp & UAT không tách riêng luồng này, không đo độ đúng quyết định hoặc thiên lệch tự động hóa; cỡ mẫu nhỏ và hồ sơ người tham gia không được kiểm chứng độc lập \\ \hline
   Chatbot theo quyền và phạm vi & 40 hội thoại; không lộ dữ liệu trong kịch bản quyền; một lượt viết báo cáo ngoài phạm vi & Có bằng chứng theo kịch bản, kết quả không đồng đều & 31/128 lượt gọi công cụ thất bại; kiểm soát nội dung ngoài phạm vi đã thất bại một biến thể; không phải kiểm toán bảo mật \\ \hline
-  Giảm phụ thuộc vào AI & Đường thao tác thủ công và ranh giới kiến trúc được mô tả & Chưa đo đầu cuối & Chưa có thử nghiệm chèn lỗi khi dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động \\ \hline
+  Giảm phụ thuộc vào AI & Đường thao tác thủ công và ranh giới kiến trúc được mô tả & Chưa đo đầu cuối & Chưa có thử nghiệm chèn lỗi khi yêu cầu đến dịch vụ AI bị timeout hoặc ngừng hoạt động \\ \hline
   Trải nghiệm theo vai trò & UAT 91 phản hồi có đồng thuận và đủ dữ liệu cho các chỉ số chính, gồm 76 phản hồi Tác giả, 7 phản hồi Phản biện viên và 8 phản hồi Chủ tọa & Chỉ có bằng chứng cảm nhận, chủ yếu từ Tác giả & Mẫu thuận tiện, cỡ mẫu nhỏ ở hai vai trò chuyên môn; phản hồi Chủ tọa ẩn danh không cho phép kiểm chứng độc lập đặc điểm mẫu; chưa đo thời gian, hành vi hoàn thành nhiệm vụ hoặc thiên lệch tự động hóa \\ \hline
   Quản trị dữ liệu nhà cung cấp ngoài & Phân quyền cấp ứng dụng & Chưa đo & Chưa kiểm toán lưu giữ, huấn luyện và vùng cư trú; không đủ cơ sở dùng dữ liệu mật trong hội nghị thật \\ \hline
 \end{longtable}
@@ -1024,7 +960,7 @@ Chương này trả lời câu hỏi trách nhiệm theo từng lớp thay vì �
 
 \subsection{Mức độ đáp ứng nhu cầu ban đầu}
 
-Đối chiếu với Chương 1 và Chương 2, lớp nghiệp vụ có bằng chứng hiệu năng cho các endpoint đã thử, nhưng chưa có bằng chứng chức năng đầu cuối cho toàn bộ vòng đời. Trên dữ liệu tổng hợp, phương pháp xếp hạng Jaccard truy hồi hồ sơ tác giả gốc tốt hơn phương pháp cơ sở ngẫu nhiên; phép thử chưa đo mức độ phù hợp của phản biện viên. Thủ tục phân công đạt độ phủ đủ hai người ở 65,9\% số bài; 23,3\% số bài phải dùng lượt dự phòng không còn ngưỡng điểm và giới hạn tải tối đa. Với xung đột lợi ích, kiểm thử vi mô chỉ bao phủ ca tự gán và xung đột đã khai báo; chất lượng của lớp đồ thị và khả năng phát hiện quan hệ ẩn chưa được đo.
+Đối chiếu với Chương 1 và Chương 2, lớp nghiệp vụ có bằng chứng hiệu năng cho các endpoint đã thử, nhưng chưa có bằng chứng chức năng đầu cuối cho toàn bộ vòng đời. Trên dữ liệu tổng hợp, phương pháp xếp hạng Jaccard truy hồi hồ sơ tác giả gốc tốt hơn phương pháp cơ sở ngẫu nhiên; phép thử chưa đo mức độ phù hợp của phản biện viên. Thủ tục phân công đạt độ phủ đủ hai người ở 65,9\% số bài; 23,3\% số bài phải dùng lượt dự phòng không còn ngưỡng điểm và giới hạn tải tối đa. Với xung đột lợi ích, microbenchmark chỉ bao phủ ca tự gán và xung đột đã khai báo; chất lượng của lớp đồ thị và khả năng phát hiện quan hệ ẩn chưa được đo.
 
 Lớp AI cho kết quả khác nhau theo từng tác vụ. Submission Autofill có bằng chứng trực tiếp nhất ở khả năng trích xuất siêu dữ liệu. Submission Gating đạt 8/8 ca kiểm tra luật, nhưng cảnh báo mềm chưa có nhãn chuyên gia. Reviewer Initial Analysis tạo được các nhận định có căn cứ trong nguồn, song các điểm cần chú ý vẫn có rủi ro. Review Quality Auditor có mức nhiễu cao. Chair Decision Copilot tạo bản tổng hợp có mức độ bám nguồn đo được, nhưng chưa có đánh giá chuyên gia về tác động đến quyết định. Chatbot Agent không làm lộ dữ liệu trong kịch bản phân quyền đã chạy, nhưng kiểm soát nội dung ngoài phạm vi thất bại ở một biến thể và tỷ lệ lỗi khi gọi công cụ còn đáng kể.
 
@@ -1036,9 +972,9 @@ Phân tích đối chiếu giữa dữ liệu kỹ thuật và phản hồi ngư
 
 \textbf{Submission Autofill là luồng có bằng chứng định lượng trực tiếp nhất.} Thử nghiệm siêu dữ liệu cho thấy hệ thống đạt tỷ lệ đối sánh cao ở các trường ngắn và có cấu trúc rõ; phản hồi của người dùng tại Mục 4.7 cũng đánh giá tích cực khả năng giảm thao tác nhập liệu. Cả hai nguồn bằng chứng đều chỉ ra một giới hạn: người dùng vẫn phải kiểm tra kỹ các tài liệu có định dạng phức tạp, nhiều tác giả hoặc nhiều ký hiệu toán học.
 
-\textbf{Reviewer Initial Analysis có chỉ số bám nguồn nhưng chưa được xác nhận về ranh giới trách nhiệm.} Bộ chấm ghi nhận tỷ lệ trích dẫn bám nguồn cao, nhưng điểm chú ý, điểm mạnh, điểm yếu và gợi ý vẫn có thể định hướng nhận định. Câu hỏi UAT gộp nhiều thành phần và chỉ có bảy Phản biện viên, nên không thể dùng để xác nhận riêng mức độ hữu ích, sự phù hợp với chính sách hoặc ảnh hưởng đến chất lượng phản biện.
+\textbf{Reviewer Initial Analysis có chỉ số bám nguồn nhưng chưa được xác nhận về ranh giới trách nhiệm.} Bộ chấm ghi nhận tỷ lệ trích dẫn bám nguồn cao, nhưng điểm cần lưu ý, điểm mạnh, điểm yếu và gợi ý vẫn có thể định hướng nhận định. Câu hỏi UAT gộp nhiều thành phần và chỉ có bảy Phản biện viên, nên không thể dùng để xác nhận riêng mức độ hữu ích, sự phù hợp với chính sách hoặc ảnh hưởng đến chất lượng phản biện.
 
-\textbf{Chair Decision Copilot có bằng chứng về mức bám nguồn của bản tổng hợp.} TCA ghi nhận cơ sở bằng chứng và bản đồ bất đồng đạt khoảng 87\%. Trong UAT dành cho Chủ tọa, 7/8 phản hồi đồng ý rằng công cụ AI chỉ hỗ trợ con người, cung cấp đủ căn cứ cho gợi ý và cho phép người dùng thoải mái đặt nghi vấn hoặc bỏ qua kết quả. Tuy nhiên, câu hỏi gộp nhiều công cụ AI và tám phản hồi được thu thập ẩn danh, nên kết quả chỉ phản ánh cảm nhận chung của vai trò này, không xác nhận riêng Chair Decision Copilot. Kết quả chưa chứng minh luồng giúp đọc nhanh hơn, cải thiện chất lượng quyết định hoặc không tạo thiên lệch tự động hóa; Chủ tọa vẫn phải kiểm tra nguồn và chịu trách nhiệm quyết định.
+\textbf{Chair Decision Copilot có bằng chứng về mức bám nguồn của bản tổng hợp.} TCA ghi nhận cơ sở bằng chứng và bản tổng hợp các điểm bất đồng đạt khoảng 87\%. Trong UAT dành cho Chủ tọa, 7/8 phản hồi đồng ý rằng công cụ AI chỉ hỗ trợ con người, cung cấp đủ căn cứ cho gợi ý và cho phép người dùng thoải mái đặt nghi vấn hoặc bỏ qua kết quả. Tuy nhiên, câu hỏi gộp nhiều công cụ AI và tám phản hồi được thu thập ẩn danh, nên kết quả chỉ phản ánh cảm nhận chung của vai trò này, không xác nhận riêng Chair Decision Copilot. Kết quả chưa chứng minh luồng giúp đọc nhanh hơn, cải thiện chất lượng quyết định hoặc không tạo thiên lệch tự động hóa; Chủ tọa vẫn phải kiểm tra nguồn và chịu trách nhiệm quyết định.
 
 \textbf{Số liệu kỹ thuật và phản hồi người dùng cùng cho thấy các điểm nghẽn vận hành.} Thử nghiệm ghi nhận một số trường hợp có độ trễ cao ở các luồng, nhiều lần gọi công cụ thất bại ở Chatbot Agent và tỷ lệ phát hiện nhiễu cao ở Review Quality Auditor. Giao diện cần thể hiện các vấn đề này bằng cách hiển thị trạng thái xử lý, đánh dấu mức tin cậy, gom nhóm phát hiện và cho phép người dùng kiểm tra nguồn.
 
@@ -1048,9 +984,9 @@ Các hạn chế ghi nhận trong thực nghiệm giới hạn phạm vi kết l
 
 \textbf{Thiếu nhãn chuyên gia cho một số luồng.} Gợi ý chuyên đề trong Submission Autofill mới ghi nhận tỷ lệ hoàn tất và tỷ lệ chuyên đề không hợp lệ 0,00\%, chưa cung cấp bằng chứng về độ chính xác trong $k$ vị trí đầu. Phần cảnh báo mềm của Submission Gating cũng chưa được con người rà soát từng cảnh báo để xác định mức độ bám bằng chứng, khả năng hỗ trợ chỉnh sửa và mức độ nghiêm trọng. Chair Decision Copilot chưa được đối chiếu với quyết định chấp nhận hoặc từ chối của Chủ tọa, nên dữ liệu hiện có không cho phép kết luận về độ chính xác của quyết định cuối cùng.
 
-\textbf{Một số luồng vi phạm hoặc chưa được xác nhận về ranh giới trách nhiệm.} Review Quality Auditor có độ trung thực 58,28\% và tỷ lệ vừa bám nguồn vừa hợp lệ 46,99\%, nhưng vẫn có thể chặn gửi mà không có quyền ghi đè; cơ chế hiện tại chưa đáp ứng nguyên tắc tư vấn. Reviewer Initial Analysis có độ trung thực của điểm chú ý 69,86\% và tạo nội dung gần với một phần bản phản biện; báo cáo chưa có cơ sở khẳng định chức năng này chỉ điều hướng trung lập hoặc phù hợp với mọi chính sách hội nghị.
+\textbf{Một số luồng vi phạm hoặc chưa được xác nhận về ranh giới trách nhiệm.} Review Quality Auditor có độ trung thực 58,28\% và tỷ lệ vừa bám nguồn vừa hợp lệ 46,99\%, nhưng vẫn có thể chặn gửi mà không có quyền ghi đè; cơ chế hiện tại chưa đáp ứng nguyên tắc tư vấn. Reviewer Initial Analysis có độ trung thực của điểm cần lưu ý 69,86\% và tạo nội dung gần với một phần bản phản biện; báo cáo chưa có cơ sở khẳng định chức năng này chỉ điều hướng trung lập hoặc phù hợp với mọi chính sách hội nghị.
 
-\textbf{Phương pháp TCA cung cấp bộ chỉ số tự động gián tiếp và không thay thế chuyên gia.} Suy luận ngôn ngữ tự nhiên (NLI) có thể bỏ sót mệnh đề đúng nhưng diễn đạt khác, hoặc đánh giá thấp các suy luận kỹ thuật phức tạp. Vì vậy, các chỉ số độ trung thực, độ phủ và khả năng bổ sung nên được đọc như tín hiệu đánh giá trên quy mô lớn sau khi đã có kết quả, không phải phán quyết cuối cùng về chất lượng học thuật.
+\textbf{Phương pháp TCA cung cấp bộ chỉ số tự động gián tiếp và không thay thế chuyên gia.} Suy luận ngôn ngữ tự nhiên (NLI) có thể bỏ sót mệnh đề đúng nhưng diễn đạt khác, hoặc đánh giá thấp các suy luận kỹ thuật phức tạp. Vì vậy, các chỉ số độ trung thực, độ phủ và Additionality nên được đọc như tín hiệu đánh giá trên quy mô lớn sau khi đã có kết quả, không phải phán quyết cuối cùng về chất lượng học thuật.
 
 \textbf{Cơ chế xử lý độ trễ và vận hành cần được hoàn thiện trước khi triển khai.} Một số luồng có trường hợp vượt 100 giây. Chatbot Agent có 31/128 lượt gọi công cụ thất bại và thời gian trung bình đến câu trả lời hoàn chỉnh đầu tiên là 23,02 giây. Hệ thống cần hàng đợi, cơ chế thử lại, thông tin về tiến độ xử lý và thông báo rõ hơn về lỗi hoặc quyền truy cập. Chương chưa có thử nghiệm chạy bền, thử nghiệm phân tán hoặc thử nghiệm chèn lỗi đầu cuối.
 
