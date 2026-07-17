@@ -32,21 +32,21 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   \caption{Danh mục thuật ngữ và từ viết tắt, phần 2}\\
   \hline
    \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
-  AI     &     Artificial Intelligence     &     Nhóm chức năng hỗ trợ bằng mô hình trí tuệ nhân tạo trong hệ thống. Không bao gồm các cơ chế thuật toán cố định, có thể kiểm chứng như đối sánh phản biện (reviewer matching) và phát hiện xung đột lợi ích (COI) \\ \hline
+  AI     &     Artificial Intelligence     &     Nhóm chức năng hỗ trợ bằng mô hình trí tuệ nhân tạo trong hệ thống. Không bao gồm các cơ chế thuật toán cố định, có thể kiểm chứng như đối sánh phản biện (reviewer matching) và phát hiện xung đột lợi ích \\ \hline
   LLM     &     Large Language Model     &     Mô hình ngôn ngữ lớn dùng trong các luồng hỗ trợ nhập liệu, đọc bài, kiểm tra bản nháp nhận xét phản biện, tổng hợp bằng chứng hoặc chatbot \\ \hline
   Luồng AI      &      luồng xử lý AI / AI workflow      &      Luồng xử lý có dùng AI, có đầu vào, đầu ra, ranh giới kiểm soát và tiêu chí đánh giá riêng. Báo cáo ưu tiên từ luồng thay cho lặp \textit{workflow} khi không cần tên riêng tiếng Anh \\ \hline
   Sáu luồng AI chính     &     tên sản phẩm tiếng Anh giữ nguyên     &     Submission Autofill (tự động điền bài nộp); Submission Gating (kiểm tra trước khi nộp bài); Reviewer Initial Analysis (phân tích và tóm tắt bài báo); Review Quality Auditor (kiểm tra chất lượng nhận xét phản biện); Chair Decision Copilot (báo cáo tổng hợp hỗ trợ Chủ tọa); Chatbot Agent (trợ lý hội thoại có công cụ và phân quyền) \\ \hline
-  Thuật toán cố định, có thể kiểm chứng      &      deterministic / thuật toán xác định      &      Lớp xử lý đối sánh phản biện và COI: kết quả ổn định, có thể tái tạo và kiểm tra lại; không dùng AI tạo sinh. Lần đầu trong đoạn dùng cụm đầy đủ; các lần sau có thể xen kẽ \textit{thuật toán có thể kiểm chứng} hoặc \textit{thuật toán xác định} \\ \hline
+  Thuật toán cố định, có thể kiểm chứng      &      deterministic / thuật toán xác định      &      Lớp xử lý đối sánh phản biện và xung đột lợi ích: kết quả ổn định, có thể tái tạo và kiểm tra lại; không dùng AI tạo sinh. Lần đầu trong đoạn dùng cụm đầy đủ; các lần sau có thể xen kẽ \textit{thuật toán có thể kiểm chứng} hoặc \textit{thuật toán xác định} \\ \hline
   Agent      &      tác nhân (agent)      &      Thành phần AI có thể chọn chiến lược truy xuất, chia nhỏ tác vụ, gọi công cụ và lặp bước kiểm tra trong phạm vi quyền. Không dùng \textit{tác tử} \\ \hline
   human-in-the-loop     &     sự can thiệp của con người (human-in-the-loop)     &     Bước người hoặc vai trò có thẩm quyền xem lại, chỉnh sửa, ghi đè hoặc xác nhận trước khi dùng đầu ra AI gần quyết định học thuật. Không dùng \textit{vòng kiểm soát của con người} \\ \hline
   ReAct     &     Reasoning and Acting     &     Mẫu kết hợp suy luận và gọi công cụ cho agent nhiều bước. Báo cáo chỉ giữ một lớp gloss tiếng Anh, không nhét thêm bản dịch tiếng Việt kép \\ \hline
-  Bộ chạy luồng xử lý     &     workflow runner     &     Thành phần chạy luồng AI trên tập dữ liệu benchmark, lưu đầu ra, điểm kiểm tra, thời gian xử lý, token và trạng thái hoàn tất \\ \hline
+  Bộ chạy luồng xử lý     &     workflow runner     &     Thành phần chạy luồng AI trên tập dữ liệu đánh giá, lưu đầu ra, điểm kiểm tra, thời gian xử lý, token và trạng thái hoàn tất \\ \hline
   Dispatcher-worker     &     bộ điều phối và worker xử lý     &     Mô hình vận hành trong đó dispatcher phân phối tác vụ AI cho các worker chạy độc lập và lưu kết quả theo từng tác vụ \\ \hline
   Artifact      &      hiện vật / gói kết quả kỹ thuật      &      Kết quả hoặc đối tượng kỹ thuật được tạo và lưu để đối chiếu, ví dụ đầu ra của luồng AI, metadata kiểm toán hoặc dữ liệu đã gắn fingerprint \\ \hline
   Structured output     &     đầu ra có cấu trúc (structured output)     &     Đầu ra của mô hình phải tuân theo schema hoặc ràng buộc field để backend có thể kiểm tra, lưu và hiển thị \\ \hline
   Schema      &      lược đồ dữ liệu      &      Đặc tả cấu trúc dữ liệu, kiểu field và ràng buộc kiểm tra cho request/response, đầu ra AI hoặc artifact \\ \hline
   data contract      &      ràng buộc dữ liệu (data contract) / chuẩn đầu ra      &      Quy ước bắt buộc về cấu trúc và điều kiện đầu ra giữa AI service và backend. Không dùng calque \textit{hợp đồng dữ liệu} / \textit{hợp đồng đầu ra}; khi nhấn mạnh hành động kiểm tra dùng \textit{đối chiếu đầu ra với chuẩn đã định sẵn} \\ \hline
-  Composite pattern      &      mẫu Composite      &      Mẫu thiết kế gom nhiều detector hoặc thành phần xử lý cùng giao diện để bật/tắt hoặc kết hợp theo cấu hình, dùng trong phát hiện COI nhiều lớp \\ \hline
+  Composite pattern      &      mẫu Composite      &      Mẫu thiết kế gom nhiều detector hoặc thành phần xử lý cùng giao diện để bật/tắt hoặc kết hợp theo cấu hình, dùng trong phát hiện xung đột lợi ích nhiều lớp \\ \hline
   Hallucination     &     ảo tưởng (hallucination) / thông tin thiếu căn cứ     &     Trường hợp AI tạo nội dung không được dữ liệu đầu vào hoặc bằng chứng hệ thống hỗ trợ. Báo cáo cũng diễn đạt là \textit{thông tin thiếu căn cứ} hoặc \textit{nội dung do AI tạo ra không có căn cứ} \\ \hline
   Retrieval-Augmented Generation     &     truy hồi tăng cường tạo sinh     &     Cách kết hợp mô hình ngôn ngữ với bước truy xuất tài liệu hoặc artifact liên quan trước khi sinh câu trả lời, nhằm tăng mức bám nguồn \\ \hline
   RAG      &      Retrieval-Augmented Generation      &      Viết tắt của Retrieval-Augmented Generation; trong báo cáo chủ yếu là hướng phát triển để tăng groundedness của luồng AI \\ \hline
@@ -85,7 +85,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
 \end{longtable}
 \endgroup
 
-\section*{Thuật ngữ đối sánh phản biện và COI}
+\section*{Thuật ngữ đối sánh phản biện và xung đột lợi ích}
 
 \begingroup
 \setlength{\tabcolsep}{2pt}
@@ -94,18 +94,18 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   \caption{Danh mục thuật ngữ và từ viết tắt, phần 4}\\
   \hline
    \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
-  COI     &     Conflict of Interest / xung đột lợi ích     &     Xung đột lợi ích giữa phản biện viên và bài nộp, cần được phát hiện trước khi phân công phản biện \\ \hline
-  Reviewer matching      &      đối sánh phản biện (reviewer matching)      &      Cơ chế gợi ý phản biện viên phù hợp với bài nộp dựa trên miền chuyên môn, khối lượng công việc và ràng buộc COI. Lớp này thuộc thuật toán cố định, có thể kiểm chứng, không phải luồng AI tạo sinh \\ \hline
+  Xung đột lợi ích     &     Conflict of Interest     &     Quan hệ có thể ảnh hưởng đến tính khách quan giữa phản biện viên và bài nộp, cần được phát hiện trước khi phân công phản biện \\ \hline
+  Reviewer matching      &      đối sánh phản biện (reviewer matching)      &      Cơ chế gợi ý phản biện viên phù hợp với bài nộp dựa trên miền chuyên môn, khối lượng công việc và ràng buộc xung đột lợi ích. Lớp này thuộc thuật toán cố định, có thể kiểm chứng, không phải luồng AI tạo sinh \\ \hline
   Domain Jaccard     &     Jaccard theo miền chuyên môn     &     Công thức đo độ tương đồng giữa tập từ khóa/miền của bài nộp và phản biện viên bằng tỷ lệ giao trên hợp \\ \hline
-  Greedy assignment      &      phân công tham lam (greedy)      &      Thuật toán xét các cặp bài nộp--phản biện viên có điểm cao trước, đồng thời tôn trọng giới hạn tải và COI \\ \hline
+  Greedy assignment      &      phân công tham lam (greedy)      &      Thuật toán xét các cặp bài nộp--phản biện viên có điểm cao trước, đồng thời tôn trọng giới hạn tải và xung đột lợi ích \\ \hline
   Cân bằng tải     &     load balancing     &     Nguyên tắc phân bổ phân công để tránh dồn quá nhiều bài cho một phản biện viên khi có nhiều ứng viên tương đương \\ \hline
   Độ lệch chuẩn tải      &      load standard deviation      &      Chỉ số đo mức phân tán số bài được gán cho từng phản biện viên; giá trị cao cho thấy tải phân công lệch hơn. Báo cáo không dùng nhãn \textit{Load StdDev} \\ \hline
   Hệ số Gini tải     &     load Gini coefficient     &     Chỉ số đo mức bất bình đẳng trong phân bổ bài cho phản biện viên; giá trị càng gần 0 thì tải càng đều. Báo cáo dùng \textit{hệ số Gini tải}, không dùng nhãn \textit{Load Gini} \\ \hline
   Tie-break      &      quy tắc phá hòa      &      Quy tắc chọn thứ tự ưu tiên khi nhiều ứng viên có cùng điểm, ví dụ ưu tiên phản biện viên có tải thấp hơn \\ \hline
-  Fallback     &     bước dự phòng (fallback)     &     Bước xử lý khi một bài chưa đủ phản biện viên sau lượt gán chính; có thể nới điểm hoặc giới hạn tải nhưng không nới COI \\ \hline
+  Fallback     &     bước dự phòng (fallback)     &     Bước xử lý khi một bài chưa đủ phản biện viên sau lượt gán chính; có thể nới điểm hoặc giới hạn tải nhưng không nới xung đột lợi ích \\ \hline
   Tỷ lệ chuyển sang phân công ngẫu nhiên      &      fallback / tỷ lệ thoái lui (khi diễn đạt ngắn)      &      Tỷ lệ phân công phải dùng cơ chế dự phòng vì không còn phản biện viên hợp lệ có tín hiệu phù hợp đủ rõ. Cụm chính trong Chương~4 là \textit{tỷ lệ chuyển sang phân công ngẫu nhiên}; không dùng nhãn \textit{fallback rate} \\ \hline
-  Vi phạm COI     &     vi phạm xung đột lợi ích (COI)     &     Trường hợp hệ thống phân công phản biện viên vào bài nộp có COI; trong benchmark đây là chỉ số phải bằng 0 \\ \hline
-  Co-author graph      &      đồ thị đồng tác giả      &      Đồ thị biểu diễn quan hệ đồng tác giả giữa các nhà nghiên cứu, dùng để phát hiện COI gián tiếp trên Neo4j \\ \hline
+  Vi phạm xung đột lợi ích     &     conflict-of-interest violation     &     Trường hợp hệ thống phân công phản biện viên vào bài nộp có xung đột lợi ích; trong đánh giá đây là chỉ số phải bằng 0 \\ \hline
+  Co-author graph      &      đồ thị đồng tác giả      &      Đồ thị biểu diễn quan hệ đồng tác giả giữa các nhà nghiên cứu, dùng để phát hiện xung đột lợi ích gián tiếp trên Neo4j \\ \hline
   Trần từ vựng     &     lexical ceiling     &     Giới hạn của phương pháp so khớp từ khóa khi hai hồ sơ cùng lĩnh vực lớn nhưng dùng ít từ khóa trùng nhau \\ \hline
   Embedding     &     biểu diễn nhúng / vector ngữ nghĩa     &     Cách biểu diễn văn bản hoặc chủ đề thành vector để đo tương đồng ngữ nghĩa sâu hơn so với trùng khớp từ khóa \\ \hline
   ANN      &      Approximate Nearest Neighbor      &      Kỹ thuật tìm láng giềng gần xấp xỉ trong không gian vector, thường dùng khi cần xếp hạng tương đồng trên tập dữ liệu lớn \\ \hline
@@ -121,19 +121,19 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   \caption{Danh mục thuật ngữ và từ viết tắt, phần 5}\\
   \hline
    \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
-  Benchmark     &     thực nghiệm đánh giá có kịch bản     &     Quy trình đo hiệu năng, chất lượng hoặc độ tin cậy của một lớp hệ thống theo dữ liệu và chỉ số đã xác định \\ \hline
-  Go micro-benchmark      &      (giữ tên tiếng Anh)      &      Thực nghiệm đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ của thuật toán trong chương trình, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng \\ \hline
-  k6     &     công cụ kiểm thử tải HTTP     &     Công cụ dùng để sinh tải request trong benchmark backend, đo độ trễ, thông lượng và tỷ lệ lỗi \\ \hline
+  Benchmark     &     đánh giá hoặc kiểm thử, tùy ngữ cảnh     &     Dùng \textit{đánh giá} khi đo hoặc so sánh chất lượng; dùng \textit{kiểm thử} khi chạy tải, mã hoặc kịch bản kỹ thuật \\ \hline
+  Go micro-benchmark      &      kiểm thử vi mô bằng Go      &      Kiểm thử đo trực tiếp thời gian xử lý và mức sử dụng bộ nhớ của thuật toán trong chương trình, không bao gồm chi phí của HTTP, cơ sở dữ liệu và mạng \\ \hline
+  k6     &     công cụ kiểm thử tải HTTP     &     Công cụ dùng để sinh tải request trong kiểm thử backend, đo độ trễ, thông lượng và tỷ lệ lỗi \\ \hline
   Người dùng ảo      &      virtual user      &      Đơn vị mô phỏng người dùng đồng thời trong kiểm thử tải bằng k6 \\ \hline
   Đường cơ sở     &     baseline     &     Phương pháp hoặc kết quả nền dùng để so sánh, ví dụ xếp hạng ngẫu nhiên trong đánh giá đối sánh phản biện \\ \hline
   Snapshot      &      bản sao lưu dữ liệu (snapshot)      &      Bản dữ liệu Semantic Scholar hoặc tập dữ liệu cố định dùng khi đánh giá, không gọi API lúc chạy thử nghiệm. Không dùng \textit{ảnh chụp dữ liệu} \\ \hline
   Dữ liệu tham chiếu     &     nhãn tham chiếu / ground truth     &     Dữ liệu hoặc nhãn được xem là chuẩn đối chiếu trong một thực nghiệm \\ \hline
   Proxy      &      chỉ số gián tiếp (proxy)      &      Chỉ số gián tiếp dùng khi không thể đo trực tiếp chất lượng cần quan tâm, ví dụ dùng TCA để đánh giá mức bám chứng cứ của đầu ra AI. Không dùng \textit{chỉ báo thay thế} hay \textit{bằng chứng thay thế} \\ \hline
   TCA     &     Textual Claim-based Assessment     &     Khung đánh giá đầu ra AI theo mệnh đề--chứng cứ, gồm độ trung thực (Truthfulness), độ phủ (Coverage) và khả năng bổ sung (Additionality). Không expand nhầm thành chuỗi ghép ba từ tiếng Anh \\ \hline
-  NLI      &      Natural Language Inference / suy luận ngôn ngữ tự nhiên      &      Kỹ thuật kiểm tra quan hệ suy luận giữa mệnh đề và chứng cứ, dùng trong benchmark đánh giá một số đầu ra AI \\ \hline
+  NLI      &      Natural Language Inference / suy luận ngôn ngữ tự nhiên      &      Kỹ thuật kiểm tra quan hệ suy luận giữa mệnh đề và chứng cứ, dùng để đánh giá một số đầu ra AI \\ \hline
   Truthfulness     &     độ trung thực / mức bám nguồn     &     Tỷ lệ hoặc mức độ các mệnh đề được nguồn dữ liệu hỗ trợ \\ \hline
   Groundedness      &      mức độ bám chứng cứ (groundedness)      &      Mức độ một nhận định có thể truy vết về chứng cứ cụ thể trong dữ liệu đầu vào \\ \hline
-  Coverage (TCA)     &     độ phủ (Coverage)     &     Trong benchmark AI: mức độ đầu ra bao phủ các điểm có trong nguồn tham chiếu hoặc trong nội dung do con người tạo ra \\ \hline
+  Coverage (TCA)     &     độ phủ (Coverage)     &     Trong đánh giá AI: mức độ đầu ra bao phủ các điểm có trong nguồn tham chiếu hoặc trong nội dung do con người tạo ra \\ \hline
   Độ phủ phân công      &      assignment coverage      &      Trong đối sánh phản biện: tỷ lệ bài được phân công đủ phản biện viên theo yêu cầu thử nghiệm \\ \hline
   Additionality      &      khả năng bổ sung (Additionality)      &      Phần nội dung đúng và có chứng cứ nhưng không trùng trực tiếp với tham chiếu của con người \\ \hline
   Tỷ lệ vừa bám nguồn vừa hợp lệ     &     grounded-and-valid rate     &     Chỉ số kết hợp giữa việc cảnh báo hoặc phát hiện có căn cứ và việc phù hợp với tiêu chí kiểm tra. Thay cho nhãn \textit{Grounded-valid rate} \\ \hline
@@ -153,9 +153,9 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   Token     &     đơn vị văn bản của mô hình     &     Đơn vị dùng để đo lượng đầu vào/đầu ra và ước tính chi phí khi gọi LLM. Khác với token xác thực (JWT, service token) \\ \hline
   TTFT      &      thời gian đến token đầu tiên (TTFT)      &      Thời gian từ lúc gửi yêu cầu đến khi hệ thống bắt đầu trả token đầu tiên trong luồng phản hồi chatbot \\ \hline
   Thời lượng luồng phản hồi     &     stream duration     &     Thời gian hệ thống duy trì luồng trả lời sau khi bắt đầu stream dữ liệu về giao diện. Thay cho nhãn \textit{Stream duration} đứng một mình \\ \hline
-  Tỷ lệ gọi công cụ thành công      &      tool-call success rate      &      Tỷ lệ lời gọi công cụ (tool call) của agent trả về kết quả hợp lệ trong benchmark hội thoại \\ \hline
+  Tỷ lệ gọi công cụ thành công      &      tool-call success rate      &      Tỷ lệ lời gọi công cụ (tool call) của agent trả về kết quả hợp lệ trong đánh giá hội thoại \\ \hline
   Kết quả hội thoại     &     conversation / workflow outcome     &     Nhãn đánh giá cuối cùng của một hội thoại chatbot, gồm đạt, đạt một phần hoặc không đạt \\ \hline
-  UAT     &     User Acceptance Testing / khảo sát sau sử dụng     &     Khảo sát hoặc kiểm thử mức chấp nhận của người dùng sau khi trải nghiệm hệ thống, trên các vai trò Tác giả, phản biện viên và Chủ tọa \\ \hline
+  UAT     &     User Acceptance Testing / kiểm thử chấp nhận của người dùng     &     Hoạt động đánh giá mức chấp nhận của người dùng sau khi trải nghiệm hệ thống, được thực hiện với các vai trò Tác giả, Phản biện viên và Chủ tọa \\ \hline
 \end{longtable}
 \endgroup
 
@@ -171,7 +171,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   CI/CD     &     Continuous Integration / Continuous Deployment     &     Quy trình tự động build, kiểm tra, đóng gói và triển khai hệ thống \\ \hline
   GHCR      &      GitHub Container Registry      &      Registry lưu container image được build từ GitHub Actions \\ \hline
   VPS     &     Virtual Private Server     &     Máy chủ ảo dùng để triển khai môi trường production trong phạm vi đề tài \\ \hline
-  HTTP      &      Hypertext Transfer Protocol      &      Giao thức request/response dùng cho API và benchmark tải backend \\ \hline
+  HTTP      &      Hypertext Transfer Protocol      &      Giao thức request/response dùng cho API và đánh giá tải backend \\ \hline
   HTTPS     &     HTTP Secure     &     HTTP qua kênh mã hóa TLS, được Caddy xử lý trong triển khai production \\ \hline
   CRUD      &      Create, Read, Update, Delete      &      Nhóm thao tác nghiệp vụ cơ bản trên dữ liệu hệ thống; cũng là một kịch bản tải HTTP trong Chương~4 \\ \hline
 \end{longtable}
