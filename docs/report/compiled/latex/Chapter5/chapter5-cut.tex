@@ -1,0 +1,116 @@
+% !TEX root = ../main.tex
+\chapter{Kết luận}
+\label{Chapter5}
+
+Chương này đối chiếu kết quả của ConferenceSpace với mục tiêu, mô hình trách nhiệm và bằng chứng đã trình bày ở các chương trước. Trong điều kiện thử nghiệm, đề tài đã xây dựng nền tảng quản lý xét duyệt, triển khai mô hình phân tách trách nhiệm thành ba lớp và đánh giá riêng từng tác vụ. Bằng chứng thu được không đồng đều: một số chức năng có phép đo trực tiếp, còn kết quả đối sánh, chất lượng nội dung AI và trải nghiệm người dùng mới cung cấp chỉ số gián tiếp hoặc bằng chứng mô tả. Vì vậy, chương xác định phần đóng góp đã được kiểm chứng, giới hạn của bằng chứng và các ưu tiên cần hoàn thiện, thay vì khẳng định toàn bộ mô hình đã tối ưu hoặc hệ thống đã sẵn sàng vận hành thực tế.
+
+\section{Kết quả đạt được}
+
+\subsection{Nền tảng nghiệp vụ trong phạm vi đề tài}
+
+Đề tài đã xây dựng các thành phần, giao diện và API phục vụ những nghiệp vụ chính của quá trình xét duyệt, từ cấu hình hội nghị và nộp bài đến phân công, phản biện, phản hồi của Tác giả, thảo luận và ra quyết định. Các luồng này hỗ trợ ba vai trò chính gồm Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa. Sau khi bài được chấp nhận, hệ thống cho phép Tác giả tải lên bản camera-ready và cho phép người có quyền truy xuất tệp. Hoạt động xuất bản kỷ yếu không thuộc phạm vi đề tài.
+
+Trên các endpoint được chọn, ba kịch bản k6 ghi nhận tỷ lệ yêu cầu lỗi bằng 0\% và độ trễ phân vị 95 (p95) dưới 120~ms. Kết quả xác nhận các endpoint đáp ứng ngưỡng hiệu năng trong cấu hình thử nghiệm, nhưng không thay thế kiểm thử chức năng đầu cuối đối với toàn bộ chuỗi trạng thái và cơ chế phân quyền.
+
+\subsection{Cách phân tách trách nhiệm giữa ba lớp}
+
+ConferenceSpace phân tách tác vụ thành ba lớp logic: lớp nghiệp vụ cốt lõi quản lý trạng thái và quyền hạn; lớp thuật toán xử lý các quy tắc cần kết quả xác định và có thể kiểm tra lại; lớp AI tạo bản nháp, cảnh báo hoặc bản tổng hợp để người có thẩm quyền xem xét. Cách phân chia này làm rõ loại đầu ra và chủ thể chịu trách nhiệm đối với từng tác vụ, nhưng thử nghiệm chưa xác nhận đầy đủ hiệu lực của mọi ranh giới trong điều kiện sử dụng thực tế.
+
+Ở lớp thuật toán, Jaccard đạt MRR 0,392 trên tập dữ liệu tổng hợp và truy hồi hồ sơ tác giả gốc tốt hơn phương pháp ngẫu nhiên trong phép thử theo chủ đề. Tuy nhiên, phép thử này không đo trực tiếp mức độ phù hợp chuyên môn của Phản biện viên.
+
+Thuật toán Greedy phân đủ ít nhất hai Phản biện viên cho 65,9\% số bài. Đối với 23,3\% số bài, thuật toán phải thực hiện bước gán bổ sung để tránh trường hợp bài không có Phản biện viên. Ở bước này, thuật toán bỏ yêu cầu về điểm tương đồng tối thiểu và giới hạn số bài tối đa trên mỗi Phản biện viên, nhưng vẫn loại các trường hợp có xung đột lợi ích. Vì vậy, kết quả chỉ nên được sử dụng như danh sách đề xuất để Chủ tọa kiểm tra và điều chỉnh trước khi phân công.
+
+Cơ chế phát hiện xung đột lợi ích sử dụng ba nguồn thông tin: quan hệ trực tiếp trong hệ thống, xung đột do người dùng khai báo và quan hệ đồng tác giả được truy vấn từ Neo4j. Microbenchmark hiện chỉ đo hai trường hợp xác định là tự phân công và xung đột đã khai báo; thử nghiệm chưa đo riêng thời gian xử lý hoặc chất lượng phát hiện từ quan hệ đồng tác giả. Nghiên cứu cũng chưa có tập dữ liệu gồm các cặp có và không có xung đột lợi ích do chuyên gia gán nhãn để tính precision, recall và độ phủ theo từng nguồn thông tin.
+
+\subsection{Chuỗi bằng chứng cho các chức năng AI hỗ trợ}
+
+Mỗi luồng AI được đánh giá theo nhiệm vụ, loại đầu ra và mức ảnh hưởng riêng thay vì được gộp thành một nhận định chung về chất lượng hệ thống.
+
+Submission Autofill có bằng chứng trực tiếp rõ nhất đối với siêu dữ liệu: F1 theo token của tiêu đề đạt 98,20\%, F1 của từ khóa đạt 92,77\% và tỷ lệ hoàn tất trường bắt buộc đạt 86,93\%. Giá trị thấp nhất bằng 0 ở nhiều trường cho thấy luồng có những trường hợp thất bại hoàn toàn, thường trên tài liệu khó đọc hoặc có định dạng bất thường; Tác giả vì vậy vẫn phải kiểm tra bản nháp. Submission Gating xử lý đúng 8/8 trường hợp kiểm tra quy tắc trong bộ thử hiện tại và giữ các kiểm tra nội dung AI ở mức cảnh báo.
+
+Theo bộ chấm tự động mang tính thăm dò, Reviewer Initial Analysis đạt tỷ lệ trích dẫn bám nguồn 96,22\%, nhưng độ trung thực của các điểm cần lưu ý đạt 69,86\%. Chênh lệch này cho thấy nội dung diễn giải và gợi ý cần được kiểm tra thận trọng hơn trích dẫn trực tiếp. Thử nghiệm chưa đo mức độ Phản biện viên phụ thuộc vào gợi ý hoặc ảnh hưởng của chức năng đến chất lượng phản biện.
+
+Review Quality Auditor chỉ đạt 46,99\% phát hiện đồng thời bám nguồn và hợp lệ. Trong triển khai hiện tại, nhãn \textit{blocking} biểu thị mức độ nghiêm trọng cần được chú ý, nhưng không ngăn Phản biện viên gửi bản phản biện. Kết quả này cho thấy tỷ lệ nhiễu của cảnh báo còn cao; các lần đánh giá tiếp theo cần sử dụng nhãn chuyên gia để đo tỷ lệ cảnh báo sai và quan sát cách người dùng xử lý cảnh báo. Bằng chứng hiện có không hỗ trợ việc chuyển các phát hiện xác suất thành điều kiện chặn cứng trong tương lai.
+
+Theo bộ chấm TCA, các mệnh đề trong phần tổng hợp bằng chứng của Chair Decision Copilot đạt độ trung thực 87,34\%, còn các mệnh đề tổng hợp những điểm bất đồng đạt 87,11\%. Hai kết quả ước lượng tỷ lệ mệnh đề được dữ liệu nguồn hỗ trợ; chúng không đo độ đúng của quyết định chấp nhận hoặc từ chối bài. Do TCA và NLI chưa được hiệu chuẩn bằng nhãn chuyên gia, các chỉ số này chỉ được dùng để xác định trường hợp cần Chủ tọa kiểm tra. UAT dành cho Chủ tọa cũng chưa đánh giá riêng chức năng này hoặc đo ảnh hưởng của nó đến chất lượng quyết định.
+
+Chatbot Agent hoàn tất 40 hội thoại và không làm lộ dữ liệu trong các kịch bản kiểm tra quyền truy cập đã thực hiện. Trong đó, 37/40 hội thoại được đánh giá là đạt hoặc đạt một phần; một biến thể yêu cầu nghiên cứu ngoài nền tảng tạo nội dung vượt phạm vi và 31/128 lượt gọi công cụ thất bại. Các kịch bản này không tương đương kiểm toán bảo mật và không chứng minh độ ổn định trong vận hành dài hạn.
+
+\subsection{Mức độ hoàn thành mục tiêu}
+
+Bảng~\ref{tab:ch5-objective-completion} đối chiếu năm mục tiêu cụ thể ở Chương~1 với sản phẩm, bằng chứng và giới hạn quyết định tương ứng.
+
+\begin{center}
+\captionsetup{hypcap=false}
+\captionof{table}{Mức độ hoàn thành các mục tiêu của đề tài}
+\label{tab:ch5-objective-completion}
+\end{center}
+\begin{PrismLongTable}
+\small
+\hbadness=10000
+\begin{longtable}{|P{0.19\textwidth}|P{0.29\textwidth}|P{0.17\textwidth}|P{0.31\textwidth}|}
+\hline
+\TableHeader{Mục tiêu} & \TableHeader{Kết quả và bằng chứng} & \TableHeader{Mức hoàn thành} & \TableHeader{Giới hạn quyết định} \\ \hline
+\endfirsthead
+\LongTableHeaderBorder
+\TableHeader{Mục tiêu} & \TableHeader{Kết quả và bằng chứng} & \TableHeader{Mức hoàn thành} & \TableHeader{Giới hạn quyết định} \\ \hline
+\endhead
+\LongTableFooterBorder
+\endfoot
+Quy trình nghiệp vụ cốt lõi & Đã xây dựng các luồng chính đến ra quyết định; các endpoint được chọn đạt ngưỡng hiệu năng. & Đã xây dựng trong phạm vi & Chưa kiểm thử đầu cuối; nghiệp vụ sau quyết định chưa đầy đủ. \\ \hline
+Mô hình ba lớp trách nhiệm & Đã phân tách lớp nghiệp vụ, thuật toán xác định và AI hỗ trợ theo đầu ra và chủ thể chịu trách nhiệm. & Đã triển khai & Chưa đánh giá đầy đủ hiệu lực của các ranh giới trách nhiệm trong điều kiện sử dụng thực tế. \\ \hline
+Cơ chế có thể kiểm chứng & Đã triển khai đề xuất Phản biện viên và phát hiện xung đột lợi ích với kết quả có thể truy vết. & Đã triển khai; chất lượng chưa được xác nhận đầy đủ & Đối sánh mới có chỉ số gián tiếp về quan hệ chủ đề; chất lượng phát hiện xung đột lợi ích nhiều lớp chưa được đo. \\ \hline
+Các luồng AI hỗ trợ & Đã tích hợp và đánh giá riêng sáu luồng. & Đã tích hợp; kết quả không đồng đều & Một số đầu ra thiếu nhãn chuyên gia; chưa đo đầy đủ ảnh hưởng của cảnh báo và gợi ý đến người dùng. \\ \hline
+Đánh giá bằng nhiều nhóm bằng chứng & Đã kiểm thử hiệu năng, thuật toán, từng luồng AI, Chatbot Agent và UAT. & Đã đánh giá một phần & Thiếu kiểm thử đầu cuối, nhãn chuyên gia, mẫu UAT cân bằng và cơ chế xác định mức độ phù hợp của người tham gia khảo sát. \\ \hline
+\end{longtable}
+\end{PrismLongTable}
+
+Về thiết kế, ConferenceSpace không cho AI tự gửi bản phản biện, thiết lập điểm số hoặc quyết định chấp nhận hay từ chối bài. Review Quality Auditor có thể gắn nhãn \textit{blocking} cho phát hiện nghiêm trọng, nhưng Phản biện viên vẫn có quyền gửi bản phản biện; khi dịch vụ kiểm tra không thể chạy, hệ thống yêu cầu người dùng xác nhận tiếp tục và ghi nhận thao tác này trong nhật ký.
+
+Thử nghiệm hiện chưa đo cách Phản biện viên xử lý cảnh báo, mức độ Reviewer Initial Analysis ảnh hưởng đến nhận định chuyên môn hoặc mức độ Chủ tọa phụ thuộc vào bản tổng hợp của Chair Decision Copilot. Vì vậy, bằng chứng hiện có xác nhận các ranh giới đã được triển khai trong phần mềm, nhưng chưa đánh giá đầy đủ hiệu lực của chúng đối với hành vi người dùng. Do không có kiến trúc đối chứng, kết quả cũng không cho phép kết luận các kết quả quan sát được là hệ quả của riêng mô hình ba lớp.
+
+\section{Các hạn chế}
+
+\subsection{Giới hạn của so sánh và phạm vi sản phẩm}
+
+Phần so sánh ở Chương~2 dựa trên tài liệu và chính sách công khai, không đánh giá các nền tảng trên cùng dữ liệu và phương pháp. Báo cáo vì vậy chỉ so sánh định vị, phạm vi chức năng và quy ước trách nhiệm, không xếp hạng chất lượng sản phẩm. ConferenceSpace vẫn là nền tảng thực nghiệm, chưa có bằng chứng về độ trưởng thành vận hành hoặc mức độ đầy đủ tương đương sản phẩm thương mại; các nghiệp vụ còn thiếu tập trung ở cơ chế chọn bài phản biện, kiểm soát hạn chót và xử lý sau quyết định.
+
+\subsection{Giới hạn của dữ liệu và phương pháp đánh giá}
+
+Các luồng AI chủ yếu được đánh giá trên bài báo tiếng Anh từ OpenReview, còn bộ thử đối sánh sử dụng dữ liệu tổng hợp mô phỏng lược đồ Semantic Scholar. Kết quả chưa được xác nhận trên bài viết tiếng Việt, dữ liệu phân công thực tế hoặc các chính sách hội nghị khác. Cơ chế phát hiện xung đột lợi ích cũng chưa có tập dữ liệu gồm các cặp có và không có xung đột do chuyên gia gán nhãn.
+
+Một số đầu ra AI, gồm gợi ý chuyên đề, cảnh báo nội dung và bản tổng hợp hỗ trợ quyết định, chưa được chuyên gia đánh giá trực tiếp. Các phép chấm TCA và NLI cung cấp chỉ số gián tiếp, nhưng chưa được hiệu chuẩn để thay thế đánh giá chuyên môn đối với suy luận kỹ thuật hoặc mức độ hữu ích của nội dung.
+
+UAT gồm 91 phản hồi: 76 phản hồi ở phiếu dành cho Tác giả, 7 phản hồi ở phiếu dành cho Phản biện viên và 8 phản hồi ở phiếu dành cho Chủ tọa; nhóm phiếu dành cho Tác giả chiếm 83,5\% mẫu. Mẫu thuận tiện và quy mô nhỏ ở hai nhóm phiếu dành cho vai trò chuyên môn không cho phép suy rộng thống kê. Riêng tám phản hồi ở phiếu dành cho Chủ tọa được thu thập ẩn danh mà không có mã định danh riêng, nên dữ liệu không cho phép kiểm chứng độc lập tính duy nhất hoặc hồ sơ chuyên môn của mẫu. Khảo sát cũng chưa đo trực tiếp thời gian hoàn thành nhiệm vụ, chất lượng quyết định hoặc thiên lệch tự động hóa.
+
+\subsection{Giới hạn vận hành và quản trị dữ liệu}
+
+Các nghiệp vụ phân công, phản biện, thảo luận và ra quyết định được triển khai tách biệt khỏi đầu ra AI; AI không tự thay đổi trạng thái hoặc đưa ra quyết định học thuật. Khi Review Quality Auditor không thể chạy, hệ thống cho phép Phản biện viên xác nhận tiếp tục và ghi nhận thao tác trong nhật ký. Tuy nhiên, phạm vi này không bao gồm bước công bố bài nộp vì Submission Gating vẫn được gọi như một điều kiện bắt buộc. Một số luồng AI cũng có trường hợp vượt 100 giây, còn Chatbot Agent ghi nhận 31/128 lượt gọi công cụ thất bại; các kết quả này giới hạn độ tin cậy và trải nghiệm vận hành của thành phần hỗ trợ.
+
+Phân quyền ở cấp ứng dụng không thay thế việc kiểm toán vòng đời dữ liệu tại nhà cung cấp AI. Đề tài chưa xác minh đầy đủ điều khoản lưu giữ, sử dụng, xử lý và xóa dữ liệu, đồng thời hệ thống chưa cung cấp nhật ký kiểm toán toàn diện cho đầu ra AI và quyết định của người dùng. Theo nguyên tắc bảo mật bản thảo ở Chương~2, các luồng AI xử lý bản thảo hoặc nội dung phản biện phải bị vô hiệu hóa theo mặc định và chỉ được bật khi chính sách hội nghị cùng thỏa thuận xử lý dữ liệu của nhà cung cấp cho phép rõ ràng.
+
+\section{Hướng phát triển trong tương lai}
+
+\subsection{Bổ sung bằng chứng còn thiếu}
+
+Ưu tiên đầu tiên là xây dựng tập đánh giá gần với vận hành thực tế. Hoạt động đối sánh cần dữ liệu phân công, nhãn của Chủ tọa và tỷ lệ chấp nhận đề xuất. Cơ chế phát hiện xung đột lợi ích cần tập dữ liệu gồm các cặp có và không có xung đột do chuyên gia gán nhãn để đo precision, recall và độ phủ theo từng nguồn thông tin. Các luồng gần bước ra quyết định cũng cần được Phản biện viên và Chủ tọa đánh giá về độ đầy đủ, mức hữu ích và ảnh hưởng đến phán đoán.
+
+Các đợt UAT tiếp theo cần mở rộng và cân bằng mẫu giữa các vai trò, cấp mã ẩn danh duy nhất và xác minh tư cách vai trò tách biệt với câu trả lời. Thử nghiệm cần chuẩn hóa nhiệm vụ, đo trực tiếp thời gian thao tác và bổ sung điều kiện đối chứng không sử dụng AI. Dữ liệu đánh giá cũng cần bao phủ bài viết tiếng Việt, nhiều lĩnh vực và nhiều chính sách hội nghị.
+
+\subsection{Hoàn thiện vận hành và trải nghiệm}
+
+Các luồng xử lý kéo dài nên chuyển sang hàng đợi bất đồng bộ, hiển thị tiến độ, giới hạn thời gian và số lần thử lại, đồng thời cho phép khôi phục sau lỗi. Nhật ký kiểm toán cần liên kết nguồn dữ liệu, kết quả AI, công cụ được gọi và quyết định của người dùng để hỗ trợ điều tra lỗi và xác định trách nhiệm nghiệp vụ. Mỗi luồng cũng cần nêu rõ người dùng có thể tiếp tục bằng thao tác nào khi thành phần hỗ trợ không khả dụng; riêng Submission Gating cần được tách khỏi điều kiện bắt buộc của bước công bố bài nộp nếu hệ thống muốn duy trì luồng này khi dịch vụ AI gặp sự cố.
+
+\subsection{Phát triển Chatbot Agent và lớp truy hồi có kiểm soát}
+
+Chatbot Agent cần được phát triển từ giao diện hội thoại thành trợ lý có phạm vi tác vụ rõ ràng. Mỗi công cụ cần quy định rõ cấu trúc dữ liệu đầu vào, quyền truy cập và cách xử lý lỗi; hệ thống cần ghi nhận chuỗi gọi công cụ, nguồn dữ liệu được sử dụng và nguyên nhân của câu trả lời không đầy đủ. Các cải tiến này nhằm giảm số lượt gọi công cụ thất bại và ngăn câu trả lời vượt khỏi phạm vi tác vụ đã xác định.
+
+Một hướng phát triển quan trọng là xây dựng lớp truy hồi tri thức từ chính sách hội nghị, hướng dẫn nộp bài, biểu mẫu phản biện, hồ sơ chuyên môn và các tài liệu đã được phân quyền. Hệ thống có thể kết hợp biểu diễn nhúng, tìm kiếm theo véc-tơ và tìm kiếm từ khóa để truy xuất nguồn liên quan, đồng thời sử dụng siêu dữ liệu, phiên bản tài liệu và quyền truy cập để giới hạn phạm vi kết quả. Mỗi câu trả lời hoặc bản tổng hợp cần kèm nguồn để người dùng kiểm tra lại. Hướng tiếp cận này nhằm tăng khả năng bám nguồn và truy vết, không bảo đảm loại bỏ thông tin sai~\cite{ch5ref1}.
+
+Trên lớp truy hồi đó, ConferenceSpace có thể phát triển các luồng Agentic RAG cho những tác vụ điều phối có thể kiểm tra, chẳng hạn phát hiện thông tin còn thiếu, tổng hợp điểm bất đồng, chuẩn bị báo cáo cho Chủ tọa hoặc nhắc nhở về các quy định cần tuân thủ. Agent chỉ được gọi công cụ phù hợp với vai trò, không tự thay đổi quyết định học thuật và phải yêu cầu người có thẩm quyền xác nhận trước mọi thao tác làm thay đổi trạng thái. Nhật ký cần lưu nguồn được truy xuất, công cụ đã gọi, kết quả nhận được và quyết định của người dùng để hỗ trợ kiểm tra và khôi phục ngữ cảnh, trạng thái~\cite{ch5ref2,ch5ref5,ch5ref6,ch5ref7}.
+
+\subsection{Tăng quyền kiểm soát dữ liệu và hoàn thiện nghiệp vụ}
+
+Trước khi triển khai thực tế, nhóm cần đánh giá nhà cung cấp theo điều khoản xử lý dữ liệu và chính sách của từng hội nghị; với dữ liệu có yêu cầu bảo mật cao, cần so sánh phương án triển khai tại chỗ hoặc sử dụng mô hình có trọng số công khai theo chất lượng, chi phí và công sức vận hành. Dữ liệu chuyên môn và xung đột lợi ích cũng cần được mở rộng từ các nguồn như DBLP, Semantic Scholar và thông tin đơn vị công tác, với nguồn gốc và quyền sử dụng được ghi nhận rõ. Về sản phẩm, các ưu tiên gồm kiểm soát hạn chót, cơ chế chọn bài phản biện và hoàn thiện các thao tác sau khi ra quyết định.
+
+Tóm lại, ConferenceSpace đã xây dựng nền tảng xét duyệt và áp dụng mô hình phân tách trách nhiệm giữa các lớp dựa trên tính xác định, mức ảnh hưởng và chủ thể chịu trách nhiệm. Giá trị chính của đề tài là chuỗi bằng chứng theo từng tác vụ, qua đó phân biệt phần đã được kiểm chứng với phần cần tiếp tục đánh giá. Để chuyển từ nền tảng thực nghiệm sang hệ thống phục vụ hội nghị, các bước tiếp theo cần ưu tiên bằng chứng thực tế, hiệu lực kiểm soát của con người, độ tin cậy vận hành và quản trị dữ liệu; đồng thời phát triển lớp truy hồi có kiểm soát để các chức năng hỗ trợ bám nguồn và có thể truy vết.
