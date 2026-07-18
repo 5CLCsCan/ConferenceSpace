@@ -36,10 +36,11 @@ Các mục tiêu cụ thể gồm:
 \centering
 \caption{Mối liên hệ giữa mục tiêu, câu hỏi và bằng chứng đánh giá}
 \label{tab:chapter1-objective-traceability}
-\small
-\begin{tabularx}{\textwidth}{|L{0.18\textwidth}|Y|Y|L{0.16\textwidth}|}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{|P{0.18\textwidth}|Y|Y|P{0.16\textwidth}|}
 \hline
-\textbf{Nhóm mục tiêu} & \textbf{Câu hỏi đánh giá} & \textbf{Chỉ số hoặc bằng chứng chính} & \textbf{Vị trí kết quả} \\ \hline
+\TableHeader{Nhóm mục tiêu} & \TableHeader{Câu hỏi đánh giá} & \TableHeader{Chỉ số hoặc bằng chứng chính} & \TableHeader{Vị trí kết quả} \\ \hline
 Nghiệp vụ cốt lõi & Các luồng nghiệp vụ được chọn có hiệu năng như thế nào trong cấu hình thử nghiệm? & Độ trễ, thông lượng, tỷ lệ yêu cầu lỗi và mức sử dụng tài nguyên & Chương 4, phần nghiệp vụ và hiệu năng \\ \hline
 Thuật toán có thể kiểm chứng & Đối sánh phản biện viên truy hồi tín hiệu chủ đề ở mức nào, và hai bộ kiểm tra xung đột xác định đã được đo có chi phí xử lý ra sao? & Chỉ số leave-one-out gián tiếp; microbenchmark cho kiểm tra tự gán và quan hệ khai báo; chưa đo trực tiếp mức phù hợp của phản biện viên, lớp quan hệ đồng tác giả trên Neo4j hoặc chất lượng phát hiện xung đột & Chương 4, phần thuật toán \\ \hline
 AI hỗ trợ có kiểm soát & Mỗi luồng AI đáp ứng tác vụ được giao đến mức nào trong cấu hình thử nghiệm? & Exact Match, ROUGE và F1 cho đầu ra có tham chiếu; Truthfulness, Coverage và Additionality trong khung TCA; tính hợp lệ đối với Review Quality Auditor; tỷ lệ hoàn tất, độ trễ và trường hợp lỗi & Chương 4, phần đánh giá AI \\ \hline

@@ -1,0 +1,418 @@
+\chapter{Khảo sát nhu cầu, hiện trạng và định hướng thiết kế}
+\label{Chapter2}
+
+Chương 2 phân tích nhu cầu người dùng, quy trình nghiệp vụ của các nền tảng hiện có và xu hướng tích hợp AI để xác định định hướng thiết kế cho ConferenceSpace. Trọng tâm của chương là phân biệt các tác vụ cần dựa trên nghiệp vụ ổn định, các tác vụ cần thuật toán xác định và các tác vụ phù hợp với AI hỗ trợ có kiểm soát. Từ các nguồn này, chương lần lượt xác lập vấn đề thiết kế, yêu cầu hệ thống và quy ước trách nhiệm làm cơ sở cho Chương 3 và Chương 4.
+
+\section{Khảo sát nhu cầu người dùng}
+
+\subsection{Mục tiêu khảo sát}
+
+Nhóm thực hiện khảo sát nhằm nhận diện những khó khăn ảnh hưởng trực tiếp đến trải nghiệm nộp bài, theo dõi trạng thái, phản biện và điều phối hội nghị. Khảo sát tập trung vào ba câu hỏi:
+
+\begin{itemize}
+    \item Người dùng gặp khó khăn gì khi sử dụng các nền tảng như EasyChair, Microsoft CMT hoặc OpenReview?
+    \item Những chức năng nào được kỳ vọng trong một nền tảng quản lý hội nghị mới?
+    \item Người dùng chấp nhận AI ở mức nào và muốn giữ quyền kiểm soát ra sao khi AI tham gia quy trình học thuật?
+\end{itemize}
+
+Kết quả cung cấp căn cứ định hướng cho các quyết định thiết kế trong phạm vi mẫu khảo sát; giới hạn về khả năng khái quát được tổng hợp tại Mục 2.1.6.
+
+\subsection{Đối tượng và đặc điểm mẫu khảo sát}
+
+Khảo sát thu được 71 phản hồi từ sinh viên và học viên cao học, giảng viên và nhà nghiên cứu, cùng người làm việc tại doanh nghiệp có tham gia hoạt động nghiên cứu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/chapter_2_picture_1.jpg}
+    \caption{Phân bố đối tượng tham gia khảo sát}
+    \label{fig:ch2-survey-participants}
+\end{figure}
+
+Trong phạm vi đề tài, nhóm phân tích ba vai trò: Tác giả nộp và theo dõi bài; Phản biện viên tiếp nhận phân công và thực hiện phản biện; Chủ tọa/Đồng chủ tọa cấu hình và điều phối quy trình. Hình~\ref{fig:ch2-survey-participants} cho thấy số phản hồi giữa các nhóm không đồng đều; vì vậy, kết quả của các nhóm nhỏ chỉ được xem là tín hiệu định hướng.
+
+\subsection{Phương pháp khảo sát}
+
+Nhóm thu thập dữ liệu bằng biểu mẫu trực tuyến, kết hợp câu hỏi một lựa chọn, nhiều lựa chọn, thang Likert từ 1 đến 5 và câu hỏi mở. Bộ câu hỏi xem xét trải nghiệm với các nền tảng hiện có, khó khăn trong từng giai đoạn của quy trình, mức độ hữu ích của các chức năng dự kiến và mức độ chấp nhận AI trong các tác vụ nhập liệu, kiểm tra sơ bộ, hỗ trợ đọc, rà soát phản biện và tổng hợp thông tin. Cách thiết kế này cho phép nhóm vừa ghi nhận mức độ phổ biến của vấn đề, vừa thu thập lý do người tham gia tin tưởng hoặc chưa tin tưởng các chức năng AI.
+
+\subsection{Kết quả khảo sát theo các vấn đề nổi bật}
+
+Năm khó khăn được lựa chọn nhiều nhất liên quan đến chỉ dẫn thao tác, nhập liệu, kiểm tra lỗi và theo dõi thông tin. Bảng dưới đây trình bày số lượng, tỷ lệ và hàm ý tương ứng.
+
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|P{0.28\textwidth}|C{0.14\textwidth}|C{0.18\textwidth}|P{0.32\textwidth}|}
+\hline
+\TableHeader{Vấn đề nổi bật} & \TableHeader{Số người chọn} & \TableHeader{Tỷ lệ trên 71 phản hồi} & \TableHeader{Hàm ý đối với nhu cầu hệ thống} \\ \hline
+Không biết bước tiếp theo cần làm là gì & 35 & 49,3\% & Cần chỉ dẫn hành động phù hợp với trạng thái hiện tại của quy trình. \\ \hline
+Biểu mẫu nhập liệu dài và lặp lại & 34 & 47,9\% & Cần giảm lượng thông tin người dùng phải nhập lại và cho phép kiểm tra trước khi gửi. \\ \hline
+Phải đọc nhiều hướng dẫn dài trước khi thao tác & 33 & 46,5\% & Cần tổ chức thao tác theo từng bước và cung cấp hướng dẫn theo ngữ cảnh. \\ \hline
+Không có kiểm tra lỗi sớm trước khi nộp chính thức & 30 & 42,3\% & Cần phát hiện lỗi hoặc thiếu sót trước khi bài đi vào quy trình phản biện. \\ \hline
+Thông báo và hạn chót bị phân tán, dễ bỏ sót & 28 & 39,4\% & Cần tập trung trạng thái, hạn chót và thông báo liên quan. \\ \hline
+\end{tabular}
+\end{center}
+
+Các kết quả cho thấy người dùng không chỉ cần đủ chức năng nghiệp vụ mà còn cần một quy trình dễ theo dõi, hạn chế nhập lại và phát hiện thiếu sót trước các bước quan trọng.
+
+\subsection{Kết quả theo vai trò}
+
+\subsubsection{a) Nhóm Chủ tọa/Ban tổ chức}
+
+Trong mẫu 7 Chủ tọa, cảnh báo xung đột lợi ích và bảng điều khiển nhận nhiều đánh giá cao hơn gợi ý Phản biện viên theo chuyên môn.
+
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|P{0.31\textwidth}|P{0.31\textwidth}|P{0.31\textwidth}|}
+\hline
+\TableHeader{Tính năng} & \TableHeader{Kết quả ghi nhận} & \TableHeader{Diễn giải} \\ \hline
+Cảnh báo xung đột lợi ích & 5/7 Chủ tọa đánh giá cao & Cần cảnh báo sớm, nhưng người có thẩm quyền vẫn phải xác nhận kết quả. \\ \hline
+Bảng điều khiển tóm tắt tình trạng hội nghị & 4/7 Chủ tọa đánh giá cao & Cần tập trung tiến độ, hạn chót và công việc cần xử lý. \\ \hline
+Gợi ý Phản biện viên theo chuyên môn & 2/7 Chủ tọa đánh giá cao & Tính năng được ưu tiên thấp hơn trong mẫu; khảo sát chưa xác định nguyên nhân. \\ \hline
+\end{tabular}
+\end{center}
+
+Với quy mô nhóm hiện có, kết quả cung cấp thứ tự ưu tiên ban đầu cho thiết kế; nguyên nhân lựa chọn và mức độ khái quát cần được kiểm tra trên mẫu Chủ tọa lớn hơn.
+
+\subsubsection{b) Nhóm Tác giả}
+
+Đối với Tác giả, nhu cầu nổi bật là giảm lượng thông tin phải nhập nhưng vẫn giữ quyền kiểm tra trước khi gửi. Có 21 người chọn phương án Submission Autofill ``tự điền và cho phép tôi sửa nhanh những mục sai''.
+
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|P{0.31\textwidth}|P{0.31\textwidth}|P{0.31\textwidth}|}
+\hline
+\TableHeader{Tính năng} & \TableHeader{Kết quả ghi nhận} & \TableHeader{Diễn giải} \\ \hline
+Submission Autofill & 21 người chọn tự điền nhưng cho phép sửa nhanh & Hệ thống tạo dữ liệu nháp để Tác giả kiểm tra, chỉnh sửa và xác nhận. \\ \hline
+Submission Gating & 40/50 người trả lời (80,0\%) đánh giá hữu ích hoặc rất hữu ích & Hệ thống phát hiện thiếu sót sớm; điều kiện chặn dựa trên chính sách đã cấu hình. \\ \hline
+\end{tabular}
+\end{center}
+
+Hai chức năng đáp ứng các nhu cầu bổ trợ: Submission Autofill tạo dữ liệu nháp để Tác giả chỉnh sửa và xác nhận, còn Submission Gating phát hiện lỗi hoặc cảnh báo trước thời điểm gửi. Tác giả tiếp tục kiểm soát nội dung bài nộp và quyết định hoàn tất thao tác.
+
+\subsubsection{c) Nhóm Phản biện viên}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/chapter_2_picture_3.jpg}
+    \caption{Mức độ ủng hộ AI của Phản biện viên theo từng tác vụ}
+    \label{fig:ch2-reviewer-ai-acceptance}
+\end{figure}
+
+Trong nhóm 11 Phản biện viên, 6/11 người đánh giá cao tính năng tạo bản tóm tắt trung lập, trong khi 3/11 người đánh giá cao tính năng nêu bật các điểm cần kiểm tra kỹ. Chênh lệch này cho thấy người tham gia thận trọng hơn với đầu ra có thể định hướng sự chú ý. Tuy nhiên, khảo sát chưa đo tác động đến thời gian, công sức hoặc nhận định chuyên môn; kết quả chỉ phản ánh xu hướng chấp nhận AI trong vai trò hỗ trợ đọc.
+
+\subsection{Diễn giải kết quả và giới hạn khảo sát}
+
+Từ các phản hồi đã tổng hợp, nhóm nhận thấy bốn nhu cầu nền tảng: giảm thao tác nhập và kiểm tra lặp lại; tập trung trạng thái, việc cần làm và hạn chót; hỗ trợ kiểm soát rủi ro trong nộp bài và phân công; đồng thời cung cấp đầu ra AI có thể kiểm tra để người có thẩm quyền đưa ra quyết định.
+
+Kết quả cần được diễn giải trong ba giới hạn. Khảo sát sử dụng mẫu thuận tiện gồm 71 phản hồi nên không đại diện cho toàn bộ cộng đồng học thuật. Nhóm Chủ tọa và Phản biện viên có quy mô nhỏ, do đó kết quả theo vai trò chỉ mang tính định hướng. Ngoài ra, khảo sát đo nhu cầu trước khi người tham gia sử dụng ConferenceSpace, khác với khảo sát sau trải nghiệm được trình bày trong chương đánh giá.
+
+\section{Khảo sát hiện trạng các hệ thống quản lý hội nghị}
+
+\subsection{Đối tượng, tiêu chí và giới hạn khảo sát}
+
+Nhóm thứ nhất gồm EasyChair, HotCRP, OpenReview và Microsoft CMT, được dùng làm chuẩn tham chiếu cho vòng đời xét duyệt, vai trò, phân quyền, phân công, phản biện và ra quyết định. Nhóm thứ hai gồm PeerSubmit và Morressier, được dùng để nhận diện các khâu tự động hóa, loại đầu ra và ranh giới trách nhiệm đã công bố.
+
+Các nền tảng được đối chiếu theo bốn nhóm tiêu chí: phạm vi vòng đời và vai trò; tác vụ sử dụng thuật toán hoặc AI cùng loại đầu ra; cơ chế xác nhận, giải thích, truy vết và phân quyền; cuối cùng là loại bằng chứng và phạm vi sản phẩm. Đăng ký, thanh toán và trang sự kiện được ghi nhận để xác định ranh giới sản phẩm; các kết luận về thiết kế học thuật được rút ra từ quy trình xét duyệt, cơ chế kiểm soát và bằng chứng vận hành.
+
+\subsection{Tổng quan các hệ thống hiện có}
+
+\subsubsection{a) EasyChair}
+
+EasyChair công bố có hơn 4,8 triệu người dùng và hơn 124.000 hội nghị, đồng thời hỗ trợ nộp bài, quản lý phản biện, quyền truy cập, xung đột lợi ích, phân công, phản hồi của tác giả và xuất bản kỷ yếu \cite{ch2ref1,ch2ref2}. Trường hợp ITiCSE 2025 cho thấy nền tảng có thể vận hành phản biện kín hai chiều, đăng ký nguyện vọng, khai báo xung đột, phân công bằng thuật toán và thảo luận \cite{ch2ref57}. Từ đó, ConferenceSpace tham khảo cách EasyChair tổ chức các giai đoạn nộp bài, phân công, phản biện và ra quyết định trong một vòng đời thống nhất, với trạng thái và quyền hạn được duy trì xuyên suốt giữa các vai trò. EasyChair được dùng làm chuẩn tham chiếu về độ bao phủ nghiệp vụ; khả năng hướng dẫn và mức độ dễ tiếp cận của ConferenceSpace được kiểm chứng bằng khảo sát sau trải nghiệm trên chính người dùng của hệ thống.
+
+\subsubsection{b) HotCRP}
+
+HotCRP hỗ trợ phân công, đăng ký nguyện vọng, xung đột lợi ích, ra quyết định, phân công tự động và chế độ chạy thử trước khi áp dụng \cite{ch2ref3,ch2ref4}. Tại USENIX ATC 2020, kết quả phân công tự động ban đầu hữu ích nhưng vẫn cần Chủ tọa rà soát và điều chỉnh đáng kể; cơ chế xung đột đồng thời ngăn người có xung đột truy cập bài, điểm số và thảo luận liên quan \cite{ch2ref58}. Từ HotCRP, ConferenceSpace tham khảo cách tách quy trình thành ba bước: thuật toán tạo phương án dưới các ràng buộc, Chủ tọa kiểm tra và điều chỉnh, sau đó hệ thống mới áp dụng phân công cùng quyền truy cập tương ứng. Cách tổ chức này biến tự động hóa thành công cụ giảm tải nhưng vẫn duy trì khả năng kiểm soát đối với một tác vụ có ảnh hưởng trực tiếp đến tính công bằng của phản biện.
+
+\subsubsection{c) OpenReview}
+
+OpenReview hỗ trợ nhiều mức độ công khai, quyền đọc và quyền ghi, thảo luận, xác định xung đột lợi ích và đối sánh bài với Phản biện viên \cite{ch2ref5}. NeurIPS 2021 sử dụng OpenReview nhưng vẫn duy trì phản biện kín hai chiều trong thời gian xét duyệt \cite{ch2ref59}. Trường hợp ACT 2023 cho thấy một số xung đột đặc thù và quyền xem thảo luận vẫn cần cấu hình hoặc xử lý thủ công \cite{ch2ref60}. Từ OpenReview, ConferenceSpace tham khảo nguyên tắc minh bạch theo từng giai đoạn: trạng thái và căn cứ cần thiết được hiển thị cho đúng vai trò, còn danh tính, bản thảo và thảo luận được bảo vệ theo chính sách của hội nghị. Như vậy, mức độ công khai trở thành một quyết định cấu hình gắn với quyền đọc, quyền ghi và thời điểm của quy trình, qua đó hỗ trợ cả phản biện kín lẫn các bước công bố sau quyết định.
+
+\subsubsection{d) Microsoft CMT}
+
+Microsoft CMT hỗ trợ toàn bộ vòng đời nộp bài, quản lý xung đột, đăng ký nguyện vọng, thảo luận và phân công tích hợp với TPMS; điểm TPMS từ 0 đến 1 biểu thị mức độ phù hợp giữa bài báo và Phản biện viên \cite{ch2ref6,ch2ref7,ch2ref8}. Tại CVPR 2013, CMT và TPMS tạo danh sách ứng viên và loại các trường hợp xung đột, nhưng Chủ tọa vẫn điều chỉnh theo chuyên môn và khối lượng công việc \cite{ch2ref61}. ConferenceSpace từ đó thiết kế đối sánh như một quy trình có thể kiểm tra: điểm phù hợp chuyên môn được trình bày cùng xung đột lợi ích và khối lượng công việc, tạo thành căn cứ để Chủ tọa xác nhận hoặc điều chỉnh phương án phân công. Quyền xác nhận phản ánh trách nhiệm điều phối của Chủ tọa đối với các ràng buộc mà một điểm đối sánh riêng lẻ không thể biểu diễn đầy đủ.
+
+\subsubsection{e) PeerSubmit: nền tảng lấy AI làm trọng tâm}
+
+PeerSubmit công bố các chức năng AI cho sàng lọc bài, đối sánh Phản biện viên, kiểm tra xung đột lợi ích, tóm tắt và hỗ trợ quyết định \cite{ch2ref48}. Tuy nhiên, tài liệu sản phẩm giao quyết định cho Chủ tọa, trong khi trang thông tin giá còn giới thiệu chức năng tạo phán quyết cuối cùng kèm điểm tin cậy \cite{ch2ref48,ch2ref52,ch2ref54}. Các tỷ lệ cải thiện được công bố thiếu dữ liệu nguồn, định nghĩa chỉ số và phương pháp đo để có thể đối chiếu độc lập. ConferenceSpace tham khảo PeerSubmit ở hai khía cạnh: phân loại tự động hóa theo mức độ gần với quyết định học thuật và gắn mỗi đầu ra với người chịu trách nhiệm xác nhận.
+
+\subsubsection{f) Morressier: tham khảo về liêm chính và phân công có xác nhận}
+
+Morressier tích hợp kiểm tra đạo văn, trùng lặp hình ảnh và dấu hiệu của ``hành vi sản xuất báo hàng loạt'' (paper mill) để nhóm biên tập xem xét trước khi quyết định \cite{ch2ref47}. Chức năng Auto-Assign phân phối bài giữa các Phản biện viên đã chấp nhận và tạo danh sách để Ban tổ chức điều chỉnh trước khi xác nhận; các điều kiện chặn được công bố bao phủ một số trường hợp cụ thể \cite{ch2ref55}. ConferenceSpace tham khảo Morressier ở hai mẫu thiết kế: công cụ sàng lọc tạo báo cáo chuyên biệt cho người chịu trách nhiệm xem xét, còn công cụ phân công tạo phương án có thể sửa trước khi áp dụng. Giá trị tham khảo nằm ở cách tổ chức đầu ra và bước xác nhận; chất lượng của từng chức năng được đánh giá bằng dữ liệu riêng của đề tài.
+
+\subsection{So sánh phạm vi nghiệp vụ}
+
+Bảng dưới đây kiểm tra mức độ liên kết giữa các nghiệp vụ trong toàn bộ vòng đời xét duyệt. Cột ConferenceSpace xác định những nghiệp vụ được tích hợp trong phạm vi đề tài; chất lượng vận hành của chúng được kiểm chứng bằng các kịch bản và thước đo ở chương đánh giá.
+
+\begingroup
+\setlength{\tabcolsep}{3pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|P{0.18\textwidth}|P{0.18\textwidth}|P{0.18\textwidth}|P{0.18\textwidth}|P{0.20\textwidth}|}
+  \caption{So sánh phạm vi nghiệp vụ của các nhóm nền tảng}\\
+\hline
+\TableHeader{Nhóm nghiệp vụ} & \TableHeader{EasyChair/ HotCRP} & \TableHeader{OpenReview/ CMT} & \TableHeader{PeerSubmit} & \TableHeader{Conference\-Space} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Nhóm nghiệp vụ} & \TableHeader{EasyChair/ HotCRP} & \TableHeader{OpenReview/ CMT} & \TableHeader{PeerSubmit} & \TableHeader{Conference\-Space} \\ \hline
+\endhead
+\hline
+\endfoot
+Cấu hình hội nghị và chuyên đề & Có, với mức cấu hình khác nhau & Có & Có & Có trong phạm vi đề tài \\ \hline
+Nộp bài, sửa bài và theo dõi trạng thái & Có & Có & Có & Có \\ \hline
+Vai trò và phân quyền & Có & Có & Có & Có với Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa \\ \hline
+Phân công phản biện và xung đột lợi ích & Có nguyện vọng, ràng buộc và khai báo xung đột & Có đối sánh, TPMS và kiểm tra xung đột & Có đối sánh và kiểm tra xung đột & Có điểm đối sánh và thông tin xung đột để Chủ tọa xác nhận \\ \hline
+Biểu mẫu, bản nháp và gửi bản phản biện & Có & Có & Có & Có \\ \hline
+Phản hồi của tác giả, thảo luận và vòng chỉnh sửa & Có tùy cấu hình & Có & Có & Có trong luồng đã xây dựng \\ \hline
+Quyết định và thông báo & Có & Có & Có & Chủ tọa quyết định; hệ thống quản lý trạng thái và thông báo \\ \hline
+Bản hoàn thiện sau chấp nhận & Có ở một số nền tảng & Có tùy quy trình & Có & Có trong phạm vi đề tài \\ \hline
+Đăng ký, thanh toán và trang thông tin sự kiện & Có ở một số gói hoặc qua tích hợp & Không phải trọng tâm chung & Có & Ngoài phạm vi đề tài \\ \hline
+\end{longtable}
+\endgroup
+
+So sánh cho thấy ConferenceSpace đặt các luồng hỗ trợ trong một vòng đời xét duyệt thống nhất, nơi trạng thái và quyền hạn được duy trì từ nộp bài đến quyết định và nộp bản hoàn thiện. Kết quả này xác nhận tính liền mạch của phạm vi thiết kế và tạo cơ sở xác định các luồng cần kiểm chứng trong chương đánh giá.
+
+\subsection{So sánh chiến lược AI và quy ước trách nhiệm}
+
+Bảng sau đối chiếu cơ chế xử lý, loại đầu ra và người xác nhận. Nội dung về PeerSubmit và Morressier dựa trên công bố của nhà cung cấp; cột ConferenceSpace trình bày quy ước thiết kế.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|P{0.16\textwidth}|P{0.24\textwidth}|P{0.27\textwidth}|P{0.27\textwidth}|}
+  \caption{So sánh chiến lược AI và quy ước trách nhiệm}\\
+\hline
+\TableHeader{Tác vụ} & \TableHeader{Chuẩn tham chiếu nghiệp vụ và Morressier} & \TableHeader{PeerSubmit} & \TableHeader{ConferenceSpace} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Tác vụ} & \TableHeader{Chuẩn tham chiếu nghiệp vụ và Morressier} & \TableHeader{PeerSubmit} & \TableHeader{ConferenceSpace} \\ \hline
+\endhead
+\hline
+\endfoot
+Nhập liệu và sàng lọc & Các nền tảng dùng biểu mẫu; Morressier tạo báo cáo sàng lọc để nhóm biên tập xem xét & Sàng lọc chất lượng, mức độ phù hợp, chủ đề và từ khóa & Submission Autofill tạo dữ liệu nháp; Submission Gating phân biệt lỗi theo quy tắc với cảnh báo nội dung \\ \hline
+Đối sánh phản biện & CMT cung cấp điểm TPMS; Morressier tạo danh sách để người tổ chức xác nhận & Gợi ý theo độ tương đồng và bộ lọc; Chủ tọa có thể ghi đè & Thuật toán xác định tạo điểm dưới các ràng buộc; Chủ tọa xác nhận hoặc ghi đè \\ \hline
+Phát hiện xung đột lợi ích & Dùng khai báo hoặc quy tắc; Morressier chặn một số trường hợp & Kiểm tra xung đột trong quá trình đối sánh & Kết hợp khai báo, dữ liệu hệ thống và đồ thị đồng tác giả; hiển thị căn cứ để Chủ tọa xem xét \\ \hline
+Hỗ trợ đọc bài nộp & Không phải chức năng cốt lõi chung & Tóm tắt và cảnh báo vấn đề chất lượng & Reviewer Initial Analysis cung cấp tóm tắt và điểm cần kiểm tra, không ghi vào biểu mẫu phản biện \\ \hline
+Rà soát bản phản biện & Cung cấp biểu mẫu và quy tắc nghiệp vụ & Chấm điểm và phát hiện nội dung không nhất quán & Review Quality Auditor cảnh báo vấn đề trong bản nháp để Phản biện viên xem xét \\ \hline
+Tổng hợp trước quyết định & Cung cấp bảng điểm, thảo luận và giao quyền quyết định cho Chủ tọa & Tạo bản tóm lược; tài liệu về quyền tạo phán quyết chưa thống nhất & Chair Decision Copilot tổng hợp bằng chứng và bất đồng; Chủ tọa quyết định \\ \hline
+\end{longtable}
+\endgroup
+
+So sánh cho thấy giá trị chiến lược của tự động hóa được quyết định bởi loại đầu ra và quyền xác nhận. ConferenceSpace dùng thuật toán xác định cho đối sánh và phát hiện xung đột lợi ích, nơi kết quả cần ổn định và có thể truy vết; các tác vụ tạo nội dung cung cấp bản nháp, tóm tắt hoặc cảnh báo để người có thẩm quyền kiểm tra. Cách phân lớp này gắn mức tự động hóa với hậu quả của tác vụ và trách nhiệm của từng vai trò.
+
+\subsection{Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}
+
+Do mẫu khảo sát có ít Chủ tọa và Phản biện viên, nhóm dùng báo cáo vận hành và chính sách học thuật để kiểm tra tính phù hợp của các yêu cầu; tỷ lệ khảo sát được diễn giải trong phạm vi mẫu đã thu thập. Các trường hợp HotCRP tại USENIX ATC 2020 và CMT/TPMS tại CVPR 2013 cùng cho thấy điểm phù hợp, xung đột lợi ích, khối lượng công việc và bước xác nhận là các thành phần riêng của quy trình phân công \cite{ch2ref58,ch2ref61}. ACM cũng yêu cầu khai báo xung đột tiềm ẩn nhưng giao cho Chủ tọa hoặc biên tập viên trách nhiệm đánh giá và xử lý \cite{ch2ref12}. Vì vậy, ConferenceSpace trình bày đồng thời điểm phù hợp, căn cứ xung đột và khối lượng công việc để Chủ tọa đánh giá phương án phân công trong một ngữ cảnh đầy đủ hơn.
+
+Các chính sách AI đều yêu cầu bảo mật bản thảo và giữ trách nhiệm ở con người, nhưng khác nhau về phạm vi cho phép. ICLR 2026 và ACM chấp nhận một số hình thức hỗ trợ khi người dùng tuân thủ yêu cầu khai báo và bảo mật \cite{ch2ref15,ch2ref40}; ICML 2025 và Nature Portfolio áp dụng giới hạn nghiêm ngặt hơn đối với việc xử lý bài nộp bằng AI tạo sinh \cite{ch2ref16,ch2ref41}. Do đó, chức năng AI dành cho Phản biện viên phải được cấu hình theo chính sách của từng hội nghị.
+
+Các thử nghiệm gần đây cung cấp mẫu kiểm soát bổ sung. Review Feedback Agent tại ICLR 2025 chỉ góp ý trên bản phản biện do con người viết và để Phản biện viên quyết định có cập nhật hay không \cite{ch2ref17,ch2ref18}. Thử nghiệm NeurIPS 2026 áp dụng cơ chế tự nguyện tham gia, không lưu dữ liệu và dùng công cụ để hỗ trợ hiểu bài thay vì viết phản biện hoặc thay thế phán đoán chuyên môn \cite{ch2ref19}. Tại thời điểm khảo sát, thử nghiệm chưa công bố kết quả nên chỉ được dùng làm tham chiếu về biện pháp kiểm soát.
+
+Từ các nguồn trên, nhóm xác lập ba yêu cầu: kết quả đối sánh và cảnh báo xung đột phải có căn cứ để Chủ tọa xác nhận; chức năng AI phải tuân theo chính sách của từng hội nghị; mỗi luồng hỗ trợ phải được đánh giá trong điều kiện sử dụng đã xác định.
+
+\section{Vấn đề thực tiễn và nguyên tắc giải pháp}
+
+\subsection{Các vấn đề thiết kế rút ra từ khảo sát và đối chiếu hiện trạng}
+
+Các nền tảng đã bao phủ phần lớn nghiệp vụ cốt lõi và tự động hóa đã xuất hiện ở nhiều công đoạn. Trọng tâm của đề tài là chọn cơ chế xử lý phù hợp với hậu quả của từng tác vụ, yêu cầu về tính ổn định và chủ thể chịu trách nhiệm. Từ đó, nhóm xác định năm vấn đề thiết kế.
+
+\textbf{Thứ nhất, giảm nhập liệu phải duy trì quyền kiểm soát của Tác giả.} Submission Autofill tạo siêu dữ liệu nháp; Tác giả sửa từng trường, xác nhận nội dung và quyết định thời điểm gửi.
+
+\textbf{Thứ hai, đối sánh phản biện và phát hiện xung đột lợi ích phải ổn định và có căn cứ.} Kết quả cần hiển thị điểm số, lý do và ràng buộc để Chủ tọa kiểm tra trước khi xác nhận \cite{ch2ref8,ch2ref53,ch2ref55}.
+
+\textbf{Thứ ba, nội dung hỗ trợ đọc và tổng hợp phải bám sát bằng chứng.} Hệ thống cần liên kết tóm tắt, cảnh báo và nhận định tổng hợp với nội dung nguồn để người dùng kiểm tra và nhận biết giới hạn.
+
+\textbf{Thứ tư, các luồng gần bước ra quyết định phải xác định rõ trách nhiệm học thuật.} AI cung cấp tóm tắt, cảnh báo và bản tổng hợp để hỗ trợ xem xét; Phản biện viên chịu trách nhiệm viết, chấm điểm và gửi bản phản biện, còn Chủ tọa chịu trách nhiệm về quyết định chấp nhận hoặc từ chối \cite{ch2ref15,ch2ref16,ch2ref17,ch2ref18}.
+
+\textbf{Thứ năm, trợ lý phục vụ nhiều vai trò phải tuân thủ quyền truy cập.} Lớp kiểm soát truy cập cấp cho Chatbot Agent đúng dữ liệu và công cụ tương ứng với vai trò, hội nghị và trạng thái của người dùng; mọi hành động của trợ lý được thực hiện trong phạm vi quyền đã xác lập.
+
+Năm vấn đề trên dẫn đến cách phân chia tác vụ thành nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ có kiểm soát.
+
+\subsection{Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}
+
+Bảng sau truy vết mỗi chức năng về nhu cầu hoặc vấn đề đã nhận diện; ranh giới trách nhiệm được quy định tại Mục 2.4.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|P{0.31\textwidth}|P{0.31\textwidth}|P{0.31\textwidth}|}
+  \caption{Liên kết nhu cầu và vấn đề thực tiễn với chức năng ConferenceSpace}\\
+\hline
+\TableHeader{Nhu cầu hoặc vấn đề thực tiễn} & \TableHeader{Định hướng trong ConferenceSpace} & \TableHeader{Cơ sở dẫn xuất} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Nhu cầu hoặc vấn đề thực tiễn} & \TableHeader{Định hướng trong ConferenceSpace} & \TableHeader{Cơ sở dẫn xuất} \\ \hline
+\endhead
+\hline
+\endfoot
+Biểu mẫu nộp bài dài và lặp lại & Submission Autofill trích xuất siêu dữ liệu và gợi ý chuyên đề & Khảo sát chung và nhóm Tác giả \\ \hline
+Thiếu kiểm tra lỗi sớm & Submission Gating kiểm tra trước khi bài đi vào phản biện & Khảo sát chung và nhu cầu Tác giả \\ \hline
+Khó kiểm soát đối sánh và xung đột lợi ích & Thuật toán cung cấp điểm đối sánh và cảnh báo nhiều lớp & Khảo sát Chủ tọa và đối chiếu nền tảng \\ \hline
+Cần hỗ trợ đọc hiểu ban đầu & Reviewer Initial Analysis cung cấp tóm tắt, điểm cần kiểm tra và căn cứ & Khảo sát Phản biện viên \\ \hline
+Cần rà soát bản nháp và tổng hợp nhiều ý kiến & Review Quality Auditor cảnh báo vấn đề; Chair Decision Copilot tổng hợp bằng chứng & Nhu cầu theo vai trò và bằng chứng bên ngoài \\ \hline
+Khó tìm hướng dẫn thao tác & Chatbot Agent hỗ trợ theo ngữ cảnh trong phạm vi quyền & Khảo sát chung \\ \hline
+Thông báo và trạng thái phân tán & Bảng điều khiển và thông báo tập trung & Khảo sát chung và nhóm Chủ tọa \\ \hline
+\end{longtable}
+\endgroup
+
+Bảng cho thấy mỗi chức năng đều được dẫn xuất từ một nhu cầu hoặc vấn đề cụ thể, qua đó giữ phạm vi giải pháp tập trung vào giá trị nghiệp vụ và rủi ro cần xử lý.
+
+\subsection{Nguyên tắc thiết kế từ các vấn đề đã xác định}
+
+\textbf{Nguyên tắc 1: Tách nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ.} Nghiệp vụ quản lý trạng thái, quyền hạn và hành động; thuật toán xác định xử lý đối sánh và xung đột lợi ích; AI hỗ trợ trích xuất, tóm tắt, rà soát và tổng hợp. Nghiệp vụ cốt lõi duy trì luồng thực hiện độc lập, còn đầu ra AI được bổ sung tại các điểm có giá trị hỗ trợ rõ ràng.
+
+\textbf{Nguyên tắc 2: Gợi ý quan trọng phải có căn cứ.} Điểm đối sánh, cảnh báo xung đột và nhận định tổng hợp phải kèm thông tin nguồn để người dùng kiểm tra trước khi hành động.
+
+\textbf{Nguyên tắc 3: Đánh giá theo bản chất của từng luồng.} Dữ liệu nháp, kiểm tra theo quy tắc, hỗ trợ đọc và tổng hợp bằng chứng cần các tiêu chí riêng, tránh dùng một thước đo chung cho mọi đầu ra.
+
+\section{Tổng hợp yêu cầu hệ thống}
+
+Mục này chuyển các nhu cầu và vấn đề thiết kế thành yêu cầu làm cơ sở cho thiết kế ở Chương 3.
+
+\subsection{Yêu cầu chức năng theo vai trò}
+
+\subsubsection{a) Yêu cầu cho Tác giả}
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|C{0.22\textwidth}|P{0.49\textwidth}|P{0.22\textwidth}|}
+  \caption{Yêu cầu chức năng dành cho Tác giả}\\
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+\endhead
+\hline
+\endfoot
+F-AUTHOR-01 & Tác giả có thể tìm kiếm và xem hội nghị, chuyên đề, hạn chót và lời mời nộp bài (CFP). & Khảo sát chung, Mục 2.1 \\ \hline
+F-AUTHOR-02 & Tác giả có thể nộp bài theo các bước khai báo thông tin, tác giả, tệp, xung đột lợi ích, xem lại và gửi. & Chuẩn nghiệp vụ, Mục 2.2 \\ \hline
+F-AUTHOR-03 & Submission Autofill trích xuất tiêu đề, tóm tắt, tác giả, cơ quan, thư điện tử và từ khóa từ PDF khi có thể. & Nhu cầu nhập liệu, Mục 2.1 \\ \hline
+F-AUTHOR-04 & Submission Autofill gợi ý chuyên đề từ danh sách đang hoạt động và siêu dữ liệu bài nộp. & Nhu cầu nhập liệu, Mục 2.1 \\ \hline
+F-AUTHOR-05 & Hệ thống kiểm tra sơ bộ và hiển thị lỗi hoặc cảnh báo trước khi Tác giả gửi bài. & Nhu cầu kiểm tra sớm, Mục 2.1 \\ \hline
+F-AUTHOR-06 & Tác giả có thể lưu, sửa hoặc rút bài, xem phản biện, gửi phản hồi và tải bản hoàn thiện sau chấp nhận. & Chuẩn nghiệp vụ, Mục 2.2 \\ \hline
+\end{longtable}
+\endgroup
+
+\subsubsection{b) Yêu cầu cho Phản biện viên}
+
+\begin{table}[H]
+\centering
+\caption{Yêu cầu chức năng dành cho Phản biện viên}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|C{0.22\textwidth}|P{0.52\textwidth}|P{0.19\textwidth}|}
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+F-REVIEWER-01 & Phản biện viên có thể chấp nhận hoặc từ chối lời mời và xem bài được phân công. & Chuẩn nghiệp vụ, Mục 2.2 \\ \hline
+F-REVIEWER-02 & Phản biện viên có thể xem bài, tệp, siêu dữ liệu, hạn chót và trạng thái phản biện. & Khảo sát chung, Mục 2.1 \\ \hline
+F-REVIEWER-03 & Phản biện viên có thể nhập điểm, nhận xét và mức độ tự tin, lưu nháp và gửi phản biện. & Chuẩn nghiệp vụ, Mục 2.2 \\ \hline
+F-REVIEWER-04 & Hệ thống cung cấp tóm tắt, điểm cần kiểm tra và căn cứ để hỗ trợ bước đọc ban đầu. & Khảo sát Phản biện viên \\ \hline
+F-REVIEWER-05 & Reviewer Initial Analysis hoạt động theo chính sách hội nghị và cung cấp nội dung tham khảo; Phản biện viên chịu trách nhiệm viết, chấm điểm và gửi bản phản biện. & Chính sách AI, Mục 2.2 \\ \hline
+F-REVIEWER-06 & Review Quality Auditor cảnh báo điểm thiếu căn cứ, quá ngắn hoặc không nhất quán trong bản nháp để Phản biện viên xem xét. & Vấn đề thiết kế, Mục 2.3 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{c) Yêu cầu cho Chủ tọa/Ban tổ chức}
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|C{0.22\textwidth}|P{0.52\textwidth}|P{0.19\textwidth}|}
+  \caption{Yêu cầu chức năng dành cho Chủ tọa và Ban tổ chức}\\
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+\endhead
+\hline
+\endfoot
+F-CHAIR-01 & Chủ tọa có thể cấu hình hội nghị, chuyên đề, hạn chót, biểu mẫu, hội đồng chương trình và chính sách. & Chuẩn nghiệp vụ, Mục 2.2 \\ \hline
+F-CHAIR-02 & Chủ tọa có bảng điều khiển về bài nộp, tiến độ, hạn chót, xung đột và công việc cần xử lý. & Khảo sát Chủ tọa \\ \hline
+F-CHAIR-03 & Hệ thống gợi ý Phản biện viên bằng thuật toán xác định và hiển thị điểm, lý do cùng ràng buộc. & Phân công có kiểm soát \cite{ch2ref11} \\ \hline
+F-CHAIR-04 & Hệ thống phát hiện xung đột qua trường hợp tự phản biện, khai báo, đồ thị đồng tác giả và dữ liệu học thuật bên ngoài khi phù hợp. & Đối chiếu xung đột \cite{ch2ref12,ch2ref13} \\ \hline
+F-CHAIR-05 & Chủ tọa có thể phân công thủ công, xác nhận hoặc ghi đè gợi ý và theo dõi tiến độ. & Vấn đề thiết kế, Mục 2.3 \\ \hline
+F-CHAIR-06 & Chair Decision Copilot tổng hợp bằng chứng, đồng thuận, bất đồng và vấn đề cần xem xét để Chủ tọa đưa ra quyết định. & Vấn đề thiết kế, Mục 2.3 \\ \hline
+\end{longtable}
+\endgroup
+
+\subsubsection{d) Yêu cầu chung}
+
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|C{0.22\textwidth}|P{0.52\textwidth}|P{0.19\textwidth}|}
+\hline
+\TableHeader{Mã} & \TableHeader{Yêu cầu} & \TableHeader{Cơ sở} \\ \hline
+F-COMMON-01 & Chatbot Agent hỗ trợ thao tác theo ngữ cảnh trong phạm vi quyền truy cập. & Khảo sát chung, Mục 2.1 \\ \hline
+F-COMMON-02 & Hệ thống cung cấp thông báo trong ứng dụng và cập nhật trạng thái kịp thời. & Khảo sát chung, Mục 2.1 \\ \hline
+F-COMMON-03 & Hệ thống phân quyền theo vai trò và ngăn truy cập dữ liệu ngoài phạm vi được cấp. & Chính sách bảo mật, Mục 2.2 \\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Yêu cầu phi chức năng}
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|P{0.25\textwidth}|P{0.69\textwidth}|}
+  \caption{Yêu cầu phi chức năng của ConferenceSpace}\\
+\hline
+\TableHeader{Nhóm yêu cầu} & \TableHeader{Nội dung} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Nhóm yêu cầu} & \TableHeader{Nội dung} \\ \hline
+\endhead
+\hline
+\endfoot
+Khả năng vận hành độc lập với AI & Nghiệp vụ cốt lõi duy trì luồng thực hiện đầy đủ; đầu ra AI bổ sung hỗ trợ tại các điểm đã xác định. \\ \hline
+Hiệu năng & Tác vụ tương tác phản hồi trong thời gian phù hợp; tác vụ kéo dài hiển thị trạng thái và thông báo kết quả. \\ \hline
+Bảo mật và dữ liệu & Hệ thống dùng HTTPS/TLS, xác thực và phân quyền; bảo vệ bản thảo và chỉ bật luồng AI khi chính sách cùng thỏa thuận xử lý dữ liệu cho phép. \\ \hline
+Khả năng giải thích & Điểm đối sánh, cảnh báo xung đột và nội dung AI hiển thị căn cứ để người dùng kiểm tra. \\ \hline
+Mức độ dễ sử dụng & Quy trình được tổ chức theo vai trò, tập trung trạng thái, thông báo lỗi rõ và cho phép chỉnh sửa trước khi gửi. \\ \hline
+Khả năng mở rộng & Thiết kế hỗ trợ nhiều hội nghị, chuyên đề, bài nộp và Phản biện viên, đồng thời cho phép tích hợp dữ liệu học thuật. \\ \hline
+Khả năng đánh giá & Luồng quan trọng lưu đầu vào, đầu ra, trạng thái, thời gian xử lý và dữ liệu truy vết cần thiết. \\ \hline
+\end{longtable}
+\endgroup
+
+\subsection{Nguyên tắc sử dụng AI có trách nhiệm}
+
+ConferenceSpace áp dụng ba nguyên tắc chung. Thứ nhất, quyền hạn được gắn với trách nhiệm: Tác giả xác nhận và gửi bài, Phản biện viên viết và gửi bản phản biện, Chủ tọa xác nhận phân công và quyết định kết quả. Thứ hai, hệ thống phân biệt nguồn dữ liệu, cung cấp căn cứ và cho phép người dùng sửa, bỏ qua hoặc ghi đè đầu ra hỗ trợ. Thứ ba, phạm vi sử dụng AI được cấu hình theo chính sách hội nghị và thỏa thuận xử lý dữ liệu; các biện pháp kiểm soát cụ thể được trình bày trong bảng quy ước trách nhiệm dưới đây \cite{ch2ref19}.
+
+\subsection{Quy ước trách nhiệm của các chức năng hỗ trợ}
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt plus \textwidth}
+\setlength{\LTright}{0pt plus \textwidth}
+\begin{longtable}{|P{0.14\textwidth}|P{0.20\textwidth}|P{0.14\textwidth}|P{0.25\textwidth}|P{0.20\textwidth}|}
+  \caption{Quy ước trách nhiệm của các chức năng hỗ trợ}\\
+\hline
+\TableHeader{Chức năng} & \TableHeader{Đầu ra và rủi ro chính} & \TableHeader{Chủ thể chịu trách nhiệm} & \TableHeader{Hành động được phép hoặc bắt buộc} & \TableHeader{Hành động bị cấm} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Chức năng} & \TableHeader{Đầu ra và rủi ro chính} & \TableHeader{Chủ thể chịu trách nhiệm} & \TableHeader{Hành động được phép hoặc bắt buộc} & \TableHeader{Hành động bị cấm} \\ \hline
+\endhead
+\hline
+\endfoot
+Submission Autofill & Siêu dữ liệu nháp; có thể trích xuất sai & Tác giả & Hiển thị nguồn, cho sửa và yêu cầu xác nhận & Tự gửi bài hoặc khóa dữ liệu nháp \\ \hline
+Submission Gating & Lỗi theo quy tắc và cảnh báo; có thể cảnh báo sai & Tác giả & Thực thi trường bắt buộc và phân biệt lỗi với cảnh báo & Dùng cảnh báo AI để tự loại bài \\ \hline
+Reviewer Matching & Xếp hạng và điểm phù hợp; có thể phân công sai & Chủ tọa & Hiển thị điểm, lý do, tải và xung đột để xem xét & Tự xác nhận phân công \\ \hline
+Xung đột lợi ích & Cảnh báo quan hệ; có thể bỏ sót xung đột & Chủ tọa & Hiển thị nguồn, loại quan hệ và giới hạn độ phủ & Khẳng định phát hiện đầy đủ hoặc tự kết luận ngoài quy tắc \\ \hline
+Reviewer Initial Analysis & Phân tích hỗ trợ đọc; có thể định hướng nhận định & Phản biện viên & Liên kết với bản thảo và yêu cầu đọc bài gốc & Tự điền, gửi biểu mẫu, chấm điểm hoặc khuyến nghị cuối cùng \\ \hline
+Review Quality Auditor & Cảnh báo bản nháp; có thể cản trở quyền gửi & Phản biện viên & Nêu vấn đề và căn cứ để người dùng xem xét & Tự chặn gửi, chấm điểm hoặc sửa phản biện \\ \hline
+Chair Decision Copilot & Tổng hợp bằng chứng; có thể ảnh hưởng phán quyết & Chủ tọa & Liên kết nhận định với nguồn và nêu câu hỏi cần xem xét & Tạo hoặc lưu phán quyết thay Chủ tọa \\ \hline
+Chatbot Agent & Câu trả lời và kết quả công cụ; có thể vượt quyền & Người dùng & Lớp trung gian giới hạn công cụ, dữ liệu và yêu cầu xác nhận & Truy cập trái quyền hoặc tự thực hiện hành động chưa xác nhận \\ \hline
+\end{longtable}
+\endgroup
+
+Các yêu cầu và quy ước trách nhiệm trên là cơ sở cho thiết kế ConferenceSpace ở Chương 3. Chương 4 trình bày phương pháp đánh giá và mức độ đáp ứng của từng nhóm yêu cầu trong phạm vi thực nghiệm.

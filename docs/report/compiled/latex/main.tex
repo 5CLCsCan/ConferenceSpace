@@ -14,9 +14,15 @@
 % \documentclass[oneside,a4paper,14pt,draft]{extreport}
 
 % Font tiếng Việt
-\usepackage[T5]{fontenc}
-\usepackage[utf8]{inputenc}
-\DeclareTextSymbolDefault{\DH}{T1}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T5]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \DeclareTextSymbolDefault{\DH}{T1}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+\fi
 
 % Tài liệu tham khảo
 %\usepackage[
@@ -42,7 +48,7 @@
 
 % Chèn và định dạng mã nguồn
 \usepackage{listings}
-\usepackage{color}
+\usepackage{xcolor}
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
@@ -92,7 +98,7 @@
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
-\newcommand{\TableHeader}[1]{\centering\arraybackslash\textbf{#1}}
+\newcommand{\TableHeader}[1]{\centering\arraybackslash #1}
 % Template bảng dùng lại:
 % - PrismTableCenter: bảng thường dùng với \captionof{table}, \TableCaptionSpace và tabular full border.
 % - PrismLongTable: bảng dài dùng với longtable, \LongTableCaptionSpace, \LongTableHeaderBorder và \LongTableFooterBorder.
@@ -199,26 +205,65 @@
 
 \begin{document}
 
-\ifdefined\ChapterTwoOnly
+\ifdefined\ChapterOneOnly
+  \pagenumbering{arabic}
+  \ifdefined\ChapterOneCutSource
+    \include{Chapter1/chapter1-cut}
+  \else
+    \include{Chapter1/chapter1}
+  \fi
+  \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+  \printbibliography[title={Tài liệu tham khảo}]
+\else\ifdefined\ChapterTwoOnly
   \pagenumbering{arabic}
   \setcounter{chapter}{1}
-  \include{Chapter2/chapter2}
+  \ifdefined\ChapterTwoCutSource
+    \include{Chapter2/chapter2-cut}
+  \else
+    \include{Chapter2/chapter2}
+  \fi
   \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
   \printbibliography[title={Tài liệu tham khảo}]
 \else\ifdefined\ChapterThreeOnly
   \pagenumbering{arabic}
   \setcounter{chapter}{2}
-  \ifdefined\ChapterThreeOverviewOnly
+  \ifdefined\ChapterThreeCutSource
+    \include{Chapter3/chapter3-cut}
+  \else\ifdefined\ChapterThreeFixSource
+    \include{Chapter3/chapter3-fix}
+  \else\ifdefined\ChapterThreeOverviewOnly
     \input{Chapter3/chapter3}
   \else
     \include{Chapter3/chapter3}
-  \fi
+  \fi\fi\fi
+  \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+  \begingroup
+  \sloppy
+  \printbibliography[title={Tài liệu tham khảo}]
+  \endgroup
 \else\ifdefined\ChapterFourOnly
   \pagenumbering{arabic}
   \setcounter{chapter}{3}
-  \include{Chapter4/chapter4}
+  \ifdefined\ChapterFourCutSource
+    \include{Chapter4/chapter4-cut}
+  \else\ifdefined\ChapterFourFixSource
+    \include{Chapter4/chapter4-fix}
+  \else
+    \include{Chapter4/chapter4}
+  \fi\fi
   \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+  \begingroup
+  \sloppy
   \printbibliography[title={Tài liệu tham khảo}]
+  \endgroup
+\else\ifdefined\ChapterFiveOnly
+  \pagenumbering{arabic}
+  \setcounter{chapter}{4}
+  \ifdefined\ChapterFiveCutSource
+    \include{Chapter5/chapter5-cut}
+  \else
+    \include{Chapter5/chapter5}
+  \fi
 \else
 
 \input{Title/title.tex}
@@ -291,6 +336,6 @@
 \addcontentsline{toc}{chapter}{Danh mục thuật ngữ và từ viết tắt}
 \include{Appendix/danh-muc-thuat-ngu}
 
-\fi\fi\fi
+\fi\fi\fi\fi\fi
 
 \end{document} 
