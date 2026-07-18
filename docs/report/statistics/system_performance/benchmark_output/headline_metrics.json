@@ -1,0 +1,22 @@
+{
+  "http_load": {
+    "total_requests": 45054,
+    "max_p95_ms": 117.6,
+    "crud_avg_ms": 51.8,
+    "crud_throughput_rps": 369,
+    "matching_throughput_rps": 572,
+    "coi_throughput_rps": 558,
+    "error_rate_pct": 0.0
+  },
+  "microbench": {
+    "coi_large_us": 653,
+    "matching_large_ms": 56,
+    "coi_small_us": 14.9,
+    "matching_small_us": 131
+  },
+  "resources": {
+    "bottleneck": "PostgreSQL",
+    "api_cpu_avg_pct": 28,
+    "postgres_cpu_avg_pct": 115
+  }
+}

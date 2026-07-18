@@ -1,0 +1,34 @@
+{
+  "source": "Semantic Scholar API (real data)",
+  "fetched_on": "2026-07-05",
+  "benchmark_suite": "backend/benchmarks/quality/",
+  "authors": 60,
+  "papers": 2565,
+  "reviewers": 60,
+  "loo_queries": 60,
+  "unique_topics": 14096,
+  "mean_topics_per_paper": 11.66,
+  "papers_per_author_mean": 42.75,
+  "papers_per_author_median": 34,
+  "papers_per_author_min": 2,
+  "papers_per_author_max": 200,
+  "seed_queries": [
+    "natural language processing",
+    "computer vision",
+    "graph neural networks",
+    "reinforcement learning",
+    "information retrieval",
+    "speech recognition",
+    "machine learning",
+    "deep learning"
+  ],
+  "ground_truth": {
+    "ranking": "leave-one-out authorship proxy",
+    "assignment": "intrinsic metrics (coverage, load, COI, score) vs baselines"
+  },
+  "caveats": [
+    "Leave-one-out assumes author is the best reviewer for their own paper (standard proxy, biased).",
+    "Lexical Jaccard on keyword sets has a sparse ceiling; absolute mean scores are low.",
+    "Dataset of 60 authors is small vs real large conferences; sufficient for relative algorithm comparison."
+  ]
+}

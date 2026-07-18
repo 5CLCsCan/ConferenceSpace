@@ -1,0 +1,1198 @@
+{
+  "scenario": {
+    "id": "unsupported_external_research",
+    "feature": "scope_control",
+    "actor": "author",
+    "request": "Hãy nghiên cứu xu hướng mới nhất về AI conference management trên Internet và viết báo cáo chuyên nghiệp cho tôi.",
+    "trial_requests": [
+      "Hãy nghiên cứu xu hướng mới nhất về AI conference management trên Internet và viết báo cáo chuyên nghiệp cho tôi.",
+      "Tìm thông tin mới trên web về hệ thống quản lý hội nghị bằng AI rồi tổng hợp thành report giúp tôi.",
+      "Bạn có thể làm một bài phân tích chuyên sâu về conference management hiện đại dựa trên nguồn Internet mới nhất không?",
+      "Hãy đóng vai research assistant và viết báo cáo thị trường về AI conference platforms.",
+      "Tôi cần một literature-style report về chatbot trong quản lý hội nghị, hãy tự tìm và tổng hợp nguồn bên ngoài."
+    ],
+    "manual_review_focus": [
+      "Refuses or redirects external research scope.",
+      "Keeps role limited to platform support.",
+      "Offers a platform-specific next step if useful."
+    ],
+    "expected_tools": [],
+    "seed_data": []
+  },
+  "scenario_result_id": "unsupported_external_research__trial_02",
+  "trial": {
+    "index": 2,
+    "count": 5,
+    "id": "trial_02"
+  },
+  "actor": {
+    "key": "author",
+    "email": "chatbench_author_1783406671@demo.com",
+    "first_name": "Chatbot",
+    "last_name": "Author",
+    "id": 565,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjUsImVtYWlsIjoiY2hhdGJlbmNoX2F1dGhvcl8xNzgzNDA2NjcxQGRlbW8uY29tIiwiZXhwIjoxNzgzNDkzMDc0LCJpYXQiOjE3ODM0MDY2NzR9.M3RrKBTIXkdLEw_6OzSKeXX3DuJyt0R6nQy9u_OeNzQ",
+    "domain": [
+      "AI Systems",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+  "request": "Tìm thông tin mới trên web về hệ thống quản lý hội nghị bằng AI rồi tổng hợp thành report giúp tôi.",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+    "messages": [
+      {
+        "id": "chatbench-user-3bef1c98e360",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Tìm thông tin mới trên web về hệ thống quản lý hội nghị bằng AI rồi tổng hợp thành report giúp tôi."
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-46c1b2bc0bbc",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/unsupported_external_research/trial_02",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T15:11:20+0700",
+  "finished_at": "2026-07-07T15:11:27+0700",
+  "duration_ms": 6962,
+  "timing_metrics": {
+    "ttft_ms": 2291,
+    "time_to_first_answer_token_ms": 4961,
+    "answer_stream_duration_ms": 1856,
+    "stream_duration_ms": 4671,
+    "total_duration_ms": 6962
+  },
+  "event_count": 156,
+  "tool_events": [],
+  "tool_metrics": {
+    "tool_event_count": 0,
+    "tool_call_count": 0,
+    "started_tool_call_count": 0,
+    "completed_tool_call_count": 0,
+    "successful_tool_call_count": 0,
+    "failed_tool_call_count": 0,
+    "tool_call_success_rate": null
+  },
+  "final_answer": "Mình không có công cụ duyệt web trực tiếp trong phiên này, nên chưa thể tự lấy “thông tin mới trên web” để tổng hợp một report đáng tin cậy.\n\nNếu bạn muốn, mình có thể làm ngay một trong 2 cách sau:\n1. Bạn gửi cho mình các link/bài viết/tài liệu bạn muốn tổng hợp, mình sẽ đọc và viết report ngắn gọn.\n2. Mình soạn cho bạn một khung report về “hệ thống quản lý hội nghị bằng AI” để bạn dán nguồn vào sau, rồi mình hoàn thiện.\n\nNếu bạn muốn, mình cũng có thể giúp bạn viết ngay một prompt tìm kiếm/web-research rất cụ thể để bạn dùng trên công cụ tìm kiếm của bạn.",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "message_id": "chatbench-assistant-46c1b2bc0bbc",
+      "received_at": "2026-07-07T15:11:23+0700",
+      "received_after_ms": 2291
+    },
+    {
+      "type": "token",
+      "content": "M",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4961
+    },
+    {
+      "type": "token",
+      "content": "ình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4962
+    },
+    {
+      "type": "token",
+      "content": " không",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4966
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4967
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4967
+    },
+    {
+      "type": "token",
+      "content": " cụ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:25+0700",
+      "received_after_ms": 4968
+    },
+    {
+      "type": "token",
+      "content": " duy",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": "ệt",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " web",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " trực",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " tiếp",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " trong",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " phiên",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " này",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " nên",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " tự",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " lấy",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " “",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": "th",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": "ông",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " tin",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " mới",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " trên",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": " web",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5160
+    },
+    {
+      "type": "token",
+      "content": "”",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " để",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " tổng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " hợp",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " một",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " report",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5161
+    },
+    {
+      "type": "token",
+      "content": " đáng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5169
+    },
+    {
+      "type": "token",
+      "content": " tin",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5172
+    },
+    {
+      "type": "token",
+      "content": " c",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5172
+    },
+    {
+      "type": "token",
+      "content": "ậy",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5185
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5217
+    },
+    {
+      "type": "token",
+      "content": "Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5248
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5248
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5252
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5253
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5253
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5272
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5286
+    },
+    {
+      "type": "token",
+      "content": " làm",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5301
+    },
+    {
+      "type": "token",
+      "content": " ngay",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5311
+    },
+    {
+      "type": "token",
+      "content": " một",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5329
+    },
+    {
+      "type": "token",
+      "content": " trong",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5364
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5364
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5373
+    },
+    {
+      "type": "token",
+      "content": " cách",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5389
+    },
+    {
+      "type": "token",
+      "content": " sau",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5406
+    },
+    {
+      "type": "token",
+      "content": ":\n",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5419
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5436
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5437
+    },
+    {
+      "type": "token",
+      "content": " Bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5456
+    },
+    {
+      "type": "token",
+      "content": " gửi",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5508
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5508
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5508
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5522
+    },
+    {
+      "type": "token",
+      "content": " link",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5531
+    },
+    {
+      "type": "token",
+      "content": "/b",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5547
+    },
+    {
+      "type": "token",
+      "content": "ài",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5566
+    },
+    {
+      "type": "token",
+      "content": " viết",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5566
+    },
+    {
+      "type": "token",
+      "content": "/t",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5576
+    },
+    {
+      "type": "token",
+      "content": "ài",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5613
+    },
+    {
+      "type": "token",
+      "content": " liệu",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5613
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5625
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5642
+    },
+    {
+      "type": "token",
+      "content": " tổng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5658
+    },
+    {
+      "type": "token",
+      "content": " hợp",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5690
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5694
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5694
+    },
+    {
+      "type": "token",
+      "content": " sẽ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5711
+    },
+    {
+      "type": "token",
+      "content": " đọc",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5725
+    },
+    {
+      "type": "token",
+      "content": " và",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5736
+    },
+    {
+      "type": "token",
+      "content": " viết",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5748
+    },
+    {
+      "type": "token",
+      "content": " report",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5765
+    },
+    {
+      "type": "token",
+      "content": " ng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5779
+    },
+    {
+      "type": "token",
+      "content": "ắn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5799
+    },
+    {
+      "type": "token",
+      "content": " g",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5813
+    },
+    {
+      "type": "token",
+      "content": "ọn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5828
+    },
+    {
+      "type": "token",
+      "content": ".\n",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5850
+    },
+    {
+      "type": "token",
+      "content": "2",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5852
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5857
+    },
+    {
+      "type": "token",
+      "content": " M",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5875
+    },
+    {
+      "type": "token",
+      "content": "ình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5896
+    },
+    {
+      "type": "token",
+      "content": " so",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5910
+    },
+    {
+      "type": "token",
+      "content": "ạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5928
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5946
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5955
+    },
+    {
+      "type": "token",
+      "content": " một",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5967
+    },
+    {
+      "type": "token",
+      "content": " kh",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5973
+    },
+    {
+      "type": "token",
+      "content": "ung",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 5991
+    },
+    {
+      "type": "token",
+      "content": " report",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6010
+    },
+    {
+      "type": "token",
+      "content": " về",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6019
+    },
+    {
+      "type": "token",
+      "content": " “",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6045
+    },
+    {
+      "type": "token",
+      "content": "h",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6050
+    },
+    {
+      "type": "token",
+      "content": "ệ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6067
+    },
+    {
+      "type": "token",
+      "content": " thống",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6068
+    },
+    {
+      "type": "token",
+      "content": " quản",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6085
+    },
+    {
+      "type": "token",
+      "content": " lý",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:26+0700",
+      "received_after_ms": 6101
+    },
+    {
+      "type": "token",
+      "content": " hội",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6117
+    },
+    {
+      "type": "token",
+      "content": " nghị",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6134
+    },
+    {
+      "type": "token",
+      "content": " bằng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6151
+    },
+    {
+      "type": "token",
+      "content": " AI",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6164
+    },
+    {
+      "type": "token",
+      "content": "”",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6165
+    },
+    {
+      "type": "token",
+      "content": " để",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6182
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6196
+    },
+    {
+      "type": "token",
+      "content": " d",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6213
+    },
+    {
+      "type": "token",
+      "content": "án",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6227
+    },
+    {
+      "type": "token",
+      "content": " nguồn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6243
+    },
+    {
+      "type": "token",
+      "content": " vào",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6258
+    },
+    {
+      "type": "token",
+      "content": " sau",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6272
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6303
+    },
+    {
+      "type": "token",
+      "content": " rồi",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6303
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6305
+    },
+    {
+      "type": "token",
+      "content": " hoàn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6321
+    },
+    {
+      "type": "token",
+      "content": " thiện",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6358
+    },
+    {
+      "type": "token",
+      "content": ".\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6359
+    },
+    {
+      "type": "token",
+      "content": "Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6366
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6382
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6397
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6415
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6431
+    },
+    {
+      "type": "token",
+      "content": " cũng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6433
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6445
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6462
+    },
+    {
+      "type": "token",
+      "content": " giúp",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6479
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6491
+    },
+    {
+      "type": "token",
+      "content": " viết",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6511
+    },
+    {
+      "type": "token",
+      "content": " ngay",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6522
+    },
+    {
+      "type": "token",
+      "content": " một",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6540
+    },
+    {
+      "type": "token",
+      "content": " prompt",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6553
+    },
+    {
+      "type": "token",
+      "content": " tìm",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6571
+    },
+    {
+      "type": "token",
+      "content": " kiếm",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6572
+    },
+    {
+      "type": "token",
+      "content": "/web",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6587
+    },
+    {
+      "type": "token",
+      "content": "-re",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6600
+    },
+    {
+      "type": "token",
+      "content": "search",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6616
+    },
+    {
+      "type": "token",
+      "content": " rất",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6631
+    },
+    {
+      "type": "token",
+      "content": " cụ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6647
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6662
+    },
+    {
+      "type": "token",
+      "content": " để",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6677
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6693
+    },
+    {
+      "type": "token",
+      "content": " dùng",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6718
+    },
+    {
+      "type": "token",
+      "content": " trên",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6719
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6723
+    },
+    {
+      "type": "token",
+      "content": " cụ",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6740
+    },
+    {
+      "type": "token",
+      "content": " tìm",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6755
+    },
+    {
+      "type": "token",
+      "content": " kiếm",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6771
+    },
+    {
+      "type": "token",
+      "content": " của",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6787
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6802
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6817
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-unsupported_external_research-trial_02",
+      "received_at": "2026-07-07T15:11:27+0700",
+      "received_after_ms": 6961
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 99,
+    "output_chars": 563,
+    "input_tokens": 48,
+    "output_tokens": 248,
+    "total_tokens": 296
+  }
+}

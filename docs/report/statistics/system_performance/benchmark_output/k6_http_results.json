@@ -1,0 +1,63 @@
+{
+  "source": "docs/report/compiled/markdown/chapter_5-danh-gia-thuc-nghiem.md (Bảng 5.2)",
+  "environment": {
+    "cpu_cores": 14,
+    "ram_gb": 48,
+    "stack": ["PostgreSQL", "Neo4j", "Redis", "Go API container"],
+    "virtual_users": 20,
+    "duration_per_scenario_s": 30
+  },
+  "seed": {
+    "conferences": 300,
+    "submissions": 15000,
+    "reviewer_conference_relations": 9000,
+    "seed_errors": 0
+  },
+  "scenarios": [
+    {
+      "scenario": "CRUD",
+      "scenario_vi": "CRUD",
+      "requests": 11110,
+      "throughput_rps": 369,
+      "median_ms": 46.2,
+      "p90_ms": 100.5,
+      "p95_ms": 117.6,
+      "max_ms": 403.6,
+      "avg_ms": 51.8,
+      "error_rate_pct": 0.0,
+      "description": "Đăng nhập, liệt kê hội nghị, bài nộp, người dùng — phụ thuộc PostgreSQL"
+    },
+    {
+      "scenario": "Matching",
+      "scenario_vi": "Đối sánh phản biện",
+      "requests": 17184,
+      "throughput_rps": 572,
+      "median_ms": 9.7,
+      "p90_ms": 50.8,
+      "p95_ms": 71.8,
+      "max_ms": 254.7,
+      "avg_ms": 19.0,
+      "error_rate_pct": 0.0,
+      "description": "Endpoint gợi ý / tự động phân công phản biện"
+    },
+    {
+      "scenario": "COI",
+      "scenario_vi": "Xung đột lợi ích",
+      "requests": 16760,
+      "throughput_rps": 558,
+      "median_ms": 9.5,
+      "p90_ms": 56.5,
+      "p95_ms": 79.3,
+      "max_ms": 293.9,
+      "avg_ms": 20.4,
+      "error_rate_pct": 0.0,
+      "description": "Endpoint kiểm tra COI, gồm truy vấn đồ thị Neo4j"
+    }
+  ],
+  "headline": {
+    "total_requests": 45054,
+    "max_p95_ms": 117.6,
+    "all_error_rates_zero": true,
+    "p95_under_120ms": true
+  }
+}

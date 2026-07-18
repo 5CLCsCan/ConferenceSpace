@@ -1,0 +1,2747 @@
+{
+  "scenario": {
+    "id": "public_conference_lookup",
+    "feature": "public_conference_lookup",
+    "actor": "author",
+    "request": "Hội nghị {conference_acronym} có thông tin public nào tôi có thể xem không?",
+    "trial_requests": [
+      "Hội nghị {conference_acronym} có thông tin public nào tôi có thể xem không?",
+      "Cho tôi xem các thông tin công khai đang có của hội nghị {conference_acronym}.",
+      "Tôi là author, hãy kiểm tra phần thông tin public của {conference_acronym} mà tôi có thể xem.",
+      "Hội nghị {conference_acronym} đang expose thông tin gì cho người dùng bình thường?",
+      "Tra cứu giúp tôi thông tin công khai của {conference_acronym}; không thêm deadline nếu hệ thống chưa có."
+    ],
+    "manual_review_focus": [
+      "Uses public or user-visible conference data.",
+      "Mentions the right conference.",
+      "Does not fabricate deadlines if none are stored."
+    ],
+    "expected_tools": [
+      "query_engine"
+    ],
+    "seed_data": [
+      "conference"
+    ]
+  },
+  "scenario_result_id": "public_conference_lookup__trial_02",
+  "trial": {
+    "index": 2,
+    "count": 5,
+    "id": "trial_02"
+  },
+  "actor": {
+    "key": "author",
+    "email": "chatbench_author_1783406671@demo.com",
+    "first_name": "Chatbot",
+    "last_name": "Author",
+    "id": 565,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1NjUsImVtYWlsIjoiY2hhdGJlbmNoX2F1dGhvcl8xNzgzNDA2NjcxQGRlbW8uY29tIiwiZXhwIjoxNzgzNDkzMDc0LCJpYXQiOjE3ODM0MDY2NzR9.M3RrKBTIXkdLEw_6OzSKeXX3DuJyt0R6nQy9u_OeNzQ",
+    "domain": [
+      "AI Systems",
+      "NLP"
+    ],
+    "password": "Demo@123"
+  },
+  "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+  "request": "Cho tôi xem các thông tin công khai đang có của hội nghị CB406671.",
+  "payload": {
+    "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+    "messages": [
+      {
+        "id": "chatbench-user-bbda0e800adf",
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Cho tôi xem các thông tin công khai đang có của hội nghị CB406671."
+          }
+        ]
+      }
+    ],
+    "trigger": "submit-message",
+    "message_id": "chatbench-assistant-b45a8cd1f95f",
+    "request_metadata": {
+      "client": "chatbot-benchmark-script",
+      "path": "/benchmark/chatbot/public_conference_lookup/trial_02",
+      "user_agent": "chatbot-benchmark-script/1.0"
+    }
+  },
+  "status": "passed_transport",
+  "error": "",
+  "started_at": "2026-07-07T15:07:52+0700",
+  "finished_at": "2026-07-07T15:08:07+0700",
+  "duration_ms": 15014,
+  "timing_metrics": {
+    "ttft_ms": 2282,
+    "time_to_first_answer_token_ms": 11500,
+    "answer_stream_duration_ms": 3382,
+    "stream_duration_ms": 12731,
+    "total_duration_ms": 15014
+  },
+  "event_count": 254,
+  "tool_events": [
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_bUBXjVNRQxq1bvJzIxYPj55Z",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_bUBXjVNRQxq1bvJzIxYPj55Z",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": {
+          "name": "public_conferences",
+          "description": "Public conference information visible in platform exploration and discovery flows",
+          "fields": [
+            {
+              "name": "abstract_submission_deadline",
+              "type": "datetime",
+              "description": "Abstract submission deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "camera_ready_deadline",
+              "type": "datetime",
+              "description": "Camera ready deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "cfp_text",
+              "type": "string",
+              "description": "Call for papers text",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "chair",
+              "type": "string",
+              "description": "Conference chair",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "co_chairs",
+              "type": "array",
+              "description": "Conference co-chairs",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Conference creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Conference description",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "domain",
+              "type": "array",
+              "description": "Conference domains",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "end_date",
+              "type": "datetime",
+              "description": "Conference end date",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "format",
+              "type": "string",
+              "description": "Conference format",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "full_paper_submission_deadline",
+              "type": "datetime",
+              "description": "Full paper submission deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "maximum_pages",
+              "type": "integer",
+              "description": "Maximum pages per submission",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "review_type",
+              "type": "string",
+              "description": "Conference review type",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "start_date",
+              "type": "datetime",
+              "description": "Conference start date",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Conference lifecycle status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission_type",
+              "type": "string",
+              "description": "Conference submission type",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "tracks",
+              "type": "array",
+              "description": "Conference tracks",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "venue",
+              "type": "string",
+              "description": "Conference venue",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to non-draft conferences.",
+            "Only public conference fields are exposed; private operational settings remain hidden."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "event": "tool_start",
+      "tool": "query_engine",
+      "tool_call_id": "call_Fo9WtVuFGnETNuuAYdzjAyaL",
+      "timestamp": null,
+      "args": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "event": "tool_end",
+      "tool": "query_engine",
+      "tool_call_id": "call_Fo9WtVuFGnETNuuAYdzjAyaL",
+      "timestamp": null,
+      "args": null,
+      "result": {
+        "resource": "public_conferences",
+        "rows": [
+          {
+            "abstract_submission_deadline": null,
+            "acronym": "CB406671",
+            "camera_ready_deadline": null,
+            "cfp_text": null,
+            "chair": "chatbench_chair_1783406671@demo.com",
+            "co_chairs": [],
+            "description": "Seed conference for script-first chatbot benchmark scenarios.",
+            "domain": [
+              "Artificial Intelligence",
+              "AI Systems",
+              "NLP",
+              "Computer Vision"
+            ],
+            "end_date": null,
+            "format": null,
+            "full_paper_submission_deadline": null,
+            "maximum_pages": null,
+            "review_type": null,
+            "start_date": null,
+            "status": "open",
+            "submission_type": null,
+            "title": "Chatbot Benchmark Conference 1783406671",
+            "tracks": [
+              "AI Systems",
+              "NLP",
+              "Computer Vision"
+            ],
+            "updated_at": "2026-07-07T13:44:34Z",
+            "venue": "Virtual Benchmark Lab"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 1,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to non-draft conferences.",
+            "Only public conference fields are exposed; private operational settings remain hidden."
+          ]
+        }
+      },
+      "error": null
+    }
+  ],
+  "tool_metrics": {
+    "tool_event_count": 4,
+    "tool_call_count": 2,
+    "started_tool_call_count": 2,
+    "completed_tool_call_count": 2,
+    "successful_tool_call_count": 2,
+    "failed_tool_call_count": 0,
+    "tool_call_success_rate": 1.0
+  },
+  "final_answer": "Đây là thông tin công khai mình tìm được cho hội nghị `CB406671`:\n\n- Tên: `Chatbot Benchmark Conference 1783406671`\n- Acronym: `CB406671`\n- Trạng thái: `open`\n- Mô tả: `Seed conference for script-first chatbot benchmark scenarios.`\n- Lĩnh vực: `Artificial Intelligence`, `AI Systems`, `NLP`, `Computer Vision`\n- Tracks: `AI Systems`, `NLP`, `Computer Vision`\n- Venue: `Virtual Benchmark Lab`\n- Chair: `chatbench_chair_1783406671@demo.com`\n- Co-chairs: không có\n- Cập nhật gần nhất: `2026-07-07T13:44:34Z`\n\nCác mục công khai hiện chưa có dữ liệu:\n- Deadline nộp abstract\n- Deadline nộp full paper\n- Deadline camera-ready\n- CFP text\n- Loại submission\n- Loại review\n- Format\n- Thời gian bắt đầu/kết thúc\n- Số trang tối đa\n\nNếu bạn muốn, mình có thể tiếp tục lọc thêm các hội nghị công khai tương tự theo lĩnh vực hoặc deadline.",
+  "parse_errors": [],
+  "raw_events": [
+    {
+      "type": "start",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "message_id": "chatbench-assistant-b45a8cd1f95f",
+      "received_at": "2026-07-07T15:07:54+0700",
+      "received_after_ms": 2282
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "tool_call_id": "call_bUBXjVNRQxq1bvJzIxYPj55Z",
+      "tool": "query_engine",
+      "input": {
+        "op": "describe",
+        "resource": "public_conferences"
+      },
+      "started_at": "2026-07-07T08:07:57.786515+00:00",
+      "received_at": "2026-07-07T15:07:57+0700",
+      "received_after_ms": 5744
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "tool_call_id": "call_bUBXjVNRQxq1bvJzIxYPj55Z",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:07:58.002711+00:00",
+      "result": {
+        "resource": {
+          "name": "public_conferences",
+          "description": "Public conference information visible in platform exploration and discovery flows",
+          "fields": [
+            {
+              "name": "abstract_submission_deadline",
+              "type": "datetime",
+              "description": "Abstract submission deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "acronym",
+              "type": "string",
+              "description": "Conference acronym",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike",
+                "in"
+              ]
+            },
+            {
+              "name": "camera_ready_deadline",
+              "type": "datetime",
+              "description": "Camera ready deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "cfp_text",
+              "type": "string",
+              "description": "Call for papers text",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "chair",
+              "type": "string",
+              "description": "Conference chair",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "co_chairs",
+              "type": "array",
+              "description": "Conference co-chairs",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "description": "Conference creation timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "description": "Conference description",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "domain",
+              "type": "array",
+              "description": "Conference domains",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "end_date",
+              "type": "datetime",
+              "description": "Conference end date",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "format",
+              "type": "string",
+              "description": "Conference format",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "full_paper_submission_deadline",
+              "type": "datetime",
+              "description": "Full paper submission deadline",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "id",
+              "type": "integer",
+              "description": "Conference ID",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "maximum_pages",
+              "type": "integer",
+              "description": "Maximum pages per submission",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "review_type",
+              "type": "string",
+              "description": "Conference review type",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "start_date",
+              "type": "datetime",
+              "description": "Conference start date",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Conference lifecycle status",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "in"
+              ],
+              "aggregates": [
+                "count"
+              ]
+            },
+            {
+              "name": "submission_type",
+              "type": "string",
+              "description": "Conference submission type",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Conference title",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            },
+            {
+              "name": "tracks",
+              "type": "array",
+              "description": "Conference tracks",
+              "selectable": true,
+              "filterable": false,
+              "groupable": false,
+              "sortable": false
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "description": "Conference update timestamp",
+              "selectable": true,
+              "filterable": true,
+              "groupable": false,
+              "sortable": true,
+              "operators": [
+                "gte",
+                "lte",
+                "gt",
+                "lt"
+              ]
+            },
+            {
+              "name": "venue",
+              "type": "string",
+              "description": "Conference venue",
+              "selectable": true,
+              "filterable": true,
+              "groupable": true,
+              "sortable": true,
+              "operators": [
+                "eq",
+                "like",
+                "ilike"
+              ]
+            }
+          ],
+          "policy_notes": [
+            "Rows are limited to non-draft conferences.",
+            "Only public conference fields are exposed; private operational settings remain hidden."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:07:58+0700",
+      "received_after_ms": 5960
+    },
+    {
+      "type": "tool_start",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "tool_call_id": "call_Fo9WtVuFGnETNuuAYdzjAyaL",
+      "tool": "query_engine",
+      "input": {
+        "op": "query",
+        "resource": "public_conferences",
+        "select": [
+          {
+            "field": "title"
+          },
+          {
+            "field": "acronym"
+          },
+          {
+            "field": "description"
+          },
+          {
+            "field": "domain"
+          },
+          {
+            "field": "tracks"
+          },
+          {
+            "field": "cfp_text"
+          },
+          {
+            "field": "submission_type"
+          },
+          {
+            "field": "review_type"
+          },
+          {
+            "field": "format"
+          },
+          {
+            "field": "venue"
+          },
+          {
+            "field": "start_date"
+          },
+          {
+            "field": "end_date"
+          },
+          {
+            "field": "full_paper_submission_deadline"
+          },
+          {
+            "field": "abstract_submission_deadline"
+          },
+          {
+            "field": "camera_ready_deadline"
+          },
+          {
+            "field": "maximum_pages"
+          },
+          {
+            "field": "status"
+          },
+          {
+            "field": "chair"
+          },
+          {
+            "field": "co_chairs"
+          },
+          {
+            "field": "updated_at"
+          }
+        ],
+        "filter": {
+          "acronym": {
+            "eq": "CB406671"
+          }
+        },
+        "limit": 1
+      },
+      "started_at": "2026-07-07T08:08:01.643080+00:00",
+      "received_at": "2026-07-07T15:08:01+0700",
+      "received_after_ms": 9600
+    },
+    {
+      "type": "tool_end",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "tool_call_id": "call_Fo9WtVuFGnETNuuAYdzjAyaL",
+      "tool": "query_engine",
+      "status": "output-available",
+      "finished_at": "2026-07-07T08:08:01.846801+00:00",
+      "result": {
+        "resource": "public_conferences",
+        "rows": [
+          {
+            "abstract_submission_deadline": null,
+            "acronym": "CB406671",
+            "camera_ready_deadline": null,
+            "cfp_text": null,
+            "chair": "chatbench_chair_1783406671@demo.com",
+            "co_chairs": [],
+            "description": "Seed conference for script-first chatbot benchmark scenarios.",
+            "domain": [
+              "Artificial Intelligence",
+              "AI Systems",
+              "NLP",
+              "Computer Vision"
+            ],
+            "end_date": null,
+            "format": null,
+            "full_paper_submission_deadline": null,
+            "maximum_pages": null,
+            "review_type": null,
+            "start_date": null,
+            "status": "open",
+            "submission_type": null,
+            "title": "Chatbot Benchmark Conference 1783406671",
+            "tracks": [
+              "AI Systems",
+              "NLP",
+              "Computer Vision"
+            ],
+            "updated_at": "2026-07-07T13:44:34Z",
+            "venue": "Virtual Benchmark Lab"
+          }
+        ],
+        "meta": {
+          "row_count": 1,
+          "limit": 1,
+          "offset": 0,
+          "policy_notes": [
+            "Rows are limited to non-draft conferences.",
+            "Only public conference fields are exposed; private operational settings remain hidden."
+          ]
+        }
+      },
+      "received_at": "2026-07-07T15:08:01+0700",
+      "received_after_ms": 9804
+    },
+    {
+      "type": "token",
+      "content": "Đ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11500
+    },
+    {
+      "type": "token",
+      "content": "ây",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11501
+    },
+    {
+      "type": "token",
+      "content": " là",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11504
+    },
+    {
+      "type": "token",
+      "content": " thông",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11530
+    },
+    {
+      "type": "token",
+      "content": " tin",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11543
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11543
+    },
+    {
+      "type": "token",
+      "content": " khai",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11543
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11563
+    },
+    {
+      "type": "token",
+      "content": " tìm",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11597
+    },
+    {
+      "type": "token",
+      "content": " được",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11609
+    },
+    {
+      "type": "token",
+      "content": " cho",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11622
+    },
+    {
+      "type": "token",
+      "content": " hội",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11623
+    },
+    {
+      "type": "token",
+      "content": " nghị",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11624
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11635
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11640
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11641
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11651
+    },
+    {
+      "type": "token",
+      "content": "`",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11677
+    },
+    {
+      "type": "token",
+      "content": ":\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11677
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11682
+    },
+    {
+      "type": "token",
+      "content": " T",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11693
+    },
+    {
+      "type": "token",
+      "content": "ên",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11709
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11724
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11741
+    },
+    {
+      "type": "token",
+      "content": "Chat",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11755
+    },
+    {
+      "type": "token",
+      "content": "bot",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11772
+    },
+    {
+      "type": "token",
+      "content": " Benchmark",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:03+0700",
+      "received_after_ms": 11787
+    },
+    {
+      "type": "token",
+      "content": " Conference",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12026
+    },
+    {
+      "type": "token",
+      "content": " ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12026
+    },
+    {
+      "type": "token",
+      "content": "178",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12031
+    },
+    {
+      "type": "token",
+      "content": "340",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "667",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": " Acr",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "onym",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12032
+    },
+    {
+      "type": "token",
+      "content": "CB",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": "406",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": "671",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": " Tr",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12033
+    },
+    {
+      "type": "token",
+      "content": "ạng",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12044
+    },
+    {
+      "type": "token",
+      "content": " thái",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12062
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12074
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12091
+    },
+    {
+      "type": "token",
+      "content": "open",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12106
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12121
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12150
+    },
+    {
+      "type": "token",
+      "content": " M",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12163
+    },
+    {
+      "type": "token",
+      "content": "ô",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12176
+    },
+    {
+      "type": "token",
+      "content": " t",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12185
+    },
+    {
+      "type": "token",
+      "content": "ả",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12214
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12222
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12236
+    },
+    {
+      "type": "token",
+      "content": "Seed",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12243
+    },
+    {
+      "type": "token",
+      "content": " conference",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12286
+    },
+    {
+      "type": "token",
+      "content": " for",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12286
+    },
+    {
+      "type": "token",
+      "content": " script",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12289
+    },
+    {
+      "type": "token",
+      "content": "-first",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12293
+    },
+    {
+      "type": "token",
+      "content": " chatbot",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12317
+    },
+    {
+      "type": "token",
+      "content": " benchmark",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12317
+    },
+    {
+      "type": "token",
+      "content": " scenarios",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12329
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12363
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12363
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12373
+    },
+    {
+      "type": "token",
+      "content": " L",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12389
+    },
+    {
+      "type": "token",
+      "content": "ĩnh",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12402
+    },
+    {
+      "type": "token",
+      "content": " vực",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12418
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12437
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12437
+    },
+    {
+      "type": "token",
+      "content": "Artificial",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12463
+    },
+    {
+      "type": "token",
+      "content": " Intelligence",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12473
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12483
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12504
+    },
+    {
+      "type": "token",
+      "content": "AI",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12515
+    },
+    {
+      "type": "token",
+      "content": " Systems",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12531
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12544
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12566
+    },
+    {
+      "type": "token",
+      "content": "N",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12570
+    },
+    {
+      "type": "token",
+      "content": "LP",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12584
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12595
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12611
+    },
+    {
+      "type": "token",
+      "content": "Computer",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12625
+    },
+    {
+      "type": "token",
+      "content": " Vision",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12648
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12656
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12672
+    },
+    {
+      "type": "token",
+      "content": " Tracks",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12691
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12691
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12703
+    },
+    {
+      "type": "token",
+      "content": "AI",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12720
+    },
+    {
+      "type": "token",
+      "content": " Systems",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12734
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12764
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12767
+    },
+    {
+      "type": "token",
+      "content": "N",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12817
+    },
+    {
+      "type": "token",
+      "content": "LP",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12817
+    },
+    {
+      "type": "token",
+      "content": "`,",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12817
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12817
+    },
+    {
+      "type": "token",
+      "content": "Computer",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12831
+    },
+    {
+      "type": "token",
+      "content": " Vision",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12845
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12862
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12876
+    },
+    {
+      "type": "token",
+      "content": " Venue",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12894
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12909
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12925
+    },
+    {
+      "type": "token",
+      "content": "Virtual",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12945
+    },
+    {
+      "type": "token",
+      "content": " Benchmark",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12945
+    },
+    {
+      "type": "token",
+      "content": " Lab",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:04+0700",
+      "received_after_ms": 12956
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 12971
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 12985
+    },
+    {
+      "type": "token",
+      "content": " Chair",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13002
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13018
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13036
+    },
+    {
+      "type": "token",
+      "content": "chat",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13048
+    },
+    {
+      "type": "token",
+      "content": "bench",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13070
+    },
+    {
+      "type": "token",
+      "content": "_ch",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13082
+    },
+    {
+      "type": "token",
+      "content": "air",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13082
+    },
+    {
+      "type": "token",
+      "content": "_",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13094
+    },
+    {
+      "type": "token",
+      "content": "178",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13109
+    },
+    {
+      "type": "token",
+      "content": "340",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13124
+    },
+    {
+      "type": "token",
+      "content": "667",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13141
+    },
+    {
+      "type": "token",
+      "content": "1",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13155
+    },
+    {
+      "type": "token",
+      "content": "@",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13171
+    },
+    {
+      "type": "token",
+      "content": "demo",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13186
+    },
+    {
+      "type": "token",
+      "content": ".com",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13202
+    },
+    {
+      "type": "token",
+      "content": "`\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13219
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13239
+    },
+    {
+      "type": "token",
+      "content": " Co",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13239
+    },
+    {
+      "type": "token",
+      "content": "-ch",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13250
+    },
+    {
+      "type": "token",
+      "content": "airs",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13265
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13281
+    },
+    {
+      "type": "token",
+      "content": " không",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13297
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13315
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13329
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13348
+    },
+    {
+      "type": "token",
+      "content": " C",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13349
+    },
+    {
+      "type": "token",
+      "content": "ập",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13362
+    },
+    {
+      "type": "token",
+      "content": " nhật",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13378
+    },
+    {
+      "type": "token",
+      "content": " gần",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13393
+    },
+    {
+      "type": "token",
+      "content": " nhất",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13407
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13423
+    },
+    {
+      "type": "token",
+      "content": " `",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13439
+    },
+    {
+      "type": "token",
+      "content": "202",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13455
+    },
+    {
+      "type": "token",
+      "content": "6",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13470
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13490
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13490
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13500
+    },
+    {
+      "type": "token",
+      "content": "07",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13516
+    },
+    {
+      "type": "token",
+      "content": "T",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13540
+    },
+    {
+      "type": "token",
+      "content": "13",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13564
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13574
+    },
+    {
+      "type": "token",
+      "content": "44",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13609
+    },
+    {
+      "type": "token",
+      "content": ":",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13617
+    },
+    {
+      "type": "token",
+      "content": "34",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13619
+    },
+    {
+      "type": "token",
+      "content": "Z",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13624
+    },
+    {
+      "type": "token",
+      "content": "`\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13639
+    },
+    {
+      "type": "token",
+      "content": "Các",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13644
+    },
+    {
+      "type": "token",
+      "content": " mục",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13666
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13674
+    },
+    {
+      "type": "token",
+      "content": " khai",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13685
+    },
+    {
+      "type": "token",
+      "content": " hiện",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13701
+    },
+    {
+      "type": "token",
+      "content": " chưa",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13716
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13732
+    },
+    {
+      "type": "token",
+      "content": " dữ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13749
+    },
+    {
+      "type": "token",
+      "content": " liệu",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13770
+    },
+    {
+      "type": "token",
+      "content": ":\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13770
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13780
+    },
+    {
+      "type": "token",
+      "content": " Deadline",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13794
+    },
+    {
+      "type": "token",
+      "content": " n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13812
+    },
+    {
+      "type": "token",
+      "content": "ộ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13826
+    },
+    {
+      "type": "token",
+      "content": "p",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13844
+    },
+    {
+      "type": "token",
+      "content": " abstract",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13858
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13874
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13891
+    },
+    {
+      "type": "token",
+      "content": " Deadline",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13894
+    },
+    {
+      "type": "token",
+      "content": " n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13907
+    },
+    {
+      "type": "token",
+      "content": "ộ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13921
+    },
+    {
+      "type": "token",
+      "content": "p",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13942
+    },
+    {
+      "type": "token",
+      "content": " full",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:05+0700",
+      "received_after_ms": 13952
+    },
+    {
+      "type": "token",
+      "content": " paper",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 13969
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 13984
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14006
+    },
+    {
+      "type": "token",
+      "content": " Deadline",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14019
+    },
+    {
+      "type": "token",
+      "content": " camera",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14036
+    },
+    {
+      "type": "token",
+      "content": "-ready",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14048
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14050
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14064
+    },
+    {
+      "type": "token",
+      "content": " CFP",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14082
+    },
+    {
+      "type": "token",
+      "content": " text",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14091
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14107
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14125
+    },
+    {
+      "type": "token",
+      "content": " Lo",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14138
+    },
+    {
+      "type": "token",
+      "content": "ại",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14158
+    },
+    {
+      "type": "token",
+      "content": " submission",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14179
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14179
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14187
+    },
+    {
+      "type": "token",
+      "content": " Lo",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14204
+    },
+    {
+      "type": "token",
+      "content": "ại",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14220
+    },
+    {
+      "type": "token",
+      "content": " review",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14234
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14250
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14266
+    },
+    {
+      "type": "token",
+      "content": " Format",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14278
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14297
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14298
+    },
+    {
+      "type": "token",
+      "content": " Th",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14311
+    },
+    {
+      "type": "token",
+      "content": "ời",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14328
+    },
+    {
+      "type": "token",
+      "content": " gian",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14343
+    },
+    {
+      "type": "token",
+      "content": " bắt",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14358
+    },
+    {
+      "type": "token",
+      "content": " đầu",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14375
+    },
+    {
+      "type": "token",
+      "content": "/k",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14389
+    },
+    {
+      "type": "token",
+      "content": "ết",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14409
+    },
+    {
+      "type": "token",
+      "content": " thúc",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14422
+    },
+    {
+      "type": "token",
+      "content": "\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14438
+    },
+    {
+      "type": "token",
+      "content": "-",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14438
+    },
+    {
+      "type": "token",
+      "content": " S",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14455
+    },
+    {
+      "type": "token",
+      "content": "ố",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14469
+    },
+    {
+      "type": "token",
+      "content": " trang",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14484
+    },
+    {
+      "type": "token",
+      "content": " tối",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14501
+    },
+    {
+      "type": "token",
+      "content": " đa",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14517
+    },
+    {
+      "type": "token",
+      "content": "\n\n",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14534
+    },
+    {
+      "type": "token",
+      "content": "Nếu",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14549
+    },
+    {
+      "type": "token",
+      "content": " bạn",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14550
+    },
+    {
+      "type": "token",
+      "content": " muốn",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14566
+    },
+    {
+      "type": "token",
+      "content": ",",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14581
+    },
+    {
+      "type": "token",
+      "content": " mình",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14599
+    },
+    {
+      "type": "token",
+      "content": " có",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14616
+    },
+    {
+      "type": "token",
+      "content": " thể",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14628
+    },
+    {
+      "type": "token",
+      "content": " tiếp",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14645
+    },
+    {
+      "type": "token",
+      "content": " tục",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14666
+    },
+    {
+      "type": "token",
+      "content": " lọ",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14666
+    },
+    {
+      "type": "token",
+      "content": "c",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14675
+    },
+    {
+      "type": "token",
+      "content": " thêm",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14691
+    },
+    {
+      "type": "token",
+      "content": " các",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14708
+    },
+    {
+      "type": "token",
+      "content": " hội",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14724
+    },
+    {
+      "type": "token",
+      "content": " nghị",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14738
+    },
+    {
+      "type": "token",
+      "content": " công",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14756
+    },
+    {
+      "type": "token",
+      "content": " khai",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14772
+    },
+    {
+      "type": "token",
+      "content": " tương",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14790
+    },
+    {
+      "type": "token",
+      "content": " tự",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14790
+    },
+    {
+      "type": "token",
+      "content": " theo",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14803
+    },
+    {
+      "type": "token",
+      "content": " lĩnh",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14821
+    },
+    {
+      "type": "token",
+      "content": " vực",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14834
+    },
+    {
+      "type": "token",
+      "content": " hoặc",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14851
+    },
+    {
+      "type": "token",
+      "content": " deadline",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14866
+    },
+    {
+      "type": "token",
+      "content": ".",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:06+0700",
+      "received_after_ms": 14883
+    },
+    {
+      "type": "done",
+      "thread_id": "chatbench-1783406671-1783411092-public_conference_lookup-trial_02",
+      "received_at": "2026-07-07T15:08:07+0700",
+      "received_after_ms": 15013
+    }
+  ],
+  "manual_review": {
+    "workflow_ok": "",
+    "grounding_ok": "",
+    "permission_ok": "",
+    "notes": ""
+  },
+  "token_usage": {
+    "method": "tiktoken",
+    "encoding": "cl100k_base",
+    "input_chars": 66,
+    "output_chars": 824,
+    "input_tokens": 26,
+    "output_tokens": 309,
+    "total_tokens": 335
+  }
+}
