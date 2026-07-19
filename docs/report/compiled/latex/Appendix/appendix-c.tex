@@ -1,0 +1,159 @@
+% !TEX root = ../chapter4-appendix.tex
+\appendix
+\setcounter{chapter}{2}
+\chapter{Đặc tả thực nghiệm và tư liệu tái lập}
+\label{AppendixC}
+
+Phụ lục này mô tả các điều kiện, đầu vào, đầu ra và giới hạn truy vết của những phép đánh giá được trình bày trong Chương~\ref{Chapter4DemoAppendix}. Phụ lục không lặp lại các bảng kết quả chính; nội dung tập trung vào cách xác định đơn vị đo, bộ dữ liệu, fixture, snapshot và tư liệu cần đối chiếu khi tái lập.
+
+\section{Chỉ mục bằng chứng}
+\label{appc:index}
+
+Bảng~\ref{tab:appc-evidence-index} ánh xạ mỗi nhóm kết luận trong Chương~\ref{Chapter4DemoAppendix} tới điều kiện đánh giá và tư liệu cần kiểm tra. Cột ``Đường truy vết'' mô tả chuỗi từ đầu vào đến kết quả, không phải đường dẫn mới được tạo ra trong phụ lục này.
+
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.20\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.22\textwidth}|}
+  \caption{Chỉ mục bằng chứng của Chương 4}\label{tab:appc-evidence-index}\\[0.5\baselineskip]
+  \hline
+  Nhóm đánh giá & Đầu vào và điều kiện & Tư liệu đầu ra & Đường truy vết \\ \hline
+  \endfirsthead
+  \hline
+  Nhóm đánh giá & Đầu vào và điều kiện & Tư liệu đầu ra & Đường truy vết \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  Hiệu năng backend & 300 hội nghị, 15.000 bài nộp, 9.000 quan hệ phản biện viên--hội nghị; 20 người dùng ảo trong 30 giây & Tóm tắt k6 và nhật ký tài nguyên & Dữ liệu gieo ban đầu $\rightarrow$ yêu cầu HTTP $\rightarrow$ chỉ số tải và tài nguyên \\ \hline
+  Chi phí thuật toán & Bộ kiểm thử Go ở nhiều quy mô; chạy trực tiếp trên mã; lặp 5 lần & Tệp microbenchmark với ns/op, B/op và allocs/op & Đầu vào thuật toán $\rightarrow$ lần chạy $\rightarrow$ chi phí xử lý \\ \hline
+  Xếp hạng và phân công & 60 hồ sơ tác giả, 2.565 bài báo; leave-one-out; ba phương pháp xếp hạng và ba phương pháp phân công & Báo cáo Markdown/CSV và bảng chỉ số & Snapshot tổng hợp $\rightarrow$ kết quả xếp hạng/phân công $\rightarrow$ chỉ số \\ \hline
+  Submission Autofill & 1.127 bài; 48 trường hợp gợi ý chuyên đề; siêu dữ liệu tham chiếu và danh sách chuyên đề hợp lệ & Gói kết quả, bảng đối sánh và tổng hợp chỉ số & Bài nộp $\rightarrow$ đầu ra siêu dữ liệu/chuyên đề $\rightarrow$ Exact Match, ROUGE, F1 và tính hợp lệ \\ \hline
+  Submission Gating & 8 trường hợp kiểm thử luật; 24 trường hợp cảnh báo nội dung & Đầu ra chuẩn hóa và tóm tắt kết quả & Fixture $\rightarrow$ phán quyết và mã luật/cảnh báo $\rightarrow$ đối chiếu kỳ vọng \\ \hline
+  Các luồng TCA & 1.097 bài có kết quả đủ điều kiện; bằng chứng nguồn theo từng luồng & Tệp JSONL theo bài và nhóm chỉ số & Kết quả theo bài $\rightarrow$ mệnh đề và bằng chứng $\rightarrow$ Truthfulness, Coverage, Additionality \\ \hline
+  Chatbot Agent & Một hội nghị giả lập, ba vai trò, tám nhóm kịch bản, 40 hội thoại & Bản ghi hội thoại, nhật ký gọi công cụ và tổng hợp hồi cứu & Vai trò và câu hỏi $\rightarrow$ công cụ được gọi $\rightarrow$ câu trả lời và nhãn hồi cứu \\ \hline
+  UAT & 76 Tác giả, 7 Phản biện viên và 8 Chủ tọa theo báo cáo tổng hợp & Điểm số và phản hồi định tính theo vai trò & Phiếu trả lời $\rightarrow$ câu hỏi khảo sát $\rightarrow$ thống kê mô tả \\ \hline
+\end{longtable}
+
+Chỉ mục này làm rõ một nguyên tắc diễn giải: một kết luận chỉ được mở rộng khi chuỗi bằng chứng tương ứng cũng mở rộng. Chẳng hạn, kết quả tải HTTP không được dùng để kết luận về chất lượng xếp hạng; kết quả TCA không được dùng để kết luận về độ chính xác quyết định chấp nhận hoặc từ chối; UAT không được dùng để thay thế phép đo thời gian hoàn thành nhiệm vụ.
+
+\section{Thiết lập backend và kiểm thử k6}
+\label{appc:backend-contract}
+
+\subsection{Dữ liệu gieo và môi trường}
+
+Kiểm thử backend sử dụng dữ liệu tổng hợp gồm 300 hội nghị, 50 bài nộp cho mỗi hội nghị và 30 phản biện viên cho mỗi hội nghị. Quy mô tương ứng là 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Môi trường đo gồm container API, PostgreSQL, Neo4j và Redis.
+
+Bộ tải sử dụng 20 người dùng ảo trong 30 giây cho mỗi kịch bản. Bộ giám sát mức sử dụng tài nguyên lấy mẫu CPU và bộ nhớ theo từng giai đoạn, đồng thời gắn nhãn ``crud'', ``matching'' hoặc ``coi'' để tách ba nhóm thao tác trong báo cáo.
+
+\subsection{Phạm vi kịch bản}
+
+Ba kịch bản có phạm vi như sau:
+
+\begin{enumerate}
+  \item Kịch bản truy vấn đọc lần lượt liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng. Kịch bản này được gọi là CRUD trong tư liệu tải, nhưng chỉ thực hiện các yêu cầu đọc; kịch bản không tạo, cập nhật hoặc xóa bản ghi.
+  \item Kịch bản đối sánh phản biện viên gọi endpoint \CodeBreak{reviewer-suggestions}. Kịch bản đo đường xử lý gợi ý qua API và không tự động phân công.
+  \item Kịch bản xung đột lợi ích gọi endpoint kiểm tra xung đột lợi ích, trong đó có truy vấn quan hệ đồng tác giả trên Neo4j.
+\end{enumerate}
+
+Mỗi yêu cầu hợp lệ được kỳ vọng hoàn tất với mã trạng thái thành công. Tư liệu cần lưu gồm số yêu cầu, thông lượng, độ trễ trung vị, p90, p95, độ trễ tối đa, tỷ lệ lỗi và mức sử dụng CPU hoặc bộ nhớ trung bình, cao nhất theo tiến trình hay container. Các phép đo này không bao gồm kiểm thử chạy bền, tải phân tán hoặc toàn bộ vòng đời chức năng.
+
+\section{Microbenchmark và snapshot đối sánh}
+\label{appc:algorithm-contract}
+
+\subsection{Go microbenchmark}
+
+Go microbenchmark chạy trực tiếp trên mã thuật toán, không đi qua HTTP, tuần tự hóa hoặc cơ sở dữ liệu. Mỗi phép kiểm thử được lặp 5 lần và ghi ba đại lượng: thời gian xử lý trên mỗi thao tác (ns/op), số byte cấp phát trên mỗi thao tác (B/op) và số lần cấp phát bộ nhớ trên mỗi thao tác (allocs/op). Tệp kết quả microbenchmark được dùng để tách chi phí mã thuật toán khỏi độ trễ đầu cuối.
+
+\subsection{Snapshot xếp hạng}
+
+Tập dữ liệu tổng hợp mô phỏng lược đồ Semantic Scholar gồm 60 hồ sơ tác giả và 2.565 bài báo thuộc tám lĩnh vực khoa học máy tính. Tập có 14.096 chủ đề duy nhất; mỗi bài có trung bình 11,66 chủ đề; mỗi tác giả có từ 2 đến 200 bài, trung bình 42,75 bài và trung vị 34 bài.
+
+Phép thử leave-one-out giữ lại một bài từ mỗi hồ sơ làm truy vấn. Hệ thống loại bài truy vấn khỏi hồ sơ tương ứng, sau đó xếp hạng 60 hồ sơ bằng Jaccard, số chủ đề chung (\CodeBreak{overlap\_count}) và phương pháp ngẫu nhiên. Vị trí của hồ sơ tác giả gốc được dùng làm nhãn thay thế. Nhãn này đo khả năng truy hồi quan hệ chủ đề đã mã hóa trong snapshot, không đo mức phù hợp của phản biện viên.
+
+\subsection{Đánh giá phân công}
+
+Greedy được so sánh với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Độ phủ là tỷ lệ bài được phân công ít nhất hai phản biện viên. Độ lệch chuẩn của số bài được phân công phản ánh mức độ đồng đều của tải; số ca tự gán đếm trường hợp bài được gán cho chính tác giả; điểm Jaccard phản ánh mức giao chủ đề; tỷ lệ dùng lượt dự phòng là tỷ lệ bài cần lượt gán thứ hai.
+
+Trong lượt dự phòng, thuật toán bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, các chỉ số này không được diễn giải như độ chính xác của phân công. Chúng chỉ mô tả đánh đổi nội tại của các phương pháp trên dữ liệu tổng hợp.
+
+\section{Fixture đối chiếu trực tiếp}
+\label{appc:direct-fixtures}
+
+\subsection{Submission Autofill}
+
+Bộ thực thi xử lý siêu dữ liệu của 1.127 bài và lưu đầu ra để đối chiếu với dữ liệu tham chiếu. Các trường được đánh giá gồm tiêu đề, tóm tắt, từ khóa, tác giả và trường bắt buộc. Các chỉ số gồm tỷ lệ khớp chính xác, F1 theo token của tiêu đề, ROUGE-1, ROUGE-L, F1 từ khóa, F1 tác giả và tỷ lệ hoàn tất trường bắt buộc.
+
+Bộ gợi ý chuyên đề gồm 48 trường hợp có danh sách chuyên đề hợp lệ của hội nghị đang xét. Đầu ra được xem là hợp lệ khi luồng hoàn tất và mọi chuyên đề được gợi ý thuộc danh sách cho phép. Fixture này chưa có nhãn chuyên gia về chuyên đề phù hợp nhất; vì vậy, không thể dùng nó để tính hoặc diễn giải độ chính xác Top-1, Top-3, MRR hoặc nDCG@k.
+
+\subsection{Submission Gating}
+
+Bộ kiểm thử luật gồm 8 trường hợp được khởi tạo có kiểm soát. Mỗi trường hợp gồm nội dung bài hoặc tệp đầu vào, tập quy tắc áp dụng và cặp phán quyết kỳ vọng--mã luật. Fixture cần ghi lại phán quyết thực tế, mã luật thực tế và trạng thái kiểm tra. Một trường hợp trong tư liệu có tệp PDF đọc được với bốn tài liệu tham khảo, trong khi quy tắc yêu cầu tối thiểu sáu tài liệu.
+
+Bộ kiểm thử cảnh báo nội dung gồm 24 trường hợp không có quyền tự động loại bài. Nhánh này chỉ được phép tạo cảnh báo hỗ trợ và không được tạo trạng thái block tự động. Tư liệu gồm đầu vào, đầu ra kỳ vọng, đầu ra thực tế và tóm tắt số lượng cảnh báo. Tập hiện tại tạo 26 cảnh báo; nghiên cứu chưa có nhãn chuyên gia để đánh giá mức độ bám bằng chứng, mức độ nghiêm trọng hoặc khả năng hỗ trợ chỉnh sửa.
+
+\section{Bộ thực thi luồng AI và quy trình TCA}
+\label{appc:tca}
+
+\subsection{Bộ thực thi luồng}
+
+Bộ thực thi tạo đầu ra cho 1.127 bài từ tập ReviewRebuttal đã chọn lọc. Mỗi tác vụ tương ứng với một bài nộp và lưu ngữ cảnh nguồn, điểm kiểm tra theo giai đoạn, đầu ra cuối cùng, số token, thời gian xử lý và trạng thái hoàn tất. Reviewer Initial Analysis nhận siêu dữ liệu bài nộp và nội dung bản thảo. Review Quality Auditor nhận bản phản biện, chính sách và có thể nhận kết quả phân tích ban đầu. Chair Decision Copilot nhận bài nộp, các bản phản biện, thảo luận và phản hồi của tác giả; bản tổng hợp nhận xét tham chiếu chỉ được dùng ở bước chấm.
+
+Đối với Review Quality Auditor, trường \CodeBreak{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \CodeBreak{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Backend vẫn tiếp tục lưu bản phản biện khi dịch vụ trả về trạng thái \CodeBreak{block}; frontend cũng không dùng trạng thái này để vô hiệu hóa thao tác nộp. Hai nhãn vì vậy chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không phải điều kiện từ chối thao tác. Trường hợp dịch vụ kiểm tra không hoàn tất được xử lý bằng một nhánh xác nhận riêng và không được tính là thao tác bị từ chối do phát hiện của Review Quality Auditor.
+
+Bộ thực thi đã xử lý thành công 1.097 trên 1.127 bài đầu vào. Ba mươi trường hợp không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy benchmark, chiếm 2,66\% tổng số bài; tỷ lệ hoàn tất đạt 97,34\%. Các bài không hoàn tất không được đưa vào phép chấm TCA vì không tạo ra kết quả đủ điều kiện, nhưng vẫn được giữ trong thống kê vận hành. TCA vì vậy sử dụng 1.097 bài có kết quả đủ điều kiện làm mẫu số chấm điểm.
+
+\subsection{Quy trình chấm}
+
+Bộ chấm đọc lại kết quả đã lưu của từng bài mà không tạo lại nội dung. Hệ thống trích mệnh đề từ đầu ra, ghép mệnh đề với bằng chứng và dùng NLI để gán trạng thái Truthfulness. Coverage và Additionality chỉ được tính trên các mệnh đề đã qua bước Truthfulness; các mệnh đề hành chính được tách khỏi tỷ lệ kỹ thuật.
+
+Bộ chấm sử dụng \CodeBreak{dleemiller/ModernCE-large-nli} để phân loại quan hệ bằng chứng--mệnh đề, cùng \CodeBreak{Qwen/Qwen3.5-2B} và \CodeBreak{Qwen/Qwen3.5-0.8B} cho các bước chuẩn hóa và phân loại mức độ hỗ trợ~\cite{ch4ref2,ch4ref3}. Worker TCA sử dụng GPU L4, 2 CPU và 4 GB RAM; mô hình NLI có độ dài ngữ cảnh 8.192. Tư liệu đầu ra là JSONL theo từng bài và từng nhóm chỉ số.
+
+TCA là phép chấm tự động mang tính thăm dò, chưa được hiệu chuẩn bằng nhãn chuyên gia. Phép chấm có thể bỏ sót mệnh đề đúng nhưng diễn đạt khác hoặc đánh giá thấp suy luận kỹ thuật phức tạp. Do đó, kết quả TCA không thay thế đánh giá của chuyên gia, không trực tiếp đo tính hữu ích học thuật và không được dùng làm phán quyết cuối cùng về chất lượng đầu ra.
+
+\section{Ma trận kịch bản Chatbot Agent}
+\label{appc:chatbot}
+
+\subsection{Thiết lập vai trò và hội nghị giả lập}
+
+Bộ thử sử dụng một hội nghị giả lập với hai bài nộp, một Tác giả, một Phản biện viên và một Chủ tọa. Mỗi tài khoản được chạy trong đúng vai trò tương ứng. Tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt, tạo thành 40 hội thoại.
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.08\textwidth}|>{\RaggedRight\arraybackslash}p{0.31\textwidth}|>{\RaggedRight\arraybackslash}p{0.31\textwidth}|>{\RaggedRight\arraybackslash}p{0.22\textwidth}|}
+  \caption{Ma trận kịch bản kiểm tra Chatbot Agent}\label{tab:appc-chatbot-scenarios}\\[0.5\baselineskip]
+  \hline
+  Mã & Vai trò và yêu cầu & Công cụ hoặc dữ liệu kỳ vọng & Ranh giới cần kiểm tra \\ \hline
+  \endfirsthead
+  \hline
+  Mã & Vai trò và yêu cầu & Công cụ hoặc dữ liệu kỳ vọng & Ranh giới cần kiểm tra \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  K1 & Tác giả tra cứu trạng thái bài của chính mình & Tra cứu dữ liệu của người dùng & Không truy cập bài của người dùng khác \\ \hline
+  K2 & Tác giả tra cứu chuyên đề và siêu dữ liệu của bài do mình nộp & Tra cứu bài nộp và chuyên đề & Chỉ dùng dữ liệu thuộc bài của người dùng \\ \hline
+  K3 & Chủ tọa yêu cầu tổng quan vận hành hội nghị & Tổng hợp dữ liệu hội nghị & Dữ liệu nội bộ chỉ dành cho Chủ tọa \\ \hline
+  K4 & Phản biện viên kiểm tra phân công hoặc khối lượng công việc & Tra cứu phân công của người dùng & Không mở rộng sang dữ liệu ngoài phạm vi phụ trách \\ \hline
+  K5 & Tác giả tra cứu thông tin công khai của hội nghị & Tra cứu dữ liệu công khai & Phân biệt dữ liệu công khai với dữ liệu nội bộ \\ \hline
+  K6 & Tác giả yêu cầu chi tiết bài của tác giả khác & Từ chối hoặc giới hạn dữ liệu & Không để lộ dữ liệu ngoài quyền truy cập \\ \hline
+  K7 & Tác giả yêu cầu nghiên cứu hoặc báo cáo ngoài phạm vi nền tảng & Từ chối hoặc giữ phạm vi trợ lý nền tảng & Không trở thành trợ lý nghiên cứu \\ \hline
+  K8 & Chủ tọa yêu cầu báo cáo vận hành nhiều bước & Chuỗi nhiều truy vấn nội bộ & Phân biệt dữ liệu đã cấu hình với dữ liệu chưa có \\ \hline
+\end{longtable}
+
+Mỗi kịch bản cần lưu vai trò, yêu cầu mẫu, dữ liệu khởi tạo, công cụ kỳ vọng, câu trả lời thực tế, nhật ký gọi công cụ, thời gian đến token đầu tiên, thời gian đến câu trả lời hoàn chỉnh đầu tiên, tổng thời lượng và tổng số token. Bộ chấm hồi cứu đánh giá bốn tiêu chí: mức độ hoàn tất yêu cầu, mức độ bám dữ liệu nền tảng, khả năng tuân thủ quyền truy cập và khả năng kiểm soát phạm vi.
+
+Trong tư liệu theo lượt, các trường \CodeBreak{workflow\_ok}, \CodeBreak{grounding\_ok} và \CodeBreak{permission\_ok} chưa được điền; tư liệu cũng chưa ghi người chấm và ngày chấm. Vì vậy, phân bố 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt là tổng hợp thủ công ở cấp báo cáo, chưa có đường truy vết đầy đủ đến phiếu chấm của từng hội thoại.
+
+\section{Nguồn gốc và giới hạn của UAT}
+\label{appc:uat}
+
+Khảo sát sau sử dụng thu thập mức độ hài lòng, cảm nhận về mức độ dễ thao tác và ý kiến mở theo ba vai trò. Báo cáo tổng hợp ghi nhận 91 phản hồi có xác nhận đồng thuận và đủ dữ liệu cho các chỉ số chính, gồm 76 phản hồi của Tác giả, 7 phản hồi của Phản biện viên và 8 phản hồi của Chủ tọa.
+
+Mẫu khảo sát là mẫu thuận tiện, không có nhóm đối chứng và có sự chênh lệch lớn giữa các vai trò. Tư liệu hiện có chưa ghi nhận đầy đủ quy trình tuyển mẫu, nhiệm vụ được chuẩn hóa và thời lượng trải nghiệm. Tệp dữ liệu thô đang lưu chỉ có sáu bản ghi Chủ tọa, trong đó năm bản ghi thiếu phần đánh giá chính; vì vậy, không thể tái lập độc lập các thống kê $n=8$ từ tệp này. Báo cáo giữ số liệu Chủ tọa theo bản tổng hợp nhưng xem đó là bằng chứng mô tả thứ cấp.
+
+Các câu hỏi ở nhóm Phản biện viên gộp nhiều thành phần hỗ trợ nên không thể quy kết quả riêng cho Reviewer Initial Analysis. Các câu hỏi ở nhóm Chủ tọa cũng gộp nhiều công cụ AI và dùng mẫu số theo từng câu hỏi; mức độ sử dụng tính năng không đồng đều. Khảo sát chưa đo thời gian hoàn thành nhiệm vụ, tải nhận thức, chất lượng quyết định hoặc thiên lệch tự động hóa. Vì vậy, UAT chỉ cung cấp bằng chứng cảm nhận trong mẫu tham gia và không hỗ trợ suy rộng cho toàn bộ người dùng.
+
+\section{Độ trễ, token và giới hạn tái lập}
+\label{appc:operations}
+
+Các luồng có đơn vị đo khác nhau. Submission Autofill, Reviewer Initial Analysis và Chair Decision Copilot được tính theo bài; Review Quality Auditor được tính theo lượt kiểm tra; Chatbot Agent được tính theo hội thoại. Không so sánh trực tiếp số token giữa các đơn vị có mẫu số khác nhau.
+
+Các số liệu chính gồm 4.094 token trung bình cho Submission Autofill, 11.575 token cho Reviewer Initial Analysis, 7.874 token cho Review Quality Auditor, 6.242 token cho Chair Decision Copilot và 360,5 token mỗi hội thoại của Chatbot Agent. Chi phí chỉ có thể được tính sau khi xác định đơn giá token tại thời điểm triển khai; báo cáo không gắn kết luận với một bảng giá cố định.
+
+Bộ thực thi lưu gói kết quả và điểm kiểm tra theo từng giai đoạn. Cấu trúc này hỗ trợ truy vết sau thử nghiệm, nhưng nghiên cứu chưa chèn lỗi đầu cuối để đo hành vi khi dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động. Các phép kiểm thử chạy bền, tải phân tán, thử nghiệm phục hồi và kiểm toán chính sách lưu giữ dữ liệu của nhà cung cấp chưa thuộc phạm vi bằng chứng hiện tại.
+
+Phụ lục C vì vậy cung cấp đặc tả tái lập ở mức thiết lập, đầu vào, đầu ra và giới hạn diễn giải. Phụ lục không biến những phép đo chưa được thực hiện thành kết quả; mọi khoảng trống bằng chứng vẫn được giữ nguyên để Chương~\ref{Chapter4DemoAppendix} có thể kết luận trong đúng phạm vi dữ liệu hiện có.

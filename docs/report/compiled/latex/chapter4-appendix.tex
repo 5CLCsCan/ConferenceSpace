@@ -1,0 +1,88 @@
+% !TEX program = xelatex
+% !BIB program = biber
+\documentclass[oneside,a4paper,14pt]{extreport}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T5]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+\fi
+
+\usepackage[style=ieee]{biblatex}
+\addbibresource{References/references.bib}
+\usepackage[unicode,hypertexnames=false]{hyperref}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{adjustbox}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{longtable}
+\usepackage{ragged2e}
+\usepackage{seqsplit}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage[top=30mm,bottom=25mm,left=30mm,right=20mm,includefoot]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}m{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcommand{\TableHeader}[1]{\centering\arraybackslash #1}
+\newcommand{\LongTableCaptionSpace}{\\[0.5\baselineskip]}
+\newcommand{\LongTableHeaderBorder}{\hline}
+\newcommand{\LongTableFooterBorder}{\hline}
+\newenvironment{PrismLongTable}{%
+  \begingroup
+  \setlength{\tabcolsep}{2pt}%
+  \setlength{\LTleft}{0pt}%
+  \setlength{\LTright}{0pt}%
+}{%
+  \endgroup%
+}
+
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\contentsname}{Mục lục}
+\renewcommand{\appendixname}{Phụ lục}
+
+\titleformat{\chapter}[display]
+  {\LARGE\bfseries}
+  {\chaptertitlename\ \thechapter}{18pt}{\huge}
+
+\onehalfspacing
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+\captionsetup[figure]{position=bottom,justification=centering,singlelinecheck=false}
+\captionsetup[table]{justification=centering,singlelinecheck=false}
+\setlength{\tabcolsep}{3pt}
+\graphicspath{{images/}{images/statistics/system_performance/}{images/statistics/deterministic_workflow/}{images/statistics/benchmark_output/}{../../statistics/system_performance/exports/figures/}{../../statistics/deterministic_workflow/exports/figures/}{../../statistics/ai_workflow_benchmarks/exports/figures/}}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{document}
+\pagenumbering{arabic}
+\setcounter{chapter}{3}
+\tableofcontents
+\clearpage
+
+\input{Chapter4/chapter4-demo-appendix}
+\input{Appendix/appendix-c}
+
+\printbibliography[heading=bibintoc,title={Tài liệu tham khảo}]
+\end{document}
