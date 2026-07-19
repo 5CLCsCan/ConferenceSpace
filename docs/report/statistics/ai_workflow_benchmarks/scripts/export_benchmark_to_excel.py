@@ -28,6 +28,10 @@ ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "benchmark_output"
 EXPORT = ROOT / "exports"
 FIGURES = EXPORT / "figures"
+REPORT_FIGSIZE = (8.0, 16.0 / 3.0)
+# Slightly larger 3:2 canvas for dense multi-category charts.
+REPORT_FIGSIZE_DENSE = (10.5, 7.0)
+REPORT_DPI = 375
 
 # Manual chatbot outcomes from chatbot_agent_benchmark_report.md (section 5.1 / 5.2)
 CHATBOT_MANUAL_OVERALL = {
@@ -45,24 +49,24 @@ CHATBOT_MANUAL_BY_SCENARIO = {
         "note": "4/5 đúng trạng thái; 1 lượt dừng ở lỗi truy vấn",
     },
     "author_submission_track": {
-        "label_vi": "Tra cứu track và metadata",
+        "label_vi": "Tra cứu track và metadata của bài nộp",
         "manual": "partial",
-        "note": "4/5 đúng track; 1 lượt nhầm định danh hội nghị",
+        "note": "4/5 lượt xác định đúng track; 1 lượt nhầm định danh hội nghị",
     },
     "chair_conference_overview": {
         "label_vi": "Tóm tắt tình hình hội nghị",
         "manual": "partial",
-        "note": "Tổng quan chính đúng; một số lượt thiếu reviewer count",
+        "note": "Tổng quan chính đúng; một số lượt thiếu số lượng phản biện viên",
     },
     "reviewer_assignment_check": {
-        "label_vi": "Kiểm tra workload reviewer",
+        "label_vi": "Kiểm tra khối lượng công việc phản biện",
         "manual": "pass",
-        "note": "5/5 kết luận đúng workload",
+        "note": "5/5 lượt kết luận đúng khối lượng công việc phản biện",
     },
     "public_conference_lookup": {
         "label_vi": "Tra cứu thông tin công khai",
         "manual": "partial",
-        "note": "4/5 đúng metadata; 1 lượt sai nguồn dữ liệu",
+        "note": "4/5 lượt trả đúng thông tin; 1 lượt dùng sai nguồn dữ liệu",
     },
     "permission_boundary_other_submission": {
         "label_vi": "Ranh giới quyền truy cập",
@@ -77,7 +81,7 @@ CHATBOT_MANUAL_BY_SCENARIO = {
     "chair_multi_step_platform_report": {
         "label_vi": "Báo cáo vận hành nhiều bước",
         "manual": "partial",
-        "note": "Chain tool tốt ở một số lượt; lỗi truy vấn làm thiếu chi tiết",
+        "note": "Một số lượt phối hợp tốt nhiều công cụ; lỗi truy vấn làm thiếu chi tiết",
     },
 }
 
@@ -95,6 +99,136 @@ PALETTE = {
     "fail": "#C44536",
     "warn": "#E09F3E",
     "block": "#C44536",
+}
+
+# Canonical operational resource table (Chapter 4 — Bảng độ trễ & token).
+# Source: workflow benchmark reports + chapter4.tex tab:ch4-ai-latency-token.
+# Token values are per work unit (paper / audit / conversation) — not comparable across rows.
+OPERATIONAL_RESOURCE_ROWS: list[dict[str, Any]] = [
+    {
+        "workflow_id": "autofill_metadata",
+        "label_vi": "Submission Autofill — trích xuất metadata",
+        "label_short": "Submission Autofill:\ntrích xuất metadata",
+        "label_chart": "Submission Autofill\nmetadata",
+        "unit": "bài",
+        "latency_mean_s": 10.64,
+        "latency_median_s": 9.32,
+        "latency_max_s": 102.20,
+        "token_mean": 4094.0,
+        "ops_mode": "interactive_with_timeout",
+        "ops_mode_vi": "Tương tác có giới hạn chờ và trạng thái xử lý",
+        "source": "submission_autofill_benchmark_report.md",
+    },
+    {
+        "workflow_id": "autofill_track",
+        "label_vi": "Submission Autofill — Track Recommendation",
+        "label_short": "Submission Autofill:\nTrack Recommendation",
+        "label_chart": "Submission Autofill\nTrack Recommendation",
+        "unit": "bài",
+        "latency_mean_s": 18.19,
+        "latency_median_s": 17.54,
+        "latency_max_s": 37.42,
+        "token_mean": None,
+        "ops_mode": "interactive_with_timeout",
+        "ops_mode_vi": "Tương tác có giới hạn chờ và trạng thái xử lý",
+        "source": "track_recommendation / chapter4.tex",
+    },
+    {
+        "workflow_id": "gating_rule",
+        "label_vi": "Submission Gating — Rule Check",
+        "label_short": "Submission Gating:\nRule Check",
+        "label_chart": "Submission Gating\nRule Check",
+        "unit": "lượt kiểm tra",
+        "latency_mean_s": 0.08,
+        "latency_median_s": 0.09,
+        "latency_max_s": 0.14,
+        "token_mean": None,
+        "ops_mode": "sync",
+        "ops_mode_vi": "Đồng bộ",
+        "source": "submission_gating_benchmark_report.md",
+    },
+    {
+        "workflow_id": "gating_llm",
+        "label_vi": "Submission Gating — LLM Steering",
+        "label_short": "Submission Gating:\nLLM Steering",
+        "label_chart": "Submission Gating\nLLM Steering",
+        "unit": "lượt kiểm tra",
+        "latency_mean_s": 11.83,
+        "latency_median_s": 11.47,
+        "latency_max_s": 19.64,
+        "token_mean": None,
+        "ops_mode": "non_blocking",
+        "ops_mode_vi": "Xử lý song song, không chặn thao tác",
+        "source": "submission_gating_benchmark_report.md",
+    },
+    {
+        "workflow_id": "reviewer_initial_analysis",
+        "label_vi": "Reviewer Initial Analysis",
+        "label_short": "Reviewer Initial\nAnalysis",
+        "label_chart": "Reviewer Initial\nAnalysis",
+        "unit": "bài",
+        "latency_mean_s": 39.18,
+        "latency_median_s": 37.53,
+        "latency_max_s": 126.36,
+        "token_mean": 11575.0,
+        "ops_mode": "background",
+        "ops_mode_vi": "Xử lý nền hoặc chạy trước",
+        "source": "reviewer_initial_analysis_benchmark_report.md",
+    },
+    {
+        "workflow_id": "review_quality_auditor",
+        "label_vi": "Review Quality Auditor",
+        "label_short": "Review Quality\nAuditor",
+        "label_chart": "Review Quality\nAuditor",
+        "unit": "lượt kiểm tra",
+        "latency_mean_s": 15.55,
+        "latency_median_s": 14.63,
+        "latency_max_s": 123.67,
+        "token_mean": 7874.0,
+        "ops_mode": "background",
+        "ops_mode_vi": "Xử lý nền và hiển thị trạng thái",
+        "source": "review_quality_auditor_benchmark_report.md",
+    },
+    {
+        "workflow_id": "chair_decision_copilot",
+        "label_vi": "Chair Decision Copilot",
+        "label_short": "Chair Decision\nCopilot",
+        "label_chart": "Chair Decision\nCopilot",
+        "unit": "bài",
+        "latency_mean_s": 21.68,
+        "latency_median_s": 20.59,
+        "latency_max_s": 116.74,
+        "token_mean": 6242.0,
+        "ops_mode": "background",
+        "ops_mode_vi": "Xử lý nền hoặc chạy trước",
+        "source": "chair_decision_copilot_benchmark_report.md",
+    },
+    {
+        "workflow_id": "chatbot_agent",
+        "label_vi": "Chatbot Agent",
+        "label_short": "Chatbot\nAgent",
+        "label_chart": "Chatbot\nAgent",
+        "unit": "hội thoại",
+        "latency_mean_s": 26.53,
+        "latency_median_s": None,
+        "latency_max_s": 57.89,
+        "token_mean": 360.5,
+        "ops_mode": "streaming",
+        "ops_mode_vi": "Phản hồi từng phần và hiển thị trạng thái tra cứu",
+        "source": "chatbot_agent_benchmark_report.md",
+        "note": "Độ trễ cao nhất là giá trị của nhóm kịch bản chậm nhất, không phải giá trị cao nhất của một hội thoại riêng lẻ.",
+    },
+]
+
+# Chatbot response-stage metrics (same report as Table 4.7 chatbot row).
+CHATBOT_RESPONSE_STAGES: dict[str, float] = {
+    "ttft_s": 2.36,
+    "first_answer_token_s": 23.02,
+    "total_duration_s": 26.53,
+    "stream_duration_s": 24.17,
+    "tool_calls_total": 128,
+    "tool_calls_failed": 31,
+    "tool_success_rate_pct": 75.78,
 }
 
 
@@ -632,10 +766,20 @@ def _bar(
         )
 
 
-def save_fig(fig, name: str) -> Path:
+def save_fig(
+    fig,
+    name: str,
+    *,
+    figsize: tuple[float, float] = REPORT_FIGSIZE,
+    layout_rect: tuple[float, float, float, float] = (0.04, 0.07, 0.98, 0.96),
+    apply_tight_layout: bool = True,
+) -> Path:
+    """Save a sharp, fixed-size 3:2 PNG for stable LaTeX placement."""
     path = FIGURES / name
-    fig.tight_layout()
-    fig.savefig(path, dpi=180, bbox_inches="tight", facecolor="white")
+    fig.set_size_inches(*figsize, forward=True)
+    if apply_tight_layout:
+        fig.tight_layout(rect=layout_rect)
+    fig.savefig(path, dpi=REPORT_DPI, facecolor="white")
     plt.close(fig)
     return path
 
@@ -658,9 +802,9 @@ def chart_overview_case_counts(
     labels = [
         "Bộ thực thi\nluồng AI",
         "Bộ đánh giá\nTCA",
-        "Gợi ý\nchuyên đề",
-        "Gating\n(luật)",
-        "Gating\n(nội dung)",
+        "Track\nRecommendation",
+        "Submission Gating\n(Rule Check)",
+        "Submission Gating\n(LLM Steering)",
         "Chatbot\nAgent",
     ]
     values = [runner_n, tca_n, track_n, rule_n, llm_n, chat_n]
@@ -672,25 +816,27 @@ def chart_overview_case_counts(
         PALETTE["amber"],
         PALETTE["ink"],
     ]
-    fig = plt.figure(figsize=(11.2, 6.2))
-    ax = fig.add_axes([0.10, 0.38, 0.86, 0.52])
+    fig = plt.figure(figsize=REPORT_FIGSIZE_DENSE)
+    # Chart occupies the upper half only; x-tick labels need free space below the axes.
+    ax = fig.add_axes([0.09, 0.52, 0.86, 0.40])
     x = range(len(labels))
     bars = ax.bar(list(x), values, color=colors, edgecolor="white", linewidth=0.6, width=0.68)
     ax.set_xticks(list(x))
-    ax.set_xticklabels(labels, fontsize=12)
+    ax.set_xticklabels(labels, fontsize=11)
     ax.set_ylabel("Số đơn vị", fontsize=12)
     ax.tick_params(axis="y", labelsize=11)
+    ax.tick_params(axis="x", pad=6)
     ax.set_title(
         "Quy mô các bộ đánh giá luồng AI",
         fontsize=15,
         fontweight="bold",
         color=PALETTE["ink"],
-        pad=10,
+        pad=12,
     )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ymax = max(values) * 1.12 if values else 1
+    ymax = max(values) * 1.14 if values else 1
     ax.set_ylim(0, ymax)
     for bar, val in zip(bars, values):
         ax.text(
@@ -704,23 +850,25 @@ def chart_overview_case_counts(
             color=PALETTE["ink"],
         )
 
-    # Note under chart: dual-corpus model (Chapter 4)
     note_lines = [
         "• Bộ thực thi luồng AI (1.127 bài): tập đầu vào chung để chạy các luồng AI, ghi hiệu năng, tài nguyên (thời gian, token) và tạo đầu ra.",
         "• Bộ đánh giá TCA (1.097 gói): đánh giá chung độ chính xác, độ trung thực, độ đáng tin cậy và tiềm năng của các luồng AI.",
-        "• Bộ đánh giá chuyên biệt: gợi ý chuyên đề, gating và chatbot — mẫu số riêng, không gộp với 1.127 bài.",
+        "• Bộ đánh giá chuyên biệt: Track Recommendation, Submission Gating và Chatbot Agent — mẫu số riêng, không gộp với 1.127 bài.",
     ]
-    y = 0.28
-    fig.text(0.10, y, "Chú giải", fontsize=12, fontweight="bold", color=PALETTE["ink"])
-    y -= 0.048
+    # Note band sits well below the two-line x-tick labels (axes bottom = 0.52).
+    fig.text(0.09, 0.28, "Chú giải", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    y = 0.22
     for line in note_lines:
-        fig.text(0.10, y, line, fontsize=11, color=PALETTE["slate"])
-        y -= 0.042
+        wrapped = "\n".join(textwrap.wrap(line, width=105))
+        fig.text(0.09, y, wrapped, fontsize=10, color=PALETTE["slate"], linespacing=1.3, va="top")
+        y -= 0.065
 
-    path = FIGURES / "fig01_overview_case_counts.png"
-    fig.savefig(path, dpi=200, facecolor="white", bbox_inches="tight", pad_inches=0.25)
-    plt.close(fig)
-    return path
+    return save_fig(
+        fig,
+        "fig01_overview_case_counts.png",
+        figsize=REPORT_FIGSIZE_DENSE,
+        apply_tight_layout=False,
+    )
 
 
 def chart_runner_by_conference(auto_df: pd.DataFrame) -> Path:
@@ -750,7 +898,7 @@ def chart_runner_by_conference(auto_df: pd.DataFrame) -> Path:
     top4 = set(counts.sort_values(ascending=False).head(4).index.tolist())
     colors = [PALETTE["coral"] if lab in top4 else PALETTE["navy"] for lab in labels]
 
-    fig = plt.figure(figsize=(11.2, 5.8))
+    fig = plt.figure(figsize=REPORT_FIGSIZE)
     ax = fig.add_axes([0.30, 0.14, 0.62, 0.74])
     y = range(len(labels))
     ax.barh(list(y), values, color=colors, edgecolor="white", linewidth=0.5, height=0.72)
@@ -759,7 +907,7 @@ def chart_runner_by_conference(auto_df: pd.DataFrame) -> Path:
     ax.set_xlabel("Số bài", fontsize=12)
     ax.tick_params(axis="x", labelsize=11)
     ax.set_title(
-        "Phân bố 1.127 bài đầu vào theo hội nghị / chuyên đề",
+        "Phân bố 1.127 bài đầu vào theo hội nghị / track",
         fontsize=15,
         fontweight="bold",
         color=PALETTE["ink"],
@@ -798,34 +946,36 @@ def chart_runner_by_conference(auto_df: pd.DataFrame) -> Path:
         color=PALETTE["slate"],
     )
 
-    path = FIGURES / "fig01b_runner_by_conference.png"
-    fig.savefig(path, dpi=200, facecolor="white", bbox_inches="tight", pad_inches=0.25)
-    plt.close(fig)
-    return path
+    return save_fig(
+        fig,
+        "fig01b_runner_by_conference.png",
+        apply_tight_layout=False,
+    )
 
 
 def chart_gating_rule(rule_df: pd.DataFrame, rule_summary: dict[str, Any]) -> Path:
-    labels = ["Verdict\naccuracy", "Rule-ID\nrecall", "False\nblock"]
+    labels = ["Verdict\nAccuracy", "Rule-ID\nRecall", "False Block\nCount"]
     values = [
         100.0 * float(rule_summary.get("blocking_verdict_accuracy") or 0),
         100.0 * float(rule_summary.get("rule_id_recall") or 0),
         float(rule_summary.get("false_block_count") or 0),
     ]
     colors = [PALETTE["pass"], PALETTE["mint"], PALETTE["fail"]]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2))
-    _bar(axes[0], labels, values, colors, "Giá trị", "Submission Gating — Rule check", "{:.0f}", 0)
+    fig, axes = plt.subplots(1, 2, figsize=REPORT_FIGSIZE)
+    _bar(axes[0], labels, values, colors, "Giá trị đo", "Submission Gating — Rule Check", "{:.0f}", 0)
 
     verdict_counts = rule_df["actual_verdict"].value_counts()
     order = [v for v in ["pass", "warn", "block"] if v in verdict_counts.index]
+    display_labels = {"pass": "pass", "warn": "warn", "block": "block"}
     v_colors = {"pass": PALETTE["pass"], "warn": PALETTE["warn"], "block": PALETTE["block"]}
     axes[1].bar(
-        order,
+        [display_labels[v] for v in order],
         [int(verdict_counts[v]) for v in order],
         color=[v_colors[v] for v in order],
         edgecolor="white",
     )
-    axes[1].set_title("Phân bố actual_verdict", fontsize=12, fontweight="bold", color=PALETTE["ink"])
-    axes[1].set_ylabel("Số case")
+    axes[1].set_title("Verdict Distribution", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    axes[1].set_ylabel("Số trường hợp")
     axes[1].spines["top"].set_visible(False)
     axes[1].spines["right"].set_visible(False)
     for i, v in enumerate(order):
@@ -834,22 +984,27 @@ def chart_gating_rule(rule_df: pd.DataFrame, rule_summary: dict[str, Any]) -> Pa
 
 
 def chart_gating_llm(llm_df: pd.DataFrame, llm_summary: dict[str, Any]) -> Path:
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2))
+    fig, axes = plt.subplots(1, 2, figsize=REPORT_FIGSIZE)
     verdict_counts = llm_df["verdict"].value_counts()
     order = [v for v in ["pass", "warn", "block"] if v in verdict_counts.index]
+    display_labels = {"pass": "pass", "warn": "warn", "block": "block"}
     v_colors = {"pass": PALETTE["pass"], "warn": PALETTE["warn"], "block": PALETTE["block"]}
-    axes[0].bar(order, [int(verdict_counts[v]) for v in order], color=[v_colors[v] for v in order])
-    axes[0].set_title("LLM steering — verdict", fontsize=12, fontweight="bold", color=PALETTE["ink"])
-    axes[0].set_ylabel("Số finding/row")
+    axes[0].bar(
+        [display_labels[v] for v in order],
+        [int(verdict_counts[v]) for v in order],
+        color=[v_colors[v] for v in order],
+    )
+    axes[0].set_title("Submission Gating — LLM Steering", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    axes[0].set_ylabel("Số phát hiện")
     axes[0].spines["top"].set_visible(False)
     axes[0].spines["right"].set_visible(False)
 
     contract = int(llm_summary.get("llm_block_contract_violation_count") or 0)
-    labels = ["Contract\nOK", "Contract\nviolation"]
+    labels = ["No\nViolation", "Contract\nViolation"]
     values = [len(llm_df) - contract, contract]
     axes[1].bar(labels, values, color=[PALETTE["pass"], PALETTE["fail"]])
-    axes[1].set_title("Không block trái hợp đồng", fontsize=12, fontweight="bold", color=PALETTE["ink"])
-    axes[1].set_ylabel("Số row")
+    axes[1].set_title("Output Contract", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    axes[1].set_ylabel("Số lượt")
     axes[1].spines["top"].set_visible(False)
     axes[1].spines["right"].set_visible(False)
     for i, v in enumerate(values):
@@ -859,10 +1014,10 @@ def chart_gating_llm(llm_df: pd.DataFrame, llm_summary: dict[str, Any]) -> Path:
 
 def chart_track_by_conference(track_df: pd.DataFrame) -> Path:
     counts = track_df["conference"].value_counts().sort_values(ascending=True)
-    fig, ax = plt.subplots(figsize=(9, 5))
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
     ax.barh(counts.index.tolist(), counts.values.tolist(), color=PALETTE["teal"])
-    ax.set_xlabel("Số case")
-    ax.set_title("Track recommendation — phân bố theo hội nghị", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    ax.set_xlabel("Số trường hợp")
+    ax.set_title("Track Recommendation — phân bố theo hội nghị / track", fontsize=12, fontweight="bold", color=PALETTE["ink"])
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     for y, v in enumerate(counts.values.tolist()):
@@ -877,14 +1032,14 @@ def chart_chatbot_latency(by_scenario: pd.DataFrame) -> Path:
     ttft = by_scenario["avg_ttft_s"].tolist()
     x = range(len(labels))
     width = 0.28
-    fig, ax = plt.subplots(figsize=(11, 5))
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
     ax.bar([i - width for i in x], ttft, width, label="TTFT", color=PALETTE["mint"])
-    ax.bar(list(x), answer, width, label="Time to first answer token", color=PALETTE["amber"])
-    ax.bar([i + width for i in x], duration, width, label="Total duration", color=PALETTE["navy"])
+    ax.bar(list(x), answer, width, label="Time to First Answer Token", color=PALETTE["amber"])
+    ax.bar([i + width for i in x], duration, width, label="Total Duration", color=PALETTE["navy"])
     ax.set_xticks(list(x))
     ax.set_xticklabels(labels, rotation=25, ha="right", fontsize=8)
     ax.set_ylabel("Giây")
-    ax.set_title("Chatbot — độ trễ trung bình theo kịch bản", fontsize=12, fontweight="bold", color=PALETTE["ink"])
+    ax.set_title("Chatbot Agent — độ trễ trung bình theo kịch bản", fontsize=12, fontweight="bold", color=PALETTE["ink"])
     ax.legend(frameon=False, fontsize=8)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -901,8 +1056,17 @@ def chart_chatbot_tool_success(by_scenario: pd.DataFrame) -> Path:
         labels.append(row["label_vi"])
         rates.append(row["tool_success_rate_pct"] if pd.notna(row["tool_success_rate_pct"]) else 0.0)
     colors = [PALETTE["pass"] if (r or 0) >= 80 else PALETTE["amber"] if (r or 0) >= 60 else PALETTE["fail"] for r in rates]
-    fig, ax = plt.subplots(figsize=(10, 4.8))
-    _bar(ax, labels, [float(r or 0) for r in rates], colors, "Tool success (%)", "Chatbot — tỷ lệ tool-call thành công", "{:.1f}%", 25)
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
+    _bar(
+        ax,
+        labels,
+        [float(r or 0) for r in rates],
+        colors,
+        "Tool-call Success Rate (%)",
+        "Chatbot Agent — Tool-call Success Rate",
+        "{:.1f}%",
+        25,
+    )
     ax.set_ylim(0, 110)
     return save_fig(fig, "fig06_chatbot_tool_success.png")
 
@@ -915,7 +1079,7 @@ def chart_chatbot_manual_outcomes() -> Path:
         CHATBOT_MANUAL_OVERALL["fail"],
     ]
     colors = [PALETTE["pass"], PALETTE["partial"], PALETTE["fail"]]
-    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
     wedges, texts, autotexts = ax.pie(
         values,
         labels=labels,
@@ -930,7 +1094,7 @@ def chart_chatbot_manual_outcomes() -> Path:
         t.set_color("white")
         t.set_fontweight("bold")
     ax.set_title(
-        f"Chatbot — đánh giá thủ công ({CHATBOT_MANUAL_OVERALL['trials']} trials)",
+        f"Chatbot Agent — kết quả rà soát thủ công ({CHATBOT_MANUAL_OVERALL['trials']} lượt)",
         fontsize=12,
         fontweight="bold",
         color=PALETTE["ink"],
@@ -940,19 +1104,19 @@ def chart_chatbot_manual_outcomes() -> Path:
 
 def chart_autofill_quality(autofill_df: pd.DataFrame) -> Path:
     metrics = {
-        "Title exact\nmatch": 100.0 * float(autofill_df["title_exact_match"].mean()),
-        "Abstract\nROUGE-L": 100.0 * float(autofill_df["abstract_rouge_l"].mean()),
-        "Keyword F1": 100.0 * float(autofill_df["keyword_f1"].mean()),
-        "Author F1": 100.0 * float(autofill_df["author_f1"].mean()),
+        "Tiêu đề khớp\nchính xác": 100.0 * float(autofill_df["title_exact_match"].mean()),
+        "Tóm tắt\nROUGE-L": 100.0 * float(autofill_df["abstract_rouge_l"].mean()),
+        "Từ khóa\nF1": 100.0 * float(autofill_df["keyword_f1"].mean()),
+        "Tác giả\nF1": 100.0 * float(autofill_df["author_f1"].mean()),
     }
-    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
     _bar(
         ax,
         list(metrics.keys()),
         list(metrics.values()),
         [PALETTE["navy"], PALETTE["teal"], PALETTE["mint"], PALETTE["amber"]],
         "Điểm trung bình (%)",
-        f"Submission Autofill — chất lượng metadata (n={len(autofill_df)})",
+        f"Submission Autofill — đối sánh metadata (n={len(autofill_df)})",
         "{:.1f}%",
         0,
     )
@@ -996,8 +1160,8 @@ def _draw_workflow_panel(
     """One workflow chart: bars left, short legend right (no footnotes / how-to-read)."""
     _setup_vietnamese_font()
 
-    fig = plt.figure(figsize=(12.0, 5.2))
-    ax = fig.add_axes([0.07, 0.18, 0.54, 0.66])
+    fig = plt.figure(figsize=REPORT_FIGSIZE)
+    ax = fig.add_axes([0.10, 0.18, 0.51, 0.66])
 
     labels = [b[0] for b in bars]
     values = [100.0 * float(b[1] or 0) for b in bars]
@@ -1032,7 +1196,7 @@ def _draw_workflow_panel(
         )
 
     fig.text(
-        0.07,
+        0.10,
         0.055,
         sample_line,
         fontsize=12,
@@ -1105,10 +1269,7 @@ def _draw_workflow_panel(
         )
         y -= step
 
-    path = FIGURES / filename
-    fig.savefig(path, dpi=200, facecolor="white", bbox_inches="tight", pad_inches=0.22)
-    plt.close(fig)
-    return path
+    return save_fig(fig, filename, apply_tight_layout=False)
 
 
 def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, str, str]]:
@@ -1119,7 +1280,7 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
     # 1) Phân tích ban đầu cho phản biện — annotation
     p = _draw_workflow_panel(
         filename="fig09a_reviewer_annotation_grounding.png",
-        title="Phân tích ban đầu cho phản biện — Độ bám nguồn của chú thích",
+        title="Reviewer Initial Analysis — Mức bám nguồn của chú thích",
         sample_line=(
             f"Cỡ mẫu: {_fmt_int(s.get('b1_paper_count'))} bài  ·  "
             f"Tổng số chú thích: {_fmt_int(s.get('b1_annotation_total'))}"
@@ -1140,12 +1301,12 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
             ("Không xác định được", "Không tìm thấy đoạn tương ứng trong bài", "coral"),
         ],
     )
-    outputs.append((p, "Độ bám nguồn chú thích (phân tích ban đầu)", "Phân tích ban đầu cho phản biện"))
+    outputs.append((p, "Mức bám nguồn của chú thích", "Reviewer Initial Analysis"))
 
     # 2) Phân tích ban đầu — điểm cần chú ý
     p = _draw_workflow_panel(
         filename="fig09b_reviewer_attention_points.png",
-        title="Phân tích ban đầu cho phản biện — Điểm cần chú ý khi đọc bài",
+        title="Reviewer Initial Analysis — Điểm cần chú ý khi đọc bài",
         sample_line=(
             f"Cỡ mẫu: {_fmt_int(s.get('b2_paper_count'))} bài  ·  "
             f"Tổng số điểm chú ý: {_fmt_int(s.get('b2_attention_point_total'))}"
@@ -1171,12 +1332,12 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
             ("Bổ sung góc nhìn", "Bổ sung ngoài phần phản biện viên đã nêu", "coral"),
         ],
     )
-    outputs.append((p, "Điểm cần chú ý khi đọc bài", "Phân tích ban đầu cho phản biện"))
+    outputs.append((p, "Điểm cần chú ý khi đọc bài", "Reviewer Initial Analysis"))
 
     # 3) Kiểm tra chất lượng phản biện
     p = _draw_workflow_panel(
         filename="fig09c_review_quality_auditor.png",
-        title="Kiểm tra chất lượng phản biện — Cảnh báo trên bản nhận xét",
+        title="Review Quality Auditor — Cảnh báo trên bản phản biện",
         sample_line=(
             f"Cỡ mẫu: {_fmt_int(s.get('b3_paper_count'))} bài  ·  "
             f"{_fmt_int(s.get('b3_review_total'))} bản phản biện  ·  "
@@ -1208,12 +1369,12 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
             ("Hợp lệ và có chứng cứ", "Vừa hợp lệ vừa có bằng chứng rõ", "coral"),
         ],
     )
-    outputs.append((p, "Cảnh báo kiểm tra chất lượng phản biện", "Kiểm tra chất lượng phản biện"))
+    outputs.append((p, "Cảnh báo trên bản phản biện", "Review Quality Auditor"))
 
     # 4) Hỗ trợ quyết định chủ tịch
     p = _draw_workflow_panel(
         filename="fig09d_chair_evidence_basis.png",
-        title="Hỗ trợ quyết định chủ tịch — Cơ sở bằng chứng",
+        title="Chair Decision Copilot — Cơ sở bằng chứng",
         sample_line=(
             f"Cỡ mẫu: {_fmt_int(s.get('b5_paper_count'))} bài  ·  "
             f"Tổng số nhận định: {_fmt_int(s.get('b5_claim_total'))}"
@@ -1244,20 +1405,20 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
             ("Bổ sung góc nhìn", "Bổ sung ngoài phần con người đã nêu", "coral"),
         ],
     )
-    outputs.append((p, "Cơ sở bằng chứng hỗ trợ chủ tịch", "Hỗ trợ quyết định chủ tịch"))
+    outputs.append((p, "Cơ sở bằng chứng", "Chair Decision Copilot"))
 
     return outputs
 
 
 def chart_workflow_headline(summaries: dict[str, dict[str, Any]]) -> Path:
-    """Single slide-style headline for Chapter 5."""
+    """Vẽ các chỉ số chính dùng trong phần tổng hợp kết quả."""
     labels = [
-        "Gating rule\nverdict acc.",
-        "Gating LLM\ncontract OK",
-        "Chatbot\nmanual pass",
-        "Chatbot\ntool success",
-        "Autofill\nROUGE-L",
-        "Annotation\nkhớp nguyên văn",
+        "Submission Gating\nRule Check",
+        "Submission Gating\nLLM Steering",
+        "Chatbot Agent\nmanual pass",
+        "Chatbot Agent\ntool-call success",
+        "Submission Autofill\nROUGE-L",
+        "Chú thích\nkhớp nguyên văn",
     ]
     rule = summaries["rule"]
     llm = summaries["llm"]
@@ -1278,10 +1439,556 @@ def chart_workflow_headline(summaries: dict[str, dict[str, Any]]) -> Path:
         100.0 * float(tca.get("b1_exact_rate_mean") or 0),
     ]
     colors = [PALETTE["pass"], PALETTE["mint"], PALETTE["amber"], PALETTE["teal"], PALETTE["navy"], PALETTE["ink"]]
-    fig, ax = plt.subplots(figsize=(10, 4.8))
-    _bar(ax, labels, values, colors, "Phần trăm", "Tóm tắt chỉ số headline cho báo cáo", "{:.1f}%", 0)
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
+    _bar(ax, labels, values, colors, "Tỷ lệ (%)", "Tóm tắt các chỉ số chính", "{:.1f}%", 0)
     ax.set_ylim(0, 115)
     return save_fig(fig, "fig10_headline_metrics.png")
+
+
+def operational_resource_df() -> pd.DataFrame:
+    """Return operational metrics with reader-facing Vietnamese column names."""
+    return pd.DataFrame(OPERATIONAL_RESOURCE_ROWS).rename(
+        columns={
+            "workflow_id": "Mã luồng xử lý",
+            "label_vi": "Luồng xử lý",
+            "label_short": "Nhãn biểu đồ",
+            "unit": "Đơn vị công việc",
+            "latency_mean_s": "Độ trễ trung bình (giây)",
+            "latency_median_s": "Độ trễ trung vị (giây)",
+            "latency_max_s": "Độ trễ cao nhất (giây)",
+            "token_mean": "Token trung bình",
+            "ops_mode": "Mã cơ chế vận hành",
+            "ops_mode_vi": "Cơ chế vận hành đề xuất",
+            "source": "Nguồn",
+            "note": "Ghi chú",
+        }
+    )
+
+
+def _fmt_latency(val: float) -> str:
+    if val < 1:
+        return f"{val:.2f}"
+    if val < 100:
+        return f"{val:.1f}"
+    return f"{val:.0f}"
+
+
+def chart_resource_latency() -> Path:
+    """Horizontal mean latency with max whisker and median marker (Table 4.7)."""
+    _setup_vietnamese_font()
+    rows = OPERATIONAL_RESOURCE_ROWS
+    ordered = sorted(rows, key=lambda r: float(r["latency_mean_s"]))
+    labels = [r.get("label_chart") or r["label_short"] for r in ordered]
+    means = [float(r["latency_mean_s"]) for r in ordered]
+    medians = [
+        float(r["latency_median_s"]) if r["latency_median_s"] is not None else None for r in ordered
+    ]
+    maxes = [float(r["latency_max_s"]) for r in ordered]
+    xmax = max(maxes)
+
+    fig = plt.figure(figsize=REPORT_FIGSIZE_DENSE)
+    # Data left, legend panel right — never overlay the bars.
+    ax = fig.add_axes([0.24, 0.16, 0.50, 0.74])
+    y = list(range(len(labels)))
+
+    ax.barh(
+        y,
+        means,
+        color=PALETTE["navy"],
+        edgecolor="white",
+        linewidth=0.5,
+        height=0.62,
+        zorder=2,
+    )
+    for yi, mean_v, max_v, med_v in zip(y, means, maxes, medians):
+        ax.plot(
+            [mean_v, max_v],
+            [yi, yi],
+            color=PALETTE["coral"],
+            linewidth=1.6,
+            solid_capstyle="butt",
+            zorder=3,
+        )
+        ax.plot(
+            max_v,
+            yi,
+            marker="|",
+            color=PALETTE["coral"],
+            markersize=14,
+            markeredgewidth=1.8,
+            zorder=4,
+        )
+        if med_v is not None:
+            ax.plot(
+                med_v,
+                yi,
+                marker="D",
+                color=PALETTE["teal"],
+                markersize=7,
+                markeredgecolor="white",
+                markeredgewidth=0.6,
+                zorder=5,
+            )
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=11)
+    ax.set_xlabel("Độ trễ (giây)", fontsize=12)
+    ax.set_title(
+        "Độ trễ của từng luồng xử lý AI",
+        fontsize=15,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        pad=10,
+        loc="left",
+    )
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="x", linestyle="--", alpha=0.35, zorder=0)
+    ax.axvline(100.0, color=PALETTE["amber"], linestyle=":", linewidth=1.3, alpha=0.9, zorder=1)
+    ax.set_xlim(0, xmax * 1.22)
+    ax.set_ylim(-0.7, len(labels) - 0.3)
+
+    for yi, mean_v, max_v in zip(y, means, maxes):
+        ax.text(
+            max_v + xmax * 0.018,
+            yi,
+            f"{_fmt_latency(mean_v)}  |  {_fmt_latency(max_v)}",
+            va="center",
+            ha="left",
+            fontsize=9,
+            color=PALETTE["ink"],
+        )
+
+    legend_ax = fig.add_axes([0.78, 0.34, 0.18, 0.40])
+    legend_ax.set_xlim(0, 1)
+    legend_ax.set_ylim(0, 1)
+    legend_ax.axis("off")
+    legend_ax.add_patch(
+        plt.Rectangle(
+            (0.0, 0.0),
+            1.0,
+            1.0,
+            transform=legend_ax.transAxes,
+            facecolor="#F7F5F2",
+            edgecolor="#D6D0C8",
+            linewidth=1.0,
+            zorder=0,
+        )
+    )
+    legend_ax.text(
+        0.10,
+        0.90,
+        "Chú giải",
+        fontsize=12,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        va="top",
+        transform=legend_ax.transAxes,
+    )
+    legend_items = [
+        (PALETTE["navy"], "s", "Trung bình"),
+        (PALETTE["teal"], "D", "Trung vị"),
+        (PALETTE["coral"], "|", "Cao nhất"),
+        (PALETTE["amber"], ":", "Ngưỡng 100 giây"),
+    ]
+    y_leg = 0.72
+    for color, marker, lab in legend_items:
+        if marker == ":":
+            legend_ax.plot(
+                [0.08, 0.18],
+                [y_leg, y_leg],
+                color=color,
+                linestyle=":",
+                linewidth=1.6,
+                transform=legend_ax.transAxes,
+                clip_on=False,
+            )
+        elif marker == "|":
+            legend_ax.plot(
+                [0.08, 0.18],
+                [y_leg, y_leg],
+                color=color,
+                linewidth=1.6,
+                transform=legend_ax.transAxes,
+                clip_on=False,
+            )
+            legend_ax.plot(
+                0.18,
+                y_leg,
+                marker="|",
+                color=color,
+                markersize=12,
+                markeredgewidth=1.6,
+                transform=legend_ax.transAxes,
+                clip_on=False,
+            )
+        elif marker == "s":
+            legend_ax.plot(
+                0.13,
+                y_leg,
+                marker="s",
+                color=color,
+                markersize=11,
+                transform=legend_ax.transAxes,
+                linestyle="None",
+                clip_on=False,
+            )
+        else:
+            legend_ax.plot(
+                0.13,
+                y_leg,
+                marker=marker,
+                color=color,
+                markersize=8,
+                markeredgecolor="white",
+                markeredgewidth=0.5,
+                transform=legend_ax.transAxes,
+                linestyle="None",
+                clip_on=False,
+            )
+        legend_ax.text(
+            0.26,
+            y_leg,
+            lab,
+            fontsize=10,
+            color=PALETTE["ink"],
+            va="center",
+            transform=legend_ax.transAxes,
+        )
+        y_leg -= 0.16
+
+    fig.text(
+        0.50,
+        0.045,
+        "Nhãn số: trung bình | cao nhất (giây). Đơn vị: một bài, một lượt kiểm tra hoặc một hội thoại.\n"
+        "Chatbot Agent chưa có độ trễ trung vị trong bảng tổng hợp.",
+        ha="center",
+        fontsize=10,
+        color=PALETTE["slate"],
+        linespacing=1.35,
+    )
+    return save_fig(
+        fig,
+        "fig11_resource_latency.png",
+        figsize=REPORT_FIGSIZE_DENSE,
+        apply_tight_layout=False,
+    )
+
+
+def chart_resource_tokens() -> Path:
+    """Vẽ số token trung bình trên mỗi đơn vị công việc có số liệu."""
+    _setup_vietnamese_font()
+    rows = [r for r in OPERATIONAL_RESOURCE_ROWS if r.get("token_mean") is not None]
+    labels = [r.get("label_chart") or r["label_short"] for r in rows]
+    tokens = [float(r["token_mean"]) for r in rows]
+    units = [str(r["unit"]) for r in rows]
+    colors = [PALETTE["navy"], PALETTE["teal"], PALETTE["mint"], PALETTE["amber"], PALETTE["ink"]]
+    colors = colors[: len(labels)]
+
+    fig, ax = plt.subplots(figsize=REPORT_FIGSIZE)
+    x = list(range(len(labels)))
+    bars = ax.bar(x, tokens, color=colors, edgecolor="white", linewidth=0.6, width=0.62)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=10)
+    ax.set_ylabel("Token trung bình / đơn vị công việc", fontsize=11)
+    ax.set_title(
+        "Lượng token trung bình theo luồng xử lý AI",
+        fontsize=13,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        pad=10,
+    )
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    ymax = max(tokens) * 1.22 if tokens else 1
+    ax.set_ylim(0, ymax)
+
+    for bar, val, unit in zip(bars, tokens, units):
+        if val >= 1000:
+            txt = f"{val:,.0f}".replace(",", ".")
+        else:
+            txt = f"{val:.1f}"
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{txt}\n/{unit}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+            color=PALETTE["slate"],
+        )
+
+    fig.text(
+        0.5,
+        0.04,
+        "Lưu ý: mẫu số khác nhau (bài · lượt kiểm tra · hội thoại); không dùng token để xếp hạng chi phí giữa các luồng.\n"
+        "Submission Gating và Track Recommendation chưa có số token trong bảng tổng hợp.",
+        ha="center",
+        fontsize=9,
+        color=PALETTE["slate"],
+        linespacing=1.25,
+    )
+    return save_fig(
+        fig,
+        "fig12_resource_tokens.png",
+        layout_rect=(0.08, 0.14, 0.98, 0.96),
+    )
+
+
+def chart_resource_ops_mode() -> Path:
+    """Mean latency colored by recommended ops mode; max as whisker; legend outside."""
+    _setup_vietnamese_font()
+    rows = OPERATIONAL_RESOURCE_ROWS
+    mode_order = [
+        ("sync", "Đồng bộ", PALETTE["pass"]),
+        ("non_blocking", "Không chặn", PALETTE["mint"]),
+        ("interactive_with_timeout", "Tương tác + giới hạn chờ", PALETTE["amber"]),
+        ("streaming", "Phản hồi từng phần + trạng thái", PALETTE["teal"]),
+        ("background", "Xử lý nền / chạy trước", PALETTE["coral"]),
+    ]
+    mode_color = {m[0]: m[2] for m in mode_order}
+
+    ordered = sorted(rows, key=lambda r: float(r["latency_mean_s"]))
+    labels = [r.get("label_chart") or r["label_short"] for r in ordered]
+    means = [float(r["latency_mean_s"]) for r in ordered]
+    colors = [mode_color[r["ops_mode"]] for r in ordered]
+    maxes = [float(r["latency_max_s"]) for r in ordered]
+
+    fig = plt.figure(figsize=REPORT_FIGSIZE_DENSE)
+    # Chart left, legend panel right — same discipline as TCA panels / fig01.
+    ax = fig.add_axes([0.24, 0.18, 0.48, 0.72])
+    y = list(range(len(labels)))
+    bars = ax.barh(y, means, color=colors, edgecolor="white", linewidth=0.5, height=0.62, zorder=2)
+    for yi, mean_v, max_v in zip(y, means, maxes):
+        ax.plot(
+            [mean_v, max_v],
+            [yi, yi],
+            color=PALETTE["slate"],
+            linewidth=1.2,
+            alpha=0.7,
+            zorder=3,
+        )
+        ax.plot(
+            max_v,
+            yi,
+            marker="|",
+            color=PALETTE["slate"],
+            markersize=12,
+            markeredgewidth=1.4,
+            zorder=4,
+        )
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=11)
+    ax.set_xlabel("Độ trễ trung bình (giây)", fontsize=11)
+    ax.set_title(
+        "Khuyến nghị vận hành theo độ trễ luồng AI",
+        fontsize=15,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        pad=10,
+        loc="left",
+    )
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="x", linestyle="--", alpha=0.35, zorder=0)
+    # Threshold lines only — no floating tags near the title.
+    ax.axvline(5.0, color=PALETTE["pass"], linestyle=":", linewidth=1.1, alpha=0.75, zorder=1)
+    ax.axvline(30.0, color=PALETTE["coral"], linestyle=":", linewidth=1.1, alpha=0.75, zorder=1)
+    ax.set_xlim(0, max(maxes) * 1.12)
+    ax.set_ylim(-0.7, len(labels) - 0.3)
+
+    for bar, val in zip(bars, means):
+        if val < 1:
+            txt = f"{val:.2f}"
+        else:
+            txt = f"{val:.1f}"
+        ax.text(
+            bar.get_width() + max(maxes) * 0.02,
+            bar.get_y() + bar.get_height() / 2,
+            txt,
+            va="center",
+            fontsize=10,
+            color=PALETTE["ink"],
+            fontweight="bold",
+        )
+
+    used_modes = {r["ops_mode"] for r in rows}
+    legend_ax = fig.add_axes([0.76, 0.30, 0.20, 0.48])
+    legend_ax.set_xlim(0, 1)
+    legend_ax.set_ylim(0, 1)
+    legend_ax.axis("off")
+    legend_ax.add_patch(
+        plt.Rectangle(
+            (0.0, 0.0),
+            1.0,
+            1.0,
+            transform=legend_ax.transAxes,
+            facecolor="#F7F5F2",
+            edgecolor="#D6D0C8",
+            linewidth=1.0,
+            zorder=0,
+        )
+    )
+    legend_ax.text(
+        0.08,
+        0.92,
+        "Cách vận hành",
+        fontsize=12,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        va="top",
+        transform=legend_ax.transAxes,
+    )
+    legend_items = [(lab, col) for mid, lab, col in mode_order if mid in used_modes]
+    n_items = max(len(legend_items), 1)
+    y_leg = 0.78
+    step = 0.58 / n_items
+    for lab, col in legend_items:
+        legend_ax.plot(
+            0.10,
+            y_leg,
+            marker="s",
+            markersize=11,
+            color=col,
+            transform=legend_ax.transAxes,
+            linestyle="None",
+            clip_on=False,
+        )
+        legend_ax.text(
+            0.20,
+            y_leg,
+            lab,
+            fontsize=10,
+            color=PALETTE["ink"],
+            va="center",
+            transform=legend_ax.transAxes,
+        )
+        y_leg -= step
+
+    legend_ax.text(
+        0.08,
+        0.12,
+        "Nét đứt: 5 giây và 30 giây\n"
+        "Dấu | : độ trễ cao nhất",
+        fontsize=9,
+        color=PALETTE["slate"],
+        va="bottom",
+        transform=legend_ax.transAxes,
+        linespacing=1.35,
+    )
+
+    fig.text(
+        0.50,
+        0.045,
+        "Rule Check: đồng bộ · LLM Steering: không chặn · Autofill: tương tác có giới hạn chờ ·\n"
+        "Reviewer / Quality / Chair: xử lý nền · Chatbot Agent: phản hồi từng phần và hiển thị trạng thái.",
+        ha="center",
+        fontsize=10,
+        color=PALETTE["slate"],
+        linespacing=1.35,
+    )
+    return save_fig(
+        fig,
+        "fig13_resource_ops_mode.png",
+        figsize=REPORT_FIGSIZE_DENSE,
+        apply_tight_layout=False,
+    )
+
+
+def chart_chatbot_response_stages() -> Path:
+    """Vẽ các giai đoạn phản hồi và tỷ lệ tool-call thành công của Chatbot Agent."""
+    _setup_vietnamese_font()
+    s = CHATBOT_RESPONSE_STAGES
+    labels = [
+        "TTFT",
+        "Time to First\nAnswer Token",
+        "Stream Duration",
+        "Total Duration",
+    ]
+    values = [
+        s["ttft_s"],
+        s["first_answer_token_s"],
+        s["stream_duration_s"],
+        s["total_duration_s"],
+    ]
+    colors = [PALETTE["mint"], PALETTE["amber"], PALETTE["teal"], PALETTE["navy"]]
+
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=REPORT_FIGSIZE,
+        gridspec_kw={"width_ratios": [1.35, 1.0]},
+    )
+
+    ax = axes[0]
+    x = list(range(len(labels)))
+    bars = ax.bar(x, values, color=colors, edgecolor="white", linewidth=0.6, width=0.62)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=9)
+    ax.set_ylabel("Giây", fontsize=10)
+    ax.set_title(
+        "Chatbot Agent — các giai đoạn phản hồi",
+        fontsize=12,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        pad=8,
+    )
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    for bar, val in zip(bars, values):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{val:.2f} giây",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+            color=PALETTE["slate"],
+        )
+
+    ax2 = axes[1]
+    tool_ok = s["tool_calls_total"] - s["tool_calls_failed"]
+    tool_fail = s["tool_calls_failed"]
+    wedges, _, autotexts = ax2.pie(
+        [tool_ok, tool_fail],
+        labels=["Thành công", "Thất bại"],
+        colors=[PALETTE["pass"], PALETTE["fail"]],
+        autopct=lambda p: f"{p:.1f}%",
+        startangle=90,
+        textprops={"fontsize": 9, "color": PALETTE["ink"]},
+        wedgeprops={"edgecolor": "white", "linewidth": 1.2},
+    )
+    for t in autotexts:
+        t.set_color("white")
+        t.set_fontweight("bold")
+        t.set_fontsize(9)
+    ax2.set_title(
+        f"Kết quả gọi công cụ\n({int(tool_ok)}/{int(s['tool_calls_total'])} thành công · "
+        f"{int(tool_fail)} thất bại)",
+        fontsize=12,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        pad=8,
+    )
+
+    fig.text(
+        0.5,
+        0.04,
+        "TTFT trung bình đạt 2,36 giây, nhưng Time to First Answer Token trung bình là 23,02 giây.\n"
+        "Giao diện cần hiển thị trạng thái đang tra cứu hoặc tổng hợp; hệ thống cần giảm 31 lượt gọi công cụ thất bại.",
+        ha="center",
+        fontsize=9,
+        color=PALETTE["slate"],
+        linespacing=1.25,
+    )
+    return save_fig(
+        fig,
+        "fig14_chatbot_response_stages.png",
+        layout_rect=(0.08, 0.14, 0.98, 0.96),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1364,10 +2071,10 @@ def build_overview_sheet(
 
 def write_figure_index(paths: list[tuple[str, str, str]]) -> None:
     lines = [
-        "# Figure index — workflow benchmark visualizations",
+        "# Danh mục hình — kết quả đánh giá các luồng xử lý",
         "",
         "Sinh tự động từ `scripts/export_benchmark_to_excel.py`.",
-        "Dùng PNG trong `exports/figures/` cho Chương 5 (đánh giá).",
+        "Dùng các tệp PNG trong `exports/figures/` cho Chương 4 và Chương 5.",
         "",
         "| File | Nội dung | Gợi ý chỗ dùng |",
         "| --- | --- | --- |",
@@ -1377,25 +2084,30 @@ def write_figure_index(paths: list[tuple[str, str, str]]) -> None:
     lines.extend(
         [
             "",
-            "## Excel workbook",
+            "## Tệp Excel tổng hợp",
             "",
             "- `workflow_benchmark_results.xlsx`",
-            "  - `Overview` — chỉ số headline theo workflow",
-            "  - `Track_Recommendation` — 48 case predictions",
-            "  - `Gating_Rule_Check` — 8 deterministic cases",
-            "  - `Gating_LLM_Steering` — LLM content findings",
-            "  - `Chatbot_Trials` — 40 trial transport metrics",
-            "  - `Chatbot_By_Scenario` — gộp theo kịch bản + manual outcome",
-            "  - `Autofill_Summary` + `Autofill_Cases` — completed CSV metrics",
-            "  - `TCA_Summary` + `TCA_Papers` — TCA rates per paper",
+            "  - `Overview` — các chỉ số chính theo luồng xử lý",
+            "  - `Track_Recommendation` — 48 trường hợp Track Recommendation",
+            "  - `Gating_Rule_Check` — 8 trường hợp kiểm tra quy tắc cố định",
+            "  - `Gating_LLM_Steering` — các phát hiện kiểm tra nội dung",
+            "  - `Chatbot_Trials` — số liệu truyền tải của 40 lượt hội thoại",
+            "  - `Chatbot_By_Scenario` — tổng hợp theo kịch bản và kết quả rà soát",
+            "  - `Autofill_Summary` + `Autofill_Cases` — số liệu đối sánh tệp CSV",
+            "  - `TCA_Summary` + `TCA_Papers` — tỷ lệ đánh giá TCA theo bài",
+            "  - `Resource_Usage` — Bảng 4.7: độ trễ trung bình/trung vị/cao nhất, token và cách vận hành",
+            "  - `Chatbot_Response_Stages` — thời gian phản hồi và các lượt gọi công cụ thất bại",
             "",
-            "## Caveats (bắt buộc khi trích vào báo cáo)",
+            "## Lưu ý khi trích dẫn vào báo cáo",
             "",
-            "1. Track recommendation: `human_label` trống → **không** claim top-1 accuracy từ file này.",
-            "2. LLM steering: `grounded/actionable` trống → chỉ claim operational contract (0 block violation).",
-            "3. Chatbot: transport metrics từ `run_summary.json`; manual pass/partial/fail từ report review.",
-            "4. TCA/fig09a–d: mỗi workflow một figure; nhãn = % + (số lượng); cỡ mẫu dưới trục; chú giải bên phải.",
-            "5. Annotation (fig09a): số lượng là đếm tuyệt đối. Các figure còn lại: số trong ngoặc ≈ tỷ lệ × tổng đơn vị.",
+            "1. Track Recommendation: `human_label` trống → **không** suy ra Top-1 Accuracy từ tệp này.",
+            "2. Submission Gating — LLM Steering: `grounded/actionable` trống → chỉ kết luận về Output Contract Violation.",
+            "3. Chatbot Agent: số liệu thời gian lấy từ `run_summary.json`; kết quả đạt/đạt một phần/không đạt lấy từ báo cáo rà soát thủ công.",
+            "4. Hình 09a–09d: mỗi luồng có một hình; nhãn gồm tỷ lệ và số lượng; cỡ mẫu đặt dưới trục; chú giải đặt bên phải.",
+            "5. Hình 09a dùng số lượng tuyệt đối. Các hình còn lại ghi số lượng ước tính trong ngoặc theo tỷ lệ trên tổng đơn vị.",
+            "6. Hình 11–14: số liệu khớp Bảng 4.7 và các báo cáo luồng; **không** xếp hạng chi phí bằng token "
+            "vì mẫu số khác nhau (bài / lượt kiểm tra / hội thoại). Độ trễ cao nhất của Chatbot Agent là giá trị của nhóm kịch bản chậm nhất.",
+            "7. Hình 13: cách vận hành là **khuyến nghị thiết kế** dựa trên độ trễ, không phải kết quả so sánh triển khai.",
             "",
         ]
     )
@@ -1452,6 +2164,25 @@ def main() -> None:
         write_df(writer, auto_compact, "Autofill_Cases")
         write_df(writer, pd.DataFrame([tca_s]), "TCA_Summary")
         write_df(writer, tca_df, "TCA_Papers")
+        write_df(writer, operational_resource_df(), "Resource_Usage")
+        chatbot_stage_df = pd.DataFrame(
+            [
+                {
+                    "TTFT (giây)": CHATBOT_RESPONSE_STAGES["ttft_s"],
+                    "Time to First Answer Token (giây)": CHATBOT_RESPONSE_STAGES[
+                        "first_answer_token_s"
+                    ],
+                    "Stream Duration (giây)": CHATBOT_RESPONSE_STAGES["stream_duration_s"],
+                    "Total Duration (giây)": CHATBOT_RESPONSE_STAGES["total_duration_s"],
+                    "Tổng số lượt gọi công cụ": CHATBOT_RESPONSE_STAGES["tool_calls_total"],
+                    "Số lượt gọi công cụ thất bại": CHATBOT_RESPONSE_STAGES["tool_calls_failed"],
+                    "Tỷ lệ gọi công cụ thành công (%)": CHATBOT_RESPONSE_STAGES[
+                        "tool_success_rate_pct"
+                    ],
+                }
+            ]
+        )
+        write_df(writer, chatbot_stage_df, "Chatbot_Response_Stages")
 
     # Charts
     fig_meta: list[tuple[str, str, str]] = []
@@ -1466,7 +2197,7 @@ def main() -> None:
     fig_meta.append(
         (
             p.name,
-            "Quy mô bộ đánh giá: bộ thực thi 1.127 vs TCA 1.097 vs bộ đánh giá chuyên biệt",
+            "Quy mô các bộ dữ liệu đánh giá: bộ thực thi 1.127, bộ TCA 1.097 và các bộ chuyên biệt",
             "Chương 4 — thiết lập đánh giá",
         )
     )
@@ -1475,31 +2206,31 @@ def main() -> None:
     fig_meta.append(
         (
             p.name,
-            "Phân bố 1.127 bài đầu vào theo hội nghị / chuyên đề",
+            "Phân bố 1.127 bài đầu vào theo hội nghị / track",
             "Chương 4 — thiết lập dữ liệu",
         )
     )
 
     p = chart_gating_rule(rule_df, rule_s)
-    fig_meta.append((p.name, "Accuracy/recall rule check + phân bố verdict", "Submission Gating (deterministic)"))
+    fig_meta.append((p.name, "Verdict Accuracy, Rule-ID Recall, False Block Count và Verdict Distribution", "Submission Gating — Rule Check"))
 
     p = chart_gating_llm(llm_df, llm_s)
-    fig_meta.append((p.name, "LLM steering verdict + contract violation", "Submission Gating (LLM content)"))
+    fig_meta.append((p.name, "Verdict Distribution và Output Contract Violation", "Submission Gating — LLM Steering"))
 
     p = chart_track_by_conference(track_df)
-    fig_meta.append((p.name, "Track recommendation theo hội nghị", "Track recommendation setup"))
+    fig_meta.append((p.name, "Phân bố trường hợp Track Recommendation theo hội nghị / track", "Submission Autofill — Track Recommendation"))
 
     p = chart_chatbot_latency(chat_by_sc)
-    fig_meta.append((p.name, "TTFT / first-answer / total duration theo kịch bản", "Chatbot Agent — latency"))
+    fig_meta.append((p.name, "TTFT, Time to First Answer Token và Total Duration theo kịch bản", "Chatbot Agent — độ trễ"))
 
     p = chart_chatbot_tool_success(chat_by_sc)
-    fig_meta.append((p.name, "Tool-call success rate theo kịch bản", "Chatbot Agent — tool reliability"))
+    fig_meta.append((p.name, "Tool-call Success Rate theo kịch bản", "Chatbot Agent — tool reliability"))
 
     p = chart_chatbot_manual_outcomes()
-    fig_meta.append((p.name, "Manual pass / partial / fail (40 trials)", "Chatbot Agent — quality"))
+    fig_meta.append((p.name, "Phân bố kết quả rà soát thủ công trong 40 lượt", "Chatbot Agent — chất lượng"))
 
     p = chart_autofill_quality(auto_df)
-    fig_meta.append((p.name, "Title/abstract/keyword/author quality", "Submission Autofill"))
+    fig_meta.append((p.name, "Exact Match, ROUGE-L và F1 của các trường metadata", "Submission Autofill — trích xuất metadata"))
 
     for path, content, placement in chart_tca_workflow_panels(tca_s):
         fig_meta.append((path.name, content, placement))
@@ -1507,13 +2238,72 @@ def main() -> None:
     p = chart_workflow_headline(
         {"rule": rule_s, "llm": llm_s, "chatbot": chat_s, "autofill": auto_s, "tca": tca_s}
     )
-    fig_meta.append((p.name, "Headline metrics cho slide/báo cáo", "Chương 5 — tóm tắt kết quả"))
+    fig_meta.append((p.name, "Các chỉ số chính dùng cho báo cáo", "Chương 5 — tóm tắt kết quả"))
+
+    p = chart_resource_latency()
+    fig_meta.append(
+        (
+            p.name,
+            "Độ trễ trung bình, trung vị và cao nhất theo luồng (Bảng 4.7), kèm ngưỡng 100 giây",
+            "Chương 4 — tính khả thi vận hành",
+        )
+    )
+
+    p = chart_resource_tokens()
+    fig_meta.append(
+        (
+            p.name,
+            "Token trung bình trên mỗi đơn vị công việc (mẫu số khác nhau — không xếp hạng chi phí)",
+            "Chương 4 — tính khả thi vận hành",
+        )
+    )
+
+    p = chart_resource_ops_mode()
+    fig_meta.append(
+        (
+            p.name,
+            "Khuyến nghị cách vận hành (đồng bộ / không chặn / phản hồi từng phần / xử lý nền)",
+            "Chương 4 — tính khả thi vận hành",
+        )
+    )
+
+    p = chart_chatbot_response_stages()
+    fig_meta.append(
+        (
+            p.name,
+            "Chatbot Agent: TTFT, Time to First Answer Token, Stream Duration, Total Duration và Tool-call Success Rate",
+            "Chương 4 — Chatbot Agent / vận hành",
+        )
+    )
 
     write_figure_index(fig_meta)
 
+    # Also drop a compact JSON for thesis tooling / appendix.
+    resource_export = {
+        "table": "ch4-ai-latency-token",
+        "rows": OPERATIONAL_RESOURCE_ROWS,
+        "chatbot_response_stages": CHATBOT_RESPONSE_STAGES,
+        "figures": [
+            "fig11_resource_latency.png",
+            "fig12_resource_tokens.png",
+            "fig13_resource_ops_mode.png",
+            "fig14_chatbot_response_stages.png",
+        ],
+            "caveats": [
+            "Mẫu số token khác nhau giữa các luồng; không xếp hạng chi phí chỉ bằng số token.",
+            "Độ trễ cao nhất của Chatbot Agent là giá trị của nhóm kịch bản chậm nhất, không nhất thiết là một hội thoại riêng lẻ.",
+            "Biểu đồ cách vận hành là khuyến nghị thiết kế dựa trên độ trễ, chưa phải kết quả so sánh triển khai.",
+            "Chưa kiểm tra trường hợp dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động trên toàn bộ luồng.",
+        ],
+    }
+    (EXPORT / "resource_usage_metrics.json").write_text(
+        json.dumps(resource_export, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
     print("Wrote:", xlsx_path)
     print("Figures:", FIGURES)
-    print("Sheets:", "Overview + 13 detail sheets")
+    print("Sheets:", "Overview + detail sheets + Resource_Usage")
     print("Charts:", len(fig_meta))
     print(
         "Headline:",
@@ -1530,6 +2320,7 @@ def main() -> None:
             "tca_ap_total": tca_s.get("b2_attention_point_total"),
             "tca_findings": tca_s.get("b3_finding_total"),
             "tca_claims": tca_s.get("b5_claim_total"),
+            "resource_rows": len(OPERATIONAL_RESOURCE_ROWS),
         },
     )
 
