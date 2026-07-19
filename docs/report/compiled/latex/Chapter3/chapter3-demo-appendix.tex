@@ -1,0 +1,595 @@
+% !TEX root = ../chapter3-appendix.tex
+
+\chapter{Xây dựng hệ thống}
+\label{ChapterThreeDemo}
+
+Chương 2 đã chuyển nhu cầu của người dùng thành các yêu cầu hệ thống và nguyên tắc thiết kế cho ConferenceSpace. Chương này trình bày cách nhóm xây dựng hệ thống theo các yêu cầu đó, bao gồm mô hình trách nhiệm, các use case, kiến trúc, dữ liệu, thuật toán xác định, sáu luồng AI và môi trường vận hành. Nội dung chính tập trung vào quyết định thiết kế, hành vi quan sát được và trách nhiệm của từng vai trò. Phụ lục~\ref{AppendixA} cung cấp đặc tả chi tiết để truy vết use case, dữ liệu, quyền, thuật toán và luồng AI; Phụ lục~\ref{AppendixB} cung cấp cấu hình môi trường và quy trình triển khai có thể đối chiếu.
+
+\section{Tổng quan hệ thống}
+\label{sec:ch3-demo-overview}
+
+\subsection{Mô hình trách nhiệm}
+
+ConferenceSpace phân chia tác vụ theo ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Cách phân chia này dựa trên cơ chế tạo kết quả và thẩm quyền sử dụng kết quả, không dựa trên ranh giới triển khai. Vì vậy, một thành phần kỹ thuật có thể tham gia nhiều lớp; chẳng hạn, backend vừa kiểm tra quyền và cập nhật trạng thái nghiệp vụ, vừa thực hiện thuật toán đối sánh Phản biện viên.
+
+\begin{table}[H]
+\centering
+\caption{Trách nhiệm và thẩm quyền trong ba lớp của ConferenceSpace}
+\label{tab:ch3-demo-responsibility}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|T{0.17\textwidth}|T{0.25\textwidth}|T{0.24\textwidth}|T{0.23\textwidth}|}
+\hline
+Lớp & Tác vụ chính & Kết quả & Chủ thể chịu trách nhiệm \\ \hline
+Nghiệp vụ cốt lõi & Kiểm tra quyền và quản lý trạng thái hội nghị, bài nộp, phân công, phản biện, phản hồi và quyết định & Dữ liệu nghiệp vụ chính thức và lịch sử thay đổi trạng thái & Người dùng được phân quyền thực hiện thao tác; backend kiểm tra điều kiện trước khi cập nhật \\ \hline
+Thuật toán xác định & Tính điểm phù hợp, xếp hạng ứng viên và phát hiện xung đột lợi ích theo quy tắc đã định nghĩa & Đề xuất phân công, điểm số, lý do và danh sách bài chưa đủ Phản biện viên & Chủ tọa kiểm tra căn cứ, điều chỉnh và xác nhận phương án \\ \hline
+AI hỗ trợ & Trích xuất thông tin, kiểm tra bản thảo, hỗ trợ đọc, rà soát bản nháp, tổng hợp bằng chứng và trả lời câu hỏi & Bản nháp, cảnh báo, bản phân tích hoặc bản tổng hợp có thể đối chiếu & Tác giả, Phản biện viên hoặc Chủ tọa kiểm tra; AI không tự quyết định \\ \hline
+\end{tabular}
+\end{table}
+
+Hình~\ref{fig:ch3-demo-responsibility} cho thấy kết quả hỗ trợ không tự cập nhật trạng thái hệ thống. Người dùng có thẩm quyền phải lựa chọn hành động tiếp theo; backend chỉ ghi dữ liệu sau khi kiểm tra quyền và điều kiện nghiệp vụ. Ranh giới này giữ trách nhiệm đối với quyết định học thuật ở người dùng được phân quyền.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tikzpicture}[>=Latex,
+  box/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.4cm, minimum height=12mm, inner sep=3pt},
+  arr/.style={-{Latex}, thick}]
+  \node[box, fill=blue!7] (action) at (0,0) {Hành động của người dùng có thẩm quyền};
+  \node[box] (check) at (5.2,0) {Backend kiểm tra quyền, trạng thái và điều kiện nghiệp vụ};
+  \node[box, fill=green!8] (official) at (10.4,0) {Dữ liệu nghiệp vụ chính thức};
+  \node[box, fill=green!7] (det) at (0,-3.2) {Thuật toán xác định tạo điểm số và đề xuất};
+  \node[box, fill=orange!9] (review) at (5.2,-3.2) {Người dùng kiểm tra và lựa chọn};
+  \node[box, fill=orange!9] (ai) at (0,-6.4) {AI tạo bản nháp, cảnh báo hoặc bản tổng hợp};
+  \draw[arr] (action) -- (check);
+  \draw[arr] (check) -- (official);
+  \draw[arr] (det) -- (review);
+  \draw[arr,dashed] (review) -- (check);
+  \draw[arr] (ai) -- (review);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Đường chuyển kết quả hỗ trợ thành dữ liệu nghiệp vụ chính thức}
+\label{fig:ch3-demo-responsibility}
+\end{figure}
+
+\subsection{Các thành phần chính}
+
+Người dùng tương tác với ConferenceSpace qua giao diện web theo vai trò. Backend xác thực người dùng, kiểm tra quyền trên tài nguyên và thực thi quy tắc nghiệp vụ trước khi đọc hoặc cập nhật dữ liệu. Backend cũng thực hiện các tác vụ có quy tắc rõ ràng, gồm đối sánh Phản biện viên và kiểm tra xung đột lợi ích. Phần lớn chức năng AI được backend điều phối; riêng endpoint hội thoại phía máy chủ Next.js chuyển yêu cầu đã xác thực đến dịch vụ AI. Khi Chatbot Agent cần dữ liệu nghiệp vụ, công cụ của Chatbot Agent vẫn gọi endpoint truy vấn của backend thay vì truy cập cơ sở dữ liệu.
+
+PostgreSQL lưu dữ liệu nghiệp vụ, phiên và tin nhắn hội thoại cùng các kết quả cần truy vết. Neo4j biểu diễn quan hệ học thuật phục vụ truy vấn đồng tác giả. Redis lưu kết quả công cụ đang chờ và bộ đếm giới hạn tần suất có thời hạn ngắn. Việc tách ba kho dữ liệu dựa trên đặc điểm dữ liệu và kiểu truy vấn, không tương ứng trực tiếp với ba lớp trách nhiệm.
+
+\section{Use case}
+\label{sec:ch3-demo-usecases}
+
+\subsection{Tác nhân hệ thống}
+
+ConferenceSpace phục vụ ba tác nhân nghiệp vụ chính. Tác giả tìm hội nghị, nộp và quản lý bài, xem phản biện, gửi phản hồi và nộp bản thảo hoàn chỉnh. Phản biện viên tiếp nhận lời mời, xem bài được phân công, đọc bài, soạn và gửi phản biện, tham gia thảo luận và xem phản hồi của Tác giả. Chủ tọa hoặc Đồng chủ tọa cấu hình hội nghị, quản lý hội đồng chương trình, xác nhận phân công, theo dõi tiến độ và đưa ra quyết định cuối cùng.
+
+AI hỗ trợ từng vai trò tại các bước cụ thể nhưng không thay đổi thẩm quyền học thuật. Tác giả xác nhận dữ liệu bài nộp; Phản biện viên tự đọc bài và chịu trách nhiệm về nội dung phản biện; Chủ tọa xác nhận phân công và quyết định chấp nhận hoặc từ chối. Quản trị viên, dịch vụ AI và tác vụ nền hỗ trợ vận hành nhưng không phải vai trò nghiệp vụ chính trong phạm vi chương này.
+
+\subsection{Bản đồ use case}
+
+Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò. UC-08 và UC-10 được dùng chung giữa nhiều vai trò nhưng vẫn áp dụng quyền riêng cho từng người dùng và tài nguyên.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth, max height=0.80\textheight, keepaspectratio}
+\begin{tikzpicture}[
+  uc/.style={draw=black!70, ellipse, align=center, text width=3.1cm, minimum height=13mm, fill=blue!7},
+  shared/.style={draw=black!70, ellipse, align=center, text width=3.1cm, minimum height=13mm, fill=orange!9},
+  actor/.style={draw=black!70, rounded corners=2pt, align=center, text width=2.6cm, minimum height=11mm, fill=gray!8},
+  assoc/.style={-, thick, draw=black!65}]
+  \draw[black!55] (-7.8,-8.2) rectangle (7.8,8.7);
+  \node at (0,8.1) {ConferenceSpace};
+  \node[actor] (author) at (-10.4,3.0) {Tác giả};
+  \node[actor] (reviewer) at (10.4,3.0) {Phản biện viên};
+  \node[actor] (chair) at (0,-10.0) {Chủ tọa/Đồng chủ tọa};
+  \node[shared] (uc8) at (0,6.5) {UC-08\\Trao đổi theo bài nộp};
+  \node[uc] (uc1) at (-4.4,4.2) {UC-01\\Khám phá hội nghị};
+  \node[uc] (uc2) at (-4.4,1.4) {UC-02\\Hoàn tất bài nộp};
+  \node[uc] (uc3) at (-4.4,-1.4) {UC-03\\Vòng đời bài nộp};
+  \node[uc] (uc4) at (4.4,4.2) {UC-04\\Lời mời và phân công};
+  \node[uc] (uc5) at (4.4,1.4) {UC-05\\Soạn và gửi phản biện};
+  \node[shared] (uc10) at (0,-1.4) {UC-10\\Chatbot Agent};
+  \node[uc] (uc6) at (-4.4,-5.2) {UC-06\\Phân công và xung đột lợi ích};
+  \node[uc] (uc7) at (0,-5.2) {UC-07\\Quản lý hội nghị};
+  \node[uc] (uc9) at (4.4,-5.2) {UC-09\\Hỗ trợ quyết định};
+  \draw[assoc] (author) -- (uc1);
+  \draw[assoc] (author) -- (uc2);
+  \draw[assoc] (author) -- (uc3);
+  \draw[assoc] (author) -- (uc8);
+  \draw[assoc] (author) -- (uc10);
+  \draw[assoc] (reviewer) -- (uc4);
+  \draw[assoc] (reviewer) -- (uc5);
+  \draw[assoc] (reviewer) -- (uc8);
+  \draw[assoc] (reviewer) -- (uc10);
+  \draw[assoc] (chair) -- (uc6);
+  \draw[assoc] (chair) -- (uc7);
+  \draw[assoc] (chair) -- (uc8);
+  \draw[assoc] (chair) -- (uc9);
+  \draw[assoc] (chair) -- (uc10);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Use case tổng quát theo vai trò}
+\label{fig:ch3-demo-usecase-map}
+\end{figure}
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{|N{0.09\textwidth}|T{0.28\textwidth}|T{0.20\textwidth}|T{0.31\textwidth}|}
+\caption{Tổng quan các use case của ConferenceSpace}\label{tab:ch3-demo-usecase-overview}\\
+\hline
+Mã & Mục tiêu & Tác nhân chính & Kết quả \\ \hline
+\endfirsthead
+\hline
+Mã & Mục tiêu & Tác nhân chính & Kết quả \\ \hline
+\endhead
+UC-01 & Khám phá và theo dõi hội nghị & Tác giả & Hội nghị phù hợp được chọn hoặc lưu theo dõi \\ \hline
+UC-02 & Hoàn tất và kiểm tra bài nộp & Tác giả & Bản nháp được lưu hoặc bài được gửi sau khi xác nhận \\ \hline
+UC-03 & Quản lý vòng đời bài nộp & Tác giả & Trạng thái và hành động hợp lệ theo từng giai đoạn \\ \hline
+UC-04 & Tiếp nhận lời mời và xem bài được phân công & Phản biện viên & Lời mời được phản hồi và bài được hiển thị theo quyền \\ \hline
+UC-05 & Đọc, soạn và gửi phản biện & Phản biện viên & Bản phản biện nháp hoặc bản gửi chính thức \\ \hline
+UC-06 & Phân công và kiểm tra xung đột lợi ích & Chủ tọa & Đề xuất phân công có điểm số, ràng buộc và căn cứ \\ \hline
+UC-07 & Quản lý hội nghị và tiến độ & Chủ tọa & Cấu hình hội nghị và danh sách việc cần xử lý \\ \hline
+UC-08 & Trao đổi theo bài nộp & Tác giả, Phản biện viên & Lịch sử thảo luận gắn với bài nộp \\ \hline
+UC-09 & Tổng hợp bằng chứng hỗ trợ quyết định & Chủ tọa & Bản tổng hợp để đối chiếu trước khi ra quyết định \\ \hline
+UC-10 & Truy vấn trạng thái và hướng dẫn & Ba vai trò & Câu trả lời dựa trên dữ liệu được phép truy cập \\ \hline
+\end{longtable}
+\endgroup
+
+Bảng~\ref{tab:ch3-demo-requirement-trace} đối chiếu các nhóm yêu cầu chức năng ở Chương 2 với use case và phần thiết kế chịu trách nhiệm giải thích cơ chế. Phụ lục~\ref{sec:appendix-a-usecases} trình bày đặc tả đầy đủ của từng use case.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{|T{0.29\textwidth}|T{0.20\textwidth}|T{0.39\textwidth}|}
+\caption{Truy vết yêu cầu đến use case và thành phần thiết kế}\label{tab:ch3-demo-requirement-trace}\\
+\hline
+Mã yêu cầu & Use case & Thành phần thiết kế chính \\ \hline
+\endfirsthead
+\hline
+Mã yêu cầu & Use case & Thành phần thiết kế chính \\ \hline
+\endhead
+F-AUTHOR-01 & UC-01 & Giao diện khám phá và dữ liệu hội nghị \\ \hline
+F-AUTHOR-02, F-AUTHOR-06 & UC-02, UC-03, UC-08 & Vòng đời bài nộp, phản hồi và thảo luận \\ \hline
+F-AUTHOR-03, F-AUTHOR-04, F-AUTHOR-05 & UC-02 & Submission Autofill và Submission Gating \\ \hline
+F-REVIEWER-01, F-REVIEWER-02, F-REVIEWER-03 & UC-04, UC-05 & Lời mời, phân công, biểu mẫu và phân quyền \\ \hline
+F-REVIEWER-04, F-REVIEWER-05, F-REVIEWER-06 & UC-05 & Reviewer Initial Analysis và Review Quality Auditor \\ \hline
+F-CHAIR-01, F-CHAIR-02 & UC-07, UC-08 & Cấu hình, giám sát tiến độ và thảo luận \\ \hline
+F-CHAIR-03, F-CHAIR-04, F-CHAIR-05 & UC-06 & Đối sánh và phát hiện xung đột lợi ích \\ \hline
+F-CHAIR-06 & UC-09 & Chair Decision Copilot \\ \hline
+F-COMMON-01 & UC-10 & Chatbot Agent và endpoint truy vấn của backend \\ \hline
+F-COMMON-02, F-COMMON-03 & Xuyên suốt & Phân quyền, thông báo và môi trường vận hành \\ \hline
+\end{longtable}
+\endgroup
+
+\subsection{Vòng đời nghiệp vụ}
+
+Mười use case cùng tham gia một vòng đời từ khi Tác giả chuẩn bị bài đến khi Chủ tọa ra quyết định và Tác giả nộp bản thảo hoàn chỉnh. Hình~\ref{fig:ch3-demo-lifecycle} làm rõ các nhánh trạng thái chính và trách nhiệm của từng vai trò.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tikzpicture}[
+  stage/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.0cm, minimum height=12mm, fill=blue!7},
+  decision/.style={draw=black!65, diamond, aspect=2.2, align=center, text width=2.5cm, fill=orange!9},
+  note/.style={font=\footnotesize, align=center, fill=white, inner sep=1pt}, >=Latex]
+  \node[stage] (draft) at (0,0) {Bài nháp};
+  \node[stage] (submitted) at (4.2,0) {Bài đã gửi};
+  \node[stage,fill=gray!9] (withdrawn) at (4.2,-2.4) {Bài đã rút};
+  \node[stage] (assigned) at (8.4,0) {Phân công phản biện};
+  \node[stage] (reviewed) at (12.6,0) {Phản biện đã gửi};
+  \node[stage] (discussion) at (10.5,-3.5) {Phản hồi và thảo luận};
+  \node[decision] (decision) at (6.3,-5.9) {Quyết định của Chủ tọa};
+  \node[stage,fill=green!8] (accepted) at (2.1,-8.3) {Bài được chấp nhận};
+  \node[stage,fill=red!6] (rejected) at (10.5,-8.3) {Bài bị từ chối};
+  \node[stage] (camera) at (2.1,-10.9) {Bản thảo hoàn chỉnh};
+  \draw[-{Latex},thick] (draft) -- node[note] {gửi bài} (submitted);
+  \draw[-{Latex},thick] (submitted) -- (assigned);
+  \draw[-{Latex},thick] (submitted) -- node[note,left] {rút khi được phép} (withdrawn);
+  \draw[-{Latex},thick] (assigned) -- (reviewed);
+  \draw[-{Latex},thick] (reviewed) -- (discussion);
+  \path[-{Latex},thick] (discussion) edge[loop right,looseness=5] node[note] {phản hồi và cập nhật đánh giá} (discussion);
+  \draw[-{Latex},thick] (discussion) -- (decision);
+  \draw[-{Latex},thick] (decision) -- node[note,left] {chấp nhận} (accepted);
+  \draw[-{Latex},thick] (decision) -- node[note,right] {từ chối} (rejected);
+  \draw[-{Latex},thick] (accepted) -- (camera);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Vòng đời nghiệp vụ từ bài nháp đến quyết định và bản thảo hoàn chỉnh}
+\label{fig:ch3-demo-lifecycle}
+\end{figure}
+
+Tác giả có thể rút bài đã gửi khi cấu hình và hạn chót nộp bài cho phép. Sau khi phản biện được công bố, Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi; Tác giả gửi phản hồi, còn Phản biện viên có thể cập nhật đánh giá sau khi đọc phản hồi. Các thay đổi này cập nhật bộ bằng chứng trước khi Chủ tọa ra quyết định. Chỉ bài ở trạng thái được chấp nhận mới chuyển sang bước nộp bản thảo hoàn chỉnh.
+
+\subsection{Mô tả và giao diện các use case}
+
+Phần này giữ mục tiêu, ranh giới nghiệp vụ và giao diện đại diện của cả mười use case để người đọc hình dung cách hệ thống hỗ trợ từng vai trò. Các điều kiện tiên quyết, trình tự đầy đủ, nhánh lỗi và hậu điều kiện được trình bày tại Phụ lục~\ref{sec:appendix-a-usecases}.
+
+\subsubsection{UC-01. Khám phá và theo dõi hội nghị}
+
+Tác giả tìm kiếm hội nghị theo từ khóa, lĩnh vực, chuyên đề hoặc trạng thái, sau đó xem thông tin kêu gọi nộp bài và các hạn chót liên quan. Hệ thống chỉ cho phép bắt đầu bài nộp khi hội nghị còn mở; hội nghị đã đóng vẫn có thể được xem hoặc lưu theo dõi.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc01_explore_conferences.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc01_conference_detail_overview.png}
+\end{minipage}
+\caption{Giao diện khám phá hội nghị và trang tổng quan của hội nghị}
+\label{fig:ch3-demo-uc01}
+\end{figure}
+
+Hình~\ref{fig:ch3-demo-uc01} cho thấy điểm bắt đầu của hành trình Tác giả: danh sách hội nghị hỗ trợ tìm kiếm, còn trang tổng quan tập hợp thông tin cần thiết trước khi người dùng quyết định theo dõi hoặc nộp bài.
+
+\subsubsection{UC-02. Hoàn tất và kiểm tra bài nộp}
+
+Tác giả tạo bản nháp, tải bản thảo và có thể dùng Submission Autofill để trích xuất siêu dữ liệu cùng gợi ý chuyên đề trong danh sách hợp lệ. Tác giả kiểm tra, chỉnh sửa thông tin, khai báo đồng tác giả và xung đột lợi ích trước khi Submission Gating kiểm tra tệp, chính sách và điều kiện gửi bài. Trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=0.48\textwidth]{images/chapter_3_uc02_autofill_1.png}\hfill
+\includegraphics[width=0.48\textwidth]{images/chapter_3_uc02_autofill_2.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc02_precheck_gating.png}
+\end{minipage}
+\caption{Giao diện Submission Autofill và kết quả kiểm tra của Submission Gating}
+\label{fig:ch3-demo-uc02}
+\end{figure}
+
+Hình~\ref{fig:ch3-demo-uc02} đặt hai chức năng AI vào cùng luồng nộp bài. Submission Autofill tạo dữ liệu nháp có thể sửa, còn Submission Gating trình bày kết quả kiểm tra trước khi Tác giả xác nhận gửi.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{images/chapter_3_uc02_authors_conflict.png}
+\caption{Giao diện khai báo đồng tác giả và xung đột lợi ích}
+\label{fig:ch3-demo-uc02-conflict}
+\end{figure}
+
+\subsubsection{UC-03. Quản lý vòng đời bài nộp}
+
+Tác giả theo dõi các bài đã tạo và thực hiện hành động phù hợp với trạng thái: chỉnh sửa bản nháp; theo dõi hoặc rút bài đã gửi khi được phép; xem phản biện; gửi phản hồi trong giai đoạn do Chủ tọa mở; và tải bản thảo hoàn chỉnh khi bài được chấp nhận. Backend từ chối yêu cầu không phù hợp với trạng thái hoặc hạn chót tương ứng.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc03_submissions_list.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc03_submission_detail.png}
+\end{minipage}
+\caption{Danh sách bài nộp và trang chi tiết bài nộp của Tác giả}
+\label{fig:ch3-demo-uc03}
+\end{figure}
+
+Hình~\ref{fig:ch3-demo-uc03} cung cấp hai mức thông tin: danh sách giúp Tác giả nhận biết trạng thái của nhiều bài, còn trang chi tiết tập hợp phản biện, quyết định và thao tác nộp bản thảo hoàn chỉnh.
+
+\subsubsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
+
+Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo cho người nhận. Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Sau khi Chủ tọa tạo phân công, Phản biện viên xem bài, hạn chót và trạng thái trong không gian làm việc; backend chỉ trả các phân công thuộc người dùng hiện tại.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc04_reviewer_invitations_2.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
+\end{minipage}
+\caption{Danh sách lời mời và giao diện phản hồi phân công của Phản biện viên}
+\label{fig:ch3-demo-uc04}
+\end{figure}
+
+\subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
+
+Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Reviewer Initial Analysis cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, Review Quality Auditor rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện có mức nghiêm trọng blocking có thể được lớp nghiệp vụ ánh xạ thành trạng thái block khi gửi chính thức; phiên bản hiện tại chưa cung cấp cơ chế ghi đè phát hiện này. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{images/chapter_3_uc05_reviewer_workspace_1.png}
+\caption{Không gian đọc bài và soạn phản biện của Phản biện viên}
+\label{fig:ch3-demo-uc05-workspace}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc05_reviewer_initial_analysis.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc05_reviewer_quality_auditor.png}
+\end{minipage}
+\caption{Bản định hướng đọc và bảng rà soát chất lượng bản phản biện}
+\label{fig:ch3-demo-uc05-ai}
+\end{figure}
+
+\subsubsection{UC-06. Phân công phản biện có kiểm tra xung đột lợi ích}
+
+Hệ thống tính điểm phù hợp cho các cặp bài nộp và Phản biện viên, loại các cặp có xung đột lợi ích khỏi đề xuất tự động và theo dõi tải phát sinh trong lượt chạy. Chủ tọa xem điểm số, lý do đối sánh, trạng thái kiểm tra xung đột và danh sách bài chưa đủ người trước khi điều chỉnh hoặc xác nhận.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc06_assignment_dashboard.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc06_assignment_suggestions.png}
+\end{minipage}
+\caption{Bảng điều khiển phân công và danh sách đề xuất đối sánh}
+\label{fig:ch3-demo-uc06}
+\end{figure}
+
+\subsubsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
+
+Chủ tọa cấu hình thông tin hội nghị, chuyên đề, hạn chót, biểu mẫu phản biện và chính sách; mời thành viên hội đồng chương trình; theo dõi số bài, tiến độ phản biện và các trường hợp cần xử lý. Bảng điều khiển hỗ trợ nhận biết điểm nghẽn nhưng không tự chuyển giai đoạn hoặc ra quyết định thay Chủ tọa.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc07_conference_config.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc07_chair_dashboard.png}
+\end{minipage}
+\caption{Giao diện cấu hình và bảng điều khiển tiến độ hội nghị}
+\label{fig:ch3-demo-uc07}
+\end{figure}
+
+\subsubsection{UC-08. Trao đổi theo bài nộp}
+
+Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi. Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả của bài và Phản biện viên trao đổi trong chuỗi tương ứng, còn Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát. Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc08_create_discussion.png}
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}
+\centering
+\includegraphics[width=\textwidth]{images/chapter_3_uc08_discussion_chat.png}
+\end{minipage}
+\caption{Giao diện tạo chuỗi và trao đổi theo bài nộp}
+\label{fig:ch3-demo-uc08}
+\end{figure}
+
+\subsubsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
+
+Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chair Decision Copilot tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{images/chapter_3_uc09_decision_support.png}
+\caption{Giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa}
+\label{fig:ch3-demo-uc09}
+\end{figure}
+
+\subsubsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
+
+Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại. Nếu câu hỏi cần dữ liệu nghiệp vụ, Chatbot Agent gọi công cụ truy vấn để gửi yêu cầu có cấu trúc đến backend. Backend kiểm tra mã xác thực, tài nguyên, trường dữ liệu, bộ lọc và quyền của người dùng trước khi trả phần dữ liệu tối thiểu được phép. Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{images/chapter_3_uc10_chatbot_interface.png}
+\caption{Giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent}
+\label{fig:ch3-demo-uc10}
+\end{figure}
+
+\section{Thiết kế kỹ thuật}
+\label{sec:ch3-demo-technical}
+
+\subsection{Kiến trúc tổng thể}
+
+ConferenceSpace gồm giao diện web Next.js, backend Go và Gin, dịch vụ AI FastAPI, PostgreSQL, Redis, Neo4j và cổng Caddy. Backend nghiệp vụ là một ứng dụng nguyên khối có kiến trúc phân lớp. Nhóm không chia nhỏ nghiệp vụ thành các vi dịch vụ khi chưa có nhu cầu vận hành tương ứng. Dịch vụ AI và các kho dữ liệu được tách tại ranh giới triển khai vì có vòng đời, tải xử lý và yêu cầu truy cập khác với backend.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tikzpicture}[>=Latex,
+  box/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.0cm, minimum height=11mm, fill=blue!7}]
+  \node[box] (browser) at (0,0) {Trình duyệt};
+  \node[box] (caddy) at (0,-2.2) {Caddy};
+  \node[box] (web) at (0,-4.4) {Next.js};
+  \node[box] (backend) at (0,-6.6) {Backend Go và Gin};
+  \node[box,fill=green!7] (postgres) at (-6.0,-9.2) {PostgreSQL};
+  \node[box,fill=green!7] (neo4j) at (-2.0,-9.2) {Neo4j};
+  \node[box,fill=orange!9] (ai) at (2.0,-9.2) {Dịch vụ AI};
+  \node[box] (external) at (6.0,-9.2) {Nguồn dữ liệu học thuật};
+  \node[box,fill=green!7] (redis) at (0,-11.8) {Redis};
+  \node[box] (provider) at (4.2,-11.8) {Nhà cung cấp mô hình};
+  \draw[-{Latex},thick] (browser) -- (caddy);
+  \draw[-{Latex},thick] (caddy) -- (web);
+  \draw[-{Latex},thick] (web) -- (backend);
+  \draw[-{Latex},thick] (web) -- (ai);
+  \draw[-{Latex},thick] (backend) -- (postgres);
+  \draw[-{Latex},thick] (backend) -- (neo4j);
+  \draw[-{Latex},thick] (backend) -- (ai);
+  \draw[-{Latex},thick,dashed] (ai) to[bend left=24] (backend);
+  \draw[-{Latex},thick] (backend) -- (external);
+  \draw[-{Latex},thick] (ai) -- (redis);
+  \draw[-{Latex},thick] (ai) -- (provider);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Kiến trúc dịch vụ và ranh giới dữ liệu của ConferenceSpace}
+\label{fig:ch3-demo-architecture}
+\end{figure}
+
+Backend là ranh giới nghiệp vụ chính đối với dữ liệu và cập nhật trạng thái. Giao diện không truy cập trực tiếp cơ sở dữ liệu hoặc nhà cung cấp mô hình. Next.js có luồng giao tiếp trực tiếp với dịch vụ AI cho hội thoại; khi Chatbot Agent cần dữ liệu nghiệp vụ, dịch vụ AI gọi endpoint truy vấn của backend bằng mã xác thực người dùng và mã xác thực liên dịch vụ. Backend tiếp tục kiểm tra tài nguyên và quyền theo vai trò trong hội nghị.
+
+\subsection{Thiết kế giao diện, backend và phân quyền}
+
+Giao diện được tổ chức theo không gian làm việc của từng vai trò. Không gian Tác giả kết nối hoạt động khám phá hội nghị, nộp và quản lý bài; không gian Phản biện viên kết nối lời mời, bài được phân công, trình soạn phản biện và thảo luận; không gian Chủ tọa kết nối cấu hình, phân công, giám sát tiến độ và ra quyết định. Chatbot Agent và thông báo xuất hiện trong cả ba không gian nhưng dùng cùng ngữ cảnh xác thực và quyền trên tài nguyên.
+
+Backend áp dụng kiến trúc phân lớp. Tầng điều khiển tiếp nhận yêu cầu HTTP; tầng dịch vụ thực thi nghiệp vụ; tầng lưu trữ làm việc với PostgreSQL; tầng tích hợp kết nối dịch vụ AI, Neo4j, nguồn dữ liệu học thuật và thư điện tử. Nghiệp vụ phân công được tách thành miền riêng để logic tính điểm, đối sánh và phát hiện xung đột lợi ích có thể được kiểm thử độc lập.
+
+Hệ thống phân quyền theo vai trò trong từng hội nghị thay vì dùng quyền toàn cục. Một người có thể là Tác giả ở hội nghị này, Phản biện viên ở hội nghị khác và Chủ tọa ở hội nghị thứ ba. Backend vì vậy kiểm tra cả danh tính người dùng và quan hệ của người dùng với tài nguyên cụ thể. Phụ lục~\ref{sec:appendix-a-data} trình bày ma trận quyền và các nhóm dữ liệu liên quan.
+
+\subsection{Thiết kế dữ liệu}
+
+ConferenceSpace phân chia dữ liệu theo yêu cầu giao dịch và kiểu truy vấn. PostgreSQL lưu dữ liệu nghiệp vụ, phiên hội thoại và kết quả cần truy vết; Neo4j lưu quan hệ đồng tác giả để truy vấn nhiều bậc; Redis lưu kết quả công cụ đang chờ và bộ đếm giới hạn tần suất có thời hạn ngắn.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{|T{0.24\textwidth}|T{0.30\textwidth}|T{0.34\textwidth}|}
+\caption{Nhóm dữ liệu chính trong thiết kế hệ thống}\label{tab:ch3-demo-data-groups}\\
+\hline
+Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò trong thiết kế \\ \hline
+\endfirsthead
+\hline
+Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò trong thiết kế \\ \hline
+\endhead
+Nghiệp vụ hội nghị & Hội nghị, bài nộp, phân công và phản hồi & Bảo toàn vòng đời nộp bài, phản biện và quyết định \\ \hline
+Phân quyền và phối hợp & Người dùng, vai trò, chuỗi thảo luận và thông báo & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
+Học thuật và xung đột lợi ích & Hồ sơ học thuật, bài công bố, quan hệ xung đột và đồ thị Neo4j & Lưu căn cứ để loại cặp xung đột và hỗ trợ Chủ tọa kiểm tra \\ \hline
+Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn và nhật ký công cụ & Theo dõi đầu vào, đầu ra, trạng thái và lỗi của từng luồng AI \\ \hline
+\end{longtable}
+\endgroup
+
+Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện đầu vào cùng mã chính sách cho mỗi lần chạy, còn Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa; Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
+
+\section{Cơ chế nghiệp vụ và thuật toán xác định}
+\label{sec:ch3-demo-deterministic}
+
+Các tác vụ có quy tắc rõ ràng được tách khỏi lớp AI để người dùng có thể kiểm tra điều kiện và nguyên nhân của kết quả. Nhóm này gồm đối sánh Phản biện viên, phát hiện xung đột lợi ích, kiểm soát trạng thái và hạn chót, phân quyền, định tuyến thông báo và kiểm tra cấu trúc dữ liệu.
+
+\subsection{Đối sánh Phản biện viên}
+
+Với tập miền chuyên môn của bài nộp là \(S\) và của Phản biện viên là \(R\), hệ thống tính điểm phù hợp bằng hệ số Jaccard:
+
+\[
+J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
+\]
+
+Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\) vì không có bằng chứng về mức độ phù hợp. Nhóm chọn Jaccard vì điểm số có thể giải thích trực tiếp từ số miền chuyên môn chung và không cần dữ liệu huấn luyện. Thuật toán tham lam sắp xếp ứng viên theo điểm giảm dần; khi các ứng viên bằng điểm, hệ thống ưu tiên người có ít bài đang được phân công hơn, sau đó dùng thứ tự cố định theo định danh nếu mức tải vẫn bằng nhau. Phương án này tạo thứ tự ổn định và đơn giản hóa việc kiểm tra, nhưng vẫn có thể bỏ lỡ phương án có tổng mức phù hợp cao hơn cho toàn bộ hội nghị.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.90\textwidth, max height=0.72\textheight, keepaspectratio}
+\begin{tikzpicture}[
+  processNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=5.0cm, minimum height=11mm, fill=blue!7},
+  pass/.style={draw=black!65, rounded corners=2pt, align=left, text width=5.8cm, minimum height=18mm, fill=green!7},
+  decision/.style={draw=black!65, diamond, aspect=2.2, align=center, text width=3.0cm, fill=orange!9}, >=Latex]
+  \node[processNode] (matrix) at (0,0) {Tạo ma trận điểm Jaccard};
+  \node[processNode] (filter) at (0,-2.2) {Loại các cặp có xung đột lợi ích};
+  \node[processNode] (sort) at (0,-4.4) {Sắp xếp điểm giảm dần};
+  \node[pass] (pass1) at (0,-7.0) {Lượt 1: giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh và xung đột lợi ích};
+  \node[decision] (missing) at (0,-10.2) {Bài nào vẫn chưa có Phản biện viên?};
+  \node[pass] (pass2) at (5.8,-13.4) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
+  \node[processNode] (result) at (0,-16.4) {Trả đề xuất và danh sách bài còn thiếu người};
+  \node[processNode,fill=orange!9] (confirm) at (0,-18.8) {Chủ tọa xem, điều chỉnh và xác nhận};
+  \draw[-{Latex},thick] (matrix) -- (filter);
+  \draw[-{Latex},thick] (filter) -- (sort);
+  \draw[-{Latex},thick] (sort) -- (pass1);
+  \draw[-{Latex},thick] (pass1) -- (missing);
+  \draw[-{Latex},thick] (missing) -- node[fill=white] {Có} (pass2);
+  \draw[-{Latex},thick] (missing) -- node[fill=white] {Không} (result);
+  \draw[-{Latex},thick] (pass2) -- (result);
+  \draw[-{Latex},thick] (result) -- (confirm);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Hai lượt của thuật toán đối sánh GreedyMatcher}
+\label{fig:ch3-demo-matching}
+\end{figure}
+
+Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) hoặc làm Phản biện viên vượt giới hạn tải phát sinh trong lượt chạy, nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng và chỉ bổ sung một Phản biện viên cho mỗi bài chưa đủ người. Thuật toán cũng không bảo đảm mọi bài có đủ số người yêu cầu. Đầu ra vì vậy gồm điểm, lý do và danh sách bài còn thiếu người để Chủ tọa kiểm tra. Phụ lục~\ref{sec:appendix-a-algorithms} trình bày thủ tục, ngoại lệ và ranh giới của thuật toán.
+
+\subsection{Phát hiện xung đột lợi ích}
+
+Hệ thống kiểm tra xung đột lợi ích theo ba nguồn bổ sung cho nhau: quan hệ tác giả của bài, khai báo thủ công và quan hệ đồng tác giả nhiều bậc trong Neo4j. Thuật toán tự động loại cặp có xung đột trong cả hai lượt đối sánh. Khi Chủ tọa thêm đề xuất thủ công, backend kiểm tra trực tiếp các nguồn hiện có, trả cảnh báo và lưu trạng thái kiểm tra trong siêu dữ liệu của đề xuất; luồng này hiện cảnh báo thay vì ngăn ghi dữ liệu.
+
+Nếu Neo4j chưa được cấu hình, hệ thống tiếp tục bằng các nguồn còn lại và ghi nhận rằng lớp đồ thị đã bị bỏ qua. Nếu truy vấn Neo4j thất bại, hệ thống không thể khẳng định quan hệ đồng tác giả nhiều bậc đã được kiểm tra đầy đủ. Giới hạn này yêu cầu Chủ tọa xem căn cứ trước khi xác nhận phân công.
+
+\section{Giải pháp AI}
+\label{sec:ch3-demo-ai}
+
+AI được tích hợp vào sáu luồng hỗ trợ: Submission Autofill hỗ trợ nhập liệu; Submission Gating hỗ trợ kiểm tra bài nộp; Reviewer Initial Analysis hỗ trợ định hướng đọc; Review Quality Auditor hỗ trợ rà soát bản nháp; Chair Decision Copilot hỗ trợ tổng hợp bằng chứng; Chatbot Agent hỗ trợ truy vấn dữ liệu.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{|T{0.18\textwidth}|T{0.25\textwidth}|T{0.22\textwidth}|T{0.25\textwidth}|}
+\caption{Đầu ra và điểm kiểm soát của các luồng AI}\label{tab:ch3-demo-ai-overview}\\
+\hline
+Luồng & Đầu ra chính & Người kiểm tra & Ranh giới \\ \hline
+\endfirsthead
+\hline
+Luồng & Đầu ra chính & Người kiểm tra & Ranh giới \\ \hline
+\endhead
+Submission Autofill & Siêu dữ liệu nháp và gợi ý chuyên đề hợp lệ & Tác giả & Không tự gửi bài hoặc thay dữ liệu đã xác nhận \\ \hline
+Submission Gating & Trạng thái kiểm tra, phát hiện và hướng dẫn & Tác giả & Không đánh giá hoặc từ chối bài về mặt học thuật \\ \hline
+Reviewer Initial Analysis & Bản định hướng đọc và chú thích theo phần & Phản biện viên & Không thay thế việc đọc và nhận định chuyên môn \\ \hline
+Review Quality Auditor & Bản rà soát và danh sách phát hiện & Phản biện viên & Phát hiện mức blocking có thể chuyển thành block khi gửi chính thức; phiên bản hiện tại chưa có cơ chế ghi đè \\ \hline
+Chair Decision Copilot & Bản tổng hợp đồng thuận, bất đồng và vấn đề còn mở & Chủ tọa & Không đưa ra khuyến nghị chấp nhận hoặc từ chối \\ \hline
+Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quyền & Người dùng và backend & Không truy cập trực tiếp cơ sở dữ liệu \\ \hline
+\end{longtable}
+\endgroup
+
+Các luồng dùng chung việc kiểm tra cấu trúc đầu ra, mã nhận diện dữ liệu, mã chính sách khi cần, xử lý lỗi và nhật ký kiểm toán. Những cơ chế này hỗ trợ truy vết nhưng không chứng minh đầu ra luôn đúng. Riêng Review Quality Auditor có thể dẫn đến trạng thái block khi gửi chính thức nếu phát hiện mức blocking; phiên bản hiện tại chỉ cho phép bỏ qua cảnh báo mức warning và chưa có cơ chế ghi đè phát hiện blocking. Người dùng phải đối chiếu kết quả với dữ liệu gốc và chịu trách nhiệm về thao tác nghiệp vụ tiếp theo. Phụ lục~\ref{sec:appendix-a-ai} trình bày đầu vào, các giai đoạn xử lý, đầu ra, lỗi và điểm kiểm soát của từng luồng.
+
+\section{Môi trường triển khai và vận hành}
+\label{sec:ch3-demo-deployment}
+
+\subsection{Môi trường phát triển cục bộ}
+
+Môi trường phát triển cục bộ sử dụng Docker Compose để quản lý PostgreSQL, Redis, Neo4j và dịch vụ AI. Backend có thể chạy trực tiếp bằng Go để rút ngắn chu kỳ sửa mã và kiểm tra; giao diện web chạy bằng máy chủ phát triển của Next.js. Makefile tự động hóa việc khởi động cơ sở dữ liệu, cập nhật lược đồ, khởi tạo Neo4j, khởi động dịch vụ AI, tạo tài liệu API và chạy backend.
+
+\subsection{Môi trường triển khai chính thức}
+
+Môi trường triển khai chính thức đóng gói Caddy, giao diện web, backend, tác vụ cập nhật lược đồ, dịch vụ AI, PostgreSQL, Redis và Neo4j thành các dịch vụ độc lập. Caddy tiếp nhận lưu lượng từ Internet, định tuyến đến giao diện web hoặc backend và cung cấp HTTPS. Các kho dữ liệu không mở cổng trực tiếp ra Internet; cấu hình tách mạng ứng dụng khỏi mạng dữ liệu nội bộ.
+
+GitHub Actions xây dựng song song image của giao diện, backend và dịch vụ AI, gắn thẻ theo commit SHA rồi đẩy lên GitHub Container Registry. Máy chủ kéo đúng image đã xây dựng, chạy migration và cập nhật các container bằng Docker Compose. Cấu hình thực thi cùng giá trị bí mật được lưu ngoài mã nguồn trong tệp môi trường trên máy chủ hoặc GitHub Secrets.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.88\textwidth}
+\begin{tikzpicture}[>=Latex,
+  pipelineNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.2cm, minimum height=10mm, fill=blue!7}]
+  \node[pipelineNode] (source) at (0,0) {Đẩy mã nguồn hoặc chạy thủ công};
+  \node[pipelineNode] (frontend) at (-5.0,-2.8) {Build frontend};
+  \node[pipelineNode] (backend) at (0,-2.8) {Build backend};
+  \node[pipelineNode] (ai) at (5.0,-2.8) {Build dịch vụ AI};
+  \node[pipelineNode] (ghcr) at (0,-5.6) {Đẩy image lên GitHub Container Registry};
+  \node[pipelineNode] (vps) at (0,-8.4) {VPS kéo image theo commit SHA};
+  \node[pipelineNode] (migration) at (0,-11.2) {Chạy migration};
+  \node[pipelineNode] (compose) at (0,-14.0) {Docker Compose cập nhật dịch vụ};
+  \draw[-{Latex},thick] (source) -- (frontend);
+  \draw[-{Latex},thick] (source) -- (backend);
+  \draw[-{Latex},thick] (source) -- (ai);
+  \draw[-{Latex},thick] (frontend) -- (ghcr);
+  \draw[-{Latex},thick] (backend) -- (ghcr);
+  \draw[-{Latex},thick] (ai) -- (ghcr);
+  \draw[-{Latex},thick] (ghcr) -- (vps);
+  \draw[-{Latex},thick] (vps) -- (migration);
+  \draw[-{Latex},thick] (migration) -- (compose);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Luồng xây dựng image và triển khai tự động}
+\label{fig:ch3-demo-cicd}
+\end{figure}
+
+Chương này chỉ giữ kiến trúc và quyết định vận hành cần thiết cho lập luận. Phụ lục~\ref{AppendixB} trình bày đầy đủ lệnh khởi động, endpoint kiểm tra, biến môi trường, Docker Compose, Dockerfile, quy tắc đặt tên image, Caddyfile, mạng, volume và các bước GitHub Actions.
+
+\section{Tổng kết chương}
+\label{sec:ch3-demo-conclusion}
+
+Chương 3 đã trình bày cách ConferenceSpace phân bổ trách nhiệm giữa nghiệp vụ hội nghị, thuật toán xác định và AI hỗ trợ. Mười use case cùng các giao diện đại diện mô tả vòng đời chính của Tác giả, Phản biện viên và Chủ tọa. Kiến trúc kỹ thuật triển khai các vòng đời này bằng giao diện theo vai trò, backend có phân quyền, PostgreSQL, Neo4j, Redis, dịch vụ AI và cổng truy cập trong môi trường triển khai.
+
+Luận điểm thiết kế trung tâm là hệ thống phải tách các quyết định cần kết quả xác định khỏi luồng tạo nội dung bằng mô hình ngôn ngữ. Đối sánh Phản biện viên và phát hiện xung đột lợi ích có đầu vào, công thức, ràng buộc và cách xử lý riêng; AI chỉ hỗ trợ nhập liệu, đọc, rà soát, tổng hợp bằng chứng và truy vấn. Người dùng có thẩm quyền vẫn xác nhận dữ liệu nghiệp vụ và quyết định học thuật.
+
+Thiết kế cũng xác định các giới hạn cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Review Quality Auditor có thể chặn gửi khi phát hiện mức blocking và chưa có cơ chế ghi đè. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
