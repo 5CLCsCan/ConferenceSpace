@@ -1,0 +1,82 @@
+% !TEX program = xelatex
+\documentclass[oneside,a4paper,14pt]{extreport}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T5]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+\fi
+
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{seqsplit}
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,columns=fullflexible}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{adjustbox}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage[unicode,hypertexnames=false]{hyperref}
+\usepackage[top=30mm,bottom=25mm,left=30mm,right=20mm,includefoot]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\newcolumntype{T}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{N}[1]{>{\centering\arraybackslash}p{#1}}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
+
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\contentsname}{Mục lục}
+\renewcommand{\listfigurename}{Danh sách hình}
+\renewcommand{\listtablename}{Danh sách bảng}
+\renewcommand{\appendixname}{Phụ lục}
+
+\titleformat{\chapter}[display]
+  {\LARGE\bfseries}
+  {\chaptertitlename\ \thechapter}{18pt}{\huge}
+
+\onehalfspacing
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+\captionsetup[figure]{position=bottom,justification=centering,singlelinecheck=false}
+\captionsetup[table]{justification=centering,singlelinecheck=false}
+
+\begin{document}
+\pagenumbering{arabic}
+\setcounter{chapter}{2}
+\tableofcontents
+\clearpage
+
+\input{Chapter3/chapter3}
+
+\appendix
+\input{Appendix/appendix-a}
+\input{Appendix/appendix-b}
+
+\end{document}

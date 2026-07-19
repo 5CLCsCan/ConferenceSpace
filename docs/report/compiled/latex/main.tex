@@ -97,6 +97,8 @@
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{T}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{N}[1]{>{\centering\arraybackslash}p{#1}}
 \newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
 \newcommand{\TableHeader}[1]{\centering\arraybackslash #1}
 % Template bảng dùng lại:
@@ -236,6 +238,9 @@
   \else
     \include{Chapter3/chapter3}
   \fi\fi\fi
+  \appendix
+  \input{Appendix/appendix-a}
+  \input{Appendix/appendix-b}
   \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
   \begingroup
   \sloppy
@@ -335,6 +340,11 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Danh mục thuật ngữ và từ viết tắt}
 \include{Appendix/danh-muc-thuat-ngu}
+
+% Phụ lục của Chương 3
+\appendix
+\input{Appendix/appendix-a}
+\input{Appendix/appendix-b}
 
 \fi\fi\fi\fi\fi
 
