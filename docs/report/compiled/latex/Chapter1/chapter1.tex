@@ -14,7 +14,7 @@ Bên cạnh các yêu cầu về liêm chính học thuật, khảo sát các n�
 
 Những quan sát trên cho thấy việc tích hợp AI vào quy trình xét duyệt không thể chỉ dựa trên khả năng tự động hóa của công nghệ. Mỗi công đoạn có mức độ ảnh hưởng, yêu cầu về khả năng kiểm tra lại và trách nhiệm học thuật khác nhau; vì vậy, cơ chế xử lý cũng cần được lựa chọn theo tính chất của từng tác vụ. Trên cơ sở đó, đề tài tổng hợp một khung phân loại theo bốn tiêu chí: bản chất nghiệp vụ của tác vụ, yêu cầu tái lập hoặc kiểm tra kết quả, loại đầu ra được phép tạo và chủ thể chịu trách nhiệm xác nhận hoặc quyết định. Đây là khung do đề tài xây dựng để tổ chức thiết kế và đánh giá hệ thống, không phải hệ phân loại được các nguồn khảo sát quy định trực tiếp.
 
-Để áp dụng khung này, nhóm xây dựng \textbf{ConferenceSpace} như một nền tảng thực nghiệm nhằm đánh giá cách phân công trách nhiệm trong quy trình xét duyệt. Hệ thống tổ chức các tác vụ thành ba lớp. Lớp nghiệp vụ cốt lõi quản lý trạng thái, quyền hạn và các bước xử lý của hội nghị. Lớp thuật toán xác định và có thể kiểm chứng xử lý đối sánh phản biện viên và phát hiện xung đột lợi ích, trong đó kết quả được trình bày dưới dạng đề xuất hoặc bằng chứng để Chủ tọa xem xét. Lớp AI hỗ trợ tự động điền, cảnh báo, phân tích và tổng hợp thông tin, nhưng không tự đưa ra quyết định học thuật. Cách phân chia này làm rõ loại đầu ra, mức độ ảnh hưởng và chủ thể chịu trách nhiệm đối với từng tác vụ; đồng thời cho phép đề tài xây dựng tiêu chí đánh giá phù hợp cho từng lớp thay vì gộp mọi thành phần vào một kết luận chung về ``AI trong xét duyệt''.
+Để áp dụng khung này, nhóm xây dựng \textit{ConferenceSpace} như một nền tảng thực nghiệm nhằm đánh giá cách phân công trách nhiệm trong quy trình xét duyệt. Hệ thống tổ chức các tác vụ thành ba lớp. Lớp nghiệp vụ cốt lõi quản lý trạng thái, quyền hạn và các bước xử lý của hội nghị. Lớp thuật toán xác định và có thể kiểm chứng xử lý đối sánh phản biện viên và phát hiện xung đột lợi ích, trong đó kết quả được trình bày dưới dạng đề xuất hoặc bằng chứng để Chủ tọa xem xét. Lớp AI hỗ trợ tự động điền, cảnh báo, phân tích và tổng hợp thông tin, nhưng không tự đưa ra quyết định học thuật. Cách phân chia này làm rõ loại đầu ra, mức độ ảnh hưởng và chủ thể chịu trách nhiệm đối với từng tác vụ; đồng thời cho phép đề tài xây dựng tiêu chí đánh giá phù hợp cho từng lớp thay vì gộp mọi thành phần vào một kết luận chung về ``AI trong xét duyệt''.
 
 \section{Mục tiêu đề tài}
 
@@ -23,21 +23,20 @@ Mục tiêu tổng quát của đề tài là xây dựng và đánh giá Confer
 Các mục tiêu cụ thể gồm:
 
 \begin{itemize}
-\item \textbf{Xây dựng quy trình nghiệp vụ cốt lõi} cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, đối sánh phản biện viên và thu thập đánh giá đến phản hồi của tác giả, thảo luận và ra quyết định.
-\item \textbf{Xây dựng mô hình ba lớp trách nhiệm} gồm nghiệp vụ cốt lõi, thuật toán xác định và có thể kiểm chứng, cùng AI hỗ trợ có kiểm soát; qua đó xác định loại tác vụ, cơ chế xử lý và quyền quyết định phù hợp với từng lớp.
-\item \textbf{Xây dựng các cơ chế có thể kiểm chứng} cho đề xuất phản biện viên và phát hiện xung đột lợi ích, trong đó kết quả có thể được tái tạo và giải thích, đồng thời cung cấp căn cứ để Chủ tọa xem xét trước khi quyết định phân công.
-\item \textbf{Tích hợp các luồng AI hỗ trợ} cho nhập liệu, kiểm tra bản thảo, đọc hiểu, rà soát và tổng hợp thông tin trên tập dữ liệu thử nghiệm, theo quyền hạn đã xác định. Mỗi luồng chỉ tạo đầu ra theo chức năng đã thiết kế.
-\item \textbf{Đánh giá hệ thống bằng nhiều nhóm bằng chứng}, gồm hiệu năng của các nghiệp vụ được chọn; chất lượng và thời gian xử lý của thuật toán; độ chính xác, mức bám nguồn và trường hợp lỗi của từng luồng AI; khả năng tuân thủ phạm vi truy cập của Chatbot Agent; cùng bằng chứng cảm nhận từ kiểm thử chấp nhận của người dùng.
+\item Xây dựng quy trình nghiệp vụ cốt lõi cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, đối sánh phản biện viên và thu thập đánh giá đến phản hồi của tác giả, thảo luận và ra quyết định.
+\item Xây dựng mô hình ba lớp trách nhiệm gồm nghiệp vụ cốt lõi, thuật toán xác định và có thể kiểm chứng, cùng AI hỗ trợ có kiểm soát; qua đó xác định loại tác vụ, cơ chế xử lý và quyền quyết định phù hợp với từng lớp.
+\item Xây dựng các cơ chế có thể kiểm chứng cho đề xuất phản biện viên và phát hiện xung đột lợi ích, trong đó kết quả có thể được tái tạo và giải thích, đồng thời cung cấp căn cứ để Chủ tọa xem xét trước khi quyết định phân công.
+\item Tích hợp các luồng AI hỗ trợ cho nhập liệu, kiểm tra bản thảo, đọc hiểu, rà soát và tổng hợp thông tin trên tập dữ liệu thử nghiệm, theo quyền hạn đã xác định. Mỗi luồng chỉ tạo đầu ra theo chức năng đã thiết kế.
+\item Đánh giá hệ thống bằng nhiều nhóm bằng chứng, gồm hiệu năng của các nghiệp vụ được chọn; chất lượng và thời gian xử lý của thuật toán; độ chính xác, mức bám nguồn và trường hợp lỗi của từng luồng AI; khả năng tuân thủ phạm vi truy cập của Chatbot Agent; cùng bằng chứng cảm nhận từ kiểm thử chấp nhận của người dùng.
 \end{itemize}
 
 Để nối các mục tiêu với bằng chứng, Bảng~\ref{tab:chapter1-objective-traceability} trình bày câu hỏi đánh giá, nhóm chỉ số chính và vị trí kết quả tương ứng tại Chương 4.
 
-\begin{table}[H]
+\begin{table}[!htbp] 
 \centering
-\caption{Mối liên hệ giữa mục tiêu, câu hỏi và bằng chứng đánh giá}
-\label{tab:chapter1-objective-traceability}
-\setlength{\tabcolsep}{2pt}
-\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt} % Tăng không gian lề bên trong ô để chữ không dính sát vào vạch kẻ
+\renewcommand{\arraystretch}{1.3} % Tăng chiều cao của hàng để bảng thoáng hơn
+
 \begin{tabularx}{\textwidth}{|P{0.18\textwidth}|Y|Y|P{0.16\textwidth}|}
 \hline
 \TableHeader{Nhóm mục tiêu} & \TableHeader{Câu hỏi đánh giá} & \TableHeader{Chỉ số hoặc bằng chứng chính} & \TableHeader{Vị trí kết quả} \\ \hline
@@ -46,8 +45,11 @@ Thuật toán có thể kiểm chứng & Đối sánh phản biện viên truy h
 AI hỗ trợ có kiểm soát & Mỗi luồng AI đáp ứng tác vụ được giao đến mức nào trong cấu hình thử nghiệm? & Exact Match, ROUGE và F1 cho đầu ra có tham chiếu; Truthfulness, Coverage và Additionality trong khung TCA; tính hợp lệ đối với Review Quality Auditor; tỷ lệ hoàn tất, độ trễ và trường hợp lỗi & Chương 4, phần đánh giá AI \\ \hline
 Phân quyền và trải nghiệm & Chatbot có tuân thủ phạm vi truy cập trong các kịch bản đã kiểm tra, và người dùng đánh giá các nhiệm vụ của vòng đời xét duyệt được đưa vào kiểm thử như thế nào? & 40 hội thoại thuộc 8 nhóm kịch bản; kiểm thử chấp nhận của người dùng (User Acceptance Testing/UAT) với 91 phản hồi, gồm 76 Tác giả, 7 Phản biện viên và 8 phản hồi Chủ tọa ẩn danh & Chương 4, phần Chatbot và UAT \\ \hline
 \end{tabularx}
-\end{table}
 
+\vspace{0.2cm} % Tạo một khoảng trắng nhỏ giữa đáy bảng và caption
+\caption{Mối liên hệ giữa mục tiêu, câu hỏi và bằng chứng đánh giá}
+\label{tab:chapter1-objective-traceability}
+\end{table}
 Đề tài xác lập ba đóng góp về thiết kế, triển khai và đánh giá. Thứ nhất, ConferenceSpace cung cấp một nền tảng quản lý vòng đời xét duyệt để các chức năng hỗ trợ hoạt động trong cùng trạng thái và quyền hạn nghiệp vụ. Thứ hai, đề tài triển khai mô hình ba lớp trách nhiệm trong nguyên mẫu nhằm phân biệt tác vụ vận hành, tác vụ cần kết quả xác định và tác vụ sử dụng AI với đầu ra do người dùng kiểm tra. Thứ ba, đề tài xây dựng chuỗi bằng chứng theo lớp và theo tác vụ, trong đó kết quả, trường hợp lỗi và khoảng trống đánh giá được trình bày riêng thay vì gộp thành một kết luận duy nhất. Đề tài không tuyên bố mô hình này hoàn toàn mới hoặc tối ưu, đồng thời không khẳng định ConferenceSpace vượt trội hơn các nền tảng khác.
 
 \section{Phạm vi đề tài}
@@ -83,11 +85,11 @@ Các giới hạn trên xác định phạm vi kết luận của đề tài: b�
 Báo cáo được tổ chức thành năm chương theo mạch từ xác định vấn đề và nhu cầu đến xây dựng, đánh giá và tổng kết hệ thống:
 
 \begin{itemize}
-\item \textbf{Chương 1 -- Mở đầu:} trình bày bối cảnh, vấn đề, mục tiêu, phạm vi đề tài và cấu trúc luận văn.
-\item \textbf{Chương 2 -- Khảo sát nhu cầu, hiện trạng và định hướng thiết kế:} phân tích nhu cầu người dùng, khảo sát các nền tảng liên quan và dẫn xuất yêu cầu đối với ConferenceSpace.
-\item \textbf{Chương 3 -- Xây dựng hệ thống:} trình bày ca sử dụng, kiến trúc, thiết kế dữ liệu, cơ chế nghiệp vụ, thuật toán có thể kiểm chứng và các luồng AI.
-\item \textbf{Chương 4 -- Đánh giá thực nghiệm:} mô tả câu hỏi, dữ liệu và phương pháp đánh giá; sau đó trình bày kết quả cho từng lớp của hệ thống và phản hồi của người dùng.
-\item \textbf{Chương 5 -- Kết luận:} đối chiếu kết quả với mục tiêu, tổng hợp các giới hạn và đề xuất hướng phát triển.
+\item Chương 1 -- Mở đầu: trình bày bối cảnh, vấn đề, mục tiêu, phạm vi đề tài và cấu trúc luận văn.
+\item Chương 2 -- Khảo sát nhu cầu, hiện trạng và định hướng thiết kế: phân tích nhu cầu người dùng, khảo sát các nền tảng liên quan và dẫn xuất yêu cầu đối với ConferenceSpace.
+\item Chương 3 -- Xây dựng hệ thống: trình bày ca sử dụng, kiến trúc, thiết kế dữ liệu, cơ chế nghiệp vụ, thuật toán có thể kiểm chứng và các luồng AI.
+\item Chương 4 -- Đánh giá thực nghiệm: mô tả câu hỏi, dữ liệu và phương pháp đánh giá; sau đó trình bày kết quả cho từng lớp của hệ thống và phản hồi của người dùng.
+\item Chương 5 -- Kết luận: đối chiếu kết quả với mục tiêu, tổng hợp các giới hạn và đề xuất hướng phát triển.
 \end{itemize}
 
 Bố cục này cho phép mỗi kết luận được đối chiếu với vấn đề, mục tiêu, thiết kế và bằng chứng đánh giá tương ứng.
