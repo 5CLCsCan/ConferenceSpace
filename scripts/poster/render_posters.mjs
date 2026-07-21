@@ -1,6 +1,7 @@
+import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { chromium } from "../../frontend/node_modules/playwright/index.mjs";
 
@@ -11,22 +12,21 @@ const pdfDir = path.join(root, "output", "pdf");
 
 const posters = [
   {
-    stem: "conferencespace-poster-a-product-journey",
-    svg: path.join(svgDir, "conferencespace-poster-a-product-journey.svg"),
+    stem: "conferencespace-poster-a-research-poster",
+    svg: path.join(svgDir, "conferencespace-poster-a-research-poster.svg"),
   },
   {
-    stem: "conferencespace-poster-b-evidence-dashboard",
-    svg: path.join(svgDir, "conferencespace-poster-b-evidence-dashboard.svg"),
+    stem: "conferencespace-poster-b-product-showcase",
+    svg: path.join(svgDir, "conferencespace-poster-b-product-showcase.svg"),
   },
 ];
 
 await fs.mkdir(svgDir, { recursive: true });
 await fs.mkdir(pdfDir, { recursive: true });
 
-const browser = await chromium.launch({ headless: true });
-
-try {
-  for (const poster of posters) {
+async function renderPoster(poster) {
+  const browser = await chromium.launch({ headless: true });
+  try {
     const svg = await fs.readFile(poster.svg, "utf8");
     const page = await browser.newPage({ viewport: { width: 1403, height: 993 } });
     await page.setContent(`<!doctype html>
@@ -58,9 +58,33 @@ try {
       animations: "disabled",
     });
     await pngPage.close();
+  } finally {
+    await browser.close();
   }
-} finally {
-  await browser.close();
 }
 
-console.log(pathToFileURL(pdfDir).href);
+async function renderInIsolatedProcess(poster) {
+  await new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [fileURLToPath(import.meta.url), "--single", poster.stem], {
+      cwd: root,
+      stdio: "inherit",
+    });
+    child.once("error", reject);
+    child.once("exit", (code) => code === 0 ? resolve() : reject(new Error(`Renderer exited with code ${code}`)));
+  });
+}
+
+const singleIndex = process.argv.indexOf("--single");
+if (singleIndex >= 0) {
+  const stem = process.argv[singleIndex + 1];
+  const poster = posters.find((candidate) => candidate.stem === stem);
+  if (!poster) {
+    throw new Error(`Unknown poster stem: ${stem}`);
+  }
+  await renderPoster(poster);
+} else {
+  for (const poster of posters) {
+    await renderInIsolatedProcess(poster);
+  }
+  console.log(pathToFileURL(pdfDir).href);
+}

@@ -37,6 +37,8 @@ MEMBERS = (
     "Từ Chí Tiến — 22127414  •  Nguyễn Ngọc Anh Tú — 22127433",
 )
 
+SUPERVISORS = "GVHD: ThS. Hồ Thị Hoàng Vy  •  PGS.TS. Lê Nguyễn Hoài Nam"
+
 
 def data_uri(path: Path) -> str:
     mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
@@ -45,14 +47,17 @@ def data_uri(path: Path) -> str:
 
 
 def font_css() -> str:
-    font_dir = ROOT / "frontend/node_modules/@codesandbox/sandpack-client/sandpack/static/fonts/inter"
-    regular = data_uri(font_dir / "Inter-Regular.woff2").replace("image/jpeg", "font/woff2")
-    bold = data_uri(font_dir / "Inter-Bold.woff2").replace("image/jpeg", "font/woff2")
+    body_regular = data_uri(Path("C:/Windows/Fonts/tahoma.ttf")).replace("image/jpeg", "font/ttf")
+    body_bold = data_uri(Path("C:/Windows/Fonts/tahomabd.ttf")).replace("image/jpeg", "font/ttf")
+    display_regular = data_uri(Path("C:/Windows/Fonts/cambria.ttc")).replace("image/jpeg", "font/collection")
+    display_bold = data_uri(Path("C:/Windows/Fonts/cambriab.ttf")).replace("image/jpeg", "font/ttf")
     return f"""
-      @font-face {{ font-family: 'InterPoster'; src: url('{regular}') format('woff2'); font-weight: 400; }}
-      @font-face {{ font-family: 'InterPoster'; src: url('{bold}') format('woff2'); font-weight: 700; }}
-      text {{ font-family: 'InterPoster', 'Segoe UI', sans-serif; }}
-      .display {{ font-family: Georgia, 'Times New Roman', serif; }}
+      @font-face {{ font-family: 'PosterBody'; src: url('{body_regular}') format('truetype'); font-weight: 400; }}
+      @font-face {{ font-family: 'PosterBody'; src: url('{body_bold}') format('truetype'); font-weight: 700; }}
+      @font-face {{ font-family: 'PosterDisplay'; src: url('{display_regular}') format('truetype'); font-weight: 400; }}
+      @font-face {{ font-family: 'PosterDisplay'; src: url('{display_bold}') format('truetype'); font-weight: 700; }}
+      text {{ font-family: 'PosterBody', Tahoma, sans-serif; }}
+      .display {{ font-family: 'PosterDisplay', Cambria, serif; }}
     """
 
 
@@ -265,6 +270,36 @@ def mini_bar_chart(
         svg.rect(bx, by, bar_w, bar_h, fill=colors[index % len(colors)], radius=2)
         svg.text(bx + bar_w / 2, by - 4, f"{value:g}{value_suffix}", size=3.1, fill=COLORS["foreground"], weight=700, anchor="middle")
         svg.wrapped_text(bx - slot * 0.2, baseline + 9, label, width=slot * 0.9, size=2.8, fill=COLORS["muted_text"], max_lines=2)
+
+
+def academic_header(svg: Svg, *, edition: str) -> None:
+    """Print-first identity block sourced verbatim from the compiled report."""
+    logo_school = ROOT / "docs/report/compiled/latex/images/logo-khtn.png"
+    logo_fit = ROOT / "docs/report/compiled/latex/images/logo.png"
+    svg.rect(0, 0, A0_WIDTH, 106, fill="#FFFFFF", radius=0)
+    svg.image(25, 13, 66, 66, logo_school)
+    svg.image(101, 28, 126, 36, logo_fit)
+    svg.text(594.5, 17, edition.upper(), size=3.4, fill=COLORS["accent"], weight=700, anchor="middle", letter_spacing=1)
+    svg.text(594.5, 45, "HỆ THỐNG HỖ TRỢ XÉT DUYỆT BÀI BÁO KHOA HỌC", size=16.5, fill=COLORS["primary"], weight=700, anchor="middle", css_class="display")
+    svg.text(594.5, 66, "ConferenceSpace", size=8.3, fill=COLORS["teal"], weight=700, anchor="middle")
+    svg.text(594.5, 83, MEMBERS[0], size=3.45, fill=COLORS["foreground"], anchor="middle")
+    svg.text(594.5, 95, MEMBERS[1], size=3.45, fill=COLORS["foreground"], anchor="middle")
+    svg.text(1162, 23, "THỰC TẬP DỰ ÁN TỐT NGHIỆP", size=3.35, fill=COLORS["primary"], weight=700, anchor="end")
+    svg.text(1162, 37, "CHƯƠNG TRÌNH CHUẨN · 07/2026", size=3.15, fill=COLORS["muted_text"], anchor="end")
+    svg.text(1162, 61, SUPERVISORS, size=3.15, fill=COLORS["foreground"], anchor="end")
+    svg.rect(0, 102, A0_WIDTH, 4, fill=COLORS["teal"], radius=0)
+
+
+def poster_image_placeholder(svg: Svg, x: float, y: float, w: float, h: float, role: str, filename: str) -> None:
+    """Editable screenshot frame without browser chrome or dashboard-card styling."""
+    role_ids = {"TÁC GIẢ": "author", "PHẢN BIỆN VIÊN": "reviewer", "CHỦ TỌA": "chair"}
+    group_id = role_ids[role]
+    svg.raw(f'<g id="ui-placeholder-{group_id}" data-replace-with="{html.escape(filename)}">')
+    svg.rect(x, y, w, h, fill="#EEF3F6", stroke=COLORS["primary"], sw=1.2, radius=1, dash="7 5")
+    svg.text(x + w / 2, y + h / 2 - 2, "UI PLACEHOLDER", size=5.4, fill=COLORS["primary"], weight=700, anchor="middle", letter_spacing=0.35)
+    svg.text(x + w / 2, y + h / 2 + 10, role, size=3.8, fill=COLORS["teal"], weight=700, anchor="middle")
+    svg.text(x + 8, y + h - 7, filename, size=2.65, fill=COLORS["muted_text"])
+    svg.raw("</g>")
 
 
 def footer_rule(svg: Svg, message: str) -> None:

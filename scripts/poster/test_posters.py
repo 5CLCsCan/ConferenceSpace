@@ -15,6 +15,12 @@ class PosterGeneratorAvailabilityTest(unittest.TestCase):
     def test_renderer_entrypoint_exists(self) -> None:
         self.assertTrue(Path("scripts/poster/render_posters.mjs").is_file())
 
+    def test_renderer_isolates_each_poster_in_a_fresh_browser(self) -> None:
+        renderer = Path("scripts/poster/render_posters.mjs").read_text(encoding="utf-8")
+        self.assertIn("async function renderPoster", renderer)
+        self.assertIn("spawn(process.execPath", renderer)
+        self.assertIn('"--single"', renderer)
+
 
 class PosterContentTest(unittest.TestCase):
     @classmethod
@@ -57,9 +63,30 @@ class PosterContentTest(unittest.TestCase):
                 self.assertIn(marker, poster)
 
     def test_variants_have_distinct_story_structures(self) -> None:
-        self.assertIn("HÀNH TRÌNH THEO VAI TRÒ", self.poster_a)
-        self.assertIn("BA ĐÓNG GÓP", self.poster_a)
-        self.assertIn("MA TRẬN BẰNG CHỨNG", self.poster_b)
+        self.assertIn("TỪ QUY TRÌNH RỜI RẠC ĐẾN MỘT VÒNG ĐỜI CÓ KIỂM SOÁT", self.poster_a)
+        self.assertIn("CON NGƯỜI GIỮ QUYỀN QUYẾT ĐỊNH", self.poster_b)
+        for poster in (self.poster_a, self.poster_b):
+            self.assertIn('id="dominant-figure"', poster)
+
+    def test_identity_text_matches_compiled_report(self) -> None:
+        required = (
+            "Cao Hữu Khương Duy — 22127083",
+            "Nhâm Đức Huy — 22127158",
+            "Võ Minh Khôi — 22127213",
+            "Từ Chí Tiến — 22127414",
+            "Nguyễn Ngọc Anh Tú — 22127433",
+            "ThS. Hồ Thị Hoàng Vy",
+            "PGS.TS. Lê Nguyễn Hoài Nam",
+        )
+        for poster in (self.poster_a, self.poster_b):
+            for marker in required:
+                self.assertIn(marker, poster)
+
+    def test_posters_use_print_language_not_dashboard_cards(self) -> None:
+        for poster in (self.poster_a, self.poster_b):
+            self.assertLessEqual(poster.count('filter="url(#shadow)"'), 4)
+            self.assertNotIn("Evidence Dashboard", poster)
+            self.assertNotIn("Product Journey", poster)
 
     def test_conflicting_legacy_chart_values_are_excluded(self) -> None:
         for poster in (self.poster_a, self.poster_b):

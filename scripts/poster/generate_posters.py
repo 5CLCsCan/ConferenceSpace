@@ -17,8 +17,8 @@ def write_outputs(output_dir: Path | None = None) -> tuple[Path, Path]:
     output_dir = output_dir or ROOT / "output/poster"
     output_dir.mkdir(parents=True, exist_ok=True)
     poster_a, poster_b = generate_all()
-    path_a = output_dir / "conferencespace-poster-a-product-journey.svg"
-    path_b = output_dir / "conferencespace-poster-b-evidence-dashboard.svg"
+    path_a = output_dir / "conferencespace-poster-a-research-poster.svg"
+    path_b = output_dir / "conferencespace-poster-b-product-showcase.svg"
     path_a.write_text(poster_a, encoding="utf-8")
     path_b.write_text(poster_b, encoding="utf-8")
     return path_a, path_b
