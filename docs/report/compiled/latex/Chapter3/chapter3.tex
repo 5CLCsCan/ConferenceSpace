@@ -72,46 +72,94 @@ AI hỗ trợ từng vai trò tại các bước cụ thể nhưng không thay �
 Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò. UC-08 và UC-10 được dùng chung giữa nhiều vai trò nhưng vẫn áp dụng quyền riêng cho từng người dùng và tài nguyên.
 
 \begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.80\textheight, keepaspectratio}
-\begin{tikzpicture}[
-  uc/.style={draw=black!70, ellipse, align=center, text width=3.1cm, minimum height=13mm, fill=blue!7},
-  shared/.style={draw=black!70, ellipse, align=center, text width=3.1cm, minimum height=13mm, fill=orange!9},
-  actor/.style={draw=black!70, rounded corners=2pt, align=center, text width=2.6cm, minimum height=11mm, fill=gray!8},
-  assoc/.style={-, thick, draw=black!65}]
-  \draw[black!55] (-7.8,-8.2) rectangle (7.8,8.7);
-  \node at (0,8.1) {ConferenceSpace};
-  \node[actor] (author) at (-10.4,3.0) {Tác giả};
-  \node[actor] (reviewer) at (10.4,3.0) {Phản biện viên};
-  \node[actor] (chair) at (0,-10.0) {Chủ tọa/Đồng chủ tọa};
-  \node[shared] (uc8) at (0,6.5) {UC-08\\Trao đổi theo bài nộp};
-  \node[uc] (uc1) at (-4.4,4.2) {UC-01\\Khám phá hội nghị};
-  \node[uc] (uc2) at (-4.4,1.4) {UC-02\\Hoàn tất bài nộp};
-  \node[uc] (uc3) at (-4.4,-1.4) {UC-03\\Vòng đời bài nộp};
-  \node[uc] (uc4) at (4.4,4.2) {UC-04\\Lời mời và phân công};
-  \node[uc] (uc5) at (4.4,1.4) {UC-05\\Soạn và gửi phản biện};
-  \node[shared] (uc10) at (0,-1.4) {UC-10\\Chatbot Agent};
-  \node[uc] (uc6) at (-4.4,-5.2) {UC-06\\Phân công và xung đột lợi ích};
-  \node[uc] (uc7) at (0,-5.2) {UC-07\\Quản lý hội nghị};
-  \node[uc] (uc9) at (4.4,-5.2) {UC-09\\Hỗ trợ quyết định};
-  \draw[assoc] (author) -- (uc1);
-  \draw[assoc] (author) -- (uc2);
-  \draw[assoc] (author) -- (uc3);
-  \draw[assoc] (author) -- (uc8);
-  \draw[assoc] (author) -- (uc10);
-  \draw[assoc] (reviewer) -- (uc4);
-  \draw[assoc] (reviewer) -- (uc5);
-  \draw[assoc] (reviewer) -- (uc8);
-  \draw[assoc] (reviewer) -- (uc10);
-  \draw[assoc] (chair) -- (uc6);
-  \draw[assoc] (chair) -- (uc7);
-  \draw[assoc] (chair) -- (uc8);
-  \draw[assoc] (chair) -- (uc9);
-  \draw[assoc] (chair) -- (uc10);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Use case tổng quát theo vai trò}
-\label{fig:ch3-demo-usecase-map}
+  \centering
+  \begin{adjustbox}{max width=\textwidth}
+    \begin{tikzpicture}[
+      >={Latex[length=2.4mm,width=1.7mm]},
+      ucOval/.style={
+        draw=black!70, thin, ellipse, align=center,
+        font=\fontsize{16}{18}\selectfont, fill=blue!8,
+        text width=3.2cm, inner sep=3pt
+      },
+      ucOvalShared/.style={
+        draw=black!70, thin, ellipse, align=center,
+        font=\fontsize{16}{18}\selectfont, fill=orange!10,
+        text width=3.2cm, inner sep=3pt
+      },
+      ucOvalSharedSmall/.style={
+        draw=black!70, thin, ellipse, align=center,
+        font=\fontsize{16}{18}\selectfont, fill=orange!10,
+        text width=2.2cm, inner sep=3pt
+      },
+      actorLabel/.style={font=\fontsize{16}{18}\selectfont, align=center},
+      assoc/.style={-, thin, draw=black!70},
+      legendNode/.style={draw=black!70, thin, ellipse, align=center, font=\fontsize{12}{14}\selectfont, inner sep=2pt, text width=1.5cm}
+    ]
+
+      % ---------- Ranh giới hệ thống ----------
+      \draw[thin] (-10.5,-10.0) rectangle (13.0,12.0);
+      \node[font=\fontsize{16}{19}\selectfont\bfseries] at (1.25, 11.2) {ConferenceSpace};
+      \node[ucOvalShared] (uc08) at (1.25, 9.0)  {UC-08\\Trao đổi theo bài nộp};
+
+      \node[ucOval] (uc01) at (-4.0, 6.0)   {UC-01\\Khám phá hội nghị};
+      \node[ucOval] (uc02) at (-4.0, 3.0)   {UC-02\\Hoàn tất bài nộp};
+      \node[ucOval] (uc03) at (-4.0, 0.0)   {UC-03\\Vòng đời bài nộp};
+      \node[ucOval] (uc04) at (6.5, 6.0)    {UC-04\\Lời mời hội nghị\\và xem phân công};
+      \node[ucOval] (uc05) at (6.5, 2.0)    {UC-05\\Soạn và gửi phản biện};
+      \node[ucOvalSharedSmall] (uc10) at (1.25,-2.5) {UC-10\\Chatbot Agent};
+      \node[ucOval] (uc06) at (-4.0,-6.5)   {UC-06\\Phân công và xung đột lợi ích};
+      \node[ucOval] (uc07) at (1.25,-6.5)   {UC-07\\Quản lý hội nghị};
+      \node[ucOval] (uc09) at (6.5,-6.5)    {UC-09\\Hỗ trợ quyết định};
+      \begin{scope}[shift={(-12.5, 3.0)}]
+        \draw[thin, fill=orange!70] (0, 1.2) circle (0.22);
+        \draw[thin] (0, 0.98) -- (0, 0.0);
+        \draw[thin] (0, 0.75) -- (-0.4, 0.35);
+        \draw[thin] (0, 0.75) -- (0.4, 0.35);
+        \draw[thin] (0, 0.0) -- (-0.35, -0.5);
+        \draw[thin] (0, 0.0) -- (0.35, -0.5);
+        \node[actorLabel] at (0,-0.95) {Tác giả};
+        \coordinate (authorPt) at (0.4, 0.35);
+      \end{scope}
+      \begin{scope}[shift={(15.5, 3.0)}]
+        \draw[thin, fill=orange!70] (0, 1.2) circle (0.22);
+        \draw[thin] (0, 0.98) -- (0, 0.0);
+        \draw[thin] (0, 0.75) -- (-0.4, 0.35);
+        \draw[thin] (0, 0.75) -- (0.4, 0.35);
+        \draw[thin] (0, 0.0) -- (-0.35, -0.5);
+        \draw[thin] (0, 0.0) -- (0.35, -0.5);
+        \node[actorLabel] at (0,-0.95) {Phản biện viên};
+        \coordinate (reviewerPt) at (-0.4, 0.35);
+      \end{scope}
+      \begin{scope}[shift={(1.25, -12.5)}]
+        \draw[thin, fill=orange!70] (0, 1.2) circle (0.22);
+        \draw[thin] (0, 0.98) -- (0, 0.0);
+        \draw[thin] (0, 0.75) -- (-0.4, 0.35);
+        \draw[thin] (0, 0.75) -- (0.4, 0.35);
+        \draw[thin] (0, 0.0) -- (-0.35, -0.5);
+        \draw[thin] (0, 0.0) -- (0.35, -0.5);
+        \node[actorLabel, text width=2.8cm, align=center] at (0,-1.05) {Chủ tọa /\\Đồng chủ tọa};
+        \coordinate (chairPt) at (0, 1.42);
+      \end{scope}
+      \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc01.west);
+      \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc02.west);
+      \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc03.west);
+      \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc08.west);
+      \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc10.west);
+      \draw[assoc] (reviewerPt) -- (12.0, 3.35) |- (uc04.east);
+      \draw[assoc] (reviewerPt) -- (12.0, 3.35) |- (uc05.east);
+      \draw[assoc] (reviewerPt) -- (12.0, 3.35) |- (uc08.east);
+      \draw[assoc] (reviewerPt) -- (12.0, 3.35) |- (uc10.north);
+      \draw[assoc] (chairPt) -- (1.25, -9.5);
+      \draw[assoc] (1.25, -9.5) -| (uc06.south);
+      \draw[assoc] (1.25, -9.5) -- (uc07.south);
+      \draw[assoc] (1.25, -9.5) -| (uc09.south);
+      \draw[assoc] (1.25, -9.5) -- (4, -9.5) -- (4, -4) -- (1.25, -4) -- (uc10.south);
+    \draw[assoc] (1.25, -9.5) -- (12.5, -9.5) -- (12.5, 10.5) -- (1.25, 10.5) -- (uc08.north);
+
+    \end{tikzpicture}
+  \end{adjustbox}
+  \caption{Use case tổng quát theo vai trò}
+  \label{fig:ch3-demo-usecase-map}
 \end{figure}
 
 \begingroup
@@ -209,46 +257,85 @@ Phần này giữ mục tiêu, ranh giới nghiệp vụ và giao diện đại 
 
 Tác giả tìm kiếm hội nghị theo từ khóa, lĩnh vực, chuyên đề hoặc trạng thái, sau đó xem thông tin kêu gọi nộp bài và các hạn chót liên quan. Hệ thống chỉ cho phép bắt đầu bài nộp khi hội nghị còn mở; hội nghị đã đóng vẫn có thể được xem hoặc lưu theo dõi.
 
+Hình~\ref{fig:ch3-demo-uc01-explore} minh họa giao diện danh sách hội nghị mặc định mà Tác giả nhìn thấy khi bắt đầu tìm kiếm.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc01_explore_conferences.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc01_conference_detail_overview.png}
-\end{minipage}
-\caption{Giao diện khám phá hội nghị và trang tổng quan của hội nghị}
-\label{fig:ch3-demo-uc01}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_explore_conferences.png}
+\caption{Giao diện danh sách hội nghị mặc định}
+\label{fig:ch3-demo-uc01-explore}
 \end{figure}
 
-Hình~\ref{fig:ch3-demo-uc01} cho thấy điểm bắt đầu của hành trình Tác giả: danh sách hội nghị hỗ trợ tìm kiếm, còn trang tổng quan tập hợp thông tin cần thiết trước khi người dùng quyết định theo dõi hoặc nộp bài.
+Sau khi chọn hội nghị, Hình~\ref{fig:ch3-demo-uc01-overview} thể hiện tab tổng quan trên trang chi tiết hội nghị mà Tác giả xem trước khi quyết định nộp bài hoặc lưu theo dõi.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_overview.png}
+\caption{Trang chi tiết hội nghị: tab tổng quan (Overview)}
+\label{fig:ch3-demo-uc01-overview}
+\end{figure}
+
+Bên cạnh đó, Hình~\ref{fig:ch3-demo-uc01-cfp} thể hiện tab kêu gọi nộp bài trên trang chi tiết hội nghị.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_cfp.png}
+\caption{Trang chi tiết hội nghị: tab kêu gọi nộp bài (Call for Papers)}
+\label{fig:ch3-demo-uc01-cfp}
+\end{figure}
+
+Hình~\ref{fig:ch3-demo-uc01-dates} thể hiện tab mốc thời gian quan trọng trên trang chi tiết hội nghị.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_dates.png}
+\caption{Trang chi tiết hội nghị: tab mốc thời gian quan trọng (Important Dates)}
+\label{fig:ch3-demo-uc01-dates}
+\end{figure}
+
+Cuối cùng, Hình~\ref{fig:ch3-demo-uc01-committee} thể hiện tab hội đồng ban chương trình trên trang chi tiết hội nghị.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_committee.png}
+\caption{Trang chi tiết hội nghị: tab hội đồng ban chương trình (Committee)}
+\label{fig:ch3-demo-uc01-committee}
+\end{figure}
 
 \subsubsection{UC-02. Hoàn tất và kiểm tra bài nộp}
 
 Tác giả tạo bản nháp, tải bản thảo và có thể dùng Submission Autofill để trích xuất siêu dữ liệu cùng gợi ý chuyên đề trong danh sách hợp lệ. Tác giả kiểm tra, chỉnh sửa thông tin, khai báo đồng tác giả và xung đột lợi ích trước khi Submission Gating kiểm tra tệp, chính sách và điều kiện gửi bài. Trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục.
 
+Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản thảo (trái) cùng kết quả trích xuất thông tin mà Submission Autofill trả về (phải) để Tác giả kiểm tra và chỉnh sửa.
+
 \begin{figure}[H]
 \centering
 \begin{minipage}{0.48\textwidth}
 \centering
-\includegraphics[width=0.48\textwidth]{images/chapter_3_uc02_autofill_1.png}\hfill
-\includegraphics[width=0.48\textwidth]{images/chapter_3_uc02_autofill_2.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc02_precheck_gating.png}
+\includegraphics[width=0.56\textwidth]{images/chapter_3_uc02_autofill_1.png}
 \end{minipage}
-\caption{Giao diện Submission Autofill và kết quả kiểm tra của Submission Gating}
-\label{fig:ch3-demo-uc02}
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=0.56\textwidth]{images/chapter_3_uc02_autofill_2.png}
+\end{minipage}
+\caption{Giao diện tải lên bản thảo (trái) và kết quả trích xuất thông tin tự động (phải)}
+\label{fig:ch3-demo-uc02-autofill}
 \end{figure}
 
-Hình~\ref{fig:ch3-demo-uc02} đặt hai chức năng AI vào cùng luồng nộp bài. Submission Autofill tạo dữ liệu nháp có thể sửa, còn Submission Gating trình bày kết quả kiểm tra trước khi Tác giả xác nhận gửi.
+Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết quả kiểm tra tự động của Submission Gating theo các trạng thái \textit{pass}, \textit{warn} và \textit{block}.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.92\textwidth]{images/chapter_3_uc02_authors_conflict.png}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc02_precheck_gating.png}
+\caption{Kết quả kiểm tra của Submission Gating}
+\label{fig:ch3-demo-uc02-gating}
+\end{figure}
+
+Song song đó, Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện khai báo đồng tác giả và xung đột lợi ích mà Tác giả hoàn tất trước khi Submission Gating kiểm tra.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc02_authors_conflict.png}
 \caption{Giao diện khai báo đồng tác giả và xung đột lợi ích}
 \label{fig:ch3-demo-uc02-conflict}
 \end{figure}
@@ -257,126 +344,189 @@ Hình~\ref{fig:ch3-demo-uc02} đặt hai chức năng AI vào cùng luồng nộ
 
 Tác giả theo dõi các bài đã tạo và thực hiện hành động phù hợp với trạng thái: chỉnh sửa bản nháp; theo dõi hoặc rút bài đã gửi khi được phép; xem phản biện; gửi phản hồi trong giai đoạn do Chủ tọa mở; và tải bản thảo hoàn chỉnh khi bài được chấp nhận. Backend từ chối yêu cầu không phù hợp với trạng thái hoặc hạn chót tương ứng.
 
+Hình~\ref{fig:ch3-demo-uc03-list} thể hiện danh sách bài nộp, giúp Tác giả nhận biết trạng thái hiện hành của nhiều bài cùng lúc.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc03_submissions_list.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc03_submission_detail.png}
-\end{minipage}
-\caption{Danh sách bài nộp và trang chi tiết bài nộp của Tác giả}
-\label{fig:ch3-demo-uc03}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_submissions_list.png}
+\caption{Danh sách bài nộp của Tác giả}
+\label{fig:ch3-demo-uc03-list}
 \end{figure}
 
-Hình~\ref{fig:ch3-demo-uc03} cung cấp hai mức thông tin: danh sách giúp Tác giả nhận biết trạng thái của nhiều bài, còn trang chi tiết tập hợp phản biện, quyết định và thao tác nộp bản thảo hoàn chỉnh.
+Trong giai đoạn phản hồi, Hình~\ref{fig:ch3-demo-uc03-rebuttal} minh họa giao diện Tác giả soạn và gửi phản hồi (rebuttal).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_rebuttal.png}
+\caption{Giao diện soạn thảo và gửi phản hồi của Tác giả (rebuttal)}
+\label{fig:ch3-demo-uc03-rebuttal}
+\end{figure}
+
+Khi bài được chấp nhận, Hình~\ref{fig:ch3-demo-uc03-detail} thể hiện trang chi tiết bài nộp, nơi Tác giả xem nhận định chuyên môn và tải lên bản chỉnh sửa cuối cùng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_submission_detail.png}
+\caption{Trang chi tiết bài nộp và bản chỉnh sửa cuối cùng (Camera-Ready)}
+\label{fig:ch3-demo-uc03-detail}
+\end{figure}
 
 \subsubsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
 
 Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo cho người nhận. Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Sau khi Chủ tọa tạo phân công, Phản biện viên xem bài, hạn chót và trạng thái trong không gian làm việc; backend chỉ trả các phân công thuộc người dùng hiện tại.
 
+Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện trong hệ thống (dưới).
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_1.png}\\[0.4cm]
+\includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_2.png}
+\caption{Thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện (dưới)}
+\label{fig:ch3-demo-uc04-invitations}
+\end{figure}
+
+Sau khi phân công được tạo, Hình~\ref{fig:ch3-demo-uc04-accept-deny} cho thấy giao diện chi tiết bài viết để Phản biện viên lựa chọn đồng ý hoặc từ chối.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc04_reviewer_invitations_2.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
-\end{minipage}
-\caption{Danh sách lời mời và giao diện phản hồi phân công của Phản biện viên}
-\label{fig:ch3-demo-uc04}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
+\caption{Giao diện chi tiết bài viết được phân công để Phản biện viên lựa chọn đồng ý hoặc từ chối}
+\label{fig:ch3-demo-uc04-accept-deny}
 \end{figure}
 
 \subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
-Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Reviewer Initial Analysis cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, Review Quality Auditor rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện có mức nghiêm trọng blocking có thể được lớp nghiệp vụ ánh xạ thành trạng thái block khi gửi chính thức; phiên bản hiện tại chưa cung cấp cơ chế ghi đè phát hiện này. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
+Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Reviewer Initial Analysis cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, Review Quality Auditor rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện mức \textit{blocking} được làm nổi bật hơn mức \textit{warning} để Phản biện viên ưu tiên xem xét; cả hai mức đều không ngăn thao tác gửi bản phản biện. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
+
+Hình~\ref{fig:ch3-demo-uc05-workspace1} thể hiện không gian đọc bài và soạn phản biện của Phản biện viên.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.94\textwidth]{images/chapter_3_uc05_reviewer_workspace_1.png}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_workspace_1.png}
 \caption{Không gian đọc bài và soạn phản biện của Phản biện viên}
-\label{fig:ch3-demo-uc05-workspace}
+\label{fig:ch3-demo-uc05-workspace1}
 \end{figure}
 
+Hình~\ref{fig:ch3-demo-uc05-workspace2} trình bày một biến thể khác của không gian làm việc và biểu mẫu phản biện.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_workspace_2.png}
+\caption{Không gian làm việc và biểu mẫu phản biện (biến thể bố cục khác)}
+\label{fig:ch3-demo-uc05-workspace2}
+\end{figure}
+
+Trước khi bắt đầu soạn phản biện, Hình~\ref{fig:ch3-demo-uc05-ria} thể hiện bản định hướng đọc do Reviewer Initial Analysis tạo ra để Phản biện viên tham khảo.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc05_reviewer_initial_analysis.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_initial_analysis.png}
+\caption{Bản định hướng đọc của Reviewer Initial Analysis}
+\label{fig:ch3-demo-uc05-ria}
+\end{figure}
+
+Trước khi gửi, Hình~\ref{fig:ch3-demo-uc05-rqa} trình bày bảng rà soát bản nháp do Review Quality Auditor tạo ra.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc05_reviewer_quality_auditor.png}
-\end{minipage}
-\caption{Bản định hướng đọc và bảng rà soát chất lượng bản phản biện}
-\label{fig:ch3-demo-uc05-ai}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_quality_auditor.png}
+\caption{Bảng rà soát bản nháp của Review Quality Auditor}
+\label{fig:ch3-demo-uc05-rqa}
 \end{figure}
 
 \subsubsection{UC-06. Phân công phản biện có kiểm tra xung đột lợi ích}
 
 Hệ thống tính điểm phù hợp cho các cặp bài nộp và Phản biện viên, loại các cặp có xung đột lợi ích khỏi đề xuất tự động và theo dõi tải phát sinh trong lượt chạy. Chủ tọa xem điểm số, lý do đối sánh, trạng thái kiểm tra xung đột và danh sách bài chưa đủ người trước khi điều chỉnh hoặc xác nhận.
 
+Hình~\ref{fig:ch3-demo-uc06-dashboard} minh họa bảng điều khiển quản lý phân công phản biện của Chủ tọa.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_assignment_dashboard.png}
+\caption{Bảng điều khiển quản lý phân công phản biện của Chủ tọa}
+\label{fig:ch3-demo-uc06-dashboard}
+\end{figure}
+
+Với các cặp cần xác minh thêm, Hình~\ref{fig:ch3-demo-uc06-coi} minh họa giao diện kiểm tra xung đột lợi ích giữa Phản biện viên và bài nộp.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc06_assignment_dashboard.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_coi_verification.png}
+\caption{Giao diện kiểm tra xung đột lợi ích giữa Phản biện viên và bài nộp}
+\label{fig:ch3-demo-uc06-coi}
+\end{figure}
+
+Sau khi hệ thống hoàn tất đối sánh, Hình~\ref{fig:ch3-demo-uc06-suggestions} liệt kê các đề xuất đối sánh cùng điểm phù hợp để Chủ tọa xem xét trước khi xác nhận.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc06_assignment_suggestions.png}
-\end{minipage}
-\caption{Bảng điều khiển phân công và danh sách đề xuất đối sánh}
-\label{fig:ch3-demo-uc06}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_assignment_suggestions.png}
+\caption{Danh sách đề xuất đối sánh và điểm phù hợp}
+\label{fig:ch3-demo-uc06-suggestions}
 \end{figure}
 
 \subsubsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
 
 Chủ tọa cấu hình thông tin hội nghị, chuyên đề, hạn chót, biểu mẫu phản biện và chính sách; mời thành viên hội đồng chương trình; theo dõi số bài, tiến độ phản biện và các trường hợp cần xử lý. Bảng điều khiển hỗ trợ nhận biết điểm nghẽn nhưng không tự chuyển giai đoạn hoặc ra quyết định thay Chủ tọa.
 
+Hình~\ref{fig:ch3-demo-uc07-config} thể hiện giao diện thiết lập cấu hình thông tin và hạn chót hội nghị của Chủ tọa.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_conference_config.png}
+\caption{Giao diện thiết lập cấu hình thông tin và hạn chót hội nghị}
+\label{fig:ch3-demo-uc07-config}
+\end{figure}
+
+Trong quá trình vận hành, Hình~\ref{fig:ch3-demo-uc07-dashboard} minh họa bảng điều khiển tiến độ hội nghị mà Chủ tọa theo dõi.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc07_conference_config.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_chair_dashboard.png}
+\caption{Bảng điều khiển tiến độ hội nghị của Chủ tọa}
+\label{fig:ch3-demo-uc07-dashboard}
+\end{figure}
+
+Ngoài ra, Hình~\ref{fig:ch3-demo-uc07-committee} minh họa giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc07_chair_dashboard.png}
-\end{minipage}
-\caption{Giao diện cấu hình và bảng điều khiển tiến độ hội nghị}
-\label{fig:ch3-demo-uc07}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_committee_management.png}
+\caption{Giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên}
+\label{fig:ch3-demo-uc07-committee}
 \end{figure}
 
 \subsubsection{UC-08. Trao đổi theo bài nộp}
 
 Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi. Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả của bài và Phản biện viên trao đổi trong chuỗi tương ứng, còn Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát. Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
 
+Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ đề thảo luận mới cho bài nộp.
+
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.49\textwidth}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc08_create_discussion.png}
+\caption{Giao diện khởi tạo chủ đề thảo luận mới cho bài nộp}
+\label{fig:ch3-demo-uc08-create}
+\end{figure}
+
+Sau khi chủ đề được tạo, Hình~\ref{fig:ch3-demo-uc08-chat} thể hiện giao diện danh sách và trao đổi nội dung thảo luận.
+
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc08_create_discussion.png}
-\end{minipage}\hfill
-\begin{minipage}{0.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{images/chapter_3_uc08_discussion_chat.png}
-\end{minipage}
-\caption{Giao diện tạo chuỗi và trao đổi theo bài nộp}
-\label{fig:ch3-demo-uc08}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc08_discussion_chat.png}
+\caption{Giao diện danh sách và trao đổi nội dung thảo luận}
+\label{fig:ch3-demo-uc08-chat}
 \end{figure}
 
 \subsubsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
 Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chair Decision Copilot tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng.
 
+Hình~\ref{fig:ch3-demo-uc09} minh họa giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.94\textwidth]{images/chapter_3_uc09_decision_support.png}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc09_decision_support.png}
 \caption{Giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa}
 \label{fig:ch3-demo-uc09}
 \end{figure}
@@ -385,9 +535,11 @@ Backend tập hợp điểm số, bản phản biện, phản hồi của Tác g
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại. Nếu câu hỏi cần dữ liệu nghiệp vụ, Chatbot Agent gọi công cụ truy vấn để gửi yêu cầu có cấu trúc đến backend. Backend kiểm tra mã xác thực, tài nguyên, trường dữ liệu, bộ lọc và quyền của người dùng trước khi trả phần dữ liệu tối thiểu được phép. Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu.
 
+Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.94\textwidth]{images/chapter_3_uc10_chatbot_interface.png}
+\includegraphics[width=0.95\textwidth]{images/chapter_3_uc10_chatbot_interface.png}
 \caption{Giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent}
 \label{fig:ch3-demo-uc10}
 \end{figure}
@@ -445,20 +597,29 @@ Hệ thống phân quyền theo vai trò trong từng hội nghị thay vì dùn
 
 ConferenceSpace phân chia dữ liệu theo yêu cầu giao dịch và kiểu truy vấn. PostgreSQL lưu dữ liệu nghiệp vụ, phiên hội thoại và kết quả cần truy vết; Neo4j lưu quan hệ đồng tác giả để truy vấn nhiều bậc; Redis lưu kết quả công cụ đang chờ và bộ đếm giới hạn tần suất có thời hạn ngắn.
 
+Bảng~\ref{tab:ch3-demo-data-groups} tóm tắt các nhóm dữ liệu chính và vai trò của chúng trong thiết kế hệ thống.
+
 \begingroup
-\setlength{\tabcolsep}{2pt}
-\begin{longtable}{|T{0.24\textwidth}|T{0.30\textwidth}|T{0.34\textwidth}|}
-\caption{Nhóm dữ liệu chính trong thiết kế hệ thống}\label{tab:ch3-demo-data-groups}\\
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.24\textwidth}|>{\raggedright\arraybackslash}p{0.30\textwidth}|>{\raggedright\arraybackslash}p{0.34\textwidth}|}
+\caption{Nhóm dữ liệu chính trong thiết kế hệ thống}
+\label{tab:ch3-demo-data-groups} \\
 \hline
-Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò trong thiết kế \\ \hline
+\TableHeader{Nhóm dữ liệu} & \TableHeader{Thực thể tiêu biểu} & \TableHeader{Vai trò trong thiết kế} \\ \hline
 \endfirsthead
 \hline
-Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò trong thiết kế \\ \hline
+\TableHeader{Nhóm dữ liệu} & \TableHeader{Thực thể tiêu biểu} & \TableHeader{Vai trò trong thiết kế} \\ \hline
 \endhead
+\hline
+\multicolumn{3}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
 Nghiệp vụ hội nghị & Hội nghị, bài nộp, phân công và phản hồi & Bảo toàn vòng đời nộp bài, phản biện và quyết định \\ \hline
 Phân quyền và phối hợp & Người dùng, vai trò, chuỗi thảo luận và thông báo & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
 Học thuật và xung đột lợi ích & Hồ sơ học thuật, bài công bố, quan hệ xung đột và đồ thị Neo4j & Lưu căn cứ để loại cặp xung đột và hỗ trợ Chủ tọa kiểm tra \\ \hline
-Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn và nhật ký công cụ & Theo dõi đầu vào, đầu ra, trạng thái và lỗi của từng luồng AI \\ \hline
+Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn và nhật ký công cụ & Theo dõi đầu vào, đầu ra, trạng thái và lỗi của từng luồng AI \\
 \end{longtable}
 \endgroup
 
@@ -521,26 +682,40 @@ Nếu Neo4j chưa được cấu hình, hệ thống tiếp tục bằng các ng
 
 AI được tích hợp vào sáu luồng hỗ trợ: Submission Autofill hỗ trợ nhập liệu; Submission Gating hỗ trợ kiểm tra bài nộp; Reviewer Initial Analysis hỗ trợ định hướng đọc; Review Quality Auditor hỗ trợ rà soát bản nháp; Chair Decision Copilot hỗ trợ tổng hợp bằng chứng; Chatbot Agent hỗ trợ truy vấn dữ liệu.
 
+Bảng~\ref{tab:ch3-demo-ai-overview} tóm tắt các đầu ra và điểm kiểm soát của các luồng AI trong thiết kế hệ thống.
+
 \begingroup
-\setlength{\tabcolsep}{2pt}
-\begin{longtable}{|T{0.18\textwidth}|T{0.25\textwidth}|T{0.22\textwidth}|T{0.25\textwidth}|}
-\caption{Đầu ra và điểm kiểm soát của các luồng AI}\label{tab:ch3-demo-ai-overview}\\
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.25\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}p{0.25\textwidth}|}
+\caption{Đầu ra và điểm kiểm soát của các luồng AI}
+\label{tab:ch3-demo-ai-overview} \\
+
 \hline
-Luồng & Đầu ra chính & Người kiểm tra & Ranh giới \\ \hline
+\TableHeader{Luồng} & \TableHeader{Đầu ra chính} & \TableHeader{Người kiểm tra} & \TableHeader{Ranh giới} \\ \hline
 \endfirsthead
+
 \hline
-Luồng & Đầu ra chính & Người kiểm tra & Ranh giới \\ \hline
+\TableHeader{Luồng} & \TableHeader{Đầu ra chính} & \TableHeader{Người kiểm tra} & \TableHeader{Ranh giới} \\ \hline
 \endhead
+
+\hline
+\multicolumn{4}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+
+\hline
+\endlastfoot
+
 Submission Autofill & Siêu dữ liệu nháp và gợi ý chuyên đề hợp lệ & Tác giả & Không tự gửi bài hoặc thay dữ liệu đã xác nhận \\ \hline
 Submission Gating & Trạng thái kiểm tra, phát hiện và hướng dẫn & Tác giả & Không đánh giá hoặc từ chối bài về mặt học thuật \\ \hline
 Reviewer Initial Analysis & Bản định hướng đọc và chú thích theo phần & Phản biện viên & Không thay thế việc đọc và nhận định chuyên môn \\ \hline
-Review Quality Auditor & Bản rà soát và danh sách phát hiện & Phản biện viên & Phát hiện mức blocking có thể chuyển thành block khi gửi chính thức; phiên bản hiện tại chưa có cơ chế ghi đè \\ \hline
+Review Quality Auditor & Bản rà soát và danh sách phát hiện & Phản biện viên & Phát hiện mức \textit{blocking} được làm nổi bật hơn mức \textit{warning}; cả hai mức chỉ hỗ trợ xem xét và không ngăn gửi bản phản biện \\ \hline
 Chair Decision Copilot & Bản tổng hợp đồng thuận, bất đồng và vấn đề còn mở & Chủ tọa & Không đưa ra khuyến nghị chấp nhận hoặc từ chối \\ \hline
-Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quyền & Người dùng và backend & Không truy cập trực tiếp cơ sở dữ liệu \\ \hline
+Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quyền & Người dùng và backend & Không truy cập trực tiếp cơ sở dữ liệu \\
 \end{longtable}
 \endgroup
 
-Các luồng dùng chung việc kiểm tra cấu trúc đầu ra, mã nhận diện dữ liệu, mã chính sách khi cần, xử lý lỗi và nhật ký kiểm toán. Những cơ chế này hỗ trợ truy vết nhưng không chứng minh đầu ra luôn đúng. Riêng Review Quality Auditor có thể dẫn đến trạng thái block khi gửi chính thức nếu phát hiện mức blocking; phiên bản hiện tại chỉ cho phép bỏ qua cảnh báo mức warning và chưa có cơ chế ghi đè phát hiện blocking. Người dùng phải đối chiếu kết quả với dữ liệu gốc và chịu trách nhiệm về thao tác nghiệp vụ tiếp theo. Phụ lục~\ref{sec:appendix-a-ai} trình bày đầu vào, các giai đoạn xử lý, đầu ra, lỗi và điểm kiểm soát của từng luồng.
+Các luồng dùng chung việc kiểm tra cấu trúc đầu ra, mã nhận diện dữ liệu, mã chính sách khi cần, xử lý lỗi và nhật ký kiểm toán. Những cơ chế này hỗ trợ truy vết nhưng không chứng minh đầu ra luôn đúng. Riêng Review Quality Auditor phân loại phát hiện theo mức độ nghiêm trọng: mức \textit{blocking} được làm nổi bật hơn mức \textit{warning}, nhưng không mức nào ngăn thao tác gửi bản phản biện. Người dùng phải đối chiếu kết quả với dữ liệu gốc và chịu trách nhiệm về thao tác nghiệp vụ tiếp theo. Phụ lục~\ref{sec:appendix-a-ai} trình bày đầu vào, các giai đoạn xử lý, đầu ra, lỗi và điểm kiểm soát của từng luồng.
 
 \section{Môi trường triển khai và vận hành}
 \label{sec:ch3-demo-deployment}
@@ -592,4 +767,4 @@ Chương 3 đã trình bày cách ConferenceSpace phân bổ trách nhiệm gi�
 
 Luận điểm thiết kế trung tâm là hệ thống phải tách các quyết định cần kết quả xác định khỏi luồng tạo nội dung bằng mô hình ngôn ngữ. Đối sánh Phản biện viên và phát hiện xung đột lợi ích có đầu vào, công thức, ràng buộc và cách xử lý riêng; AI chỉ hỗ trợ nhập liệu, đọc, rà soát, tổng hợp bằng chứng và truy vấn. Người dùng có thẩm quyền vẫn xác nhận dữ liệu nghiệp vụ và quyết định học thuật.
 
-Thiết kế cũng xác định các giới hạn cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Review Quality Auditor có thể chặn gửi khi phát hiện mức blocking và chưa có cơ chế ghi đè. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
+Thiết kế cũng xác định các giới hạn và ranh giới cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Review Quality Auditor chỉ làm nổi bật phát hiện mức \textit{blocking} hơn mức \textit{warning}; các nhãn này không ngăn Phản biện viên gửi bản phản biện. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
