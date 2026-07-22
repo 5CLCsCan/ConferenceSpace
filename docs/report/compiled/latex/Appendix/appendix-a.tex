@@ -401,33 +401,50 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 \begin{tikzpicture}[
   entity/.style={draw=black!70, rounded corners=2pt, align=left,
                  font=\footnotesize, fill=green!6, inner sep=5pt},
+  reference/.style={draw=black!60, rounded corners=2pt, align=left,
+                    font=\scriptsize, fill=blue!6, inner sep=4pt},
   fk/.style={-{Latex},thick,draw=black!75},
   logical/.style={-{Latex},thick,dashed,draw=blue!70!black},
-  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt},
+  group title/.style={font=\footnotesize\bfseries,anchor=west}]
 
-  \node[entity] (users)  at (-7.2, 0)    {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
-  \node[entity] (confs)  at (-1.3, 0)    {\textbf{conferences}\\PK conference\_id\\chair\\configurations\\domain};
+  \node[group title] at (-7.8,4.2) {Vai trò và phản biện viên};
+  \node[entity] (roles) at (0,2.7)
+    {\textbf{conference\_user\_roles}\\PK id\\conference\_id\\user\_id\\user\_email\\role,status};
+  \node[entity] (users) at (-4.8,0)
+    {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
+  \node[entity] (confs) at (4.8,0)
+    {\textbf{conferences}\\PK conference\_id\\chair\\configurations\\domain};
+  \node[entity] (revs) at (0,-2.7)
+    {\textbf{conference\_reviewers}\\PK id\\user\_id\\conference\_id\\domain,status};
 
-  \node[entity] (roles)  at (-4.25, 3.4) {\textbf{conference\_user\_roles}\\PK id\\conference\_id\\user\_id\\user\_email\\role,status};
-  \node[entity] (revs)   at (-7.2,-3.7)  {\textbf{conference\_reviewers}\\PK id\\user\_id\\conference\_id\\domain,status};
-  \node[entity] (subs)   at (-1.3,-3.7)  {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status\\title,abstract};
+  \draw[logical] (users.north east) -- node[note,above left] {1--N} (roles.south west);
+  \draw[logical] (confs.north west) -- node[note,above right] {1--N} (roles.south east);
+  \draw[logical] (users.south east) -- node[note,below left] {1--N} (revs.north west);
+  \draw[logical] (confs.south west) -- node[note,below right] {1--N} (revs.north east);
 
-  \node[entity] (assign) at (-7.2,-7.6)  {\textbf{paper\_assignments}\\PK id\\FK conference\_id\\FK submission\_id\\FK reviewer\_id\\score, status\\review\_score, review\_status\\review\_data};
-  \node[entity] (audit)  at (-1.3,-7.6)  {\textbf{review\_audit\_events}\\PK id\\FK assignment\_id\\FK conference\_id\\actor\_id, actor\_email\\event\_type, payload};
+  \node[group title] at (-7.8,-4.5) {Bài nộp, phân công và lưu vết};
+  \node[reference] (assignConfs) at (-6.0,-6.0)
+    {\textbf{conferences}\\conference\_id};
+  \node[reference] (subs) at (0,-6.0)
+    {\textbf{conference\_submissions}\\submission\_id\\conference\_id};
+  \node[reference] (assignRevs) at (6.0,-6.0)
+    {\textbf{conference\_reviewers}\\id\\conference\_id};
+  \node[entity] (assign) at (-1.8,-9.2)
+    {\textbf{paper\_assignments}\\PK id\\FK conference\_id\\FK submission\_id\\FK reviewer\_id\\score, status\\review\_score, review\_status\\review\_data};
+  \node[entity] (audit) at (4.8,-9.2)
+    {\textbf{review\_audit\_events}\\PK id\\FK assignment\_id\\FK conference\_id\\actor\_id, actor\_email\\event\_type, payload};
 
-  \draw[logical] (users) -- node[note] {1--N} (roles);
-  \draw[logical] (confs) -- node[note] {1--N} (roles);
+  \draw[fk] (assignConfs.south east) -- node[note,above left] {1--N} (assign.north west);
+  \draw[fk] (subs.south) -- node[note,left] {1--N} (assign.north);
+  \draw[fk] (assignRevs.south west) -- node[note,above right] {1--N} (assign.north east);
+  \draw[fk] (assign.east) -- node[note,above] {1--N} (audit.west);
+  \draw[fk] (assignConfs.west) -- (-7.8,-6.0) -- (-7.8,-5.0)
+    -- (8.0,-5.0) -- (8.0,-9.2)
+    node[note,pos=0.55,right] {1--N} -- (audit.east);
 
-  \draw[logical] (users) -- node[note] {1--N} (revs);
-  \draw[logical] (confs) -- node[note,pos=0.35] {1--N} (revs);
-  \draw[logical] (confs) -- node[note] {1--N} (subs);
-
-  \draw[fk] (confs) -- node[note,pos=0.6] {1--N} (assign);
-  \draw[fk] (subs)  -- node[note,pos=0.4] {1--N} (assign);
-  \draw[fk] (revs)  -- node[note] {1--N} (assign);
-
-  \draw[fk] (assign)-- node[note] {1--N} (audit);
-  \draw[fk] (confs) to[bend left=60] node[note] {1--N} (audit);
+  \node[font=\scriptsize,align=center,text width=14cm] at (0,-12.1)
+    {Các nút màu xanh biểu diễn thực thể nguồn được lặp lại giữa các nhóm để tránh giao cắt đường nối.};
 
 \end{tikzpicture}
 \end{adjustbox}
@@ -443,35 +460,53 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 \begin{tikzpicture}[
   entity/.style={draw=black!70, rounded corners=2pt, align=left,
                  font=\footnotesize, fill=green!6, inner sep=5pt},
+  reference/.style={draw=black!60, rounded corners=2pt, align=left,
+                    font=\scriptsize, fill=blue!6, inner sep=4pt},
   fk/.style={-{Latex},thick,draw=black!75},
   logical/.style={-{Latex},thick,dashed,draw=blue!70!black},
-  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt},
+  group title/.style={font=\footnotesize\bfseries,anchor=west}]
 
-  \node[entity] (users)   at (-6.5, 0)   {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
-  \node[entity] (confs)   at (-2.0, 0)   {\textbf{conferences}\\PK conference\_id\\domain};
-  \node[entity] (subs)    at ( 3.0, 0)   {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status};
-  \node[entity] (revs)    at ( 7.6, 0)   {\textbf{conference\_reviewers}\\PK id\\user\_id\\conference\_id};
+  \node[group title] at (-7.8,1.5) {Thảo luận};
+  \node[entity] (users)   at (-6.2, 0)   {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
+  \node[entity] (confs)   at (-1.8, 0)   {\textbf{conferences}\\PK conference\_id\\domain};
+  \node[entity] (subs)    at ( 3.4, 0)   {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status};
+  \node[entity] (threads) at (-1.8,-3.0) {\textbf{discussion\_threads}\\PK id\\FK submission\_id\\FK reviewer\_id $\rightarrow$ users.user\_id\\FK conference\_id\\title, visibility};
+  \node[entity] (msgs)    at (-1.8,-5.8) {\textbf{discussion\_messages}\\PK id\\FK thread\_id\\FK author\_id\\content};
 
-  \node[entity] (threads) at (-4.0,-3.8) {\textbf{discussion\_threads}\\PK id\\FK submission\_id\\FK reviewer\_id $\rightarrow$ users.user\_id\\FK conference\_id\\title, visibility};
-  \node[entity] (coi)     at ( 5.3,-3.8) {\textbf{coi\_relationships}\\PK id\\conference\_id\\reviewer\_id\\submission\_id\\author\_email\\relationship\_type\\severity};
-  \node[entity] (msgs)    at (-4.0,-7.6) {\textbf{discussion\_messages}\\PK id\\FK thread\_id\\FK author\_id\\content};
-  \node[entity] (notifs)  at ( 0.8,-7.6) {\textbf{notifications}\\PK id\\user\_email\\conference\_id\\type,title,message\\metadata, read};
-  \node[entity] (prefs)   at ( 5.3,-7.6) {\textbf{notification\_preferences}\\PK id\\user\_email UNIQUE\\notification flags};
+  \draw[fk] (users.south east) -- node[note,above left] {1--N} (threads.north west);
+  \draw[fk] (users.west) -- ++(-0.9,0) |- (msgs.west);
+  \node[note] at (-7.25,-3.0) {1--N};
+  \draw[fk] (confs) -- node[note,left] {1--N} (threads);
+  \draw[fk] (subs.south west) -- node[note,above right] {1--N} (threads.north east);
+  \draw[fk] (threads) -- node[note,right] {1--N} (msgs);
 
-  \draw[fk] (users)   -- node[note,pos=0.4] {1--N} (threads);
-  \draw[fk] (users)   to[out=-150,in=150] node[note] {1--N} (msgs);
-  \draw[fk] (confs)   -- node[note] {1--N} (threads);
-  \draw[fk] (subs)    -- node[note,pos=0.7] {1--N} (threads);
-  \draw[fk] (threads) -- node[note] {1--N} (msgs);
+  \node[group title] at (-7.8,-7.5) {Xung đột lợi ích};
+  \node[reference] (coiConfs) at (-6.5,-8.9) {\textbf{conferences}\\conference\_id};
+  \node[reference] (coiSubs)  at (-4.0,-8.9) {\textbf{conference\_}\\\textbf{submissions}\\submission\_id};
+  \node[reference] (coiRevs)  at (-1.5,-8.9) {\textbf{conference\_}\\\textbf{reviewers}\\id};
+  \node[entity] (coi) at (-4.0,-11.8) {\textbf{coi\_relationships}\\PK id\\conference\_id\\reviewer\_id\\submission\_id\\author\_email\\relationship\_type\\severity};
 
-  \draw[logical] (confs) -- node[note] {1--N} (coi);
-  \draw[logical] (subs)  -- node[note] {1--N} (coi);
-  \draw[logical] (revs)  -- node[note] {1--N} (coi);
+  \draw[logical] (coiConfs) -- node[note,above left] {1--N} (coi.north west);
+  \draw[logical] (coiSubs)  -- node[note,left] {1--N} (coi);
+  \draw[logical] (coiRevs)  -- node[note,above right] {1--N} (coi.north east);
 
-  \draw[logical] (users)  to[bend right=35] node[note] {user\_email} (notifs);
-  \draw[logical] (confs)  to[bend right=20] node[note] {conference\_id} (notifs);
-  \draw[logical] (msgs)   -- node[note] {creates} (notifs);
-  \draw[logical] (users)  to[bend left=35] node[note] {user\_email} (prefs);
+  \node[group title] at (0.8,-7.5) {Thông báo và tùy chọn};
+  \node[reference] (prefUsers)  at (1.2,-8.9) {\textbf{users}\\email};
+  \node[reference] (notifUsers) at (3.2,-8.9) {\textbf{users}\\email};
+  \node[reference] (notifConfs) at (5.1,-8.9) {\textbf{conferences}\\conference\_id};
+  \node[reference] (notifMsgs)  at (7.3,-8.9) {\textbf{discussion\_}\\\textbf{messages}\\id};
+  \node[entity] (prefs) at (1.2,-11.8) {\textbf{notification\_}\\\textbf{preferences}\\PK id\\user\_email UNIQUE\\notification flags};
+  \node[entity] (notifs) at (5.6,-11.8) {\textbf{notifications}\\PK id\\user\_email\\conference\_id\\type,title,message\\metadata, read};
+
+  \draw[logical] (prefUsers) -- node[note,left=1mm] {user\_email} (prefs);
+  \draw[logical] (notifUsers.south east) --
+    node[note,above left] {user\_email} (notifs.north west);
+  \draw[logical] (notifConfs.south) -- node[note,left] {conference\_id} (notifs.north);
+  \draw[logical] (notifMsgs.south west) -- node[note,above right] {creates} (notifs.north east);
+
+  \node[font=\scriptsize,align=center,text width=14cm] at (0,-14.2)
+    {Các nút màu xanh biểu diễn thực thể nguồn được lặp lại giữa các nhóm để tránh giao cắt đường nối.};
 
 \end{tikzpicture}
 \end{adjustbox}
@@ -719,22 +754,22 @@ Sơ đồ~\ref{fig:appendix-a-submission-gating-execution} biểu diễn luồng
 \begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
   \node[appendixData] (gateInput) at (-9,0) {Yêu cầu, chính sách và tệp bài nộp};
-  \node[appendixProcess] (intake) at (-5.4,0) {Chuẩn hóa đầu vào};
-  \node[appendixProcess] (binary) at (-1.8,0) {Kiểm tra tính toàn vẹn của tệp};
-  \node[appendixDecision] (binaryBlock) at (2.0,0) {Bị chặn?};
-  \node[appendixProcess] (extract) at (5.8,0) {Trích xuất tài liệu};
-  \node[appendixDecision] (extractBlock) at (9.6,0) {Bị chặn?};
-  \node[appendixOutcome, text width=64mm] (earlyExit) at (5.8,2.5) {Kết thúc sớm: tạo hướng dẫn, lưu vết; backend trả 422 và yêu cầu sửa};
+  \node[appendixProcess] (intake) at (-5,0) {Chuẩn hóa đầu vào};
+  \node[appendixProcess] (binary) at (-1,0) {Kiểm tra tính toàn vẹn của tệp};
+  \node[appendixDecision] (binaryBlock) at (3.1,0) {Bị chặn?};
+  \node[appendixProcess] (extract) at (8,0) {Trích xuất tài liệu};
+  \node[appendixDecision] (extractBlock) at (12,0) {Bị chặn?};
+  \node[appendixOutcome, text width=64mm] (earlyExit) at (7,2.5) {Kết thúc sớm: tạo hướng dẫn, lưu vết; backend trả 422 và yêu cầu sửa};
 
-  \node[appendixProcess, text width=39mm] (facts) at (9.6,-3.6) {Kiểm tra định dạng và xác định dữ kiện};
-  \node[appendixDecision] (gatingEnabled) at (5.4,-3.6) {Submission Gating được bật?};
-  \node[appendixProcess, text width=47mm] (skipEvaluation) at (5.4,-7.0) {Bỏ qua đánh giá nội dung và chính sách; ánh xạ \textit{pass}, tạo hướng dẫn và lưu vết};
+  \node[appendixProcess, text width=39mm] (facts) at (12,-3.6) {Kiểm tra định dạng và xác định dữ kiện};
+  \node[appendixDecision] (gatingEnabled) at (6.8,-3.6) {Submission Gating được bật?};
+  \node[appendixProcess, text width=47mm] (skipEvaluation) at (6.8,-7.0) {Bỏ qua đánh giá nội dung và chính sách; ánh xạ \textit{pass}, tạo hướng dẫn và lưu vết};
   \node[appendixDecision] (hasPrompt) at (0.8,-3.6) {Có chỉ dẫn rà soát?};
-  \node[appendixProcess] (contentEvaluation) at (-3.5,-3.6) {Đánh giá nội dung\\Chỉ tạo \textit{pass/warn}};
-  \node[appendixProcess] (policyEvaluation) at (-7.8,-3.6) {Áp dụng quy tắc cố định của hội nghị};
+  \node[appendixProcess] (contentEvaluation) at (-5,-3.6) {Đánh giá nội dung\\Chỉ tạo \textit{pass/warn}};
+  \node[appendixProcess] (policyEvaluation) at (-9,-3.6) {Áp dụng quy tắc cố định của hội nghị};
 
   \node[appendixProcess] (verdictMapping) at (-7.8,-7.0) {Ánh xạ \textit{pass}, \textit{warn}, \textit{block} hoặc \textit{error}};
-  \node[appendixData] (guidanceAudit) at (-3.4,-7.0) {Tạo hướng dẫn và lưu dữ liệu kiểm toán};
+  \node[appendixData] (guidanceAudit) at (-4,-7.0) {Tạo hướng dẫn và lưu dữ liệu kiểm toán};
   \node[appendixDecision] (backendVerdict) at (0.9,-7.0) {Backend nhận kết quả nào?};
   \node[appendixOutcome, fill=green!9] (allowSubmit) at (-3.5,-10.4) {Pass/Warn\\Cho phép tiếp tục gửi};
   \node[appendixOutcome, fill=red!7] (blockSubmit) at (0.9,-10.4) {Block\\Trả 422 và yêu cầu sửa};
@@ -815,10 +850,10 @@ Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đ
   \node[font=\footnotesize\bfseries, anchor=west] at (-10,1.2) {Reviewer Initial Analysis};
   \node[appendixData] (openAssignment) at (-8.5,0) {Mở bài được phân công};
   \node[appendixProcess] (stateFingerprint) at (-4.5,0) {Tạo mã nhận diện trạng thái bài};
-  \node[appendixDecision] (artifactLookup) at (-0.3,0) {Kết quả đã lưu còn hiệu lực?};
-  \node[appendixData] (cachedBriefing) at (4.0,0) {Trả bản định hướng đã lưu};
+  \node[appendixDecision] (artifactLookup) at (0,0) {Kết quả đã lưu còn hiệu lực?};
+  \node[appendixData] (cachedBriefing) at (6,0) {Trả bản định hướng đã lưu};
   \node[appendixProcess] (generateBriefing) at (-0.3,-3.2) {Đọc tệp và tạo bản định hướng mới};
-  \node[appendixData] (newBriefing) at (4.0,-3.2) {Lưu bản định hướng và chú thích};
+  \node[appendixData] (newBriefing) at (6.0,-3.2) {Lưu bản định hướng và chú thích};
   \node[appendixOutcome] (readOriginal) at (8.3,-1.6) {Phản biện viên đối chiếu với bài gốc};
 
   \draw[appendixArrow] (openAssignment) -- (stateFingerprint);
@@ -830,15 +865,15 @@ Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đ
   \draw[appendixArrow] (newBriefing) -- (readOriginal);
 
   \node[font=\footnotesize\bfseries, anchor=west] at (-10,-5.1) {Review Quality Auditor};
-  \node[appendixProcess] (draftReview) at (8.3,-6.4) {Soạn bản phản biện};
-  \node[appendixProcess] (runAudit) at (4.1,-6.4) {Chạy rà soát khi lưu nháp hoặc gửi};
-  \node[appendixDecision] (auditCompleted) at (-0.2,-6.4) {Rà soát hoàn tất?};
-  \node[appendixData, text width=38mm] (auditFindings) at (-4.7,-6.4) {Trả \textit{pass}, \textit{warn} hoặc \textit{status=block} để ưu tiên hiển thị};
+  \node[appendixProcess] (draftReview) at (8.3,-4.8) {Soạn bản phản biện};
+  \node[appendixProcess] (runAudit) at (6,-6.4) {Chạy rà soát khi lưu nháp hoặc gửi};
+  \node[appendixDecision] (auditCompleted) at (1.5,-6.4) {Rà soát hoàn tất?};
+  \node[appendixData, text width=38mm] (auditFindings) at (-3.7,-6.4) {Trả \textit{pass}, \textit{warn} hoặc \textit{status=block} để ưu tiên hiển thị};
   \node[appendixDecision] (reviewerAction) at (-9.0,-6.4) {Phản biện viên tiếp tục?};
   \node[appendixProcess] (reviseReview) at (-9.0,-9.7) {Sửa bản nháp và chạy lại};
   \node[appendixOutcome, fill=green!9] (submitReview) at (-4.7,-9.7) {Lưu hoặc gửi bản phản biện};
-  \node[appendixProcess] (confirmFailure) at (-0.2,-9.7) {Xác nhận tiếp tục khi rà soát lỗi};
-  \node[appendixData] (auditEvent) at (4.1,-9.7) {Ghi sự kiện kiểm toán};
+  \node[appendixProcess] (confirmFailure) at (1.5,-9.7) {Xác nhận tiếp tục khi rà soát lỗi};
+  \node[appendixData] (auditEvent) at (5.5,-9.7) {Ghi sự kiện kiểm toán};
 
   \draw[appendixArrow] (readOriginal) -- (draftReview);
   \draw[appendixArrow] (draftReview) -- (runAudit);
@@ -846,7 +881,7 @@ Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đ
   \draw[appendixArrow] (auditCompleted) -- node[appendixEdgeLabel, above] {Có} (auditFindings);
   \draw[appendixArrow] (auditFindings) -- (reviewerAction);
   \draw[appendixArrow] (reviewerAction) -- node[appendixEdgeLabel, right] {Sửa} (reviseReview);
-  \draw[appendixArrow] (reviewerAction.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Tiếp tục} (submitReview.west);
+  \draw[appendixArrow] (reviewerAction.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Tiếp tục} (submitReview.north);
   \draw[appendixDashedArrow] (reviseReview.south) -- ++(0,-1.8) -| (draftReview.south);
   \draw[appendixArrow] (auditCompleted) -- node[appendixEdgeLabel, right] {Không} (confirmFailure);
   \draw[appendixArrow] (confirmFailure) -- (auditEvent);
@@ -895,7 +930,7 @@ Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn
 
   \node[appendixState] (idleStatus) at (-4.8,-8.4) {Idle\\Chưa có kết quả};
   \node[appendixState, fill=orange!9] (staleStatus) at (0,-8.4) {Stale\\Nguồn đã thay đổi};
-  \node[appendixState, fill=green!9] (readyStatus) at (4.8,-8.4) {Ready\\Mã nhận diện trùng khớp};
+  \node[appendixState, fill=green!9] (readyStatus) at (7,-8.4) {Ready\\Mã nhận diện trùng khớp};
   \node[appendixProcess] (generateDecisionBrief) at (-2.4,-11.2) {Tạo hoặc tạo lại bản tổng hợp};
   \node[appendixData] (saveDecisionBrief) at (2.1,-11.2) {Lưu bản tổng hợp cùng mã nhận diện};
   \node[appendixOutcome] (chairDecision) at (7.0,-11.2) {Chủ tọa đối chiếu nguồn và tự quyết định};
@@ -909,7 +944,7 @@ Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn
   \draw[appendixArrow] (componentFingerprints) -- (evidenceFingerprint);
   \draw[appendixArrow] (evidenceFingerprint) -- (cacheStatus);
   \draw[appendixArrow] (cacheStatus.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Không có} (idleStatus.north);
-  \draw[appendixArrow] (cacheStatus.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Đã thay đổi} (staleStatus.north);
+  \draw[appendixArrow] (cacheStatus.south) -- ++(0,0) -| node[appendixEdgeLabel, near end, above] {Đã thay đổi} (staleStatus.north);
   \draw[appendixArrow] (cacheStatus) -- node[appendixEdgeLabel, right] {Trùng khớp} (readyStatus);
   \draw[appendixArrow] (idleStatus) -- (generateDecisionBrief);
   \draw[appendixArrow] (staleStatus) -- (generateDecisionBrief);

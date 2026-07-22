@@ -29,7 +29,7 @@ Bảng~\ref{tab:ch4-demo-questions} trình bày bốn câu hỏi đánh giá, ng
 \endlastfoot
 Hệ thống nghiệp vụ có đủ nhanh và ổn định trong điều kiện tải thử nghiệm hay không? & Kiểm thử tải bằng k6, thống kê yêu cầu thất bại và giám sát tài nguyên & Thông lượng, độ trễ p95, tỷ lệ yêu cầu thất bại, mức sử dụng CPU và RAM & Các đường xử lý và cấu hình đã chọn \\ \hline
 Thuật toán đối sánh và phát hiện xung đột lợi ích có chạy nhanh, cho kết quả có thể tái lập và có thể giải thích hay không? & Go microbenchmark và thử nghiệm trên dữ liệu tổng hợp mô phỏng lược đồ Semantic Scholar & Thời gian xử lý, bộ nhớ, Hit@k, MRR, nDCG, độ phủ và độ đồng đều của phân công & Chi phí mã thuật toán và hành vi trên dữ liệu tổng hợp \\ \hline
-Các luồng AI có tạo đầu ra đủ bám bằng chứng và giữ đúng ranh giới hỗ trợ hay không? & Đối chiếu trực tiếp, phép chấm TCA và thử nghiệm hội thoại & Exact Match, ROUGE, F1, Truthfulness, Coverage, Additionality và kết quả hội thoại & Từng tác vụ và từng bộ kiểm thử tương ứng \\ \hline
+Các luồng AI có tạo đầu ra đủ bám bằng chứng và giữ đúng ranh giới hỗ trợ hay không? & Đối chiếu trực tiếp, Textual Claim-based Assessment (TCA) và thử nghiệm hội thoại & Exact Match, ROUGE, F1, Truthfulness, Coverage, Additionality và kết quả hội thoại & Từng tác vụ và từng bộ kiểm thử tương ứng \\ \hline
 Kết quả kỹ thuật có tương ứng với trải nghiệm của người dùng hay không? & Khảo sát sau sử dụng theo ba vai trò & Mức hài lòng, cảm nhận giảm thao tác và phản hồi định tính & Cảm nhận của mẫu người dùng tham gia \\
 \end{longtable}
 \endgroup
@@ -63,43 +63,7 @@ Chuỗi thực nghiệm được tổ chức theo quan hệ từ đầu vào đ�
   \label{fig:ch4-evaluation-chain}
 \end{figure}
 
-Chương 4 giữ phần thông tin cần thiết để người đọc hiểu mục tiêu, đối tượng, đầu vào, kịch bản, thao tác, giá trị của phép đo và giới hạn diễn giải. Phụ lục C không thay thế phần trình bày này; phụ lục cung cấp mức chi tiết sâu hơn về điều kiện khởi tạo, fixture, snapshot, đơn vị đo, định dạng tư liệu và các khoảng trống truy vết. Vì vậy, người đọc có thể đọc Chương 4 để nắm mạch đánh giá, sau đó sử dụng các mục~\ref{appc:index}--\ref{appc:operations} để kiểm tra hoặc tái lập từng nhóm phép đo.
-
-\subsection{Kịch bản đánh giá và đầu vào theo nhóm}
-
-Mỗi nhóm đánh giá trả lời một câu hỏi riêng. Nhóm hiệu năng backend kiểm tra hành vi của ba đường xử lý HTTP trên dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị; cấu hình khởi tạo được trình bày tại Mục~\ref{appc:backend-contract}. Nhóm thuật toán dùng hai loại đầu vào: bộ kiểm thử Go ở nhiều quy mô để tách chi phí xử lý, và snapshot tổng hợp gồm 60 hồ sơ tác giả cùng 2.565 bài báo để đánh giá hành vi xếp hạng và phân công (Mục~\ref{appc:algorithm-contract}). Nhóm AI xử lý 1.127 bài từ tập ReviewRebuttal (Re2) đã chọn lọc~\cite{ch4ref1}; các phép kiểm tra riêng gồm 48 trường hợp gợi ý chuyên đề, 8 trường hợp kiểm tra luật và 24 trường hợp cảnh báo nội dung được mô tả tại Mục~\ref{appc:direct-fixtures}, còn 40 hội thoại Chatbot Agent được mô tả tại Mục~\ref{appc:chatbot}.
-
-Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên và kiểm tra xung đột lợi ích. Kịch bản truy vấn đọc lần lượt liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng; mặc dù được gọi là CRUD trong tư liệu tải, kịch bản chỉ thực hiện yêu cầu đọc. Kịch bản gợi ý phản biện viên gọi đường xử lý \CodeBreak{reviewer-suggestions} nhưng không tự động phân công. Kịch bản xung đột lợi ích gọi đường xử lý kiểm tra xung đột, trong đó có truy vấn mẫu quan hệ đồng tác giả trên Neo4j bằng Cypher~\cite{ch4ref6}.
-
-Đối với xếp hạng, nhóm giữ lại một bài từ mỗi hồ sơ tác giả làm truy vấn, loại bài đó khỏi hồ sơ tương ứng rồi xếp hạng các hồ sơ còn lại bằng Jaccard, \CodeBreak{overlap\_count} và phương pháp ngẫu nhiên. Kết quả được mô tả bằng Hit@k, MRR và nDCG@10, là các chỉ số thường dùng để đánh giá danh sách xếp hạng~\cite{ch4ref8}. Đối với phân công, nhóm so sánh Greedy với gán tuần tự và ngẫu nhiên bằng độ phủ, độ đồng đều, điểm Jaccard, lượt dự phòng và số ca tự gán. Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhãn tác giả gốc và các chỉ số nội tại chỉ là bằng chứng gián tiếp.
-
-Đối với các luồng AI, bộ thực thi tạo và lưu đầu ra trước; bộ chấm TCA đọc lại các gói đã lưu mà không tạo lại nội dung. Tự động điền bài nộp (Submission Autofill) được đối chiếu với siêu dữ liệu tham chiếu; Kiểm tra trước khi nộp bài (Submission Gating) được tách thành nhánh kiểm tra luật và nhánh cảnh báo không chặn; Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) được đánh giá theo quan hệ mệnh đề--bằng chứng; Chatbot Agent được chạy theo tám nhóm kịch bản với ba vai trò và được đánh giá thủ công. Hình~\ref{fig:ch4-ai-evaluation-flow} minh họa sự tách biệt giữa tạo đầu ra, đối chiếu trực tiếp, TCA và chấm theo hành vi hội thoại.
-
-\begin{figure}[H]
-  \centering
-  \begin{adjustbox}{max width=0.88\textwidth}
-  \begin{tikzpicture}[>=Latex,
-    block/.style={draw=black!65, rounded corners, align=center, text width=3.2cm, minimum height=1cm, fill=gray!8},
-    arrow/.style={-{Latex[length=2mm]}, thick}
-  ]
-    \node[block] (data) at (0,4) {Bài nộp và\\ ngữ cảnh nguồn};
-    \node[block] (worker) at (0,1) {Bộ thực thi\\ luồng xử lý};
-    \node[block] (outputs) at (0,-2) {Gói đầu ra\\ và điểm kiểm tra};
-    \node[block] (direct) at (4.8,-5) {Đối chiếu trực tiếp\\ Autofill / Gating};
-    \node[block] (tca) at (-4.8,-5) {TCA\ cho đầu ra văn bản};
-    \node[block] (chat) at (0,-5) {Chấm theo kịch bản\\ Chatbot Agent};
-    \draw[arrow] (data) -- (worker);
-    \draw[arrow] (worker) -- (outputs);
-    \draw[arrow] (outputs) -- (direct);
-    \draw[arrow] (outputs) -- (tca);
-    \draw[arrow] (outputs) -- (chat);
-  \end{tikzpicture}
-  \end{adjustbox}
-\caption{Các nhánh đánh giá đầu ra của luồng xử lý AI}
-\label{fig:ch4-ai-evaluation-flow}
-\end{figure}
-
-Đầu ra kỳ vọng của mỗi nhóm gồm trạng thái hoàn tất, tư liệu có thể truy xuất và các đại lượng tương ứng với câu hỏi đánh giá. Backend cần ghi nhận thông lượng, độ trễ và tỷ lệ lỗi; microbenchmark cần ghi nhận thời gian và bộ nhớ cấp phát; đánh giá xếp hạng và phân công cần tạo chỉ số trên cùng đầu vào; các luồng AI cần lưu đầu ra, thời gian, token và kết quả chấm; Chatbot Agent cần lưu hội thoại, nhật ký gọi công cụ và nhãn hồi cứu. Những điều kiện này xác định giá trị của từng phép đo và ngăn việc dùng một loại bằng chứng để kết luận về một trách nhiệm khác.
+Chương 4 giữ phần thông tin cần thiết để người đọc hiểu mục tiêu, đối tượng, đầu vào, kịch bản, thao tác, giá trị của phép đo và giới hạn diễn giải. Phụ lục C không thay thế phần trình bày này; phụ lục cung cấp mức chi tiết sâu hơn về điều kiện khởi tạo, bộ dữ liệu kiểm thử, bản dữ liệu cố định, đơn vị đo, định dạng tư liệu và các khoảng trống truy vết. Vì vậy, người đọc có thể đọc Chương 4 để nắm mạch đánh giá, sau đó sử dụng các mục~\ref{appc:index}--\ref{appc:operations} để kiểm tra hoặc tái lập từng nhóm phép đo.
 
 \section{Thiết lập thực nghiệm}
 
@@ -117,6 +81,70 @@ Hình~\ref{fig:ch4-demo-dataset-distribution} trình bày phân bố 1.127 bài 
 \end{figure}
 
 Các nhóm thực nghiệm còn lại sử dụng tập kiểm thử phù hợp với từng trách nhiệm. Kiểm thử backend dùng dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Đánh giá đối sánh dùng 60 hồ sơ tác giả và 2.565 bài báo tổng hợp. Tự động điền bài nộp (Submission Autofill) có thêm 48 trường hợp kiểm thử gợi ý chuyên đề; Kiểm tra trước khi nộp bài (Submission Gating) có 8 trường hợp kiểm thử luật và 24 trường hợp kiểm thử cảnh báo nội dung; Chatbot Agent có 40 hội thoại thuộc tám nhóm kịch bản. Phụ lục~\ref{AppendixC} trình bày phân bố dữ liệu, điều kiện chạy và quy trình chấm chi tiết.
+
+\subsection{Kịch bản và quy tắc đánh giá}
+
+Mỗi nhóm đánh giá trả lời một câu hỏi riêng. Nhóm hiệu năng backend kiểm tra ba đường xử lý HTTP trên dữ liệu tổng hợp; nhóm thuật toán sử dụng bộ kiểm thử Go ở nhiều quy mô và một bản dữ liệu cố định tổng hợp để đánh giá chi phí xử lý, hành vi xếp hạng và kết quả phân công. Cấu hình khởi tạo và quy tắc tạo dữ liệu được trình bày tại các Mục~\ref{appc:backend-contract} và~\ref{appc:algorithm-contract}.
+
+Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên và kiểm tra xung đột lợi ích. Kịch bản truy vấn đọc lần lượt liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng; mặc dù được gọi là CRUD trong tư liệu tải, kịch bản chỉ thực hiện yêu cầu đọc. Kịch bản gợi ý phản biện viên gọi đường xử lý \CodeBreak{reviewer-suggestions} nhưng không tự động phân công. Kịch bản xung đột lợi ích gọi đường xử lý kiểm tra xung đột, trong đó có truy vấn mẫu quan hệ đồng tác giả trên Neo4j bằng Cypher~\cite{ch4ref6}.
+
+Đối với xếp hạng, nhóm giữ lại một bài từ mỗi hồ sơ tác giả làm truy vấn, loại bài đó khỏi hồ sơ tương ứng rồi xếp hạng các hồ sơ còn lại bằng Jaccard, \CodeBreak{overlap\_count} và phương pháp ngẫu nhiên. Kết quả được mô tả bằng Hit@k, MRR và nDCG@10, là các chỉ số thường dùng để đánh giá danh sách xếp hạng~\cite{ch4ref8}. Đối với phân công, nhóm so sánh Greedy với gán tuần tự và ngẫu nhiên bằng độ phủ, độ đồng đều, điểm Jaccard, lượt dự phòng và số ca tự gán. Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhãn tác giả gốc và các chỉ số nội tại chỉ là bằng chứng gián tiếp.
+
+Các luồng AI thực hiện những trách nhiệm khác nhau nên không được đánh giá bằng một chỉ số chung. Đối với đầu ra có dữ liệu tham chiếu xác định, nhóm đối chiếu trực tiếp kết quả của hệ thống với giá trị kỳ vọng. Đối với đầu ra văn bản mở, nhóm sử dụng TCA để kiểm tra quan hệ giữa từng mệnh đề và nguồn bằng chứng. Chatbot Agent được đánh giá riêng theo kịch bản hội thoại, quyền truy cập và hành vi gọi công cụ. Bảng~\ref{tab:ch4-ai-evaluation-contracts} tóm tắt đầu vào, đầu ra và cách kiểm tra của từng luồng; Phụ lục~\ref{AppendixC} trình bày cấu trúc dữ liệu, trường hợp kiểm thử và quy trình tái lập.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|>{\RaggedRight\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.17\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|}
+\caption{Đầu vào, đầu ra và cách đánh giá các luồng AI hỗ trợ}
+\label{tab:ch4-ai-evaluation-contracts} \\
+\hline
+\TableHeader{Luồng} & \TableHeader{Đầu vào} & \TableHeader{Đầu ra quan sát} & \TableHeader{Cách kiểm tra} & \TableHeader{Phạm vi kết luận} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Luồng} & \TableHeader{Đầu vào} & \TableHeader{Đầu ra quan sát} & \TableHeader{Cách kiểm tra} & \TableHeader{Phạm vi kết luận} \\ \hline
+\endhead
+\hline
+\multicolumn{5}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+Submission Autofill & Bản thảo, siêu dữ liệu tham chiếu và danh sách chuyên đề hợp lệ & Tiêu đề, tác giả, từ khóa, tóm tắt, trường bắt buộc và chuyên đề được gợi ý & Đối chiếu siêu dữ liệu bằng \mbox{Exact Match}, F1 và ROUGE; kiểm tra tính hợp lệ của chuyên đề được gợi ý & Độ khớp trường và khả năng hoàn tất; chưa xác nhận chuyên đề phù hợp nhất \\ \hline
+Submission Gating: kiểm tra luật & Tệp bài nộp, siêu dữ liệu và quy tắc hội nghị & Phán quyết và mã quy tắc & Đối chiếu với kết quả kỳ vọng của từng trường hợp kiểm thử & Việc áp dụng các quy tắc đã định nghĩa \\ \hline
+Submission Gating: cảnh báo nội dung & Nội dung bản thảo và phạm vi cảnh báo & Danh sách cảnh báo không chặn & Kiểm tra khả năng hoàn tất, số cảnh báo và việc không tự động chặn & Hành vi hỗ trợ; chưa xác nhận độ chính xác của từng cảnh báo \\ \hline
+Reviewer Initial Analysis & Bản thảo và siêu dữ liệu bài nộp & Trích dẫn, chú giải và điểm cần lưu ý & Đối chiếu trích dẫn với bản thảo; dùng TCA cho các nhận định mở và nội dung tham chiếu & Mức bám nguồn và quan hệ với tham chiếu; không thay thế phán đoán của Phản biện viên \\ \hline
+Review Quality Auditor & Bản phản biện và tiêu chí kiểm tra chất lượng & Phát hiện, trạng thái và mức độ nghiêm trọng & Dùng TCA để kiểm tra mức bám nguồn, tính hợp lệ và phần đồng thời đạt hai điều kiện & Chất lượng phát hiện; trạng thái \textit{block} không phải quyết định từ chối thao tác \\ \hline
+Chair Decision Copilot & Bài nộp, bản phản biện, phản hồi của tác giả và nội dung thảo luận khả dụng & Cơ sở bằng chứng, điểm đồng thuận, điểm bất đồng và bản tổng hợp & Dùng TCA để kiểm tra mức bám nguồn và quan hệ với nội dung tham chiếu & Chất lượng bản tổng hợp; không đo độ chính xác của quyết định học thuật \\ \hline
+Chatbot Agent & Vai trò, yêu cầu của người dùng và dữ liệu được phép truy cập & Câu trả lời, chuỗi gọi công cụ và trạng thái hội thoại & Rà soát thủ công theo kịch bản, công cụ dự kiến và tiêu chí hành vi & Hành vi trong 40 hội thoại đã thiết kế \\
+\end{longtable}
+\endgroup
+
+Đối với các luồng AI, bộ thực thi tạo và lưu đầu ra trước khi hoạt động chấm bắt đầu. Submission Autofill và nhánh kiểm tra luật của Submission Gating được đối chiếu trực tiếp; Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot được đánh giá theo quan hệ mệnh đề--bằng chứng; Chatbot Agent được chấm theo hành vi hội thoại. Hình~\ref{fig:ch4-ai-evaluation-flow} minh họa ba nhánh đánh giá này.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{adjustbox}{max width=0.88\textwidth}
+  \begin{tikzpicture}[>=Latex,
+    block/.style={draw=black!65, rounded corners, align=center, text width=2.9cm, minimum height=0.85cm, fill=gray!8},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+  ]
+    \node[block] (data) at (0,3.6) {Bài nộp và\\ ngữ cảnh nguồn};
+    \node[block] (worker) at (0,1.4) {Bộ thực thi\\ luồng xử lý};
+    \node[block] (outputs) at (0,-0.8) {Gói đầu ra\\ và điểm kiểm tra};
+    \node[block] (direct) at (4.2,-3.3) {Đối chiếu trực tiếp\\ Autofill / Gating};
+    \node[block] (tca) at (-4.2,-3.3) {TCA cho\\ đầu ra văn bản};
+    \node[block] (chat) at (0,-3.3) {Chấm theo kịch bản\\ Chatbot Agent};
+    \draw[arrow] (data) -- (worker);
+    \draw[arrow] (worker) -- (outputs);
+    \draw[arrow] (outputs) -- (direct);
+    \draw[arrow] (outputs) -- (tca);
+    \draw[arrow] (outputs) -- (chat);
+  \end{tikzpicture}
+  \end{adjustbox}
+\caption{Các nhánh đánh giá đầu ra của luồng xử lý AI}
+\label{fig:ch4-ai-evaluation-flow}
+\end{figure}
 
 \subsection{Môi trường và tư liệu thực nghiệm}
 
@@ -150,13 +178,93 @@ Khảo sát sau sử dụng & Bảng hỏi theo vai trò sau khi người tham g
 \end{longtable}
 \endgroup
 
-\subsection{Phương pháp và ranh giới diễn giải}
+\subsection{Phương pháp đánh giá theo nhóm}
 
 Kiểm thử tải dùng k6 để tạo tải HTTP lên API và thu các chỉ số tích hợp về số yêu cầu, thời gian xử lý và tỷ lệ thất bại~\cite{ch4ref4}. Go microbenchmark chạy trực tiếp trên mã thuật toán theo cơ chế benchmark của gói \CodeBreak{testing}~\cite{ch4ref5}, nhằm tách thời gian xử lý và mức sử dụng bộ nhớ khỏi chi phí HTTP, cơ sở dữ liệu và mạng. Phép thử xếp hạng dùng phương pháp leave-one-out theo tác giả; phép thử phân công so sánh Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận.
 
-Các đầu ra AI được đánh giá theo ba cách. Tự động điền bài nộp (Submission Autofill) được đối chiếu với siêu dữ liệu tham chiếu bằng Exact Match, F1 và ROUGE, trong đó ROUGE đo mức trùng lặp giữa văn bản tạo ra và văn bản tham chiếu~\cite{ch4ref9}; phần kiểm tra luật của Submission Gating được đối chiếu với phán quyết và mã luật dự kiến. Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) được đánh giá bằng khung TCA gồm Truthfulness, Coverage và Additionality. Chatbot Agent được kiểm tra qua các kịch bản hội thoại theo vai trò, quyền truy cập và phạm vi hỗ trợ.
+Các đầu ra AI được đánh giá theo ba cách. Tự động điền bài nộp (Submission Autofill) được đối chiếu với siêu dữ liệu tham chiếu bằng Exact Match, F1 và ROUGE, trong đó ROUGE đo mức trùng lặp giữa văn bản tạo ra và văn bản tham chiếu~\cite{ch4ref9}; phần kiểm tra luật của Submission Gating được đối chiếu với phán quyết và mã luật dự kiến. Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) được đánh giá bằng TCA. Chatbot Agent được kiểm tra qua các kịch bản hội thoại theo vai trò, quyền truy cập và phạm vi hỗ trợ.
 
-TCA là phép chấm tự động mang tính thăm dò. Truthfulness ước lượng tỷ lệ mệnh đề có bằng chứng hỗ trợ; Coverage đo mức trùng khớp với nội dung tham chiếu do con người tạo; Additionality đo tỷ lệ mệnh đề có căn cứ nhưng không trùng trực tiếp với tham chiếu. Phương pháp này chưa được hiệu chuẩn bằng nhãn chuyên gia, nên các chỉ số chỉ mô tả quan hệ giữa mệnh đề và bằng chứng, không trực tiếp đo tính hữu ích học thuật.
+\subsection{Textual Claim-based Assessment}
+\label{subsec:ch4-tca}
+
+Các đầu ra như bản phân tích dành cho Phản biện viên, phát hiện về chất lượng nhận xét và bản tổng hợp dành cho Chủ tọa không có một đáp án văn bản duy nhất. Các phép đo dựa trên mức trùng khớp từ vựng có thể đánh giá thấp một cách diễn đạt khác nhưng đúng, đồng thời không xác định được một nhận định có thực sự được nguồn dữ liệu hỗ trợ hay không. Mặt khác, nội dung do con người tạo không nhất thiết bao quát toàn bộ thông tin có căn cứ trong bài báo. Vì vậy, nhóm sử dụng Textual Claim-based Assessment (TCA), một khung hậu kiểm tự động đánh giá đầu ra văn bản theo đơn vị mệnh đề--chứng cứ.
+
+TCA không tạo lại đầu ra của các luồng AI. Sau khi bộ thực thi hoàn tất một lượt chạy, hệ thống lưu đầu ra cùng ngữ cảnh nguồn, nội dung tham chiếu và thông tin truy vết thành một gói kết quả. TCA chỉ đọc các gói đã lưu và chấm chúng theo cùng một quy trình. Cách tổ chức này tách hoạt động tạo nội dung khỏi hoạt động đánh giá, đồng thời cho phép kiểm tra lại kết quả mà không làm thay đổi đầu ra ban đầu.
+
+Bộ thực thi tiếp nhận 1.127 bài và tạo được 1.097 gói kết quả đủ điều kiện cho TCA. Ba mươi lượt không hoàn tất vẫn được tính khi báo cáo tỷ lệ thành công của bộ thực thi, nhưng không được đưa vào phép chấm chất lượng vì thiếu đầu ra hợp lệ. Do đó, các tỷ lệ hoàn tất vận hành sử dụng 1.127 bài làm mẫu số, còn các chỉ số TCA được tổng hợp trên 1.097 bài có gói kết quả đủ điều kiện.
+
+\subsubsection{Đầu vào và đầu ra}
+
+Mỗi gói đầu vào của TCA gồm ba nhóm thông tin. Nhóm thứ nhất là đầu ra cần đánh giá, chẳng hạn điểm cần lưu ý, phát hiện về bản phản biện hoặc cơ sở bằng chứng dành cho Chủ tọa. Nhóm thứ hai là nguồn dùng để kiểm tra các nhận định, gồm bản thảo, bản phản biện, phản hồi của tác giả hoặc nội dung thảo luận tương ứng với từng luồng. Nhóm thứ ba là nội dung do con người tạo dùng làm tham chiếu khi phép đo cần xác định mức độ bao phủ hoặc phần nội dung bổ sung.
+
+Đầu ra của TCA gồm kết quả kiểm tra ở cấp mệnh đề, các chỉ số tổng hợp theo bài và thông tin truy vết về nhánh đánh giá đã sử dụng. Các gói kết quả này được lưu ở định dạng JSONL để nhóm có thể tổng hợp số liệu mà vẫn truy ngược được từ chỉ số về bài và mệnh đề tương ứng. Mục~\ref{appc:tca} trình bày cấu trúc dữ liệu, cấu hình và quy tắc tổng hợp chi tiết.
+
+\subsubsection{Các giai đoạn xử lý}
+
+Hình~\ref{fig:ch4-tca-flow} trình bày bốn giai đoạn xử lý chung của TCA. Mỗi luồng sử dụng nguồn bằng chứng và nhóm chỉ số riêng, nhưng đều tuân theo chuỗi từ kiểm tra gói kết quả đến lưu kết quả có thể truy vết.
+
+\begin{figure}[H]
+  \centering
+  \begin{adjustbox}{max width=\textwidth}
+  \begin{tikzpicture}[
+    node distance=0.35cm,
+    tcastep/.style={draw, rounded corners, align=center, minimum height=1.1cm, text width=2.45cm, fill=gray!8},
+    tcaarrow/.style={-{Latex[length=2mm]}, thick}
+  ]
+    \node[tcastep] (package) {Gói kết quả\\ đã lưu};
+    \node[tcastep, right=of package] (eligibility) {Kiểm tra điều kiện\\ và chọn nhánh};
+    \node[tcastep, right=of eligibility] (claims) {Tách và chuẩn hóa\\ đơn vị đánh giá};
+    \node[tcastep, right=of claims] (evidence) {Đối chiếu với\\ nguồn bằng chứng};
+    \node[tcastep, right=of evidence] (aggregate) {Tổng hợp chỉ số\\ và lưu truy vết};
+    \draw[tcaarrow] (package) -- (eligibility);
+    \draw[tcaarrow] (eligibility) -- (claims);
+    \draw[tcaarrow] (claims) -- (evidence);
+    \draw[tcaarrow] (evidence) -- (aggregate);
+  \end{tikzpicture}
+  \end{adjustbox}
+  \caption{Luồng xử lý tổng quát của TCA}
+  \label{fig:ch4-tca-flow}
+\end{figure}
+
+\textbf{Giai đoạn 1 -- kiểm tra điều kiện và chọn nhánh đánh giá.} TCA kiểm tra gói kết quả có đủ đầu ra và nguồn đối chiếu cần thiết hay không, sau đó chọn nhánh xử lý phù hợp với từng luồng. Các gói thiếu dữ liệu bắt buộc được ghi nhận bằng cờ chất lượng và không được đưa vào mẫu số của phép chấm tương ứng.
+
+\textbf{Giai đoạn 2 -- tách và chuẩn hóa đơn vị đánh giá.} TCA chuyển đầu ra thành các đơn vị có thể kiểm tra độc lập, chẳng hạn trích dẫn, điểm cần lưu ý, phát hiện về bản phản biện hoặc nhận định trong bản tổng hợp. Quy trình đồng thời loại các câu thuần túy hành chính nếu chúng không chứa nhận định cần đối chiếu với nội dung học thuật.
+
+\textbf{Giai đoạn 3 -- đối chiếu với nguồn bằng chứng.} Đối với trích dẫn trực tiếp, TCA kiểm tra mức khớp với văn bản nguồn. Đối với nhận định mở, TCA xác định quan hệ giữa mệnh đề và phần bằng chứng liên quan. Khi có nội dung tham chiếu do con người tạo, TCA tiếp tục kiểm tra mệnh đề nào trùng với tham chiếu và mệnh đề nào có căn cứ nhưng nằm ngoài tham chiếu.
+
+\textbf{Giai đoạn 4 -- tổng hợp và lưu kết quả.} TCA tổng hợp kết quả ở cấp mệnh đề thành các chỉ số theo bài và từng luồng, đồng thời giữ lại mã nhận diện, cờ chất lượng và thông tin cần thiết để truy vết. Công thức, quy tắc xử lý trường hợp đặc biệt và cấu hình kỹ thuật được trình bày tại Mục~\ref{appc:tca}.
+
+\subsubsection{Ý nghĩa và giới hạn của các chỉ số}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.19\textwidth}|>{\RaggedRight\arraybackslash}p{0.39\textwidth}|>{\RaggedRight\arraybackslash}p{0.34\textwidth}|}
+\caption{Ý nghĩa và giới hạn diễn giải của các chỉ số TCA}
+\label{tab:ch4-tca-metric-meanings} \\
+\hline
+\TableHeader{Chỉ số} & \TableHeader{Ý nghĩa trong phép đánh giá} & \TableHeader{Không được diễn giải thành} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Chỉ số} & \TableHeader{Ý nghĩa trong phép đánh giá} & \TableHeader{Không được diễn giải thành} \\ \hline
+\endhead
+\hline
+\multicolumn{3}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+Tỷ lệ trích dẫn bám nguồn & Tỷ lệ trích dẫn có thể đối chiếu trực tiếp hoặc một phần với văn bản nguồn & Độ đúng của toàn bộ bản phân tích \\ \hline
+Truthfulness & Mức độ các mệnh đề được nguồn dữ liệu chỉ định hỗ trợ & Độ chính xác của quyết định học thuật \\ \hline
+Coverage & Mức độ đầu ra bao phủ các điểm có trong nội dung tham chiếu do con người tạo & Mức độ bao phủ toàn bộ nội dung bài báo \\ \hline
+Additionality & Tỷ lệ nội dung được đánh giá là có căn cứ nhưng không trùng trực tiếp với tham chiếu của con người & Tính mới, mức hữu ích hoặc giá trị chuyên môn \\ \hline
+Validity & Tỷ lệ phát hiện phù hợp với tiêu chí kiểm tra tương ứng & Bằng chứng rằng phát hiện đã bám nguồn đầy đủ \\ \hline
+Tỷ lệ vừa bám nguồn vừa hợp lệ & Tỷ lệ phát hiện đồng thời có căn cứ và phù hợp với tiêu chí kiểm tra & Tỷ lệ hệ thống nên tự động chặn người dùng \\ \hline
+Tỷ lệ rủi ro cao & Tỷ lệ bài có dấu hiệu cần ưu tiên kiểm tra lại theo quy tắc TCA & Tỷ lệ bài nên bị từ chối \\
+\end{longtable}
+\endgroup
+
+Kết quả TCA được dùng làm bằng chứng gián tiếp về mức bám nguồn và quan hệ giữa đầu ra AI với nội dung tham chiếu. Phép chấm chưa được hiệu chuẩn bằng một bộ nhãn chuyên gia độc lập; vì vậy, kết quả không thay thế đánh giá của Phản biện viên hoặc Chủ tọa. Báo cáo chỉ sử dụng kết quả TCA để mô tả mức độ đầu ra có thể được truy vết về nguồn, phần nội dung trùng với tham chiếu và phần nội dung có căn cứ nằm ngoài tham chiếu. Các kết quả này không trực tiếp đo mức hữu ích chuyên môn, tính đầy đủ của nhận xét hoặc độ chính xác của quyết định chấp nhận bài.
 
 \section{Đánh giá lớp nghiệp vụ cốt lõi}
 \label{sec:chap4-core-business}
@@ -278,7 +386,7 @@ Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nh�
 
 \subsection{Phát hiện xung đột lợi ích đa tầng}
 
-Cơ chế phát hiện xung đột lợi ích gồm kiểm tra tự gán, quan hệ do người dùng khai báo và quan hệ đồng tác giả từ một đến ba bậc được truy vấn theo mẫu đường đi trên Neo4j~\cite{ch4ref6} trong khoảng thời gian cấu hình. Microbenchmark chỉ bao phủ hai bộ kiểm tra xác định đầu tiên. Nghiên cứu chưa đo thời gian hoặc chất lượng phát hiện của lớp đồ thị, chưa có tập cặp xung đột do chuyên gia gán nhãn và chưa kiểm tra đầu cuối khi Neo4j không khả dụng. Vì vậy, kết quả hiện tại chưa xác nhận chất lượng của toàn bộ cơ chế đa tầng.
+Cơ chế phát hiện xung đột lợi ích gồm kiểm tra tự gán, quan hệ do người dùng khai báo và quan hệ đồng tác giả từ một đến ba bậc được truy vấn theo mẫu đường đi trên Neo4j~\cite{ch4ref6} trong khoảng thời gian cấu hình. Microbenchmark chỉ bao phủ hai bộ kiểm tra xác định đầu tiên. Phép đánh giá chưa đo thời gian hoặc chất lượng phát hiện của lớp đồ thị, chưa có tập cặp xung đột do chuyên gia gán nhãn và chưa kiểm tra đầu cuối khi Neo4j không khả dụng. Vì vậy, kết quả hiện tại chưa xác nhận chất lượng của toàn bộ cơ chế đa tầng.
 
 \section{Đánh giá các luồng AI hỗ trợ}
 \label{sec:chap4-ai-flows}
@@ -300,6 +408,8 @@ Submission Gating tách hai tuyến đánh giá. Tuyến kiểm tra luật cố 
 
 \subsection{Reviewer Initial Analysis}
 
+Thử nghiệm cung cấp bản thảo và siêu dữ liệu bài nộp cho Reviewer Initial Analysis. Luồng tạo các trích dẫn, chú giải và điểm cần lưu ý nhằm định hướng Phản biện viên trước khi viết nhận xét. TCA kiểm tra riêng mức bám nguồn của trích dẫn và các nhận định mở; các bản phản biện của con người được sử dụng để đo Coverage và Additionality, không được xem là đáp án duy nhất của bài toán.
+
 Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng trước khi Phản biện viên viết nhận xét. Theo phép chấm TCA, tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn Truthfulness của điểm cần lưu ý đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Coverage đạt 4,49\% và Additionality đạt 92,23\%; hai chỉ số này không trực tiếp đo mức độ mới hoặc hữu ích của nội dung bổ sung.
 
 \begin{figure}[H]
@@ -313,6 +423,8 @@ Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc tron
 
 \subsection{Review Quality Auditor}
 
+Thử nghiệm cung cấp nội dung bản phản biện cho Review Quality Auditor và ghi nhận danh sách phát hiện, trạng thái cùng mức độ nghiêm trọng. TCA kiểm tra liệu mỗi phát hiện có được nội dung bản phản biện hỗ trợ và có phù hợp với tiêu chí kiểm tra hay không. Phép đánh giá không xem trạng thái \CodeBreak{block} là một quyết định từ chối thao tác, vì trạng thái này chỉ làm nổi bật nội dung cần người dùng xem xét.
+
 Trên 1.127 bài, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
 
 Theo TCA, Truthfulness so với bản phản biện đạt 58,28\%, tỷ lệ hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Kết quả cho thấy Review Quality Auditor phù hợp với vai trò hiển thị các điểm cần kiểm tra trước khi nộp. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
@@ -325,6 +437,8 @@ Theo TCA, Truthfulness so với bản phản biện đạt 58,28\%, tỷ lệ h�
 \end{figure}
 
 \subsection{Chair Decision Copilot}
+
+Thử nghiệm cung cấp cho Chair Decision Copilot các bản phản biện, phản hồi của tác giả và ngữ cảnh nguồn tương ứng. Luồng tạo cơ sở bằng chứng cùng bản tổng hợp các điểm đồng thuận và bất đồng để Chủ tọa xem xét. TCA đo mức bám nguồn của các nhận định và quan hệ với nội dung tham chiếu; phép đánh giá không yêu cầu hoặc chấm một nhãn chấp nhận hay từ chối bài.
 
 Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi của tác giả và các điểm đồng thuận hoặc bất đồng trước khi Chủ tọa ra quyết định. Theo TCA, Truthfulness của cơ sở bằng chứng đạt 87,34\%, còn Truthfulness của bản tổng hợp bất đồng đạt 87,11\%. Hình~\ref{fig:ch4-chair-evidence} minh họa các chỉ số của cơ sở bằng chứng và bản tổng hợp bất đồng; hình chỉ mô tả kết quả TCA, không phải độ chính xác của quyết định học thuật.
 
@@ -340,7 +454,7 @@ Các kết quả chỉ xác nhận mức bám nguồn của bản tổng hợp t
 \subsection{Chatbot Agent}
 \label{subsec:chap4-chatbot}
 
-Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu ConferenceSpace theo quyền của người dùng, không phải trợ lý nghiên cứu hoặc hệ thống trò chuyện tự do. Bộ thử gồm tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt. Trợ lý hoàn tất luồng phản hồi trong cả 40 hội thoại; báo cáo rà soát thủ công hồi cứu phân loại 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt. Tỷ lệ gọi công cụ thành công đạt 97/128 lượt, tương ứng 75,78\%. Hình~\ref{fig:ch4-chatbot-outcomes} và Hình~\ref{fig:ch4-chatbot-tools} tách kết quả hội thoại khỏi khả năng gọi công cụ; tỷ lệ gọi công cụ không được diễn giải như tỷ lệ hoàn tất hội thoại.
+Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu ConferenceSpace theo quyền của người dùng, không phải trợ lý phân tích nội dung học thuật hoặc hệ thống trò chuyện tự do. Bộ thử gồm tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt. Trợ lý hoàn tất luồng phản hồi trong cả 40 hội thoại; báo cáo rà soát thủ công hồi cứu phân loại 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt. Tỷ lệ gọi công cụ thành công đạt 97/128 lượt, tương ứng 75,78\%. Hình~\ref{fig:ch4-chatbot-outcomes} và Hình~\ref{fig:ch4-chatbot-tools} tách kết quả hội thoại khỏi khả năng gọi công cụ; tỷ lệ gọi công cụ không được diễn giải như tỷ lệ hoàn tất hội thoại.
 
 \begin{figure}[H]
   \centering

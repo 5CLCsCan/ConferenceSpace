@@ -196,25 +196,27 @@ Môi trường chính thức được triển khai trên máy chủ riêng ảo 
 \begin{tikzpicture}[>=Latex,
   public/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.2cm, minimum height=10mm, fill=blue!7},
   app/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.4cm, minimum height=10mm, fill=green!8},
-  data/.style={draw=black!65, cylinder, shape border rotate=90, aspect=0.25, align=center, text width=2.8cm, minimum height=13mm, fill=orange!9}]
+  data/.style={draw=black!65, cylinder, shape border rotate=90, aspect=0.25, align=center, text width=2.8cm, minimum height=13mm, fill=orange!9},
+  flow/.style={-{Latex[length=2.4mm]}, thick, draw=black!75},
+  edge label/.style={fill=white, inner sep=1pt, font=\footnotesize}]
   \node[public] (client) at (0,0) {Trình duyệt người dùng};
-  \node[public] (caddy) at (0,-2.2) {Caddy\\TLS và reverse proxy};
-  \node[app] (frontend) at (-4.0,-5.0) {Frontend\\Next.js};
-  \node[app] (backend) at (0,-5.0) {Backend\\Go và Gin};
-  \node[app] (ai) at (4.0,-5.0) {Dịch vụ AI\\FastAPI};
-  \node[data] (postgres) at (-4.0,-8.3) {PostgreSQL};
-  \node[data] (redis) at (0,-8.3) {Redis};
-  \node[data] (neo4j) at (4.0,-8.3) {Neo4j};
-  \draw[-{Latex},thick] (client) -- node[right] {HTTPS} (caddy);
-  \draw[-{Latex},thick] (caddy) -- node[left] {giao diện} (frontend);
-  \draw[-{Latex},thick] (caddy) -- node[right] {WebSocket} (backend);
-  \draw[-{Latex},thick] (frontend) -- node[above] {API} (backend);
-  \draw[-{Latex},thick] (frontend) -- (ai);
-  \draw[-{Latex},thick] (backend) -- (ai);
-  \draw[-{Latex},thick] (backend) -- (postgres);
-  \draw[-{Latex},thick] (backend) -- (neo4j);
-  \draw[-{Latex},thick] (ai) -- (postgres);
-  \draw[-{Latex},thick] (ai) -- (redis);
+  \node[public] (caddy) at (0,-1.9) {Caddy\\TLS và reverse proxy};
+  \node[app] (frontend) at (-3.0,-4.3) {Frontend\\Next.js};
+  \node[app] (backend) at (3.0,-4.3) {Backend\\Go và Gin};
+  \node[app] (ai) at (0,-6.7) {Dịch vụ AI\\FastAPI};
+  \node[data] (neo4j) at (5.4,-6.7) {Neo4j};
+  \node[data] (redis) at (-2.7,-9.1) {Redis};
+  \node[data] (postgres) at (2.7,-9.1) {PostgreSQL};
+  \draw[flow] (client) -- node[midway, right=1.5mm, font=\footnotesize] {HTTPS} (caddy);
+  \draw[flow] (caddy) -- node[edge label, above left] {giao diện} (frontend);
+  \draw[flow] (caddy) -- node[edge label, above right] {WebSocket} (backend);
+  \draw[flow] (frontend) -- node[edge label, above] {API} (backend);
+  \draw[flow] (frontend) -- (ai);
+  \draw[flow] (backend) -- (ai);
+  \draw[flow] (backend) -- (neo4j);
+  \draw[flow] (backend) -- (postgres);
+  \draw[flow] (ai) -- (postgres);
+  \draw[flow] (ai) -- (redis);
 \end{tikzpicture}
 \end{adjustbox}
 \caption{Quan hệ giữa các thành phần trong môi trường triển khai chính thức}
