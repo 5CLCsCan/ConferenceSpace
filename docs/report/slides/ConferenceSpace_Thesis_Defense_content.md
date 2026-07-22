@@ -1562,7 +1562,7 @@ AI đã được sử dụng trong phản biện, nhưng trách nhiệm học th
 
 **Tín hiệu sử dụng trong thực tế**
 
-- **15,8%** bản phản biện tại ICLR 2024 được ước lượng có dấu hiệu sử dụng mô hình ngôn ngữ lớn.
+- **Ít nhất 15,8%** bản phản biện tại ICLR 2024 được ước lượng có dấu hiệu sử dụng mô hình ngôn ngữ lớn.
 
 **Giá trị khi AI chỉ đóng vai trò hỗ trợ**
 
@@ -1581,7 +1581,7 @@ AI có thể cung cấp thông tin để người dùng xem xét; nội dung ph�
 
 Người dùng muốn giảm thao tác nhưng vẫn giữ quyền kiểm tra và xác nhận
 
-**Các khó khăn nổi bật trong khảo sát 71 người**
+**Các khó khăn nổi bật trong khảo sát thu được 71 phản hồi**
 
 - **49,3% — 35/71:** Không biết bước tiếp theo cần làm là gì.
 - **47,9% — 34/71:** Biểu mẫu nhập liệu dài và lặp lại.
@@ -1606,7 +1606,7 @@ Khảo sát sử dụng mẫu thuận tiện; nhóm Chủ tọa và Phản biệ
 
 **Tiêu đề**
 
-Đề tài tập trung vào cách kiểm soát từng đầu ra, thay vì chỉ bổ sung thêm chức năng AI
+Trọng tâm thiết kế không chỉ là bổ sung chức năng AI, mà còn là kiểm soát loại đầu ra và quyền xác nhận của từng tác vụ
 
 **Các nền tảng quản lý hội nghị hiện có**
 
@@ -1642,7 +1642,7 @@ Mỗi tác vụ cần được xử lý bằng cơ chế phù hợp với mức 
 
 **Câu hỏi trung tâm**
 
-Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật toán xác định và tác vụ nào phù hợp với AI hỗ trợ?
+Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật toán xác định và có thể kiểm chứng, và tác vụ nào phù hợp với AI hỗ trợ?
 
 **Bốn tiêu chí lựa chọn**
 
@@ -1654,7 +1654,7 @@ Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật to
 **Quy tắc lựa chọn**
 
 - Quản lý quyền, trạng thái và hành động hợp lệ → **nghiệp vụ cốt lõi**.
-- Cần kết quả ổn định, có thể kiểm tra lại → **thuật toán xác định**.
+- Cần kết quả ổn định, có thể kiểm tra lại → **thuật toán xác định và có thể kiểm chứng**.
 - Cần trích xuất, diễn giải hoặc tổng hợp ngôn ngữ → **AI hỗ trợ**, với đầu ra do người dùng kiểm tra.
 
 **Ranh giới phạm vi**
@@ -1738,7 +1738,7 @@ Các ca sử dụng chia sẻ dữ liệu, trạng thái và cơ chế phân quy
 
 **Tiêu đề**
 
-Vòng đời bài nộp gắn mỗi bước với vai trò và điều kiện nghiệp vụ
+Vòng đời bài nộp gắn mỗi giai đoạn với vai trò và điều kiện nghiệp vụ
 
 **01. Bài nháp**
 
@@ -1746,39 +1746,39 @@ Tác giả khai báo siêu dữ liệu, đồng tác giả, tệp bản thảo v
 
 **02. Bài đã gửi**
 
-Backend chỉ ghi nhận bài khi người dùng có quyền, hội nghị còn nhận bài và dữ liệu bắt buộc đã được cung cấp.
+Backend kiểm tra quyền gửi, dữ liệu bắt buộc và các điều kiện đã được triển khai trước khi chuyển trạng thái.
 
 **03. Phân công phản biện**
 
-Chủ tọa xem điểm đối sánh, tải công việc và căn cứ xung đột trước khi xác nhận phương án.
+Chủ tọa xem điểm đối sánh, khối lượng công việc và căn cứ xung đột trước khi điều chỉnh hoặc xác nhận phương án.
 
-**04. Phản biện**
+**04. Phản biện đã gửi**
 
-Phản biện viên đọc bản thảo, nhập điểm và nhận xét, sau đó chịu trách nhiệm về bản phản biện đã gửi.
+Phản biện viên đọc bản thảo, nhập điểm và nhận xét, đồng thời chịu trách nhiệm về bản phản biện.
 
 **05. Phản hồi và thảo luận**
 
-Tác giả gửi phản hồi; Phản biện viên có thể cập nhật đánh giá; Chủ tọa theo dõi lịch sử trao đổi.
+Tác giả gửi phản hồi; Phản biện viên được phân công trao đổi; Chủ tọa theo dõi lịch sử.
 
-**06. Quyết định**
+**06. Quyết định của Chủ tọa**
 
-Chủ tọa đối chiếu phản biện, phản hồi của Tác giả và các vấn đề còn mở trước khi ghi nhận quyết định.
+Chủ tọa đối chiếu phản biện, phản hồi của Tác giả, nội dung thảo luận và các vấn đề còn mở trước khi đưa ra quyết định.
 
 **07. Bản hoàn chỉnh sau chấp nhận**
 
-Chỉ bài được chấp nhận mới chuyển sang bước nộp bản thảo hoàn chỉnh.
+Vòng đời có nhánh bài đã rút và bài bị từ chối; chỉ bài được chấp nhận mới chuyển sang bước nộp bản hoàn chỉnh.
 
 **Điều kiện điều khiển vòng đời**
 
-- Tác giả chỉ sửa hoặc rút bài khi trạng thái và hạn chót cho phép.
-- Phản biện viên chỉ xem các bài thuộc phân công của mình.
-- Chủ tọa mở giai đoạn phản hồi, xác nhận phân công và ghi nhận quyết định.
+- Tác giả chỉ sửa, rút bài hoặc gửi phản hồi khi trạng thái và thời hạn tương ứng cho phép.
+- Phản biện viên chỉ truy cập các bài thuộc phân công của mình; đối sánh tự động loại các cặp đã phát hiện có xung đột.
+- Chủ tọa xác nhận phân công, mở giai đoạn phản hồi, đưa ra và ghi nhận quyết định cuối cùng.
 
 **Câu kết**
 
-Mỗi thay đổi trạng thái chỉ được backend thực hiện sau khi kiểm tra vai trò, trạng thái và điều kiện nghiệp vụ tương ứng.
+Backend từ chối các thao tác vi phạm quyền, trạng thái hoặc điều kiện đã triển khai; báo cáo chưa kiểm thử đầu cuối toàn bộ chuỗi chuyển trạng thái.
 
-**Nguồn đối chiếu:** Chương 3, mục “Vòng đời nghiệp vụ”.
+**Nguồn đối chiếu:** Chương 3, mục “Vòng đời nghiệp vụ”; Chương 5, mục “Các hạn chế”.
 
 ## Slide 11 — Luồng nghiệp vụ của Tác giả
 
@@ -1843,10 +1843,10 @@ Chủ tọa điều phối quy trình và chịu trách nhiệm về quyết đ�
 
 - Cấu hình hội nghị, chuyên đề, hạn chót, biểu mẫu phản biện, chính sách và hội đồng chương trình.
 - Theo dõi số bài, tiến độ phản biện và các trường hợp cần xử lý.
-- Xem điểm đối sánh, tải công việc và căn cứ xung đột trước khi điều chỉnh hoặc xác nhận phân công.
+- Xem điểm đối sánh, khối lượng công việc và căn cứ xung đột trước khi điều chỉnh hoặc xác nhận phân công.
 - Mở giai đoạn phản hồi và theo dõi nội dung trao đổi theo từng bài nộp.
 - Chair Decision Copilot tổng hợp điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan.
-- Đối chiếu bản tổng hợp với dữ liệu gốc trước khi tự ghi nhận quyết định cuối cùng.
+- Đối chiếu bản tổng hợp với dữ liệu gốc trước khi đưa ra và ghi nhận quyết định cuối cùng.
 
 **Câu kết**
 
@@ -1858,7 +1858,7 @@ Bản tổng hợp hỗ trợ Chủ tọa rà soát thông tin; hệ thống kh�
 
 **Tiêu đề**
 
-Đối sánh phản biện kết hợp tín hiệu chủ đề, tải công việc và xung đột lợi ích
+Đối sánh phản biện kết hợp tín hiệu chủ đề, khối lượng công việc và xung đột lợi ích
 
 **Đầu vào và ràng buộc**
 
@@ -2030,7 +2030,7 @@ Thiết kế triển khai xác định rõ điểm truy cập công khai, ranh g
 
 **Giới hạn**
 
-Cấu hình này hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, quay về phiên bản trước hoặc khôi phục sau sự cố.
+Cấu hình này hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, khôi phục phiên bản (rollback) hoặc phục hồi sau sự cố.
 
 **Nguồn đối chiếu:** Chương 3, mục “Môi trường triển khai chính thức” và “Tổng kết chương”.
 
@@ -2046,7 +2046,7 @@ Mỗi nhóm trách nhiệm được đánh giá bằng nguồn bằng chứng ri
 - **Bằng chứng:** Kiểm thử tải k6 trên dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên–hội nghị.
 - **Chỉ số:** Thông lượng, độ trễ p95, tỷ lệ yêu cầu thất bại, CPU và RAM.
 
-**Lớp thuật toán xác định**
+**Lớp thuật toán xác định và có thể kiểm chứng**
 
 - **Câu hỏi:** Thuật toán có chạy nhanh, tạo kết quả có thể kiểm tra lại và biểu hiện như thế nào trên dữ liệu tổng hợp?
 - **Bằng chứng:** Go microbenchmark; phép thử xếp hạng và phân công trên 60 hồ sơ tác giả tổng hợp cùng 2.565 bài báo tổng hợp; hai kiểm tra xung đột lợi ích xác định được đo riêng.
@@ -2061,7 +2061,7 @@ Mỗi nhóm trách nhiệm được đánh giá bằng nguồn bằng chứng ri
 **Khảo sát người dùng**
 
 - **Câu hỏi:** Người dùng đánh giá trải nghiệm và cách hỗ trợ như thế nào?
-- **Bằng chứng:** 91 phản hồi UAT, gồm 76 Tác giả, 7 Phản biện viên và 8 Chủ tọa.
+- **Bằng chứng:** 91 phản hồi UAT, gồm 76 phản hồi ở phiếu Tác giả, 7 phản hồi ở phiếu Phản biện viên và 8 phản hồi ở phiếu Chủ tọa.
 
 **Câu kết**
 
@@ -2129,11 +2129,11 @@ Kết quả hỗ trợ việc dùng Greedy để tạo danh sách đề xuất c
 
 **Tiêu đề**
 
-Submission Autofill khớp tốt hơn ở các trường có cấu trúc rõ; Submission Gating không dùng cảnh báo nội dung để chặn bài
+Submission Autofill đạt mức khớp cao hơn ở các trường có cấu trúc rõ so với các trường có cấu trúc phức tạp; Submission Gating không dùng cảnh báo nội dung để chặn bài
 
 **Submission Autofill**
 
-- F1 theo token của tiêu đề đạt **98,20%**; F1 từ khóa đạt **92,77%**; F1 tác giả đạt **83,49%**.
+- Trên **1.127 bài**, F1 theo token của tiêu đề đạt **98,20%**; F1 từ khóa đạt **92,77%**; F1 tác giả đạt **83,49%**.
 - Tỷ lệ hoàn tất các trường bắt buộc đạt **86,93%**.
 - Một số trường có giá trị thấp nhất bằng 0, cho thấy luồng vẫn có những trường hợp thất bại hoàn toàn.
 - Kết quả chỉ được dùng làm dữ liệu nháp để Tác giả kiểm tra và chỉnh sửa.
@@ -2154,7 +2154,7 @@ Kiểm tra theo quy tắc có thể ngăn thao tác vi phạm điều kiện đ�
 
 **Tiêu đề**
 
-Reviewer Initial Analysis bám nguồn tốt ở trích dẫn, nhưng các điểm cần lưu ý vẫn phải được kiểm tra
+Trên 1.097 bài đủ điều kiện, trích dẫn của Reviewer Initial Analysis đạt tỷ lệ bám nguồn 96,22%; các điểm cần lưu ý vẫn phải được kiểm tra
 
 **Mục tiêu đánh giá**
 
@@ -2213,7 +2213,7 @@ Phản biện viên phải đối chiếu từng phát hiện và tự quyết �
 
 **Tiêu đề**
 
-Chair Decision Copilot có mức bám nguồn tương đối cao, nhưng chưa được đánh giá về chất lượng quyết định
+Trên 1.097 bài đủ điều kiện, Truthfulness của hai nhóm đầu ra Chair Decision Copilot đạt khoảng 87%; phép chấm không đánh giá chất lượng quyết định
 
 **Mục tiêu đánh giá**
 
@@ -2291,7 +2291,7 @@ Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot có
 
 **Chatbot Agent**
 
-Thời gian đến token đầu tiên trung bình là **2,36 giây**, nhưng câu trả lời hoàn chỉnh bắt đầu sau trung bình **23,02 giây**; giao diện cần phản hồi từng phần và hiển thị trạng thái tra cứu.
+Thời gian đến token đầu tiên trung bình là **2,36 giây**, nhưng token đầu tiên của câu trả lời hoàn chỉnh xuất hiện sau trung bình **23,02 giây**; giao diện cần phản hồi từng phần và hiển thị trạng thái tra cứu.
 
 **Yêu cầu vận hành rút ra**
 
@@ -2348,19 +2348,19 @@ Mức độ kết luận phụ thuộc vào loại bằng chứng của từng t
 
 **1. Bằng chứng trực tiếp trong phạm vi thử nghiệm**
 
-- Hiệu năng của ba endpoint đã chọn.
+- Hiệu năng của ba đường xử lý đã chọn.
 - Mức khớp siêu dữ liệu của Submission Autofill.
 - Phán quyết và mã luật trong tám trường hợp kiểm tra luật của Submission Gating.
 
 **2. Chỉ số gián tiếp**
 
 - Phép thử leave-one-out của đối sánh dùng nhãn tác giả gốc, không phải nhãn phản biện viên phù hợp.
-- TCA sử dụng NLI để đo quan hệ giữa mệnh đề với bằng chứng, chưa thay thế đánh giá chuyên gia về tính hữu ích hoặc độ đầy đủ.
+- TCA sử dụng NLI để đo quan hệ giữa mệnh đề và bằng chứng, chưa thay thế đánh giá chuyên gia về tính hữu ích hoặc độ đầy đủ.
 
 **3. Bằng chứng theo kịch bản hoặc cảm nhận**
 
 - Chatbot Agent được rà soát trên 40 hội thoại theo vai trò và phạm vi quyền.
-- UAT phản ánh cảm nhận của mẫu thuận tiện mất cân bằng giữa các vai trò.
+- UAT phản ánh cảm nhận của mẫu thuận tiện có cơ cấu mất cân bằng giữa các vai trò.
 
 **4. Nội dung chưa được xác nhận**
 
@@ -2459,7 +2459,7 @@ Hướng phát triển ưu tiên bằng chứng thực tế và độ tin cậy 
 **Ưu tiên 3 — Phát triển lớp truy hồi có kiểm soát**
 
 - Quản lý nguồn, phiên bản và quyền truy cập đối với chính sách, hướng dẫn, biểu mẫu và hồ sơ chuyên môn.
-- Kết hợp tìm kiếm từ khóa, siêu dữ liệu và tìm kiếm véc-tơ; mỗi câu trả lời hoặc bản tổng hợp phải kèm nguồn để người dùng kiểm tra.
+- Kết hợp tìm kiếm từ khóa, siêu dữ liệu và tìm kiếm vector; mỗi câu trả lời hoặc bản tổng hợp phải kèm nguồn để người dùng kiểm tra.
 - Quy định rõ cấu trúc đầu vào, quyền, cách xử lý lỗi và các kịch bản vượt quyền cho từng công cụ của Chatbot Agent.
 
 **Ưu tiên 4 — Tăng quyền kiểm soát dữ liệu và hoàn thiện nghiệp vụ**
