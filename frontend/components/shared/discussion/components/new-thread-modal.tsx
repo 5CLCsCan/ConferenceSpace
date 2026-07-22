@@ -59,17 +59,22 @@ export function NewThreadModal({
       {/* Modal */}
       <div
         ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="new-thread-title"
         className="relative w-full max-w-lg mx-4 bg-white rounded-xl shadow-2xl overflow-hidden"
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-[#141414] tracking-tight">
+          <h2 id="new-thread-title" className="text-sm font-bold text-[#141414] tracking-tight">
             {t(
               "runtime.components.shared.discussion.components.new-thread-modal.text_start_new_discussion",
             )}
           </h2>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t("dashboard.discussion.close")}
             className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
@@ -174,17 +179,26 @@ export function NewThreadModal({
             />
           </div>
 
-          {/* Toolbar */}
-          <div className="flex items-center gap-2 pb-1">
-            <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          {/* Toolbar — formatting actions not yet available */}
+          <div className="flex items-center gap-2 pb-1" aria-hidden="true">
+            <span
+              className="p-1.5 rounded text-slate-300"
+              title={t("dashboard.discussion.attachNotAvailable")}
+            >
               <span className="material-symbols-outlined text-[16px]">attach_file</span>
-            </button>
-            <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+            </span>
+            <span
+              className="p-1.5 rounded text-slate-300"
+              title={t("dashboard.discussion.linkNotAvailable")}
+            >
               <span className="material-symbols-outlined text-[16px]">link</span>
-            </button>
-            <button className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+            </span>
+            <span
+              className="p-1.5 rounded text-slate-300"
+              title={t("dashboard.discussion.mathNotAvailable")}
+            >
               <span className="material-symbols-outlined text-[16px]">functions</span>
-            </button>
+            </span>
           </div>
         </div>
 

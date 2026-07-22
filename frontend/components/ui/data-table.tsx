@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/table"
 import { typography, spacing } from "@/lib/typography"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import type { ReactNode } from "react"
 import { Loader2 } from "lucide-react"
 
@@ -43,8 +43,8 @@ export function DataTable<T = any>({
   data,
   loading = false,
   error = null,
-  emptyMessage = "No data available",
-  loadingMessage = "Loading...",
+  emptyMessage,
+  loadingMessage,
   errorMessage,
   getRowKey = (_, index) => index,
   onRowClick,
@@ -52,6 +52,9 @@ export function DataTable<T = any>({
   mobileCardClassName,
   renderMobileCard,
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
+  const resolvedEmptyMessage = emptyMessage ?? t("common.dataTable.empty")
+  const resolvedLoadingMessage = loadingMessage ?? t("common.dataTable.loading")
   // Desktop Table
   const desktopTable = (
     <div
@@ -91,7 +94,7 @@ export function DataTable<T = any>({
                   <div className="flex flex-col items-center justify-center gap-3">
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     <div className={cn(typography.body, "text-muted-foreground")}>
-                      {loadingMessage}
+                      {resolvedLoadingMessage}
                     </div>
                   </div>
                 </TableCell>
@@ -110,7 +113,7 @@ export function DataTable<T = any>({
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="text-4xl opacity-50">📊</div>
                     <div className={cn(typography.body, "text-muted-foreground")}>
-                      {emptyMessage}
+                      {resolvedEmptyMessage}
                     </div>
                   </div>
                 </TableCell>
@@ -169,7 +172,7 @@ export function DataTable<T = any>({
           <CardContent className="py-12 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <div className={cn(typography.body, "text-muted-foreground")}>{loadingMessage}</div>
+              <div className={cn(typography.body, "text-muted-foreground")}>{resolvedLoadingMessage}</div>
             </div>
           </CardContent>
         </Card>
@@ -184,7 +187,7 @@ export function DataTable<T = any>({
           <CardContent className="py-12 text-center">
             <div className="flex flex-col items-center justify-center gap-2">
               <div className="text-4xl opacity-50">📊</div>
-              <div className={cn(typography.body, "text-muted-foreground")}>{emptyMessage}</div>
+              <div className={cn(typography.body, "text-muted-foreground")}>{resolvedEmptyMessage}</div>
             </div>
           </CardContent>
         </Card>

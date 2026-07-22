@@ -78,7 +78,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
         title={t(
           "runtime.components.wizard.creation.steps.topics-deadlines.title_topics_deadlines",
         )}
-        description="Define the thematic scope and critical submission dates for your conference."
+        description={t("dashboard.wizard.topicsDeadlines.description")}
       />
 
       <form
@@ -95,7 +95,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
           title={t(
             "runtime.components.wizard.creation.steps.topics-deadlines.title_research_topics",
           )}
-          tooltip="Topics are used to tag submissions and match reviewers. They help authors categorize their work and assist in assigning qualified reviewers."
+          tooltip={t("dashboard.wizard.topicsDeadlines.topicsTooltip")}
         >
           <WizardFormField label="Subject Areas" required hint="Press Enter to add a topic.">
             <div className="flex flex-col gap-3">
@@ -191,7 +191,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
           title={t(
             "runtime.components.wizard.creation.steps.topics-deadlines.title_conference_tracks",
           )}
-          tooltip="Tracks represent distinct thematic streams within your conference. Authors will select a track when submitting their papers, and submissions will be reviewed within their assigned track."
+          tooltip={t("dashboard.wizard.topicsDeadlines.tracksTooltip")}
         >
           <WizardFormField label="Track Names" hint="Press Enter to add a track.">
             <div className="flex flex-col gap-3">
@@ -287,7 +287,7 @@ export function TopicsDeadlinesStep({ data, updateData }: TopicsDeadlinesStepPro
           title={t(
             "runtime.components.wizard.creation.steps.topics-deadlines.title_submission_timeline",
           )}
-          tooltip="Set the key dates for the review process. All times are 23:59 AoE (Anywhere on Earth) by default."
+          tooltip={t("dashboard.wizard.topicsDeadlines.datesTooltip")}
         >
           <div className="flex flex-col gap-4">
             {/* Submission Deadlines */}

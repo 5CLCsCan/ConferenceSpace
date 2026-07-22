@@ -152,7 +152,7 @@ export function DiscussionTab({
           thread.id === threadId
             ? {
                 ...thread,
-                lastActivity: "Just now",
+                lastActivity: t("common.time.justNow"),
                 messageCount: thread.messageCount + 1,
                 messages: [
                   ...thread.messages,
@@ -161,7 +161,7 @@ export function DiscussionTab({
                     author: currentUser,
                     content: message.content,
                     timestamp: message.created_at,
-                    relativeTime: "Just now",
+                    relativeTime: t("common.time.justNow"),
                   },
                 ],
               }

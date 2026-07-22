@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ReviewerConferences } from "@/components/reviewer/reviewer-conferences"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -16,6 +17,7 @@ const PAGE_SIZE = 8
 
 export default function ReviewerConferencesPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const { user } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
   const reviewerEmail = user?.email || ""
@@ -29,7 +31,7 @@ export default function ReviewerConferencesPage() {
     setCurrentPage(1)
   }
 
-  const { dashboard, isLoading } = useReviewerDashboard(reviewerEmail, {
+  const { dashboard, isLoading, error } = useReviewerDashboard(reviewerEmail, {
     conferenceSearch: debouncedConferenceSearch,
     conferenceLimit: PAGE_SIZE,
     conferenceOffset: (currentPage - 1) * PAGE_SIZE,
@@ -60,6 +62,11 @@ export default function ReviewerConferencesPage() {
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
           {isLoading && conferences.length === 0 ? (
             <ConferencesSkeleton />
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-2">
+              <p className="text-sm font-bold text-red-600">{t("dashboard.reviewer.dashboard.loadError")}</p>
+              <p className="text-xs text-slate-500">{error}</p>
+            </div>
           ) : (
             <ReviewerConferences
               conferences={conferences}
