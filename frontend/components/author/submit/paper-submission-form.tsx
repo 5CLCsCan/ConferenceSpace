@@ -370,7 +370,7 @@ export function PaperSubmissionForm({
       }
 
       if (!errorMessage) {
-        return "Unable to submit due to an unknown error."
+        return t("common.errors.unableToSubmit")
       }
 
       const normalized = errorMessage.toLowerCase()
@@ -380,12 +380,12 @@ export function PaperSubmissionForm({
         normalized.includes("forbidden") ||
         normalized.includes("403")
       ) {
-        return "This conference is not currently accepting submissions. Please submit during the open phase."
+        return t("common.errors.conferenceNotAccepting")
       }
 
       return errorMessage
     },
-    [],
+    [t],
   )
 
   const buildSubmissionData = useCallback(
@@ -775,12 +775,12 @@ export function PaperSubmissionForm({
           setPrecheckResult(response.data)
         }
       } catch (error) {
-        setPrecheckError(error instanceof Error ? error.message : "Precheck failed")
+        setPrecheckError(error instanceof Error ? error.message : t("common.errors.precheckFailed"))
       } finally {
         setPrecheckLoading(false)
       }
     },
-    [conference?.id],
+    [conference?.id, t],
   )
 
   const handleRemoveFile = () => {
@@ -1019,7 +1019,7 @@ export function PaperSubmissionForm({
         setLastSavedAt(new Date())
         setAutosaveStatus("saved")
         setLastPrecheckBlock(null)
-        setSuccessMessage("Your paper has been submitted successfully!")
+        setSuccessMessage(t("common.errors.submissionSuccess"))
         setShowSuccessDialog(true)
         const submittedSubmissionId = response.data?.id ?? draftSubmissionId ?? undefined
         trackUsageEvent("submission_submitted", {
@@ -1100,14 +1100,14 @@ export function PaperSubmissionForm({
 
   const autosaveLabel =
     autosaveStatus === "saving"
-      ? "Autosaving..."
+      ? t("dashboard.author.submit.autosaving")
       : autosaveStatus === "error"
-        ? "Autosave failed"
+        ? t("common.errors.autosaveFailed")
         : autosaveStatus === "saved"
-          ? `Saved${lastSavedAt ? ` ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}`
+          ? `${t("dashboard.author.submit.saved")}${lastSavedAt ? ` ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}`
           : hasUnsavedChanges
-            ? "Unsaved changes"
-            : "Ready"
+            ? t("common.errors.unsavedChanges")
+            : t("dashboard.author.submit.ready")
 
   const autosaveDotClass =
     autosaveStatus === "saving"
@@ -1318,10 +1318,10 @@ export function PaperSubmissionForm({
                 lastPrecheckBlock) && (
                 <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
                   {precheckError
-                    ? `Precheck failed: ${precheckError}`
+                    ? `${t("common.errors.precheckFailed")}: ${precheckError}`
                     : lastPrecheckBlock
                       ? mapSubmissionError(null, lastPrecheckBlock)
-                      : "Final submit is blocked until precheck decision is Accept for Review."}
+                      : t("common.errors.finalSubmitBlocked")}
                 </div>
               )}
             <div className="h-20" />

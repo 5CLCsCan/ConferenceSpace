@@ -6,6 +6,7 @@
 @import "./styles/scrollbar.css";
 @import "./styles/auth.css";
 @import "./styles/landing.css";
+@import "./styles/guide.css";
 
 @source "../node_modules/streamdown/dist/*.js";
 

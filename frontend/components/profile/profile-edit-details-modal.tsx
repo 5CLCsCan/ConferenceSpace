@@ -58,18 +58,31 @@ export function ProfileEditDetailsModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backdropFilter: "blur(6px)", backgroundColor: "rgba(15,23,42,0.5)" }}
+      role="presentation"
+      onClick={onClose}
     >
-      <div className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-profile-title"
+        className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
+        onClick={(event) => event.stopPropagation()}
+      >
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white">
+            <h2
+              id="edit-profile-title"
+              className="text-sm font-bold tracking-tight text-[#1B3C53] dark:text-white"
+            >
               {t("runtime.components.profile.profile-edit-details-modal.text_edit_account_details")}{" "}</h2>
             <p className="text-[10px] font-medium text-slate-400 mt-0.5">
               {t("runtime.components.profile.profile-edit-details-modal.text_update_your_profile_information")}{" "}</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t("dashboard.discussion.close")}
             className="h-7 w-7 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 transition-colors"
           >
             <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
@@ -192,7 +205,7 @@ export function ProfileEditDetailsModal({
             disabled={saving || !isDirty}
             className="h-8 px-4 rounded-full bg-[#1B3C53] text-white text-[11px] font-medium hover:bg-[#234C6A] transition-colors disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save changes"}
+            {saving ? t("dashboard.profile.saving") : t("dashboard.profile.saveChanges")}
           </button>
         </div>
       </div>

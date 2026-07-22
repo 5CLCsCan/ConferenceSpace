@@ -10,7 +10,7 @@ interface UseCompletedReviewsFilters {
   offset?: number
 }
 
-export function useCompletedReviews(reviewerId: string, filters?: UseCompletedReviewsFilters) {
+export function useCompletedReviews(reviewerId: string | null, filters?: UseCompletedReviewsFilters) {
   const [reviews, setReviews] = useState<AssignedPaper[]>([])
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -20,7 +20,13 @@ export function useCompletedReviews(reviewerId: string, filters?: UseCompletedRe
   const offset = filters?.offset ?? 0
 
   const loadReviews = useCallback(async () => {
-    if (!reviewerId) return
+    if (!reviewerId) {
+      setReviews([])
+      setTotal(0)
+      setError(null)
+      setIsLoading(false)
+      return
+    }
 
     setIsLoading(true)
     setError(null)

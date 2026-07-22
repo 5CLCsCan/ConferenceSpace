@@ -7,7 +7,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 import type { AuthorConference, AuthorTabType } from "./author-conference-cards"
 import { AuthorConferenceCard } from "./author-conference-cards"
 import { AuthorConferenceList } from "./author-conference-list"
-import { EMPTY_STATE_CONTENT } from "./author-mock-data"
+import { EMPTY_STATE_ICONS, getAuthorEmptyStateKeys, type AuthorTabType } from "./author-mock-data"
 import type { ExploreConference } from "@/components/conference/types"
 import {
   ExploreConferenceCard,
@@ -21,6 +21,7 @@ import { getConferenceSubmissions, type Submission } from "@/lib/api/submissions
 import type { Conference } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { getSubmissionEligibility } from "@/lib/submission-eligibility"
+import { formatLocalizedDate } from "@/lib/format-localized-date"
 
 type ViewMode = "grid" | "list"
 
@@ -29,25 +30,22 @@ interface AuthorConferencesProps {
   conferences?: AuthorConference[]
 }
 
-function formatConferenceDates(conference: Conference): string {
+function formatConferenceDates(conference: Conference, locale: string): string {
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  }
   const start = conference.conference_date ? new Date(conference.conference_date) : null
   const end = conference.conference_end_date ? new Date(conference.conference_end_date) : null
   if (!start || Number.isNaN(start.getTime())) {
     return "Dates TBD"
   }
-  const startLabel = start.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  })
+  const startLabel = formatLocalizedDate(start, locale, dateOptions)
   if (!end || Number.isNaN(end.getTime())) {
     return startLabel
   }
-  const endLabel = end.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  })
+  const endLabel = formatLocalizedDate(end, locale, dateOptions)
   return `${startLabel} - ${endLabel}`
 }
 
@@ -59,7 +57,7 @@ function mapSubmissionStatus(status: Submission["status"]): AuthorConference["st
   return "submitted"
 }
 
-function mapConferenceToExplore(conference: Conference): ExploreConference {
+function mapConferenceToExplore(conference: Conference, locale: string): ExploreConference {
   const eligibility = getSubmissionEligibility({
     conferenceStatus: conference.status,
     fullPaperDeadline:
@@ -71,7 +69,7 @@ function mapConferenceToExplore(conference: Conference): ExploreConference {
     name: conference.acronym || conference.name,
     fullDescription: conference.description || conference.name,
     location: conference.location || "TBD",
-    dates: formatConferenceDates(conference),
+    dates: formatConferenceDates(conference, locale),
     exploreStatus:
       eligibility.publicStatus === "call-for-papers"
         ? "call-for-papers"
@@ -171,7 +169,7 @@ function PaginationBar({
 }
 
 export function AuthorConferences({ conferences: initialConferences }: AuthorConferencesProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const router = useRouter()
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<AuthorTabType>("my-conferences")
@@ -269,11 +267,11 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
               name: conference.name,
               acronym: conference.acronym,
               location: conference.location || "TBD",
-              dates: formatConferenceDates(conference),
+              dates: formatConferenceDates(conference, locale),
               status: mapSubmissionStatus(primarySubmission.status),
               paperTitle: primarySubmission.title,
               trackName: primarySubmission.information?.track_name || "",
-              submissionDate: new Date(primarySubmission.created_at).toLocaleDateString("en-US", {
+              submissionDate: formatLocalizedDate(primarySubmission.created_at, locale, {
                 month: "short",
                 day: "2-digit",
                 year: "numeric",
@@ -294,7 +292,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     }
 
     void loadMyConferences()
-  }, [user?.email, initialConferences])
+  }, [user?.email, initialConferences, locale])
 
   // explore/archived: server-side fetch with debounced search
   useEffect(() => {
@@ -315,7 +313,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
             const sorted = sortApiConferences(filtered, sortBy)
             const start = (currentPage - 1) * ITEMS_PER_PAGE
             setExploreConferences(
-              sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore),
+              sorted.slice(start, start + ITEMS_PER_PAGE).map((conference) => mapConferenceToExplore(conference, locale)),
             )
             setExploreTotal(sorted.length)
           }
@@ -335,7 +333,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
             const sorted = sortApiConferences(res.data?.conferences || [], sortBy)
             const start = (currentPage - 1) * ITEMS_PER_PAGE
             setArchivedConferences(
-              sorted.slice(start, start + ITEMS_PER_PAGE).map(mapConferenceToExplore),
+              sorted.slice(start, start + ITEMS_PER_PAGE).map((conference) => mapConferenceToExplore(conference, locale)),
             )
             setArchivedTotal(sorted.length)
           }
@@ -349,7 +347,7 @@ export function AuthorConferences({ conferences: initialConferences }: AuthorCon
     return () => {
       cancelled = true
     }
-  }, [activeTab, debouncedSearch, currentPage, sortBy])
+  }, [activeTab, debouncedSearch, currentPage, sortBy, locale])
 
   const handleNavigate = (id: string) => {
     router.push(ROUTES.AUTHOR.CONFERENCE_DETAIL(id))
@@ -894,7 +892,9 @@ interface EmptyStateProps {
 }
 
 function EmptyState({ type }: EmptyStateProps) {
-  const { icon, title, description } = EMPTY_STATE_CONTENT[type]
+  const { t } = useTranslation()
+  const icon = EMPTY_STATE_ICONS[type]
+  const keys = getAuthorEmptyStateKeys(type)
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -902,9 +902,11 @@ function EmptyState({ type }: EmptyStateProps) {
         <span className="material-symbols-outlined text-[20px] text-slate-400">{icon}</span>
       </div>
       <h3 className="text-sm font-bold text-[#1B3C53] dark:text-white mb-1 tracking-tight">
-        {title}
+        {t(keys.title)}
       </h3>
-      <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">{description}</p>
+      <p className="text-[10px] font-medium text-slate-400 text-center max-w-xs">
+        {t(keys.description)}
+      </p>
     </div>
   )
 }

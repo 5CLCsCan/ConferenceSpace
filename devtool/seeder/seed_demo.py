@@ -62,11 +62,13 @@ class User:
 def clear_database():
     step(0, "Clearing existing data")
     tables = [
-        "rebuttal_points", "paper_assignments", "conference_submissions",
-        "conference_reviewers", "conference_user_roles", "conferences",
-        "auth_tokens", "notifications", "discussion_messages",
-        "discussion_threads", "scholar_profile_papers", "scholar_profiles",
-        "scholar_papers", "users"
+        "rebuttal_points", "review_audit_events", "paper_assignments",
+        "conference_submissions", "conference_reviewers", "conference_user_roles",
+        "conference_bookmarks", "external_invitations", "conferences",
+        "notifications", "notification_preferences", "discussion_messages",
+        "discussion_threads", "coi_relationships", "coi_dirty_scopes",
+        "coi_refresh_state", "scholar_profile_papers", "scholar_profiles",
+        "scholar_papers", "usage_events", "users"
     ]
     sql = f"TRUNCATE public.{', public.'.join(tables)} CASCADE;"
     ai_sql = "TRUNCATE ai.ai_sessions, ai.ai_messages, ai.ai_tool_audit CASCADE;"
@@ -153,11 +155,12 @@ class API:
         requests.put(f"{self.base}/api/v1/conferences/{conf_id}/status", 
                     headers={"Authorization": f"Bearer {token}"}, json={"conference_id": conf_id, "new_status": status})
 
-    def assign_and_review(self, conf_id: int, chair_token: str, sub_id: int, reviewer: User, score: float, rec: str):
+    def assign_and_review(self, conf_id: int, chair_token: str, sub_id: int, reviewer: User,
+                          score: float, rec: str, criteria: dict, feedback: dict):
         # Confirm assignments
-        requests.post(f"{self.base}/api/v1/conferences/{conf_id}/assignments/suggestions/confirm", 
+        requests.post(f"{self.base}/api/v1/conferences/{conf_id}/assignments/suggestions/confirm",
                      headers={"Authorization": f"Bearer {chair_token}"}, json={})
-        
+
         # Get assignment ID
         r = requests.get(f"{self.base}/api/v1/conferences/{conf_id}/assignments/confirmed", headers={"Authorization": f"Bearer {chair_token}"})
         aid = 0
@@ -166,19 +169,47 @@ class API:
                 for rv in sub["reviewers"]:
                     if rv["reviewer_email"] == reviewer.email:
                         aid = rv["assignment_id"]
-        
-        if aid:
-            requests.put(f"{self.base}/api/v1/conferences/{conf_id}/assignments/{aid}/review",
-                        headers={"Authorization": f"Bearer {reviewer.token}"},
-                        json={
-                            "assignment_id": aid, "conference_id": conf_id, "status": "submitted",
-                            "review_score": score,
-                            "review_data": {
-                                "criteria": {"originality": 8, "clarity": 7},
-                                "feedback": {"summary": "Great paper!", "strengths": "Methodology", "weaknesses": "None"},
-                                "recommendation": rec, "confidence": "high"
-                            }
-                        })
+
+        if not aid:
+            warn(f"No assignment found for {reviewer.email} on submission {sub_id}")
+            return
+
+        # The reviewer must accept the assignment invitation before the review
+        # endpoint will let them through (403 otherwise).
+        requests.put(f"{self.base}/api/v1/reviewer/{reviewer.email}/assignments/{aid}/respond",
+                     headers={"Authorization": f"Bearer {reviewer.token}"},
+                     json={"action": "accept"})
+
+        # All five criteria are required by dto.ReviewCriteria — a partial
+        # payload is rejected with 400 and the review silently never lands.
+        def submit(override: bool):
+            body = {
+                "assignment_id": aid, "conference_id": conf_id, "status": "submitted",
+                "review_score": score,
+                "review_data": {
+                    "criteria": criteria,
+                    "feedback": feedback,
+                    "recommendation": rec, "confidence": "high"
+                }
+            }
+            if override:
+                body["audit_failure_override_confirmed"] = True
+            return requests.put(f"{self.base}/api/v1/conferences/{conf_id}/assignments/{aid}/review",
+                                headers={"Authorization": f"Bearer {reviewer.token}"},
+                                json=body, timeout=180)
+
+        r = submit(False)
+        # When the review-audit workflow cannot complete (e.g. the ai-service is
+        # unavailable) the API answers 409 with override_allowed — the same
+        # escape hatch the reviewer UI offers. Retry with it so seeding proceeds.
+        if r.status_code == 409 and r.json().get("data", {}).get("override_allowed"):
+            warn(f"Review audit unavailable for assignment {aid}; submitting with override")
+            r = submit(True)
+
+        if r.status_code >= 400:
+            err(f"Review for assignment {aid} rejected ({r.status_code}): {r.text[:200]}")
+        else:
+            ok(f"Review submitted by {reviewer.email} on submission {sub_id}")
 
 # --- Main Seeder ---
 def main():
@@ -209,9 +240,26 @@ def main():
     step(5, "Transitioning to reviewing and submitting reviews")
     api.transition_conference(conf_id, chair.token, "reviewing")
     time.sleep(1) # Wait for auto-assign
-    api.assign_and_review(conf_id, chair.token, sub1, reviewers[0], 8.5, "strong_accept")
-    api.assign_and_review(conf_id, chair.token, sub1, reviewers[1], 7.0, "weak_accept")
-    ok("Reviews submitted for Submission 1")
+    api.assign_and_review(
+        conf_id, chair.token, sub1, reviewers[0], 8.5, "strong_accept",
+        {"originality": 9, "technical_quality": 8, "clarity": 8, "significance": 9, "methodology": 8},
+        {
+            "summary": "A well-executed study of LLM deployment in clinical triage, with a realistic evaluation on de-identified hospital records.",
+            "strengths": "The retrieval-grounded prompting design is novel, and the ablation in Section 5 isolates its contribution convincingly. The error analysis on rare conditions is unusually thorough.",
+            "weaknesses": "The comparison against fine-tuned baselines uses a single seed, so the reported gains may be within run-to-run variance.",
+            "questions": "How sensitive are the results to the retrieval corpus cutoff date? Would the gains hold on a hospital with different coding practices?",
+        },
+    )
+    api.assign_and_review(
+        conf_id, chair.token, sub1, reviewers[1], 7.0, "weak_accept",
+        {"originality": 7, "technical_quality": 7, "clarity": 8, "significance": 7, "methodology": 6},
+        {
+            "summary": "Solid applied work with a clear clinical motivation, though the methodological contribution is incremental relative to prior retrieval-augmented systems.",
+            "strengths": "Clear writing, reproducible setup, and an honest discussion of failure cases in the appendix.",
+            "weaknesses": "Related work omits several 2025 clinical RAG systems that report comparable numbers. The significance claims in the abstract overstate what the evaluation supports.",
+            "questions": "Can the authors report per-specialty breakdowns rather than the pooled accuracy?",
+        },
+    )
 
     step(6, "Seeding Scholar Profiles (Direct SQL)")
     scholar_sql = f"""

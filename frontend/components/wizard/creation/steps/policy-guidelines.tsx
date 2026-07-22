@@ -95,7 +95,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
           title={t(
             "runtime.components.wizard.creation.steps.policy-guidelines.title_submission_guidelines",
           )}
-          tooltip="Define the formatting and length requirements for paper submissions."
+          tooltip={t("dashboard.wizard.policyGuidelines.formattingTooltip")}
         >
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,7 +221,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
 
         <WizardFormCard
           title={t("runtime.components.wizard.creation.steps.policy-guidelines.title_submission_gating")}
-          tooltip="Define deterministic submission screening rules and an optional advisory AI steering prompt."
+          tooltip={t("dashboard.wizard.policyGuidelines.screeningTooltip")}
         >
           <div className="flex flex-col gap-4">
             <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -381,7 +381,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
           title={t(
             "runtime.components.wizard.creation.steps.policy-guidelines.title_review_configuration",
           )}
-          tooltip="Configure the blind review process and conflict of interest policies."
+          tooltip={t("dashboard.wizard.policyGuidelines.blindReviewTooltip")}
         >
           <div className="flex flex-col gap-4">
             {/* Anonymity Type */}
@@ -488,7 +488,7 @@ export function PolicyGuidelinesStep({ data, updateData }: PolicyGuidelinesStepP
           title={t(
             "runtime.components.wizard.creation.steps.policy-guidelines.title_supplementary_materials",
           )}
-          tooltip="Configure what additional materials authors can submit alongside their papers."
+          tooltip={t("dashboard.wizard.policyGuidelines.supplementaryTooltip")}
         >
           <div className="flex flex-col gap-4">
             {/* Allow Supplementary Toggle */}
