@@ -5,6 +5,17 @@
 
 Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
 
+\tikzset{
+  appendixProcess/.style={draw=black!65, rounded corners=2pt, align=center, fill=blue!6, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=32mm},
+  appendixDecision/.style={draw=black!65, diamond, aspect=2.2, align=center, fill=orange!10, font=\footnotesize, inner sep=1.5pt, text width=27mm},
+  appendixData/.style={draw=black!65, rounded corners=2pt, align=center, fill=green!7, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=32mm},
+  appendixState/.style={draw=black!65, rounded corners=2pt, align=center, fill=gray!10, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=28mm},
+  appendixOutcome/.style={draw=black!65, rounded corners=2pt, align=center, fill=yellow!10, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=32mm},
+  appendixArrow/.style={-{Latex}, thick},
+  appendixDashedArrow/.style={-{Latex}, thick, dashed},
+  appendixEdgeLabel/.style={fill=white, inner sep=1.5pt, font=\footnotesize, align=center}
+}
+
 \section{Đặc tả các use case}
 \label{sec:appendix-a-usecases}
 
@@ -181,6 +192,57 @@ Luồng chính & Chủ tọa cấu hình thông tin, chuyên đề, hạn chót,
 Luồng thay thế và lỗi & Backend từ chối cấu hình thiếu trường bắt buộc hoặc có hạn chót không hợp lệ; bảng điều khiển giữ trạng thái cần xử lý khi thiếu Phản biện viên hoặc bản phản biện; hệ thống từ chối thao tác ghi của người dùng không có quyền \\ \hline
 Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật \\ \hline
 \end{longtable}
+
+\pagebreak
+Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu diễn trạng thái hội nghị và mối quan hệ giữa lời mời tham gia hội đồng với phân công bài.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.96\textwidth, max height=0.78\textheight, keepaspectratio}
+\begin{tikzpicture}[>=Latex]
+  \node[appendixState] (draftConf) at (-8,0) {Draft};
+  \node[appendixState] (openConf) at (-4,0) {Open};
+  \node[appendixState] (reviewingConf) at (0,0) {Reviewing};
+  \node[appendixState] (completedConf) at (4,0) {Completed};
+  \node[appendixState] (archivedConf) at (8,0) {Archived};
+  \node[appendixOutcome, text width=60mm] (archiveRule) at (4,-2.0) {Draft, Open, Reviewing hoặc Completed đều có thể chuyển sang Archived};
+
+  \draw[appendixArrow] (draftConf) -- (openConf);
+  \draw[appendixArrow] (openConf) -- (reviewingConf);
+  \draw[appendixArrow] (reviewingConf) -- (completedConf);
+  \draw[appendixArrow] (completedConf) -- (archivedConf);
+  \draw[appendixDashedArrow] (archiveRule.east) -| (archivedConf.south);
+  \draw[appendixArrow] (archivedConf.north) to[out=110,in=70,looseness=1.15] node[appendixEdgeLabel, above] {Khôi phục} (completedConf.north);
+
+  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-4.1) {Lời mời tham gia hội đồng trong giai đoạn Open};
+  \node[appendixProcess] (invite) at (-7.8,-5.3) {Chủ tọa gửi lời mời};
+  \node[appendixState] (invitePending) at (-3.7,-5.3) {Pending};
+  \node[appendixDecision] (inviteResponse) at (0.5,-5.3) {Phản hồi lời mời?};
+  \node[appendixState, fill=green!9] (reviewerAccepted) at (5.0,-4.5) {Accepted\\Cấp vai trò Phản biện viên};
+  \node[appendixState, fill=red!6] (reviewerRejected) at (5.0,-6.2) {Rejected};
+  \draw[appendixArrow] (invite) -- (invitePending);
+  \draw[appendixArrow] (invitePending) -- (inviteResponse);
+  \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, above] {Chấp nhận} (reviewerAccepted);
+  \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, below] {Từ chối} (reviewerRejected);
+
+  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-8.2) {Phân công bài khi hội nghị chuyển sang Reviewing};
+  \node[appendixProcess] (suggested) at (-7.8,-9.5) {Hệ thống tạo đề xuất\\Suggested};
+  \node[appendixProcess, text width=43mm] (chairConfirm) at (-3.7,-9.5) {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
+  \node[appendixDecision] (assignmentResponse) at (0.5,-9.5) {Phản hồi phân công?};
+  \node[appendixState, fill=green!9] (assignmentAccepted) at (5.0,-8.7) {Accepted};
+  \node[appendixState, fill=red!6] (assignmentDeclined) at (5.0,-10.4) {Declined};
+  \node[appendixOutcome] (workspace) at (9.0,-8.7) {Bài xuất hiện trong không gian làm việc};
+
+  \draw[appendixArrow] (suggested) -- (chairConfirm);
+  \draw[appendixArrow] (chairConfirm) -- (assignmentResponse);
+  \draw[appendixArrow] (assignmentResponse) -- node[appendixEdgeLabel, above] {Chấp nhận} (assignmentAccepted);
+  \draw[appendixArrow] (assignmentResponse) -- node[appendixEdgeLabel, below] {Từ chối} (assignmentDeclined);
+  \draw[appendixArrow] (assignmentAccepted) -- (workspace);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Trạng thái hội nghị, lời mời và phân công bài}
+\label{fig:appendix-a-conference-invitation-assignment-flow}
+\end{figure}
 
 \subsection{UC-08. Trao đổi theo bài nộp}
 
@@ -527,6 +589,40 @@ Nếu một trong hai tập rỗng, hệ thống gán điểm bằng \(0\). Jacc
 \item Hệ thống trả đề xuất, điểm số, số phân công phát sinh và danh sách bài còn thiếu người để Chủ tọa kiểm tra.
 \end{enumerate}
 
+\pagebreak
+Sơ đồ~\ref{fig:appendix-a-matching-coi-execution} biểu diễn luồng đối sánh và kiểm tra xung đột lợi ích từ dữ liệu đầu vào đến đề xuất để Chủ tọa xác nhận.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.96\textwidth, max height=0.74\textheight, keepaspectratio}
+\begin{tikzpicture}[>=Latex]
+  \node[appendixData, text width=36mm] (matchingInput) at (-8,0) {Bài chưa có phân công xác nhận\\Phản biện viên đã chấp nhận\\Cấu hình phân công};
+  \node[appendixProcess, text width=37mm] (coiMap) at (-4,0) {Tạo bản đồ COI\\Tác giả/đồng tác giả\\Khai báo\\Quan hệ Neo4j};
+  \node[appendixProcess] (scoreMatrix) at (0,0) {Tính ma trận điểm Jaccard};
+  \node[appendixProcess] (sortScores) at (4,0) {Sắp xếp cặp theo điểm giảm dần};
+  \node[appendixProcess, text width=38mm] (strictPass) at (8,0) {Lượt nghiêm ngặt\\Giữ ngưỡng điểm, tải, số người tối đa và COI};
+  \node[appendixDecision] (zeroReviewer) at (8,-3.3) {Bài có 0 Phản biện viên?};
+  \node[appendixProcess, text width=40mm] (fallbackPass) at (3.8,-3.3) {Lượt dự phòng\\Bỏ ngưỡng điểm và giới hạn tải; luôn giữ COI};
+  \node[appendixProcess] (collectResult) at (-0.6,-3.3) {Tổng hợp đề xuất và bài chưa đủ người};
+  \node[appendixData] (saveSuggestions) at (-4.8,-3.3) {Lưu đề xuất ở trạng thái Suggested};
+  \node[appendixOutcome] (chairReview) at (-8.8,-3.3) {Chủ tọa kiểm tra, điều chỉnh và xác nhận};
+
+  \draw[appendixArrow] (matchingInput) -- (coiMap);
+  \draw[appendixArrow] (coiMap) -- (scoreMatrix);
+  \draw[appendixArrow] (scoreMatrix) -- (sortScores);
+  \draw[appendixArrow] (sortScores) -- (strictPass);
+  \draw[appendixArrow] (strictPass) -- (zeroReviewer);
+  \draw[appendixArrow] (zeroReviewer) -- node[appendixEdgeLabel, above] {Có} (fallbackPass);
+  \draw[appendixArrow] (fallbackPass) -- (collectResult);
+  \draw[appendixArrow] (zeroReviewer.south) -- ++(0,-1.6) -| node[appendixEdgeLabel, near start, right] {Không} (collectResult.south);
+  \draw[appendixArrow] (collectResult) -- (saveSuggestions);
+  \draw[appendixArrow] (saveSuggestions) -- (chairReview);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Luồng thực thi đối sánh và kiểm tra xung đột lợi ích}
+\label{fig:appendix-a-matching-coi-execution}
+\end{figure}
+
 \begin{longtable}{|T{0.43\textwidth}|T{0.47\textwidth}|}
 \caption{Tình huống ngoại lệ trong đối sánh Phản biện viên}\label{tab:appendix-a-matching-exceptions}\\
 \hline
@@ -615,6 +711,62 @@ Bước & Giai đoạn & Xử lý & Kết quả lỗi \\ \hline
 7 & Ánh xạ, hướng dẫn và lưu vết & Tổng hợp phát hiện, hướng dẫn, mã nhận diện và dữ liệu kiểm toán & Trả trạng thái đạt, cảnh báo, chặn hoặc lỗi \\ \hline
 \end{longtable}
 
+\pagebreak
+Sơ đồ~\ref{fig:appendix-a-submission-gating-execution} biểu diễn luồng thực thi nội bộ của Submission Gating và cách backend xử lý kết quả.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
+\begin{tikzpicture}[>=Latex]
+  \node[appendixData] (gateInput) at (-9,0) {Yêu cầu, chính sách và tệp bài nộp};
+  \node[appendixProcess] (intake) at (-5.4,0) {Chuẩn hóa đầu vào};
+  \node[appendixProcess] (binary) at (-1.8,0) {Kiểm tra tính toàn vẹn của tệp};
+  \node[appendixDecision] (binaryBlock) at (2.0,0) {Bị chặn?};
+  \node[appendixProcess] (extract) at (5.8,0) {Trích xuất tài liệu};
+  \node[appendixDecision] (extractBlock) at (9.6,0) {Bị chặn?};
+  \node[appendixOutcome, text width=64mm] (earlyExit) at (5.8,2.5) {Kết thúc sớm: tạo hướng dẫn, lưu vết; backend trả 422 và yêu cầu sửa};
+
+  \node[appendixProcess, text width=39mm] (facts) at (9.6,-3.6) {Kiểm tra định dạng và xác định dữ kiện};
+  \node[appendixDecision] (gatingEnabled) at (5.4,-3.6) {Submission Gating được bật?};
+  \node[appendixProcess, text width=47mm] (skipEvaluation) at (5.4,-7.0) {Bỏ qua đánh giá nội dung và chính sách; ánh xạ \textit{pass}, tạo hướng dẫn và lưu vết};
+  \node[appendixDecision] (hasPrompt) at (0.8,-3.6) {Có chỉ dẫn rà soát?};
+  \node[appendixProcess] (contentEvaluation) at (-3.5,-3.6) {Đánh giá nội dung\\Chỉ tạo \textit{pass/warn}};
+  \node[appendixProcess] (policyEvaluation) at (-7.8,-3.6) {Áp dụng quy tắc cố định của hội nghị};
+
+  \node[appendixProcess] (verdictMapping) at (-7.8,-7.0) {Ánh xạ \textit{pass}, \textit{warn}, \textit{block} hoặc \textit{error}};
+  \node[appendixData] (guidanceAudit) at (-3.4,-7.0) {Tạo hướng dẫn và lưu dữ liệu kiểm toán};
+  \node[appendixDecision] (backendVerdict) at (0.9,-7.0) {Backend nhận kết quả nào?};
+  \node[appendixOutcome, fill=green!9] (allowSubmit) at (-3.5,-10.4) {Pass/Warn\\Cho phép tiếp tục gửi};
+  \node[appendixOutcome, fill=red!7] (blockSubmit) at (0.9,-10.4) {Block\\Trả 422 và yêu cầu sửa};
+  \node[appendixOutcome, fill=orange!9] (errorSubmit) at (5.3,-10.4) {Error\\Trả lỗi dịch vụ};
+
+  \draw[appendixArrow] (gateInput) -- (intake);
+  \draw[appendixArrow] (intake) -- (binary);
+  \draw[appendixArrow] (binary) -- (binaryBlock);
+  \draw[appendixArrow] (binaryBlock) -- node[appendixEdgeLabel, above] {Không} (extract);
+  \draw[appendixArrow] (extract) -- (extractBlock);
+  \draw[appendixArrow] (binaryBlock.north) |- node[appendixEdgeLabel, near start, right] {Có} (earlyExit.west);
+  \draw[appendixArrow] (extractBlock.north) -- node[appendixEdgeLabel, right] {Có} (earlyExit.east);
+  \draw[appendixArrow] (extractBlock.south) -- node[appendixEdgeLabel, right] {Không} (facts.north);
+  \draw[appendixArrow] (facts) -- (gatingEnabled);
+  \draw[appendixArrow] (gatingEnabled) -- node[appendixEdgeLabel, above] {Có} (hasPrompt);
+  \draw[appendixArrow] (gatingEnabled) -- node[appendixEdgeLabel, right] {Không} (skipEvaluation);
+  \draw[appendixArrow] (hasPrompt) -- node[appendixEdgeLabel, above] {Có} (contentEvaluation);
+  \draw[appendixArrow] (contentEvaluation) -- (policyEvaluation);
+  \draw[appendixArrow] (hasPrompt.south) -- ++(0,-1.2) -| node[appendixEdgeLabel, near start, right] {Không} (policyEvaluation.south);
+  \draw[appendixArrow] (policyEvaluation) -- (verdictMapping);
+  \draw[appendixArrow] (skipEvaluation) -- (backendVerdict);
+  \draw[appendixArrow] (verdictMapping) -- (guidanceAudit);
+  \draw[appendixArrow] (guidanceAudit) -- (backendVerdict);
+  \draw[appendixArrow] (backendVerdict.south) -- ++(0,-1.0) -| (allowSubmit.north);
+  \draw[appendixArrow] (backendVerdict) -- (blockSubmit);
+  \draw[appendixArrow] (backendVerdict.south) -- ++(0,-1.0) -| (errorSubmit.north);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Luồng thực thi nội bộ của Submission Gating}
+\label{fig:appendix-a-submission-gating-execution}
+\end{figure}
+
 Dữ liệu kiểm toán gồm mã nhận diện đầu vào, mã chính sách, bản tóm tắt theo mức độ, thời gian từng giai đoạn và các giai đoạn bị bỏ qua hoặc gặp lỗi. Luồng không đưa ra quyết định từ chối bài về mặt học thuật.
 
 \subsection{Reviewer Initial Analysis}
@@ -637,7 +789,7 @@ Kiểm soát & Phản biện viên đọc bản định hướng rồi đối ch
 
 \subsection{Review Quality Auditor}
 
-Luồng đọc bản nháp phản biện, điểm số, khuyến nghị, độ tự tin, chính sách và ngữ cảnh bài nộp. Đầu ra gồm trạng thái pass, warn hoặc block; bản tóm tắt về độ cụ thể, mức độ dựa trên bằng chứng và tính nhất quán; cùng danh sách phát hiện có mã vấn đề, trường liên quan, mức độ, lý do và hướng khắc phục. Luồng không đánh giá chất lượng học thuật của bài và không thay đổi điểm hoặc khuyến nghị. Tuy nhiên, lớp nghiệp vụ có thể ánh xạ phát hiện mức blocking thành trạng thái block khi Phản biện viên gửi chính thức; phiên bản hiện tại chưa cho phép ghi đè phát hiện blocking. Đây là giới hạn của phiên bản hiện tại so với nguyên tắc AI chỉ hỗ trợ và cần được ghi nhận riêng trong đánh giá.
+Luồng đọc bản nháp phản biện, điểm số, khuyến nghị, độ tự tin, chính sách và ngữ cảnh bài nộp. Đầu ra gồm trạng thái \textit{pass}, \textit{warn} hoặc \textit{block}; bản tóm tắt về độ cụ thể, mức độ dựa trên bằng chứng và tính nhất quán; cùng danh sách phát hiện có mã vấn đề, trường liên quan, mức độ, lý do và hướng khắc phục. Luồng không đánh giá chất lượng học thuật của bài và không thay đổi điểm hoặc khuyến nghị. Lớp nghiệp vụ ánh xạ phát hiện mức \textit{blocking} thành \textit{status=block} chỉ để tăng mức ưu tiên hiển thị. Nhãn này không vô hiệu hóa thao tác gửi; Phản biện viên vẫn quyết định chỉnh sửa hoặc tiếp tục gửi bản phản biện.
 
 \begin{longtable}{|T{0.17\textwidth}|T{0.32\textwidth}|T{0.40\textwidth}|}
 \caption{Trạng thái và hành vi của Review Quality Auditor}\label{tab:appendix-a-rqa-states}\\
@@ -649,11 +801,63 @@ Trạng thái & Khi xảy ra & Hành vi \\ \hline
 \endhead
 Pass & Không có phát hiện đáng kể về độ cụ thể, căn cứ hoặc tính nhất quán & Phản biện viên có thể tiếp tục lưu hoặc gửi \\ \hline
 Warn & Có vấn đề cần xem lại nhưng không ngăn thao tác & Giao diện hiển thị phát hiện; Phản biện viên có thể sửa, bỏ qua hoặc xác nhận theo chính sách \\ \hline
-Block & Có ít nhất một phát hiện mức blocking; trạng thái tổng hợp được gắn \CodeBreak{status=block} để ưu tiên hiển thị & Giao diện làm nổi bật phát hiện nghiêm trọng; thao tác gửi vẫn khả dụng; Phản biện viên quyết định chỉnh sửa hoặc tiếp tục gửi \\ \hline
-Lỗi thực thi & Dịch vụ không thể hoàn tất bước rà soát & Backend yêu cầu Phản biện viên xác nhận tiếp tục khi không có kết quả và ghi sự kiện vào nhật ký; nhánh này không phải cơ chế ghi đè đối với phát hiện blocking \\ \hline
+\CodeBreak{status=block} & Có ít nhất một phát hiện mức \textit{blocking}; đây là nhãn ưu tiên hiển thị, không phải trạng thái chặn thao tác & Giao diện làm nổi bật phát hiện nghiêm trọng; thao tác gửi vẫn khả dụng; Phản biện viên quyết định chỉnh sửa hoặc tiếp tục gửi \\ \hline
+Lỗi thực thi & Dịch vụ không thể hoàn tất bước rà soát & Backend thông báo lỗi, yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký; nhánh này tách biệt với mức ưu tiên của phát hiện chất lượng \\ \hline
 \end{longtable}
 
-Hệ thống phân biệt phát hiện về chất lượng với lỗi không thể thực hiện bước rà soát. Phát hiện chất lượng, kể cả mức blocking, chỉ cung cấp thông tin để Phản biện viên xem xét và không vô hiệu hóa thao tác gửi. Lỗi thực thi được thông báo rõ, yêu cầu xác nhận tiếp tục và ghi vào nhật ký. Phản biện viên vẫn chịu trách nhiệm về nhận định chuyên môn trong bản phản biện cuối cùng.
+\pagebreak
+Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đời hỗ trợ Phản biện viên từ bản định hướng ban đầu đến bước rà soát chất lượng bản phản biện.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
+\begin{tikzpicture}[>=Latex]
+  \node[font=\footnotesize\bfseries, anchor=west] at (-10,1.2) {Reviewer Initial Analysis};
+  \node[appendixData] (openAssignment) at (-8.5,0) {Mở bài được phân công};
+  \node[appendixProcess] (stateFingerprint) at (-4.5,0) {Tạo mã nhận diện trạng thái bài};
+  \node[appendixDecision] (artifactLookup) at (-0.3,0) {Kết quả đã lưu còn hiệu lực?};
+  \node[appendixData] (cachedBriefing) at (4.0,0) {Trả bản định hướng đã lưu};
+  \node[appendixProcess] (generateBriefing) at (-0.3,-3.2) {Đọc tệp và tạo bản định hướng mới};
+  \node[appendixData] (newBriefing) at (4.0,-3.2) {Lưu bản định hướng và chú thích};
+  \node[appendixOutcome] (readOriginal) at (8.3,-1.6) {Phản biện viên đối chiếu với bài gốc};
+
+  \draw[appendixArrow] (openAssignment) -- (stateFingerprint);
+  \draw[appendixArrow] (stateFingerprint) -- (artifactLookup);
+  \draw[appendixArrow] (artifactLookup) -- node[appendixEdgeLabel, above] {Có} (cachedBriefing);
+  \draw[appendixArrow] (artifactLookup) -- node[appendixEdgeLabel, right] {Không/không còn hiệu lực} (generateBriefing);
+  \draw[appendixArrow] (generateBriefing) -- (newBriefing);
+  \draw[appendixArrow] (cachedBriefing) -- (readOriginal);
+  \draw[appendixArrow] (newBriefing) -- (readOriginal);
+
+  \node[font=\footnotesize\bfseries, anchor=west] at (-10,-5.1) {Review Quality Auditor};
+  \node[appendixProcess] (draftReview) at (8.3,-6.4) {Soạn bản phản biện};
+  \node[appendixProcess] (runAudit) at (4.1,-6.4) {Chạy rà soát khi lưu nháp hoặc gửi};
+  \node[appendixDecision] (auditCompleted) at (-0.2,-6.4) {Rà soát hoàn tất?};
+  \node[appendixData, text width=38mm] (auditFindings) at (-4.7,-6.4) {Trả \textit{pass}, \textit{warn} hoặc \textit{status=block} để ưu tiên hiển thị};
+  \node[appendixDecision] (reviewerAction) at (-9.0,-6.4) {Phản biện viên tiếp tục?};
+  \node[appendixProcess] (reviseReview) at (-9.0,-9.7) {Sửa bản nháp và chạy lại};
+  \node[appendixOutcome, fill=green!9] (submitReview) at (-4.7,-9.7) {Lưu hoặc gửi bản phản biện};
+  \node[appendixProcess] (confirmFailure) at (-0.2,-9.7) {Xác nhận tiếp tục khi rà soát lỗi};
+  \node[appendixData] (auditEvent) at (4.1,-9.7) {Ghi sự kiện kiểm toán};
+
+  \draw[appendixArrow] (readOriginal) -- (draftReview);
+  \draw[appendixArrow] (draftReview) -- (runAudit);
+  \draw[appendixArrow] (runAudit) -- (auditCompleted);
+  \draw[appendixArrow] (auditCompleted) -- node[appendixEdgeLabel, above] {Có} (auditFindings);
+  \draw[appendixArrow] (auditFindings) -- (reviewerAction);
+  \draw[appendixArrow] (reviewerAction) -- node[appendixEdgeLabel, right] {Sửa} (reviseReview);
+  \draw[appendixArrow] (reviewerAction.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Tiếp tục} (submitReview.west);
+  \draw[appendixDashedArrow] (reviseReview.south) -- ++(0,-1.8) -| (draftReview.south);
+  \draw[appendixArrow] (auditCompleted) -- node[appendixEdgeLabel, right] {Không} (confirmFailure);
+  \draw[appendixArrow] (confirmFailure) -- (auditEvent);
+  \draw[appendixArrow] (auditEvent.south) -- ++(0,-0.7) -| (submitReview.south);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Vòng đời hỗ trợ Phản biện viên}
+\label{fig:appendix-a-reviewer-support-lifecycle}
+\end{figure}
+
+Hệ thống phân biệt phát hiện chất lượng với lỗi thực thi. Kể cả mức \textit{blocking}, phát hiện chất lượng chỉ cung cấp thông tin để Phản biện viên xem xét, không vô hiệu hóa thao tác gửi. Lỗi thực thi được thông báo, yêu cầu xác nhận tiếp tục và ghi nhật ký. Phản biện viên chịu trách nhiệm về nhận định cuối cùng.
 
 \subsection{Chair Decision Copilot}
 
@@ -672,6 +876,53 @@ Hiệu lực & Mã nhận diện toàn bộ bộ bằng chứng và từng thàn
 Đầu ra & Tổng quan, đồng thuận, bất đồng, vấn đề còn mở và ghi chú nháp & Không tạo quyết định hoặc khuyến nghị chấp nhận hay từ chối \\ \hline
 Kiểm soát & Chủ tọa đối chiếu trực tiếp với dữ liệu gốc & Nếu dịch vụ AI lỗi, Chủ tọa vẫn tiếp tục bằng bằng chứng gốc \\ \hline
 \end{longtable}
+
+\pagebreak
+Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn quá trình tạo bộ bằng chứng, kiểm tra hiệu lực và tạo bản tổng hợp cho Chủ tọa.
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
+\begin{tikzpicture}[>=Latex]
+  \node[appendixData] (submissionEvidence) at (-7.5,0) {CFP và thông tin bài nộp};
+  \node[appendixData] (reviewEvidence) at (-2.5,0) {Phản biện đã gửi và thống kê};
+  \node[appendixData] (discussionEvidence) at (2.5,0) {Nội dung thảo luận};
+  \node[appendixData] (rebuttalEvidence) at (7.5,0) {Phản hồi của Tác giả};
+  \node[appendixProcess, text width=45mm] (aggregateEvidence) at (0,-2.7) {Chuẩn hóa và tập hợp bộ bằng chứng};
+  \node[appendixProcess] (componentFingerprints) at (-4.5,-5.3) {Tạo mã nhận diện cho từng thành phần};
+  \node[appendixProcess] (evidenceFingerprint) at (0,-5.3) {Tạo mã nhận diện toàn bộ bộ bằng chứng};
+  \node[appendixDecision] (cacheStatus) at (4.7,-5.3) {Trạng thái kết quả đã lưu?};
+
+  \node[appendixState] (idleStatus) at (-4.8,-8.4) {Idle\\Chưa có kết quả};
+  \node[appendixState, fill=orange!9] (staleStatus) at (0,-8.4) {Stale\\Nguồn đã thay đổi};
+  \node[appendixState, fill=green!9] (readyStatus) at (4.8,-8.4) {Ready\\Mã nhận diện trùng khớp};
+  \node[appendixProcess] (generateDecisionBrief) at (-2.4,-11.2) {Tạo hoặc tạo lại bản tổng hợp};
+  \node[appendixData] (saveDecisionBrief) at (2.1,-11.2) {Lưu bản tổng hợp cùng mã nhận diện};
+  \node[appendixOutcome] (chairDecision) at (7.0,-11.2) {Chủ tọa đối chiếu nguồn và tự quyết định};
+  \node[appendixOutcome, fill=orange!9, text width=43mm] (generationFailure) at (-2.4,-13.9) {Nếu tạo thất bại, tiếp tục bằng bằng chứng gốc hoặc kết quả cũ};
+
+  \draw[appendixArrow] (submissionEvidence) -- (aggregateEvidence);
+  \draw[appendixArrow] (reviewEvidence) -- (aggregateEvidence);
+  \draw[appendixArrow] (discussionEvidence) -- (aggregateEvidence);
+  \draw[appendixArrow] (rebuttalEvidence) -- (aggregateEvidence);
+  \draw[appendixArrow] (aggregateEvidence) -- (componentFingerprints);
+  \draw[appendixArrow] (componentFingerprints) -- (evidenceFingerprint);
+  \draw[appendixArrow] (evidenceFingerprint) -- (cacheStatus);
+  \draw[appendixArrow] (cacheStatus.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Không có} (idleStatus.north);
+  \draw[appendixArrow] (cacheStatus.south) -- ++(0,-1.0) -| node[appendixEdgeLabel, near end, above] {Đã thay đổi} (staleStatus.north);
+  \draw[appendixArrow] (cacheStatus) -- node[appendixEdgeLabel, right] {Trùng khớp} (readyStatus);
+  \draw[appendixArrow] (idleStatus) -- (generateDecisionBrief);
+  \draw[appendixArrow] (staleStatus) -- (generateDecisionBrief);
+  \draw[appendixArrow] (generateDecisionBrief) -- (saveDecisionBrief);
+  \draw[appendixArrow] (saveDecisionBrief) -- (chairDecision);
+  \draw[appendixArrow] (readyStatus) -- (chairDecision);
+  \draw[appendixDashedArrow] (generateDecisionBrief) -- node[appendixEdgeLabel, right] {Lỗi} (generationFailure);
+  \draw[appendixDashedArrow] (generationFailure.east) -- ++(1.0,0) -| (chairDecision.south);
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Vòng đời bộ bằng chứng của Chair Decision Copilot}
+\label{fig:appendix-a-decision-copilot-evidence-lifecycle}
+\end{figure}
 
 \subsection{Chatbot Agent}
 

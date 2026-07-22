@@ -257,6 +257,8 @@ Phần này giữ mục tiêu, ranh giới nghiệp vụ và giao diện đại 
 
 Tác giả tìm kiếm hội nghị theo từ khóa, lĩnh vực, chuyên đề hoặc trạng thái, sau đó xem thông tin kêu gọi nộp bài và các hạn chót liên quan. Hệ thống chỉ cho phép bắt đầu bài nộp khi hội nghị còn mở; hội nghị đã đóng vẫn có thể được xem hoặc lưu theo dõi.
 
+Các nhóm thông tin này giúp Tác giả đối chiếu phạm vi chuyên môn, yêu cầu nộp bài và thời gian còn lại trước khi quyết định bắt đầu bài nộp hoặc lưu hội nghị để tiếp tục theo dõi.
+
 Hình~\ref{fig:ch3-demo-uc01-explore} minh họa giao diện danh sách hội nghị mặc định mà Tác giả nhìn thấy khi bắt đầu tìm kiếm.
 
 \begin{figure}[H]
@@ -373,7 +375,7 @@ Khi bài được chấp nhận, Hình~\ref{fig:ch3-demo-uc03-detail} thể hi�
 
 \subsubsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
 
-Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo cho người nhận. Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Sau khi Chủ tọa tạo phân công, Phản biện viên xem bài, hạn chót và trạng thái trong không gian làm việc; backend chỉ trả các phân công thuộc người dùng hiện tại.
+UC-04 gồm hai điểm phản hồi khác nhau. Trước hết, Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo để Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Khi Chủ tọa đề nghị phân công một bài cụ thể, hệ thống hiển thị thông tin tổng quan và điểm phù hợp để Phản biện viên cân nhắc đồng ý hoặc từ chối. Các bài liên quan, hạn chót và trạng thái phản biện được tập trung trong không gian làm việc; backend chỉ trả dữ liệu thuộc phạm vi của người dùng hiện tại. Cách tổ chức này giúp Chủ tọa phân biệt tư cách tham gia hội nghị với trạng thái tiếp nhận từng bài.
 
 Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện trong hệ thống (dưới).
 
@@ -385,18 +387,22 @@ Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận t
 \label{fig:ch3-demo-uc04-invitations}
 \end{figure}
 
-Sau khi phân công được tạo, Hình~\ref{fig:ch3-demo-uc04-accept-deny} cho thấy giao diện tổng quan bài viết để Phản biện viên lựa chọn đồng ý hoặc từ chối.
+Khi nhận đề nghị phân công một bài cụ thể, Phản biện viên xem thông tin tổng quan và điểm phù hợp trên giao diện ở Hình~\ref{fig:ch3-demo-uc04-accept-deny} trước khi phản hồi.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
-\caption{Giao diện giới thiệu tổng quan được phân công để Phản biện viên lựa chọn đồng ý hoặc từ chối}
+\caption{Giao diện tổng quan của bài được đề nghị phân công để Phản biện viên phản hồi chấp nhận hoặc từ chối}
 \label{fig:ch3-demo-uc04-accept-deny}
 \end{figure}
 
 \subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
-Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện mức \textit{blocking} được làm nổi bật hơn mức \textit{warning} để Phản biện viên ưu tiên xem xét; cả hai mức đều không ngăn thao tác gửi bản phản biện. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
+Phản biện viên mở bài được phân công, đọc bản thảo, nhập điểm, nhận xét, khuyến nghị và mức độ tự tin, sau đó lưu nháp hoặc gửi bản phản biện. Phản biện viên chịu trách nhiệm đối với toàn bộ nhận định chuyên môn và quyết định nội dung cuối cùng.
+
+Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng gồm đóng góp mà bài trình bày, các điểm cần kiểm tra, giới hạn và chú thích gắn với từng phần của bản thảo. Đầu ra giúp Phản biện viên xác định vị trí cần đọc kỹ và đối chiếu nhận định với bài gốc; chức năng không tạo điểm số hoặc khuyến nghị phản biện.
+
+Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) rà soát tính cụ thể, căn cứ và tính nhất quán giữa nhận xét, điểm số, khuyến nghị và mức độ tự tin. Mỗi phát hiện nêu phần liên quan, mức độ, lý do và hướng khắc phục để Phản biện viên chỉnh sửa hoặc tiếp tục gửi.
 
 Hình~\ref{fig:ch3-demo-uc05-workspace1} thể hiện không gian đọc bài và soạn phản biện của Phản biện viên.
 
@@ -421,7 +427,7 @@ Trước khi bắt đầu soạn phản biện, Hình~\ref{fig:ch3-demo-uc05-ria
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_initial_analysis.png}
-\caption{Bản định hướng đọc của Reviewer Initial Analysis}
+\caption{Bản định hướng đọc gồm đóng góp, điểm cần kiểm tra, giới hạn và chú thích theo phần}
 \label{fig:ch3-demo-uc05-ria}
 \end{figure}
 
@@ -430,7 +436,7 @@ Trước khi gửi, Hình~\ref{fig:ch3-demo-uc05-rqa} trình bày bảng rà so�
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_quality_auditor.png}
-\caption{Bảng rà soát bản nháp của Review Quality Auditor}
+\caption{Bảng rà soát mức độ cụ thể, căn cứ và tính nhất quán của bản phản biện nháp}
 \label{fig:ch3-demo-uc05-rqa}
 \end{figure}
 
@@ -469,6 +475,8 @@ Sau khi hệ thống hoàn tất đối sánh, Hình~\ref{fig:ch3-demo-uc06-sugg
 
 Chủ tọa cấu hình thông tin hội nghị, chuyên đề, hạn chót, biểu mẫu phản biện và chính sách; mời thành viên hội đồng chương trình; theo dõi số bài, tiến độ phản biện và các trường hợp cần xử lý. Bảng điều khiển hỗ trợ nhận biết điểm nghẽn nhưng không tự chuyển giai đoạn hoặc ra quyết định thay Chủ tọa.
 
+Bảng điều khiển tổng hợp số bài đã nhận, trạng thái phản biện, thời gian còn lại đến hạn chót, cột mốc tiếp theo và các công việc Chủ tọa có thể thực hiện. Các chỉ báo này giúp Chủ tọa phát hiện sớm bài chưa đủ Phản biện viên, phản biện chưa hoàn tất hoặc mốc vận hành sắp đến để can thiệp trước khi tiến độ hội nghị bị đình trệ.
+
 Hình~\ref{fig:ch3-demo-uc07-config} thể hiện giao diện thiết lập cấu hình thông tin và hạn chót hội nghị của Chủ tọa.
 
 \begin{figure}[H]
@@ -499,6 +507,8 @@ Ngoài ra, Hình~\ref{fig:ch3-demo-uc07-committee} minh họa giao diện quản
 \subsubsection{UC-08. Trao đổi theo bài nộp}
 
 Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi. Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả của bài và Phản biện viên trao đổi trong chuỗi tương ứng, còn Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát. Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
+
+Việc gắn từng chuỗi thảo luận với một bài nộp giúp giữ nguyên bối cảnh trao đổi: Tác giả làm rõ các vấn đề được nêu, Phản biện viên đối chiếu phản hồi và cập nhật đánh giá khi cần, còn Chủ tọa sử dụng lịch sử này như một nguồn bằng chứng trước khi ra quyết định. Trong phiên bản hiện tại, Chủ tọa chỉ có quyền xem; vai trò này không tạo chuỗi hoặc gửi tin nhắn.
 
 Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ đề thảo luận mới cho bài nộp.
 
@@ -534,6 +544,8 @@ Hình~\ref{fig:ch3-demo-uc09} minh họa giao diện tổng hợp bằng chứng
 \subsubsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại. Nếu câu hỏi cần dữ liệu nghiệp vụ, Chatbot Agent gọi công cụ truy vấn để gửi yêu cầu có cấu trúc đến backend. Backend kiểm tra mã xác thực, tài nguyên, trường dữ liệu, bộ lọc và quyền của người dùng trước khi trả phần dữ liệu tối thiểu được phép. Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu.
+
+Ở góc nhìn người dùng, Tác giả có thể tra cứu trạng thái và siêu dữ liệu bài của mình hoặc thông tin công khai của hội nghị; Phản biện viên có thể hỏi về các bài được phân công và khối lượng công việc; Chủ tọa có thể yêu cầu tổng quan vận hành hoặc các công việc còn tồn đọng. Các câu trả lời giúp người dùng xác định trạng thái hiện tại và tìm thông tin liên quan mà không phải chuyển qua nhiều màn hình. Chatbot Agent từ chối hoặc giới hạn câu trả lời khi yêu cầu vượt quyền truy cập hoặc nằm ngoài phạm vi nền tảng.
 
 Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent.
 
