@@ -1499,7 +1499,7 @@ Mạch trình bày
 
 Làm rõ áp lực đối với quy trình xét duyệt, nhu cầu của người dùng và nguyên tắc lựa chọn cơ chế xử lý.
 
-**2. Ca sử dụng và vòng đời nghiệp vụ**
+**2. Use case và vòng đời nghiệp vụ**
 
 Trình bày cách ba vai trò phối hợp trong một quy trình thống nhất từ nộp bài đến quyết định.
 
@@ -1642,7 +1642,7 @@ Mỗi tác vụ cần được xử lý bằng cơ chế phù hợp với mức 
 
 **Câu hỏi trung tâm**
 
-Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật toán xác định và có thể kiểm chứng, và tác vụ nào phù hợp với AI hỗ trợ?
+Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật toán xác định, có thể kiểm chứng, và tác vụ nào phù hợp với AI hỗ trợ?
 
 **Bốn tiêu chí lựa chọn**
 
@@ -1654,7 +1654,7 @@ Tác vụ nào thuộc nghiệp vụ cốt lõi, tác vụ nào cần thuật to
 **Quy tắc lựa chọn**
 
 - Quản lý quyền, trạng thái và hành động hợp lệ → **nghiệp vụ cốt lõi**.
-- Cần kết quả ổn định, có thể kiểm tra lại → **thuật toán xác định và có thể kiểm chứng**.
+- Cần kết quả ổn định, có thể kiểm tra lại → **thuật toán xác định, có thể kiểm chứng**.
 - Cần trích xuất, diễn giải hoặc tổng hợp ngôn ngữ → **AI hỗ trợ**, với đầu ra do người dùng kiểm tra.
 
 **Ranh giới phạm vi**
@@ -1678,7 +1678,7 @@ ConferenceSpace tổ chức tác vụ theo ba lớp trách nhiệm
 
 **Giới thiệu hệ thống**
 
-- ConferenceSpace kết nối các nghiệp vụ từ khám phá hội nghị và nộp bài đến phân công, phản biện, quyết định và nộp bản hoàn chỉnh sau chấp nhận.
+- ConferenceSpace kết nối các nghiệp vụ từ khám phá hội nghị và nộp bài đến phân công, phản biện, quyết định và nộp bản hoàn thiện sau chấp nhận.
 - Hệ thống phân loại tác vụ theo cơ chế tạo kết quả và thẩm quyền sử dụng kết quả, không theo ranh giới triển khai kỹ thuật.
 - Sáu luồng AI hỗ trợ nhập liệu, kiểm tra bài nộp, định hướng đọc, rà soát bản nháp, tổng hợp bằng chứng và truy vấn dữ liệu.
 
@@ -1700,11 +1700,11 @@ Tạo dữ liệu nháp, cảnh báo, bản phân tích hoặc bản tổng hợ
 
 **Nguồn đối chiếu:** Chương 1, mục “Đặt vấn đề”; Chương 3, mục “Mô hình trách nhiệm”.
 
-## Slide 09 — Bản đồ ca sử dụng
+## Slide 09 — Bản đồ use case
 
 **Tiêu đề**
 
-Mười ca sử dụng kết nối ba vai trò trong cùng một vòng đời nghiệp vụ
+Mười use case kết nối ba vai trò trong cùng một vòng đời nghiệp vụ
 
 **Tác giả**
 
@@ -1730,7 +1730,7 @@ Mười ca sử dụng kết nối ba vai trò trong cùng một vòng đời ng
 
 **Câu kết**
 
-Các ca sử dụng chia sẻ dữ liệu, trạng thái và cơ chế phân quyền; chúng không phải những công cụ hoạt động độc lập.
+Các use case chia sẻ dữ liệu, trạng thái và cơ chế phân quyền; chúng không phải những công cụ hoạt động độc lập.
 
 **Nguồn đối chiếu:** Chương 3, mục “Bản đồ use case”.
 
@@ -1764,9 +1764,9 @@ Tác giả gửi phản hồi; Phản biện viên được phân công trao đ�
 
 Chủ tọa đối chiếu phản biện, phản hồi của Tác giả, nội dung thảo luận và các vấn đề còn mở trước khi đưa ra quyết định.
 
-**07. Bản hoàn chỉnh sau chấp nhận**
+**07. Bản hoàn thiện sau chấp nhận**
 
-Vòng đời có nhánh bài đã rút và bài bị từ chối; chỉ bài được chấp nhận mới chuyển sang bước nộp bản hoàn chỉnh.
+Vòng đời có nhánh bài đã rút và bài bị từ chối; chỉ bài được chấp nhận mới chuyển sang bước nộp bản hoàn thiện sau chấp nhận.
 
 **Điều kiện điều khiển vòng đời**
 
@@ -1800,7 +1800,7 @@ Submission Autofill tạo siêu dữ liệu nháp và gợi ý chuyên đề đ�
 
 **04. Theo dõi sau khi gửi**
 
-Theo dõi trạng thái, rút bài khi được phép, xem phản biện, gửi phản hồi và nộp bản hoàn chỉnh sau khi bài được chấp nhận.
+Theo dõi trạng thái, rút bài khi được phép, xem phản biện, gửi phản hồi và nộp bản hoàn thiện sau chấp nhận.
 
 **Ranh giới trách nhiệm**
 
@@ -2030,7 +2030,7 @@ Thiết kế triển khai xác định rõ điểm truy cập công khai, ranh g
 
 **Giới hạn**
 
-Cấu hình này hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, khôi phục phiên bản (rollback) hoặc phục hồi sau sự cố.
+Cấu hình này hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, khôi phục (rollback) hoặc phục hồi sau sự cố.
 
 **Nguồn đối chiếu:** Chương 3, mục “Môi trường triển khai chính thức” và “Tổng kết chương”.
 
@@ -2044,18 +2044,18 @@ Mỗi nhóm trách nhiệm được đánh giá bằng nguồn bằng chứng ri
 
 - **Câu hỏi:** Các đường xử lý được chọn có đủ nhanh và ổn định trong cấu hình thử nghiệm không?
 - **Bằng chứng:** Kiểm thử tải k6 trên dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên–hội nghị.
-- **Chỉ số:** Thông lượng, độ trễ p95, tỷ lệ yêu cầu thất bại, CPU và RAM.
+- **Chỉ số:** Thông lượng, độ trễ phân vị 95 (p95), tỷ lệ yêu cầu thất bại, CPU và RAM.
 
-**Lớp thuật toán xác định và có thể kiểm chứng**
+**Lớp thuật toán xác định, có thể kiểm chứng**
 
 - **Câu hỏi:** Thuật toán có chạy nhanh, tạo kết quả có thể kiểm tra lại và biểu hiện như thế nào trên dữ liệu tổng hợp?
-- **Bằng chứng:** Go microbenchmark; phép thử xếp hạng và phân công trên 60 hồ sơ tác giả tổng hợp cùng 2.565 bài báo tổng hợp; hai kiểm tra xung đột lợi ích xác định được đo riêng.
+- **Bằng chứng:** Phép đo hiệu năng vi mô bằng Go; phép thử xếp hạng và phân công trên 60 hồ sơ tác giả tổng hợp cùng 2.565 bài báo tổng hợp; hai bộ kiểm tra xung đột xác định được đo riêng.
 - **Chỉ số:** Thời gian, bộ nhớ, Hit@k, MRR, nDCG, độ phủ và độ đồng đều của phân công.
 
 **Các luồng AI hỗ trợ**
 
 - **Câu hỏi:** Từng luồng tạo đầu ra ở mức nào và có giữ đúng ranh giới hỗ trợ không?
-- **Bằng chứng:** 1.127 bài cho bộ thực thi AI; 1.097 bài có kết quả đủ điều kiện cho TCA; các trường hợp kiểm thử riêng cho Submission Gating; 40 hội thoại Chatbot Agent.
+- **Bằng chứng:** 1.127 bài được đưa vào bộ thực thi luồng xử lý; 1.097 bài có kết quả đủ điều kiện cho TCA; các trường hợp kiểm thử riêng cho Submission Gating; 40 hội thoại Chatbot Agent.
 - **Chỉ số:** Exact Match, ROUGE, F1, Truthfulness, Coverage, Additionality và kết quả hội thoại.
 
 **Khảo sát người dùng**
@@ -2084,7 +2084,7 @@ Ba đường xử lý được chọn đáp ứng tải ngắn hạn trong cấu
 **Kết quả**
 
 - Thông lượng đạt từ **369 đến 572 yêu cầu/giây**.
-- Độ trễ p95 thấp hơn **120 ms** trong cả ba kịch bản.
+- Độ trễ phân vị 95 (p95) thấp hơn **120 ms** trong cả ba kịch bản.
 - Tỷ lệ yêu cầu thất bại bằng **0%**.
 
 **Tài nguyên**
@@ -2382,7 +2382,7 @@ Kết quả đạt được
 
 **1. Nền tảng nghiệp vụ**
 
-Đã xây dựng các thành phần, giao diện và API cho những nghiệp vụ chính từ cấu hình hội nghị và nộp bài đến phản biện, phản hồi, thảo luận, quyết định và nộp bản hoàn chỉnh sau chấp nhận.
+Đã xây dựng các thành phần, giao diện và API cho những nghiệp vụ chính từ cấu hình hội nghị và nộp bài đến phản biện, phản hồi, thảo luận, quyết định và nộp bản hoàn thiện sau chấp nhận.
 
 **2. Mô hình ba lớp trách nhiệm**
 
@@ -2481,7 +2481,7 @@ Câu hỏi và thảo luận
 
 **ConferenceSpace**
 
-Nghiệp vụ cốt lõi • Thuật toán xác định và có thể kiểm chứng • AI hỗ trợ có kiểm soát
+Nghiệp vụ cốt lõi • Thuật toán xác định, có thể kiểm chứng • AI hỗ trợ có kiểm soát
 
 **Thông điệp kết**
 
