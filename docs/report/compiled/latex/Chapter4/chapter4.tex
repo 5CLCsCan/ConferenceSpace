@@ -73,7 +73,7 @@ Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên v�
 
 Đối với xếp hạng, nhóm giữ lại một bài từ mỗi hồ sơ tác giả làm truy vấn, loại bài đó khỏi hồ sơ tương ứng rồi xếp hạng các hồ sơ còn lại bằng Jaccard, \CodeBreak{overlap\_count} và phương pháp ngẫu nhiên. Kết quả được mô tả bằng Hit@k, MRR và nDCG@10, là các chỉ số thường dùng để đánh giá danh sách xếp hạng~\cite{ch4ref8}. Đối với phân công, nhóm so sánh Greedy với gán tuần tự và ngẫu nhiên bằng độ phủ, độ đồng đều, điểm Jaccard, lượt dự phòng và số ca tự gán. Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhãn tác giả gốc và các chỉ số nội tại chỉ là bằng chứng gián tiếp.
 
-Đối với các luồng AI, bộ thực thi tạo và lưu đầu ra trước; bộ chấm TCA đọc lại các gói đã lưu mà không tạo lại nội dung. Submission Autofill được đối chiếu với siêu dữ liệu tham chiếu; Submission Gating được tách thành nhánh kiểm tra luật và nhánh cảnh báo không chặn; Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot được đánh giá theo quan hệ mệnh đề--bằng chứng; Chatbot Agent được chạy theo tám nhóm kịch bản với ba vai trò và được đánh giá thủ công. Hình~\ref{fig:ch4-ai-evaluation-flow} minh họa sự tách biệt giữa tạo đầu ra, đối chiếu trực tiếp, TCA và chấm theo hành vi hội thoại.
+Đối với các luồng AI, bộ thực thi tạo và lưu đầu ra trước; bộ chấm TCA đọc lại các gói đã lưu mà không tạo lại nội dung. Tự động điền bài nộp (Submission Autofill) được đối chiếu với siêu dữ liệu tham chiếu; Kiểm tra trước khi nộp bài (Submission Gating) được tách thành nhánh kiểm tra luật và nhánh cảnh báo không chặn; Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) được đánh giá theo quan hệ mệnh đề--bằng chứng; Chatbot Agent được chạy theo tám nhóm kịch bản với ba vai trò và được đánh giá thủ công. Hình~\ref{fig:ch4-ai-evaluation-flow} minh họa sự tách biệt giữa tạo đầu ra, đối chiếu trực tiếp, TCA và chấm theo hành vi hội thoại.
 
 \begin{figure}[H]
   \centering
@@ -116,7 +116,7 @@ Hình~\ref{fig:ch4-demo-dataset-distribution} trình bày phân bố 1.127 bài 
   \label{fig:ch4-demo-dataset-distribution}
 \end{figure}
 
-Các nhóm thực nghiệm còn lại sử dụng tập kiểm thử phù hợp với từng trách nhiệm. Kiểm thử backend dùng dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Đánh giá đối sánh dùng 60 hồ sơ tác giả và 2.565 bài báo tổng hợp. Submission Autofill có thêm 48 trường hợp kiểm thử gợi ý chuyên đề; Submission Gating có 8 trường hợp kiểm thử luật và 24 trường hợp kiểm thử cảnh báo nội dung; Chatbot Agent có 40 hội thoại thuộc tám nhóm kịch bản. Phụ lục~\ref{AppendixC} trình bày phân bố dữ liệu, điều kiện chạy và quy trình chấm chi tiết.
+Các nhóm thực nghiệm còn lại sử dụng tập kiểm thử phù hợp với từng trách nhiệm. Kiểm thử backend dùng dữ liệu tổng hợp gồm 300 hội nghị, 15.000 bài nộp và 9.000 quan hệ phản biện viên--hội nghị. Đánh giá đối sánh dùng 60 hồ sơ tác giả và 2.565 bài báo tổng hợp. Tự động điền bài nộp (Submission Autofill) có thêm 48 trường hợp kiểm thử gợi ý chuyên đề; Kiểm tra trước khi nộp bài (Submission Gating) có 8 trường hợp kiểm thử luật và 24 trường hợp kiểm thử cảnh báo nội dung; Chatbot Agent có 40 hội thoại thuộc tám nhóm kịch bản. Phụ lục~\ref{AppendixC} trình bày phân bố dữ liệu, điều kiện chạy và quy trình chấm chi tiết.
 
 \subsection{Môi trường và tư liệu thực nghiệm}
 
@@ -154,7 +154,7 @@ Khảo sát sau sử dụng & Bảng hỏi theo vai trò sau khi người tham g
 
 Kiểm thử tải dùng k6 để tạo tải HTTP lên API và thu các chỉ số tích hợp về số yêu cầu, thời gian xử lý và tỷ lệ thất bại~\cite{ch4ref4}. Go microbenchmark chạy trực tiếp trên mã thuật toán theo cơ chế benchmark của gói \CodeBreak{testing}~\cite{ch4ref5}, nhằm tách thời gian xử lý và mức sử dụng bộ nhớ khỏi chi phí HTTP, cơ sở dữ liệu và mạng. Phép thử xếp hạng dùng phương pháp leave-one-out theo tác giả; phép thử phân công so sánh Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận.
 
-Các đầu ra AI được đánh giá theo ba cách. Submission Autofill được đối chiếu với siêu dữ liệu tham chiếu bằng Exact Match, F1 và ROUGE, trong đó ROUGE đo mức trùng lặp giữa văn bản tạo ra và văn bản tham chiếu~\cite{ch4ref9}; phần kiểm tra luật của Submission Gating được đối chiếu với phán quyết và mã luật dự kiến. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot được đánh giá bằng khung TCA gồm Truthfulness, Coverage và Additionality. Chatbot Agent được kiểm tra qua các kịch bản hội thoại theo vai trò, quyền truy cập và phạm vi hỗ trợ.
+Các đầu ra AI được đánh giá theo ba cách. Tự động điền bài nộp (Submission Autofill) được đối chiếu với siêu dữ liệu tham chiếu bằng Exact Match, F1 và ROUGE, trong đó ROUGE đo mức trùng lặp giữa văn bản tạo ra và văn bản tham chiếu~\cite{ch4ref9}; phần kiểm tra luật của Submission Gating được đối chiếu với phán quyết và mã luật dự kiến. Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) được đánh giá bằng khung TCA gồm Truthfulness, Coverage và Additionality. Chatbot Agent được kiểm tra qua các kịch bản hội thoại theo vai trò, quyền truy cập và phạm vi hỗ trợ.
 
 TCA là phép chấm tự động mang tính thăm dò. Truthfulness ước lượng tỷ lệ mệnh đề có bằng chứng hỗ trợ; Coverage đo mức trùng khớp với nội dung tham chiếu do con người tạo; Additionality đo tỷ lệ mệnh đề có căn cứ nhưng không trùng trực tiếp với tham chiếu. Phương pháp này chưa được hiệu chuẩn bằng nhãn chuyên gia, nên các chỉ số chỉ mô tả quan hệ giữa mệnh đề và bằng chứng, không trực tiếp đo tính hữu ích học thuật.
 
@@ -285,7 +285,7 @@ Cơ chế phát hiện xung đột lợi ích gồm kiểm tra tự gán, quan h
 
 \subsection{Submission Autofill và Submission Gating}
 
-Trên 1.127 bài, Submission Autofill đạt F1 theo token của tiêu đề 98,20\%, F1 từ khóa 92,77\% và F1 tác giả 83,49\%. Tỷ lệ hoàn tất trường bắt buộc đạt 86,93\%. Các trường ngắn và có cấu trúc rõ đạt mức khớp cao hơn trường có cấu trúc phức tạp. Hình~\ref{fig:ch4-autofill-quality} minh họa sự khác biệt giữa các nhóm trường. Giá trị thấp nhất bằng 0 ở một số trường cho thấy luồng có những trường hợp thất bại hoàn toàn; hệ thống vì vậy chỉ nên tạo bản nháp để Tác giả kiểm tra và chỉnh sửa.
+Trên 1.127 bài, chức năng Tự động điền bài nộp (Submission Autofill) đạt F1 theo token của tiêu đề 98,20\%, F1 từ khóa 92,77\% và F1 tác giả 83,49\%. Tỷ lệ hoàn tất trường bắt buộc đạt 86,93\%. Các trường ngắn và có cấu trúc rõ đạt mức khớp cao hơn trường có cấu trúc phức tạp. Hình~\ref{fig:ch4-autofill-quality} minh họa sự khác biệt giữa các nhóm trường. Giá trị thấp nhất bằng 0 ở một số trường cho thấy luồng có những trường hợp thất bại hoàn toàn; hệ thống vì vậy chỉ nên tạo bản nháp để Tác giả kiểm tra và chỉnh sửa.
 
 \begin{figure}[H]
   \centering
@@ -300,7 +300,7 @@ Submission Gating tách hai tuyến đánh giá. Tuyến kiểm tra luật cố 
 
 \subsection{Reviewer Initial Analysis}
 
-Reviewer Initial Analysis tạo bản định hướng trước khi Phản biện viên viết nhận xét. Theo phép chấm TCA, tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn Truthfulness của điểm cần lưu ý đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Coverage đạt 4,49\% và Additionality đạt 92,23\%; hai chỉ số này không trực tiếp đo mức độ mới hoặc hữu ích của nội dung bổ sung.
+Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng trước khi Phản biện viên viết nhận xét. Theo phép chấm TCA, tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn Truthfulness của điểm cần lưu ý đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Coverage đạt 4,49\% và Additionality đạt 92,23\%; hai chỉ số này không trực tiếp đo mức độ mới hoặc hữu ích của nội dung bổ sung.
 
 \begin{figure}[H]
   \centering
@@ -313,7 +313,7 @@ Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc tron
 
 \subsection{Review Quality Auditor}
 
-Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
+Trên 1.127 bài, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
 
 Theo TCA, Truthfulness so với bản phản biện đạt 58,28\%, tỷ lệ hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Kết quả cho thấy Review Quality Auditor phù hợp với vai trò hiển thị các điểm cần kiểm tra trước khi nộp. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
 
@@ -385,7 +385,7 @@ Các luồng xử lý được đo theo những đơn vị khác nhau: Submissio
   \label{fig:ch4-resource-tokens}
 \end{figure}
 
-Hình~\ref{fig:ch4-resource-ops-mode} chuyển các mức độ trễ quan sát được thành khuyến nghị về cách tổ chức vận hành. Đây là khuyến nghị thiết kế dựa trên độ trễ và đặc điểm phản hồi của từng luồng, không phải kết quả so sánh giữa các phương án triển khai thực tế. Nhánh kiểm tra luật của Submission Gating có thể chạy đồng bộ. Nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot có các trường hợp vượt 100 giây, nên phù hợp hơn với cơ chế chạy nền hoặc chạy trước. Chatbot Agent cần phản hồi từng phần và hiển thị trạng thái tra cứu vì thời gian đến token đầu tiên chỉ đạt 2,36 giây, trong khi câu trả lời hoàn chỉnh bắt đầu sau trung bình 23,02 giây.
+Hình~\ref{fig:ch4-resource-ops-mode} chuyển các mức độ trễ quan sát được thành khuyến nghị về cách tổ chức vận hành. Đây là khuyến nghị thiết kế dựa trên độ trễ và đặc điểm phản hồi của từng luồng, không phải kết quả so sánh giữa các phương án triển khai thực tế. Nhánh kiểm tra luật của chức năng Kiểm tra trước khi nộp bài (Submission Gating) có thể chạy đồng bộ. Nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot có các trường hợp vượt 100 giây, nên phù hợp hơn với cơ chế chạy nền hoặc chạy trước. Chatbot Agent cần phản hồi từng phần và hiển thị trạng thái tra cứu vì thời gian đến token đầu tiên chỉ đạt 2,36 giây, trong khi câu trả lời hoàn chỉnh bắt đầu sau trung bình 23,02 giây.
 
 \begin{figure}[H]
   \centering
@@ -418,7 +418,7 @@ Bảng~\ref{tab:ch4-demo-uat} tổng hợp kết quả khảo sát theo ba vai t
   Chủ tọa & 8 & 4,38/5; 7/8 tích cực & 8/8 phản hồi tích cực về theo dõi tiến độ; 7/8 phản hồi tích cực trong câu hỏi gộp về nhóm công cụ AI \\ \hline
 \end{longtable}
 
-Ở nhóm Tác giả, Submission Autofill nhận phản hồi tích cực nhất, phù hợp với kết quả đối sánh siêu dữ liệu. Tuy nhiên, khảo sát chỉ đo cảm nhận giảm thao tác hoặc tiết kiệm thời gian, không đo số phút thực tế. Ở nhóm Phản biện viên, câu hỏi gộp nhiều thành phần nên không thể quy kết quả riêng cho Reviewer Initial Analysis. Ở nhóm Chủ tọa, mức độ sử dụng các tính năng không đồng đều và câu hỏi dùng mẫu số theo từng mục; kết quả vì vậy không đánh giá riêng Chair Decision Copilot hoặc chất lượng quyết định.
+Ở nhóm Tác giả, chức năng Tự động điền bài nộp (Submission Autofill) nhận phản hồi tích cực nhất, phù hợp với kết quả đối sánh siêu dữ liệu. Tuy nhiên, khảo sát chỉ đo cảm nhận giảm thao tác hoặc tiết kiệm thời gian, không đo số phút thực tế. Ở nhóm Phản biện viên, câu hỏi gộp nhiều thành phần nên không thể quy kết quả riêng cho chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis). Ở nhóm Chủ tọa, mức độ sử dụng các tính năng không đồng đều và câu hỏi dùng mẫu số theo từng mục; kết quả vì vậy không đánh giá riêng chức năng Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) hoặc chất lượng quyết định.
 
 Toàn bộ mẫu có 73/91 người tham gia cho biết sẵn sàng giới thiệu nền tảng. Tỷ lệ này chịu ảnh hưởng lớn từ nhóm Tác giả, vốn chiếm 83,5\% mẫu. UAT cung cấp bằng chứng cảm nhận ban đầu về tính hữu ích, đồng thời nhấn mạnh nhu cầu giữ quyền kiểm tra, sửa và bỏ qua đầu ra AI. Phụ lục~\ref{appc:uat} trình bày nguồn gốc và giới hạn truy vết của dữ liệu khảo sát.
 
@@ -455,8 +455,8 @@ Trải nghiệm người dùng & 91 phản hồi gồm 76 Tác giả, 7 Phản b
 \end{longtable}
 \endgroup
 
-Kết quả kỹ thuật và UAT cùng cho thấy Submission Autofill có thể hỗ trợ nhập liệu, nhưng quá trình kiểm thử chưa đo trực tiếp số thao tác hoặc thời gian tiết kiệm được. Các phép truy hồi chủ đề và TCA cung cấp chỉ số gián tiếp; chúng không xác nhận mức độ phù hợp của phản biện viên, chất lượng quyết định học thuật hoặc tính hữu ích theo đánh giá của chuyên gia. Với Review Quality Auditor, các phát hiện được hiển thị để Phản biện viên xem xét và chỉnh sửa bản phản biện; trạng thái \textit{block} không ngăn thao tác nộp. Tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%, nên Phản biện viên vẫn phải kiểm tra nội dung phát hiện trước khi sử dụng.
+Kết quả kỹ thuật và UAT cùng cho thấy chức năng Tự động điền bài nộp (Submission Autofill) có thể hỗ trợ nhập liệu, nhưng quá trình kiểm thử chưa đo trực tiếp số thao tác hoặc thời gian tiết kiệm được. Các phép truy hồi chủ đề và TCA cung cấp chỉ số gián tiếp; chúng không xác nhận mức độ phù hợp của phản biện viên, chất lượng quyết định học thuật hoặc tính hữu ích theo đánh giá của chuyên gia. Với chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor), các phát hiện được hiển thị để Phản biện viên xem xét và chỉnh sửa bản phản biện; trạng thái \textit{block} không ngăn thao tác nộp. Tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%, nên Phản biện viên vẫn phải kiểm tra nội dung phát hiện trước khi sử dụng.
 
 Các giới hạn chính gồm thiếu nhãn chuyên gia cho một số luồng, dữ liệu đối sánh tổng hợp, phạm vi bài báo chủ yếu bằng tiếng Anh, thiếu thử nghiệm chạy bền và thử nghiệm chủ động gây lỗi, cùng khả năng truy vết chưa đầy đủ của UAT ở nhóm Chủ tọa. Bộ thực thi đạt tỷ lệ hoàn tất 97,34\%; 30 bài không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy benchmark được giữ trong thống kê vận hành nhưng không được đưa vào phép chấm TCA. Cơ chế phân quyền cấp ứng dụng cũng chưa cung cấp bằng chứng về chính sách lưu giữ, sử dụng và khu vực lưu trữ dữ liệu của nhà cung cấp AI.
 
-Tóm lại, Chương 4 xác nhận hiệu năng của các endpoint đã chọn, mức độ khớp của siêu dữ liệu do Submission Autofill tạo và hành vi của bộ kiểm thử luật trong cấu hình thử nghiệm. Đánh giá đối sánh, TCA, Chatbot Agent và UAT cung cấp bằng chứng theo phạm vi hẹp hơn. Các kết quả chưa xác nhận chất lượng của toàn bộ cơ chế phát hiện xung đột lợi ích đa tầng, độ chính xác của quyết định học thuật hoặc mức độ sẵn sàng triển khai trong một hội nghị thực tế.
+Tóm lại, Chương 4 xác nhận hiệu năng của các endpoint đã chọn, mức độ khớp của siêu dữ liệu do chức năng Tự động điền bài nộp (Submission Autofill) tạo và hành vi của bộ kiểm thử luật trong cấu hình thử nghiệm. Đánh giá đối sánh, TCA, Chatbot Agent và UAT cung cấp bằng chứng theo phạm vi hẹp hơn. Các kết quả chưa xác nhận chất lượng của toàn bộ cơ chế phát hiện xung đột lợi ích đa tầng, độ chính xác của quyết định học thuật hoặc mức độ sẵn sàng triển khai trong một hội nghị thực tế.

@@ -304,9 +304,9 @@ Cuối cùng, Hình~\ref{fig:ch3-demo-uc01-committee} thể hiện tab hội đ�
 
 \subsubsection{UC-02. Hoàn tất và kiểm tra bài nộp}
 
-Tác giả tạo bản nháp, tải bản thảo và có thể dùng Submission Autofill để trích xuất siêu dữ liệu cùng gợi ý chuyên đề trong danh sách hợp lệ. Tác giả kiểm tra, chỉnh sửa thông tin, khai báo đồng tác giả và xung đột lợi ích trước khi Submission Gating kiểm tra tệp, chính sách và điều kiện gửi bài. Trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục.
+Tác giả tạo bản nháp, tải bản thảo và có thể dùng chức năng Tự động điền bài nộp (Submission Autofill) để trích xuất siêu dữ liệu cùng gợi ý chuyên đề trong danh sách hợp lệ. Tác giả kiểm tra, chỉnh sửa thông tin, khai báo đồng tác giả và xung đột lợi ích trước khi chức năng Kiểm tra trước khi nộp bài (Submission Gating) kiểm tra tệp, chính sách và điều kiện gửi bài. Trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục.
 
-Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản thảo (trái) cùng kết quả trích xuất thông tin mà Submission Autofill trả về (phải) để Tác giả kiểm tra và chỉnh sửa.
+Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản thảo (trái) cùng kết quả trích xuất thông tin mà chức năng Tự động điền bài nộp (Submission Autofill) trả về (phải) để Tác giả kiểm tra và chỉnh sửa.
 
 \begin{figure}[H]
 \centering
@@ -331,7 +331,7 @@ Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết qu�
 \label{fig:ch3-demo-uc02-gating}
 \end{figure}
 
-Song song đó, Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện khai báo đồng tác giả và xung đột lợi ích mà Tác giả hoàn tất trước khi Submission Gating kiểm tra.
+Song song đó, Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện khai báo đồng tác giả và xung đột lợi ích mà Tác giả hoàn tất trước khi chức năng Kiểm tra trước khi nộp bài (Submission Gating) kiểm tra.
 
 \begin{figure}[H]
 \centering
@@ -396,7 +396,7 @@ Sau khi phân công được tạo, Hình~\ref{fig:ch3-demo-uc04-accept-deny} ch
 
 \subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
-Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Reviewer Initial Analysis cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, Review Quality Auditor rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện mức \textit{blocking} được làm nổi bật hơn mức \textit{warning} để Phản biện viên ưu tiên xem xét; cả hai mức đều không ngăn thao tác gửi bản phản biện. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
+Phản biện viên mở bài được phân công, đọc bản thảo và nhập điểm, nhận xét, khuyến nghị cùng mức độ tự tin. Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) cung cấp bản định hướng ban đầu để tham khảo. Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) rà soát mức độ đầy đủ, cụ thể và nhất quán của bản nháp. Phát hiện mức \textit{blocking} được làm nổi bật hơn mức \textit{warning} để Phản biện viên ưu tiên xem xét; cả hai mức đều không ngăn thao tác gửi bản phản biện. Phản biện viên đối chiếu đầu ra với bài gốc và chịu trách nhiệm về bản phản biện cuối cùng.
 
 Hình~\ref{fig:ch3-demo-uc05-workspace1} thể hiện không gian đọc bài và soạn phản biện của Phản biện viên.
 
@@ -520,7 +520,7 @@ Sau khi chủ đề được tạo, Hình~\ref{fig:ch3-demo-uc08-chat} thể hi�
 
 \subsubsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
-Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chair Decision Copilot tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng.
+Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chức năng Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng.
 
 Hình~\ref{fig:ch3-demo-uc09} minh họa giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa.
 
@@ -623,7 +623,7 @@ Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo gi
 \end{longtable}
 \endgroup
 
-Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện đầu vào cùng mã chính sách cho mỗi lần chạy, còn Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa; Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
+Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Chức năng Kiểm tra trước khi nộp bài (Submission Gating) ghi mã nhận diện đầu vào cùng mã chính sách cho mỗi lần chạy, còn Kiểm tra chất lượng nhận xét (Review Quality Auditor) lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Chức năng Tự động điền bài nộp (Submission Autofill) trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa; Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
 
 \section{Cơ chế nghiệp vụ và thuật toán xác định}
 \label{sec:ch3-demo-deterministic}
@@ -680,7 +680,7 @@ Nếu Neo4j chưa được cấu hình, hệ thống tiếp tục bằng các ng
 \section{Giải pháp AI}
 \label{sec:ch3-demo-ai}
 
-AI được tích hợp vào sáu luồng hỗ trợ: Submission Autofill hỗ trợ nhập liệu; Submission Gating hỗ trợ kiểm tra bài nộp; Reviewer Initial Analysis hỗ trợ định hướng đọc; Review Quality Auditor hỗ trợ rà soát bản nháp; Chair Decision Copilot hỗ trợ tổng hợp bằng chứng; Chatbot Agent hỗ trợ truy vấn dữ liệu.
+AI được tích hợp vào sáu luồng hỗ trợ: Tự động điền bài nộp (Submission Autofill); Kiểm tra trước khi nộp bài (Submission Gating) hỗ trợ kiểm tra bài nộp; Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) hỗ trợ định hướng đọc; Kiểm tra chất lượng nhận xét (Review Quality Auditor) hỗ trợ rà soát bản nháp; Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) hỗ trợ tổng hợp bằng chứng; Chatbot Agent hỗ trợ truy vấn dữ liệu.
 
 Bảng~\ref{tab:ch3-demo-ai-overview} tóm tắt các đầu ra và điểm kiểm soát của các luồng AI trong thiết kế hệ thống.
 
@@ -767,4 +767,4 @@ Chương 3 đã trình bày cách ConferenceSpace phân bổ trách nhiệm gi�
 
 Luận điểm thiết kế trung tâm là hệ thống phải tách các quyết định cần kết quả xác định khỏi luồng tạo nội dung bằng mô hình ngôn ngữ. Đối sánh Phản biện viên và phát hiện xung đột lợi ích có đầu vào, công thức, ràng buộc và cách xử lý riêng; AI chỉ hỗ trợ nhập liệu, đọc, rà soát, tổng hợp bằng chứng và truy vấn. Người dùng có thẩm quyền vẫn xác nhận dữ liệu nghiệp vụ và quyết định học thuật.
 
-Thiết kế cũng xác định các giới hạn và ranh giới cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Review Quality Auditor chỉ làm nổi bật phát hiện mức \textit{blocking} hơn mức \textit{warning}; các nhãn này không ngăn Phản biện viên gửi bản phản biện. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
+Thiết kế cũng xác định các giới hạn và ranh giới cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Kiểm tra chất lượng nhận xét (Review Quality Auditor) chỉ làm nổi bật phát hiện mức \textit{blocking} hơn mức \textit{warning}; các nhãn này không ngăn Phản biện viên gửi bản phản biện. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
