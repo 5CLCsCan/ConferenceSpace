@@ -613,8 +613,8 @@
       "rebuttal": {
         "openingDiscussion": "Opening discussion...",
         "discussionOpen": "Discussion is open for this conference.",
-          "unacknowledgedOne": "{count} point unacknowledged",
-          "unacknowledgedOther": "{count} points unacknowledged",
+        "unacknowledgedOne": "{count} point unacknowledged",
+        "unacknowledgedOther": "{count} points unacknowledged",
         "hide": "Hide",
         "update": "Update"
       },
@@ -768,129 +768,7 @@
           }
         },
         "public_guide": {
-          "description": "Choose a role to walk through ConferenceSpace step by step, from the first screen to the final action in each workflow.",
-          "label": "Quick guide",
-          "nav_label": "Guide",
-          "roles": {
-            "author": {
-              "description": "Authors start from conference discovery, choose a relevant CFP, and submit through a multi-step form.",
-              "label": "Author",
-              "steps": {
-                "conferences": {
-                  "bullets": [
-                    "Browse conferences currently open for submissions.",
-                    "Check deadlines, tracks, topics, and submission policy.",
-                    "Start only when the submission window is still open."
-                  ],
-                  "title": "Find the right conference"
-                },
-                "final": {
-                  "bullets": [
-                    "Read reviews before writing a rebuttal.",
-                    "If accepted, check the camera-ready requirements.",
-                    "Watch notifications so response deadlines are not missed."
-                  ],
-                  "title": "Submit rebuttal or camera-ready"
-                },
-                "manage": {
-                  "bullets": [
-                    "Track draft, submitted, under review, and decision states.",
-                    "Edit or withdraw when deadlines still allow it.",
-                    "Open submission detail to read reviews and discussions."
-                  ],
-                  "title": "Manage submitted papers"
-                },
-                "submit": {
-                  "bullets": [
-                    "Enter title, abstract, keywords, and track.",
-                    "Add co-authors and declare conflicts when needed.",
-                    "Upload the PDF required by the conference."
-                  ],
-                  "title": "Create a new submission"
-                }
-              },
-              "title": "Submit papers and track outcomes"
-            },
-            "chair": {
-              "description": "Chairs manage the conference from opening the CFP through reviewer assignment and final decisions.",
-              "label": "Chair",
-              "steps": {
-                "assign": {
-                  "bullets": [
-                    "Invite committee members or reviewers by email.",
-                    "Open submissions/assignments to assign reviewers.",
-                    "Check workload, keyword match, and COI before confirming."
-                  ],
-                  "title": "Invite reviewers and assign papers"
-                },
-                "create": {
-                  "bullets": [
-                    "Enter conference name, acronym, description, and format.",
-                    "Configure topics, tracks, review type, and deadlines.",
-                    "Review policy settings before publishing the CFP."
-                  ],
-                  "title": "Create the conference and CFP"
-                },
-                "dashboard": {
-                  "bullets": [
-                    "Review conference, submission, and review counts.",
-                    "Track upcoming deadlines and work needing attention.",
-                    "Reopen active conferences from the dashboard."
-                  ],
-                  "title": "Open the Chair dashboard"
-                },
-                "decision": {
-                  "bullets": [
-                    "Track submitted reviews and overdue reviewers.",
-                    "Open rebuttal if the conference includes author response.",
-                    "Decide after checking reviews, discussion, and COI."
-                  ],
-                  "title": "Track reviews and make decisions"
-                }
-              },
-              "title": "Run the full conference workflow"
-            },
-            "reviewer": {
-              "description": "Reviewers handle invitations, inspect assigned papers, and submit feedback against conference criteria.",
-              "label": "Reviewer",
-              "steps": {
-                "assignment": {
-                  "bullets": [
-                    "Open the assigned paper to inspect metadata and files.",
-                    "Read the review criteria before scoring.",
-                    "Note strengths, weaknesses, and questions for the authors."
-                  ],
-                  "title": "Read the assignment and briefing"
-                },
-                "dashboard": {
-                  "bullets": [
-                    "Check new invitations and pending assignments.",
-                    "Prioritize the closest review deadlines.",
-                    "Use the dashboard to return to unfinished reviews."
-                  ],
-                  "title": "Open the Reviewer dashboard"
-                },
-                "invitations": {
-                  "bullets": [
-                    "Read conference details, deadline, and paper summary.",
-                    "Accept when expertise fits and there is no conflict.",
-                    "Decline if unavailable, outside expertise, or conflicted."
-                  ],
-                  "title": "Accept or decline invitations"
-                },
-                "review": {
-                  "bullets": [
-                    "Score each criterion and choose a recommendation.",
-                    "Write clear, evidence-based strengths and weaknesses.",
-                    "After rebuttal, update the review if the conference requires it."
-                  ],
-                  "title": "Submit the review"
-                }
-              },
-              "title": "Review assigned papers"
-            }
-          },
-          "title": "See how ConferenceSpace works"
+          "nav_label": "Guide"
         },
         "text_a_single_registered_account_can_operate": "A single registered account can operate as Author, Reviewer, or Chair simultaneously. Switch active role context at any time — permissions and workspaces adjust accordingly.",
         "text_academic_conference_operations_platform": "Academic Conference Operations Platform",
@@ -988,6 +866,12 @@
               ]
             }
           }
+        },
+        "guide_teaser": {
+          "label": "Quick guide",
+          "title": "See how ConferenceSpace works",
+          "description": "Three roles, one account. Here is what each of them does day to day — open the full guide for the screen-by-screen walkthrough.",
+          "cta": "Open the full guide"
         }
       },
       "profile": {
@@ -1295,6 +1179,222 @@
             "placeholder_type_domain": "Type a domain and press Enter",
             "text_add": "Add",
             "text_create_account_join_conference": "Create account & join conference"
+          }
+        }
+      },
+      "guide": {
+        "page": {
+          "back_home": "Back to home",
+          "eyebrow": "Product guide",
+          "title": "Walk through ConferenceSpace, one role at a time",
+          "description": "Every conference runs through the same three roles. Pick yours to see the exact screens you will use, what each one is for, and where the platform does the heavy lifting for you.",
+          "roles_label": "Choose a role",
+          "step_label": "Step",
+          "steps_label": "Steps",
+          "capability_label": "What the platform does here",
+          "outro": {
+            "label": "Get started",
+            "title": "Ready to run your conference?",
+            "description": "One account covers all three roles. Register once and switch between chairing, submitting, and reviewing without a second login."
+          },
+          "roles": {
+            "chair": {
+              "label": "Chair",
+              "title": "Run the full conference workflow",
+              "description": "Chairs open the call for papers, build the review committee, assign submissions, and close the loop with acceptance decisions.",
+              "highlights": [
+                "Publish a CFP with tracks, topics, and deadlines",
+                "Assign reviewers with match scores and conflict checks",
+                "Decide with reviews, scores, and discussion in one view"
+              ],
+              "steps": {
+                "dashboard": {
+                  "title": "Open the Chair dashboard",
+                  "bullets": [
+                    "See submission, review, and decision counts for every conference you run.",
+                    "Spot the deadlines coming up and the work still waiting on you.",
+                    "Jump straight back into any active conference."
+                  ],
+                  "capability": "The dashboard aggregates progress across all your conferences, so overdue reviews and stalled submissions surface without you going looking for them."
+                },
+                "create": {
+                  "title": "Create the conference and publish the CFP",
+                  "bullets": [
+                    "Enter the name, acronym, dates, and format in a guided six-step wizard.",
+                    "Define tracks, topics, review type, and every submission deadline.",
+                    "Review the policy settings once, then publish the call for papers."
+                  ],
+                  "capability": "Topics and tracks you define here become the matching vocabulary the platform later uses to rank reviewers against each submission."
+                },
+                "assign": {
+                  "title": "Invite reviewers and assign papers",
+                  "bullets": [
+                    "Invite committee members by email, or pick from suggested reviewers already on the platform.",
+                    "Auto-assign a whole track, or assign paper by paper.",
+                    "Check workload balance before confirming the assignment."
+                  ],
+                  "capability": "Reviewers are ranked by expertise overlap with the paper, and conflicts of interest are flagged from the co-authorship graph before you can confirm an assignment."
+                },
+                "decision": {
+                  "title": "Track reviews and make decisions",
+                  "bullets": [
+                    "Watch reviews land in real time and chase the ones running late.",
+                    "Open a rebuttal round when the conference gives authors a right of reply.",
+                    "Accept or reject with the scores, reviews, and discussion side by side."
+                  ],
+                  "capability": "Scores and recommendations are aggregated per submission, and reviews that look thin or inconsistent are flagged so a weak review does not quietly decide a paper."
+                }
+              }
+            },
+            "author": {
+              "label": "Author",
+              "title": "Submit papers and track outcomes",
+              "description": "Authors find a conference worth submitting to, build the submission step by step, then follow it through review to a decision.",
+              "highlights": [
+                "Browse open calls for papers by topic and deadline",
+                "Build a submission in a guided multi-step form",
+                "Follow reviews, rebuttal, and camera-ready in one place"
+              ],
+              "steps": {
+                "conferences": {
+                  "title": "Find the right conference",
+                  "bullets": [
+                    "Browse conferences currently open for submissions.",
+                    "Check the deadlines, tracks, topics, and submission policy.",
+                    "Start only while the submission window is still open."
+                  ],
+                  "capability": "Open calls are filtered by topic and deadline, so you see what you can still submit to rather than the full archive."
+                },
+                "submit": {
+                  "title": "Create a new submission",
+                  "bullets": [
+                    "Enter the title, abstract, keywords, and target track.",
+                    "Add co-authors and declare any conflicts of interest.",
+                    "Upload the PDF in the format the conference requires."
+                  ],
+                  "capability": "The submission is checked on upload — required metadata, file format, and declared conflicts — so problems surface before the paper reaches the chair."
+                },
+                "manage": {
+                  "title": "Manage submitted papers",
+                  "bullets": [
+                    "Track each paper through draft, submitted, under review, and decided.",
+                    "Edit or withdraw while the deadline still allows it.",
+                    "Open a submission to read its reviews and join the discussion."
+                  ],
+                  "capability": "Status changes and new reviews arrive as real-time notifications, so you find out when something moves rather than by refreshing."
+                },
+                "final": {
+                  "title": "Submit a rebuttal or camera-ready",
+                  "bullets": [
+                    "Read every review in full before writing your response.",
+                    "Answer the reviewers point by point in the rebuttal window.",
+                    "If accepted, upload the camera-ready version to the stated spec."
+                  ],
+                  "capability": "Rebuttal and camera-ready windows are enforced against the conference timeline, and each deadline is announced before it closes."
+                }
+              }
+            },
+            "reviewer": {
+              "label": "Reviewer",
+              "title": "Review assigned papers",
+              "description": "Reviewers accept the invitations that fit, work through assigned papers with the conference criteria in front of them, and submit structured feedback.",
+              "highlights": [
+                "Accept or decline invitations with the context to judge fit",
+                "Start from an AI briefing on each assigned paper",
+                "Score against the conference's own review criteria"
+              ],
+              "steps": {
+                "dashboard": {
+                  "title": "Open the Reviewer dashboard",
+                  "bullets": [
+                    "See new invitations and every assignment still open.",
+                    "Work down the list by review deadline.",
+                    "Pick up any draft review exactly where you left it."
+                  ],
+                  "capability": "Your workload is tracked across every conference you review for, so a deadline in one does not get lost behind another."
+                },
+                "invitations": {
+                  "title": "Accept or decline invitations",
+                  "bullets": [
+                    "Read the conference details, the deadline, and the paper summary first.",
+                    "Accept when the topic fits your expertise and there is no conflict.",
+                    "Decline if you are unavailable, out of your area, or conflicted."
+                  ],
+                  "capability": "Conflicts of interest with the authors are detected from the co-authorship graph and shown on the invitation, before you commit to the review."
+                },
+                "assignment": {
+                  "title": "Read the assignment and briefing",
+                  "bullets": [
+                    "Open the paper with its metadata, files, and track in one view.",
+                    "Read the review criteria before you start scoring.",
+                    "Note the strengths, weaknesses, and questions you want to raise."
+                  ],
+                  "capability": "An AI briefing summarizes the paper's contribution and how it sits against related work, so you start the review with context rather than a cold PDF."
+                },
+                "review": {
+                  "title": "Submit the review",
+                  "bullets": [
+                    "Score each criterion the conference defined and give a recommendation.",
+                    "Back the strengths and weaknesses with evidence from the paper.",
+                    "Update the review after the rebuttal when the conference asks for it."
+                  ],
+                  "capability": "Reviews are checked for completeness and consistency between the scores and the written justification, so weak feedback gets caught before the chair relies on it."
+                }
+              }
+            }
+          },
+          "ai": {
+            "label": "AI assistance",
+            "title": "The parts nobody wants to do by hand",
+            "description": "ConferenceSpace uses AI where the work is repetitive or easy to get wrong — drafting, screening, matching, and checking. Every output is a suggestion you can inspect and edit. Nothing is decided for you.",
+            "featured": {
+              "agent": {
+                "tag": "All roles",
+                "title": "Conference agent",
+                "description": "An assistant that works inside the app, not beside it. It reads the page you are on, answers questions about your conference, and in agentic mode can navigate and fill the interface for you while you watch."
+              },
+              "autofill": {
+                "tag": "Author",
+                "title": "Submission autofill",
+                "description": "Upload the manuscript and get a draft submission back: title, abstract, keywords, paper type, authors, and a ranked shortlist of the tracks it fits. Review each field, edit what you disagree with, then apply it to the form."
+              },
+              "suggestions": {
+                "tag": "Chair",
+                "title": "Reviewer suggestions",
+                "description": "Ranks people who are not yet on your committee by how well their expertise overlaps the conference topics, showing the matched topics behind every score so you can judge the recommendation instead of trusting it."
+              },
+              "briefing": {
+                "tag": "Reviewer",
+                "title": "Reviewer briefing",
+                "description": "A neutral pre-read of an assigned paper: what it claims, what evidence is visible, and which passages deserve a careful look before you review."
+              },
+              "quality": {
+                "tag": "Reviewer",
+                "title": "Review quality audit",
+                "description": "Checks a draft review for contradictions between the scores, the recommendation, and the written justification — and flags claims the reviewer never supported."
+              },
+              "copilot": {
+                "tag": "Chair",
+                "title": "Decision brief",
+                "description": "Summarizes the record for a chair without deciding: where reviewers agree, where they do not, and which minority concerns should not be smoothed away."
+              }
+            },
+            "more": {
+              "gating": {
+                "title": "Submission screening",
+                "description": "Screens incoming papers against your conference's own policy text and surfaces desk-reject candidates with the evidence for each finding."
+              },
+              "coi": {
+                "title": "Conflict detection",
+                "description": "Combines declared conflicts, self-authorship, and the co-authorship graph to flag reviewer–author conflicts before an assignment is confirmed."
+              },
+              "tracks": {
+                "title": "Track and keyword fit",
+                "description": "Extracts research keywords from a manuscript and ranks which of the conference's tracks it belongs in."
+              }
+            },
+            "note": "Suggestions are drafts, not decisions. Authors, reviewers, and chairs review and edit every AI output before it counts.",
+            "jump": "See what the AI does"
           }
         }
       }

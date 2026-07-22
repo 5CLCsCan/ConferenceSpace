@@ -613,8 +613,8 @@
       "rebuttal": {
         "openingDiscussion": "Đang mở thảo luận...",
         "discussionOpen": "Thảo luận đã mở cho hội nghị này.",
-          "unacknowledgedOne": "{count} điểm chưa xác nhận",
-          "unacknowledgedOther": "{count} điểm chưa xác nhận",
+        "unacknowledgedOne": "{count} điểm chưa xác nhận",
+        "unacknowledgedOther": "{count} điểm chưa xác nhận",
         "hide": "Ẩn",
         "update": "Cập nhật"
       },
@@ -768,129 +768,7 @@
           }
         },
         "public_guide": {
-          "description": "Chọn vai trò để xem từng bước sử dụng ConferenceSpace, từ màn hình đầu tiên đến thao tác cuối cùng trong quy trình.",
-          "label": "Hướng dẫn nhanh",
-          "nav_label": "Hướng dẫn",
-          "roles": {
-            "author": {
-              "description": "Author bắt đầu từ danh sách hội nghị, chọn CFP phù hợp rồi nộp bài qua form nhiều bước.",
-              "label": "Tác giả",
-              "steps": {
-                "conferences": {
-                  "bullets": [
-                    "Xem danh sách hội nghị đang mở.",
-                    "Kiểm tra deadline, track, topic và chính sách nhận bài.",
-                    "Chỉ bắt đầu nộp khi hội nghị còn mở submission."
-                  ],
-                  "title": "Tìm hội nghị phù hợp"
-                },
-                "final": {
-                  "bullets": [
-                    "Đọc review trước khi viết rebuttal.",
-                    "Nếu bài được nhận, kiểm tra yêu cầu camera-ready.",
-                    "Theo dõi thông báo để không bỏ lỡ deadline phản hồi."
-                  ],
-                  "title": "Gửi rebuttal hoặc camera-ready"
-                },
-                "manage": {
-                  "bullets": [
-                    "Theo dõi trạng thái draft, submitted, under review hoặc decision.",
-                    "Sửa hoặc rút bài khi deadline còn cho phép.",
-                    "Mở chi tiết bài nộp để xem review và discussion."
-                  ],
-                  "title": "Quản lý bài đã nộp"
-                },
-                "submit": {
-                  "bullets": [
-                    "Nhập title, abstract, keywords và chọn track.",
-                    "Thêm co-author và khai báo conflict nếu có.",
-                    "Tải file PDF đúng yêu cầu của hội nghị."
-                  ],
-                  "title": "Tạo submission mới"
-                }
-              },
-              "title": "Nộp bài và theo dõi kết quả"
-            },
-            "chair": {
-              "description": "Chair quản lý hội nghị từ lúc mở CFP, phân công reviewer đến khi công bố kết quả.",
-              "label": "Chủ trì",
-              "steps": {
-                "assign": {
-                  "bullets": [
-                    "Mời committee hoặc reviewer bằng email.",
-                    "Mở phần submissions/assignments để phân công reviewer.",
-                    "Kiểm tra workload, keyword match và COI trước khi xác nhận."
-                  ],
-                  "title": "Mời reviewer và phân công bài"
-                },
-                "create": {
-                  "bullets": [
-                    "Nhập tên hội nghị, acronym, mô tả và hình thức tổ chức.",
-                    "Thiết lập topic, track, review type và các mốc deadline.",
-                    "Kiểm tra policy trước khi publish CFP."
-                  ],
-                  "title": "Tạo hội nghị và cấu hình CFP"
-                },
-                "dashboard": {
-                  "bullets": [
-                    "Xem nhanh số lượng hội nghị, submission và review.",
-                    "Theo dõi deadline gần nhất và các việc cần xử lý.",
-                    "Mở lại hội nghị đang quản lý từ dashboard."
-                  ],
-                  "title": "Mở dashboard Chair"
-                },
-                "decision": {
-                  "bullets": [
-                    "Theo dõi review đã nộp và reviewer quá hạn.",
-                    "Mở rebuttal nếu hội nghị có vòng phản hồi tác giả.",
-                    "Ra quyết định sau khi kiểm tra review, discussion và COI."
-                  ],
-                  "title": "Theo dõi review và ra quyết định"
-                }
-              },
-              "title": "Điều phối toàn bộ hội nghị"
-            },
-            "reviewer": {
-              "description": "Reviewer xử lý lời mời, xem bài được giao và gửi phản biện theo tiêu chí của hội nghị.",
-              "label": "Phản biện",
-              "steps": {
-                "assignment": {
-                  "bullets": [
-                    "Mở paper được phân công để xem metadata và file.",
-                    "Đọc tiêu chí review trước khi chấm.",
-                    "Ghi chú điểm mạnh, điểm yếu và câu hỏi cần phản hồi."
-                  ],
-                  "title": "Đọc assignment và briefing"
-                },
-                "dashboard": {
-                  "bullets": [
-                    "Kiểm tra lời mời mới và assignment đang chờ.",
-                    "Ưu tiên xử lý các deadline gần nhất.",
-                    "Dùng dashboard để quay lại review chưa hoàn tất."
-                  ],
-                  "title": "Mở dashboard Reviewer"
-                },
-                "invitations": {
-                  "bullets": [
-                    "Đọc thông tin hội nghị, deadline và paper summary.",
-                    "Accept khi đúng chuyên môn và không có conflict.",
-                    "Decline nếu bận, lệch chuyên môn hoặc có COI."
-                  ],
-                  "title": "Nhận hoặc từ chối lời mời"
-                },
-                "review": {
-                  "bullets": [
-                    "Chấm điểm từng tiêu chí và chọn recommendation.",
-                    "Viết strengths/weaknesses rõ ràng, có căn cứ.",
-                    "Sau rebuttal, cập nhật review nếu hội nghị yêu cầu."
-                  ],
-                  "title": "Gửi review"
-                }
-              },
-              "title": "Phản biện bài được phân công"
-            }
-          },
-          "title": "Xem cách ConferenceSpace hoạt động"
+          "nav_label": "Hướng dẫn"
         },
         "text_a_single_registered_account_can_operate": "Một tài khoản có thể đồng thời là Tác giả, Phản biện hoặc Chủ trì. Bạn có thể chuyển vai trò bất kỳ lúc nào, và quyền cùng không gian làm việc sẽ tự điều chỉnh.",
         "text_academic_conference_operations_platform": "Nền tảng hoạt động hội nghị học thuật",
@@ -988,6 +866,12 @@
               ]
             }
           }
+        },
+        "guide_teaser": {
+          "label": "Hướng dẫn nhanh",
+          "title": "Xem cách ConferenceSpace hoạt động",
+          "description": "Ba vai trò, một tài khoản. Đây là công việc thường ngày của từng vai trò — mở hướng dẫn đầy đủ để xem chi tiết từng màn hình.",
+          "cta": "Mở hướng dẫn đầy đủ"
         }
       },
       "profile": {
@@ -1295,6 +1179,222 @@
             "placeholder_type_domain": "Nhập lĩnh vực và nhấn Enter",
             "text_add": "Thêm",
             "text_create_account_join_conference": "Tạo tài khoản và tham gia hội nghị"
+          }
+        }
+      },
+      "guide": {
+        "page": {
+          "back_home": "Về trang chủ",
+          "eyebrow": "Hướng dẫn sử dụng",
+          "title": "Tìm hiểu ConferenceSpace theo từng vai trò",
+          "description": "Mọi hội nghị đều vận hành qua ba vai trò. Chọn vai trò của bạn để xem đúng những màn hình sẽ dùng, mỗi màn hình dùng để làm gì, và chỗ nào hệ thống làm thay bạn.",
+          "roles_label": "Chọn vai trò",
+          "step_label": "Bước",
+          "steps_label": "Bước",
+          "capability_label": "Hệ thống hỗ trợ gì ở bước này",
+          "outro": {
+            "label": "Bắt đầu",
+            "title": "Sẵn sàng vận hành hội nghị của bạn?",
+            "description": "Một tài khoản dùng cho cả ba vai trò. Đăng ký một lần rồi chuyển qua lại giữa chủ trì, nộp bài và phản biện mà không cần đăng nhập lại."
+          },
+          "roles": {
+            "chair": {
+              "label": "Chủ trì",
+              "title": "Điều phối toàn bộ hội nghị",
+              "description": "Chair mở CFP, xây dựng hội đồng phản biện, phân công bài và khép lại quy trình bằng quyết định chấp nhận.",
+              "highlights": [
+                "Publish CFP kèm track, topic và các mốc deadline",
+                "Phân công reviewer theo độ phù hợp và cảnh báo COI",
+                "Ra quyết định với review, điểm số và discussion trên cùng một màn hình"
+              ],
+              "steps": {
+                "dashboard": {
+                  "title": "Mở dashboard Chair",
+                  "bullets": [
+                    "Xem số lượng submission, review và quyết định của mọi hội nghị bạn quản lý.",
+                    "Nắm các deadline sắp tới và phần việc còn chờ bạn xử lý.",
+                    "Quay lại ngay hội nghị đang hoạt động."
+                  ],
+                  "capability": "Dashboard tổng hợp tiến độ của tất cả hội nghị, nên review quá hạn hay submission bị đình trệ tự nổi lên mà bạn không phải đi tìm."
+                },
+                "create": {
+                  "title": "Tạo hội nghị và publish CFP",
+                  "bullets": [
+                    "Nhập tên, acronym, thời gian và hình thức tổ chức qua wizard sáu bước.",
+                    "Thiết lập track, topic, review type và từng mốc deadline nộp bài.",
+                    "Kiểm tra lại policy một lượt rồi publish CFP."
+                  ],
+                  "capability": "Topic và track khai báo ở đây trở thành bộ từ vựng mà hệ thống dùng về sau để xếp hạng mức phù hợp của reviewer với từng bài."
+                },
+                "assign": {
+                  "title": "Mời reviewer và phân công bài",
+                  "bullets": [
+                    "Mời committee qua email, hoặc chọn từ danh sách reviewer gợi ý sẵn có trên hệ thống.",
+                    "Auto-assign cho cả một track, hoặc phân công từng bài một.",
+                    "Kiểm tra cân bằng workload trước khi xác nhận phân công."
+                  ],
+                  "capability": "Reviewer được xếp hạng theo mức trùng khớp chuyên môn với bài báo, và xung đột lợi ích được cảnh báo từ đồ thị đồng tác giả trước khi bạn xác nhận."
+                },
+                "decision": {
+                  "title": "Theo dõi review và ra quyết định",
+                  "bullets": [
+                    "Theo dõi review nộp về theo thời gian thực và nhắc những người trễ hạn.",
+                    "Mở vòng rebuttal nếu hội nghị cho tác giả quyền phản hồi.",
+                    "Chấp nhận hoặc từ chối với điểm số, review và discussion đặt cạnh nhau."
+                  ],
+                  "capability": "Điểm số và đề xuất được tổng hợp theo từng bài, đồng thời những review sơ sài hoặc thiếu nhất quán được đánh dấu để một review yếu không âm thầm quyết định số phận bài báo."
+                }
+              }
+            },
+            "author": {
+              "label": "Tác giả",
+              "title": "Nộp bài và theo dõi kết quả",
+              "description": "Author tìm hội nghị phù hợp, dựng submission theo từng bước, rồi theo bài đó qua vòng review đến khi có quyết định.",
+              "highlights": [
+                "Duyệt các CFP đang mở theo topic và deadline",
+                "Dựng submission qua biểu mẫu nhiều bước có hướng dẫn",
+                "Theo dõi review, rebuttal và camera-ready ở cùng một nơi"
+              ],
+              "steps": {
+                "conferences": {
+                  "title": "Tìm hội nghị phù hợp",
+                  "bullets": [
+                    "Duyệt các hội nghị đang mở nhận bài.",
+                    "Kiểm tra deadline, track, topic và policy nộp bài.",
+                    "Chỉ bắt đầu khi cửa sổ nộp bài còn mở."
+                  ],
+                  "capability": "Các CFP đang mở được lọc theo topic và deadline, nên bạn thấy đúng những nơi còn nộp được thay vì toàn bộ danh sách cũ."
+                },
+                "submit": {
+                  "title": "Tạo submission mới",
+                  "bullets": [
+                    "Nhập tiêu đề, tóm tắt, từ khóa và track muốn gửi tới.",
+                    "Thêm đồng tác giả và khai báo xung đột lợi ích nếu có.",
+                    "Tải lên bản PDF đúng định dạng hội nghị yêu cầu."
+                  ],
+                  "capability": "Bài nộp được kiểm tra ngay khi tải lên — metadata bắt buộc, định dạng tệp và xung đột đã khai báo — nên lỗi lộ ra trước khi bài tới tay chair."
+                },
+                "manage": {
+                  "title": "Quản lý bài đã nộp",
+                  "bullets": [
+                    "Theo dõi từng bài qua các trạng thái nháp, đã nộp, đang review và đã có quyết định.",
+                    "Sửa hoặc rút bài khi deadline còn cho phép.",
+                    "Mở một submission để đọc review và tham gia discussion."
+                  ],
+                  "capability": "Thay đổi trạng thái và review mới về đều đẩy thông báo theo thời gian thực, nên bạn biết ngay khi có diễn biến thay vì phải vào kiểm tra."
+                },
+                "final": {
+                  "title": "Nộp rebuttal hoặc camera-ready",
+                  "bullets": [
+                    "Đọc trọn vẹn từng review trước khi viết phản hồi.",
+                    "Trả lời reviewer theo từng điểm trong thời gian mở rebuttal.",
+                    "Nếu được chấp nhận, tải lên bản camera-ready đúng yêu cầu định dạng."
+                  ],
+                  "capability": "Cửa sổ rebuttal và camera-ready được kiểm soát theo lịch hội nghị, và mỗi deadline đều được báo trước khi đóng."
+                }
+              }
+            },
+            "reviewer": {
+              "label": "Phản biện",
+              "title": "Phản biện các bài được phân công",
+              "description": "Reviewer nhận những lời mời phù hợp, xử lý bài được phân công với tiêu chí đánh giá ngay trước mắt, và nộp nhận xét có cấu trúc.",
+              "highlights": [
+                "Nhận hoặc từ chối lời mời với đủ thông tin để cân nhắc",
+                "Bắt đầu từ bản tóm tắt AI cho mỗi bài được phân công",
+                "Chấm điểm theo đúng bộ tiêu chí của hội nghị"
+              ],
+              "steps": {
+                "dashboard": {
+                  "title": "Mở dashboard Reviewer",
+                  "bullets": [
+                    "Xem lời mời mới và mọi phân công còn dang dở.",
+                    "Xử lý danh sách theo thứ tự deadline review.",
+                    "Mở lại bản nháp review đúng chỗ bạn đang bỏ dở."
+                  ],
+                  "capability": "Khối lượng công việc được theo dõi xuyên suốt mọi hội nghị bạn tham gia phản biện, nên deadline ở hội nghị này không bị khuất sau hội nghị khác."
+                },
+                "invitations": {
+                  "title": "Nhận hoặc từ chối lời mời",
+                  "bullets": [
+                    "Đọc thông tin hội nghị, deadline và tóm tắt bài báo trước đã.",
+                    "Nhận khi chủ đề đúng chuyên môn và không có xung đột.",
+                    "Từ chối nếu bạn bận, lệch chuyên môn hoặc có xung đột lợi ích."
+                  ],
+                  "capability": "Xung đột lợi ích với nhóm tác giả được phát hiện từ đồ thị đồng tác giả và hiển thị ngay trên lời mời, trước khi bạn cam kết nhận review."
+                },
+                "assignment": {
+                  "title": "Đọc phân công và bản tóm tắt",
+                  "bullets": [
+                    "Mở bài báo cùng metadata, tệp đính kèm và track trên một màn hình.",
+                    "Đọc bộ tiêu chí đánh giá trước khi bắt đầu chấm điểm.",
+                    "Ghi lại điểm mạnh, điểm yếu và câu hỏi bạn muốn đặt ra."
+                  ],
+                  "capability": "Bản tóm tắt AI nêu đóng góp chính của bài và vị trí của nó so với các công trình liên quan, để bạn bắt đầu review với ngữ cảnh thay vì một tệp PDF trắng."
+                },
+                "review": {
+                  "title": "Nộp bản review",
+                  "bullets": [
+                    "Chấm từng tiêu chí hội nghị đã định và đưa ra đề xuất.",
+                    "Dẫn chứng từ bài báo cho các điểm mạnh và điểm yếu bạn nêu.",
+                    "Cập nhật lại review sau vòng rebuttal khi hội nghị yêu cầu."
+                  ],
+                  "capability": "Review được kiểm tra mức độ đầy đủ và tính nhất quán giữa điểm số với phần lập luận, nên nhận xét yếu bị phát hiện trước khi chair dựa vào đó."
+                }
+              }
+            }
+          },
+          "ai": {
+            "label": "Hỗ trợ AI",
+            "title": "Những phần không ai muốn làm thủ công",
+            "description": "ConferenceSpace dùng AI ở những chỗ công việc lặp đi lặp lại hoặc dễ sai — soạn nháp, sàng lọc, ghép cặp và kiểm tra. Mọi kết quả đều là gợi ý bạn có thể xem lại và sửa. Không có gì được quyết định thay bạn.",
+            "featured": {
+              "agent": {
+                "tag": "Mọi vai trò",
+                "title": "Conference agent",
+                "description": "Một trợ lý làm việc bên trong ứng dụng chứ không tách rời. Nó đọc trang bạn đang mở, trả lời câu hỏi về hội nghị của bạn, và ở chế độ agentic có thể tự điều hướng và điền giao diện ngay trước mắt bạn."
+              },
+              "autofill": {
+                "tag": "Tác giả",
+                "title": "Tự điền từ bài nộp",
+                "description": "Tải bản thảo lên và nhận lại một bản nháp submission: tiêu đề, tóm tắt, từ khóa, loại bài, tác giả, kèm danh sách track phù hợp đã xếp hạng. Xem lại từng trường, sửa chỗ bạn không đồng ý, rồi áp vào biểu mẫu."
+              },
+              "suggestions": {
+                "tag": "Chủ trì",
+                "title": "Gợi ý reviewer",
+                "description": "Xếp hạng những người chưa có trong hội đồng theo mức trùng khớp chuyên môn với chủ đề hội nghị, hiển thị rõ các topic khớp đằng sau mỗi điểm số để bạn đánh giá gợi ý thay vì tin theo."
+              },
+              "briefing": {
+                "tag": "Phản biện",
+                "title": "Tóm tắt cho reviewer",
+                "description": "Bản đọc trước trung lập cho bài được phân công: bài tuyên bố điều gì, bằng chứng nào nhìn thấy được, và đoạn nào cần soi kỹ trước khi bạn viết review."
+              },
+              "quality": {
+                "tag": "Phản biện",
+                "title": "Kiểm tra chất lượng review",
+                "description": "Rà bản nháp review xem có mâu thuẫn giữa điểm số, đề xuất và phần lập luận không — và đánh dấu những nhận định reviewer chưa hề chứng minh."
+              },
+              "copilot": {
+                "tag": "Chủ trì",
+                "title": "Bản tóm tắt ra quyết định",
+                "description": "Tổng hợp hồ sơ cho chair mà không quyết định thay: chỗ nào reviewer đồng thuận, chỗ nào không, và những lo ngại thiểu số nào không nên bị làm mờ đi."
+              }
+            },
+            "more": {
+              "gating": {
+                "title": "Sàng lọc bài nộp",
+                "description": "Đối chiếu bài nộp với chính văn bản policy của hội nghị và nêu ra các trường hợp có thể desk-reject kèm bằng chứng cho từng nhận định."
+              },
+              "coi": {
+                "title": "Phát hiện xung đột lợi ích",
+                "description": "Kết hợp xung đột đã khai báo, trường hợp tự là tác giả, và đồ thị đồng tác giả để cảnh báo xung đột reviewer–tác giả trước khi xác nhận phân công."
+              },
+              "tracks": {
+                "title": "Gợi ý track và từ khóa",
+                "description": "Trích xuất từ khóa nghiên cứu từ bản thảo và xếp hạng bài thuộc về track nào của hội nghị."
+              }
+            },
+            "note": "Gợi ý là bản nháp, không phải quyết định. Tác giả, reviewer và chair đều xem lại và chỉnh sửa mọi kết quả AI trước khi nó có hiệu lực.",
+            "jump": "Xem AI làm được gì"
           }
         }
       }
