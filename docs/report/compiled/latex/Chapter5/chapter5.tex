@@ -20,7 +20,7 @@ ConferenceSpace phân tách tác vụ thành ba lớp logic: lớp nghiệp vụ
 
 Thuật toán Greedy phân đủ ít nhất hai Phản biện viên cho 65,9\% số bài. Đối với 23,3\% số bài, thuật toán phải thực hiện bước gán bổ sung để tránh trường hợp bài không có Phản biện viên. Ở bước này, thuật toán bỏ yêu cầu về điểm tương đồng tối thiểu và giới hạn số bài tối đa trên mỗi Phản biện viên, nhưng vẫn loại các trường hợp có xung đột lợi ích. Vì vậy, kết quả chỉ nên được sử dụng như danh sách đề xuất để Chủ tọa kiểm tra và điều chỉnh trước khi phân công.
 
-Cơ chế phát hiện xung đột lợi ích sử dụng ba nguồn thông tin: quan hệ trực tiếp trong hệ thống, xung đột do người dùng khai báo và quan hệ đồng tác giả được truy vấn từ Neo4j. Microbenchmark hiện chỉ đo hai trường hợp xác định là tự phân công và xung đột đã khai báo; thử nghiệm chưa đo riêng thời gian xử lý hoặc chất lượng phát hiện từ quan hệ đồng tác giả. Nghiên cứu cũng chưa có tập dữ liệu gồm các cặp có và không có xung đột lợi ích do chuyên gia gán nhãn để tính precision, recall và độ phủ theo từng nguồn thông tin.
+Cơ chế phát hiện xung đột lợi ích sử dụng ba nguồn thông tin: quan hệ trực tiếp trong hệ thống, xung đột do người dùng khai báo và quan hệ đồng tác giả được truy vấn từ Neo4j. Microbenchmark hiện chỉ đo hai trường hợp xác định là tự phân công và xung đột đã khai báo; thử nghiệm chưa đo riêng thời gian xử lý hoặc chất lượng phát hiện từ quan hệ đồng tác giả. Quy trình kiểm thử cũng chưa có tập dữ liệu gồm các cặp có và không có xung đột lợi ích do chuyên gia gán nhãn để tính precision, recall và độ phủ theo từng nguồn thông tin.
 
 \subsection{Chuỗi bằng chứng cho các chức năng AI hỗ trợ}
 

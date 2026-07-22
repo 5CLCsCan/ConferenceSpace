@@ -6,7 +6,7 @@
 
 \section{Mục tiêu và phạm vi đánh giá}
 
-Chương 3 đã phân chia ConferenceSpace thành ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định có thể kiểm chứng và AI hỗ trợ. Chương này đánh giá mức độ hoàn thành trách nhiệm của từng lớp trong các điều kiện thử nghiệm đã xác định, sau đó đối chiếu kết quả kỹ thuật với phản hồi của người dùng. Do mỗi lớp tạo ra một loại đầu ra khác nhau, nghiên cứu sử dụng các nguồn bằng chứng riêng thay vì quy toàn bộ hệ thống về một thước đo chung.
+Chương 3 đã phân chia ConferenceSpace thành ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định có thể kiểm chứng và AI hỗ trợ. Chương này đánh giá mức độ hoàn thành trách nhiệm của từng lớp trong các điều kiện thử nghiệm đã xác định, sau đó đối chiếu kết quả kỹ thuật với phản hồi của người dùng. Do mỗi lớp tạo ra một loại đầu ra khác nhau, quy trình kiểm thử sử dụng các nguồn bằng chứng riêng thay vì quy toàn bộ hệ thống về một thước đo chung.
 
 Bảng~\ref{tab:ch4-demo-questions} trình bày bốn câu hỏi đánh giá, nguồn bằng chứng và phạm vi kết luận tương ứng.
 
@@ -77,18 +77,17 @@ Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên v�
 
 \begin{figure}[H]
   \centering
-  \begin{adjustbox}{max width=\textwidth}
-  \begin{tikzpicture}[
-    node distance=0.45cm and 0.55cm,
-    block/.style={draw, rounded corners, align=center, minimum height=0.8cm, text width=2.5cm, fill=gray!8},
+  \begin{adjustbox}{max width=0.88\textwidth}
+  \begin{tikzpicture}[>=Latex,
+    block/.style={draw=black!65, rounded corners, align=center, text width=3.2cm, minimum height=1cm, fill=gray!8},
     arrow/.style={-{Latex[length=2mm]}, thick}
   ]
-    \node[block] (data) {Bài nộp và\\ ngữ cảnh nguồn};
-    \node[block, right=of data] (worker) {Bộ thực thi\\ luồng xử lý};
-    \node[block, right=of worker] (outputs) {Gói đầu ra\\ và điểm kiểm tra};
-    \node[block, below=of outputs] (direct) {Đối chiếu trực tiếp\\ Autofill / Gating};
-    \node[block, left=of direct] (tca) {TCA\ cho đầu ra văn bản};
-    \node[block, left=of tca] (chat) {Chấm theo kịch bản\\ Chatbot Agent};
+    \node[block] (data) at (0,4) {Bài nộp và\\ ngữ cảnh nguồn};
+    \node[block] (worker) at (0,1) {Bộ thực thi\\ luồng xử lý};
+    \node[block] (outputs) at (0,-2) {Gói đầu ra\\ và điểm kiểm tra};
+    \node[block] (direct) at (4.8,-5) {Đối chiếu trực tiếp\\ Autofill / Gating};
+    \node[block] (tca) at (-4.8,-5) {TCA\ cho đầu ra văn bản};
+    \node[block] (chat) at (0,-5) {Chấm theo kịch bản\\ Chatbot Agent};
     \draw[arrow] (data) -- (worker);
     \draw[arrow] (worker) -- (outputs);
     \draw[arrow] (outputs) -- (direct);
@@ -96,8 +95,8 @@ Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên v�
     \draw[arrow] (outputs) -- (chat);
   \end{tikzpicture}
   \end{adjustbox}
-  \caption{Các nhánh đánh giá đầu ra của luồng xử lý AI}
-  \label{fig:ch4-ai-evaluation-flow}
+\caption{Các nhánh đánh giá đầu ra của luồng xử lý AI}
+\label{fig:ch4-ai-evaluation-flow}
 \end{figure}
 
 Đầu ra kỳ vọng của mỗi nhóm gồm trạng thái hoàn tất, tư liệu có thể truy xuất và các đại lượng tương ứng với câu hỏi đánh giá. Backend cần ghi nhận thông lượng, độ trễ và tỷ lệ lỗi; microbenchmark cần ghi nhận thời gian và bộ nhớ cấp phát; đánh giá xếp hạng và phân công cần tạo chỉ số trên cùng đầu vào; các luồng AI cần lưu đầu ra, thời gian, token và kết quả chấm; Chatbot Agent cần lưu hội thoại, nhật ký gọi công cụ và nhãn hồi cứu. Những điều kiện này xác định giá trị của từng phép đo và ngăn việc dùng một loại bằng chứng để kết luận về một trách nhiệm khác.
@@ -268,7 +267,7 @@ Hình~\ref{fig:ch4-ranking-hit} cho thấy Jaccard và phương pháp đếm s�
   \label{fig:ch4-ranking-hit}
 \end{figure}
 
-Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nghiên cứu so sánh Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. Kết quả chỉ hỗ trợ sử dụng Greedy để tạo danh sách ứng viên cho Chủ tọa kiểm tra, không hỗ trợ phân công tự động.
+Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhóm đã so sánh thuật toán Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. Kết quả chỉ hỗ trợ sử dụng Greedy để tạo danh sách ứng viên cho Chủ tọa kiểm tra, không hỗ trợ phân công tự động.
 
 \begin{figure}[H]
   \centering
@@ -314,7 +313,7 @@ Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc tron
 
 \subsection{Review Quality Auditor}
 
-Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa; chúng không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
+Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
 
 Theo TCA, Truthfulness so với bản phản biện đạt 58,28\%, tỷ lệ hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Kết quả cho thấy Review Quality Auditor phù hợp với vai trò hiển thị các điểm cần kiểm tra trước khi nộp. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
 
@@ -336,7 +335,7 @@ Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi củ
   \label{fig:ch4-chair-evidence}
 \end{figure} Coverage của hai nhóm lần lượt đạt 5,27\% và 13,82\%; Additionality của cơ sở bằng chứng đạt 91,63\%. Tỷ lệ rủi ro cao đạt 1,28\%, tương đương khoảng 14 bài trong tập chấm.
 
-Các kết quả chỉ xác nhận mức bám nguồn của bản tổng hợp theo phép chấm TCA. Nghiên cứu chưa đo mức độ đầy đủ và hữu ích theo đánh giá của Chủ tọa, thời gian đọc, độ chính xác quyết định hoặc thiên lệch tự động hóa. Chủ tọa vì vậy vẫn phải kiểm tra nguồn và chịu trách nhiệm về quyết định cuối cùng.
+Các kết quả chỉ xác nhận mức bám nguồn của bản tổng hợp theo phép chấm TCA. Quá trình kiểm thử chưa đo mức độ đầy đủ và hữu ích theo đánh giá của Chủ tọa, thời gian đọc, độ chính xác quyết định hoặc thiên lệch tự động hóa. Chủ tọa vì vậy vẫn phải kiểm tra nguồn và chịu trách nhiệm về quyết định cuối cùng.
 
 \subsection{Chatbot Agent}
 \label{subsec:chap4-chatbot}
@@ -395,7 +394,7 @@ Hình~\ref{fig:ch4-resource-ops-mode} chuyển các mức độ trễ quan sát 
   \label{fig:ch4-resource-ops-mode}
 \end{figure}
 
-Các kết quả dẫn đến ba yêu cầu vận hành: chuyển tác vụ dài sang hàng đợi nền; hiển thị tiến độ, lỗi và khả năng thử lại; giảm 31 lượt gọi công cụ thất bại của Chatbot Agent. Nghiên cứu chưa kiểm tra đầu cuối khi yêu cầu đến dịch vụ AI hết thời gian chờ hoặc khi dịch vụ ngừng hoạt động.
+Các kết quả dẫn đến ba yêu cầu vận hành: chuyển tác vụ dài sang hàng đợi nền; hiển thị tiến độ, lỗi và khả năng thử lại; giảm 31 lượt gọi công cụ thất bại của Chatbot Agent.
 
 \section{Khảo sát người dùng}
 \label{sec:chap4-uat}
@@ -456,7 +455,7 @@ Trải nghiệm người dùng & 91 phản hồi gồm 76 Tác giả, 7 Phản b
 \end{longtable}
 \endgroup
 
-Kết quả kỹ thuật và UAT cùng cho thấy Submission Autofill có thể hỗ trợ nhập liệu, nhưng nghiên cứu chưa đo trực tiếp số thao tác hoặc thời gian tiết kiệm được. Các phép truy hồi chủ đề và TCA cung cấp chỉ số gián tiếp; chúng không xác nhận mức độ phù hợp của phản biện viên, chất lượng quyết định học thuật hoặc tính hữu ích theo đánh giá của chuyên gia. Với Review Quality Auditor, các phát hiện được hiển thị để Phản biện viên xem xét và chỉnh sửa bản phản biện; trạng thái \textit{block} không ngăn thao tác nộp. Tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%, nên Phản biện viên vẫn phải kiểm tra nội dung phát hiện trước khi sử dụng.
+Kết quả kỹ thuật và UAT cùng cho thấy Submission Autofill có thể hỗ trợ nhập liệu, nhưng quá trình kiểm thử chưa đo trực tiếp số thao tác hoặc thời gian tiết kiệm được. Các phép truy hồi chủ đề và TCA cung cấp chỉ số gián tiếp; chúng không xác nhận mức độ phù hợp của phản biện viên, chất lượng quyết định học thuật hoặc tính hữu ích theo đánh giá của chuyên gia. Với Review Quality Auditor, các phát hiện được hiển thị để Phản biện viên xem xét và chỉnh sửa bản phản biện; trạng thái \textit{block} không ngăn thao tác nộp. Tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%, nên Phản biện viên vẫn phải kiểm tra nội dung phát hiện trước khi sử dụng.
 
 Các giới hạn chính gồm thiếu nhãn chuyên gia cho một số luồng, dữ liệu đối sánh tổng hợp, phạm vi bài báo chủ yếu bằng tiếng Anh, thiếu thử nghiệm chạy bền và thử nghiệm chủ động gây lỗi, cùng khả năng truy vết chưa đầy đủ của UAT ở nhóm Chủ tọa. Bộ thực thi đạt tỷ lệ hoàn tất 97,34\%; 30 bài không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy benchmark được giữ trong thống kê vận hành nhưng không được đưa vào phép chấm TCA. Cơ chế phân quyền cấp ứng dụng cũng chưa cung cấp bằng chứng về chính sách lưu giữ, sử dụng và khu vực lưu trữ dữ liệu của nhà cung cấp AI.
 

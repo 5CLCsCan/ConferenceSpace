@@ -1,14 +1,14 @@
 % !TEX root = ../main.tex
 
-\chapter{Đặc tả thiết kế, dữ liệu, thuật toán và các luồng AI}
+\chapter{Đặc tả chi tiết use case, dữ liệu, thuật toán và các luồng AI}
 \label{AppendixA}
 
-Phụ lục này cung cấp thông tin để đối chiếu các quyết định thiết kế trong Chương~\ref{Chapter3}. Nội dung gồm đặc tả đầy đủ của mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và chủ thể chịu trách nhiệm; các lập luận tổng hợp đã được giữ trong chương chính.
+Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
 
 \section{Đặc tả các use case}
 \label{sec:appendix-a-usecases}
 
-Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế hoặc lỗi và hậu điều kiện. Cấu trúc thống nhất giúp người đọc truy vết từ mục tiêu người dùng đến hành vi hệ thống mà không phải suy diễn từ giao diện.
+Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế hoặc lỗi và Kết quả đạt được.
 
 \subsection{UC-01. Khám phá và theo dõi hội nghị}
 
@@ -26,7 +26,7 @@ Sự kiện kích hoạt & Tác giả mở khu vực khám phá hội nghị \\ 
 Điều kiện tiên quyết & Hội nghị đã được công bố và có thông tin cho người dùng xem; người dùng phải xác thực trước khi lưu hội nghị quan tâm \\ \hline
 Luồng chính & Tác giả xem hoặc tìm kiếm danh sách hội nghị; hệ thống áp dụng bộ lọc theo từ khóa, lĩnh vực, chuyên đề hoặc trạng thái; Tác giả mở trang chi tiết để xem kêu gọi nộp bài, chuyên đề, hạn chót và hội đồng chương trình; Tác giả lưu hội nghị hoặc chuyển sang quy trình nộp bài \\ \hline
 Luồng thay thế và lỗi & Nếu không có kết quả, hệ thống trả danh sách rỗng cùng bộ lọc hiện tại; nếu hội nghị đã đóng, hệ thống vẫn cho phép xem nhưng không cho phép bắt đầu bài nộp mới; nếu phiên đăng nhập hết hạn, hệ thống yêu cầu xác thực lại trước khi lưu theo dõi \\ \hline
-Hậu điều kiện & Tác giả chọn được hội nghị để nộp bài hoặc lưu hội nghị vào danh sách theo dõi \\ \hline
+Kết quả đạt được & Tác giả chọn được hội nghị để nộp bài hoặc lưu hội nghị vào danh sách theo dõi \\ \hline
 \end{longtable}
 
 \subsection{UC-02. Hoàn tất và kiểm tra bài nộp}
@@ -43,40 +43,42 @@ Mục tiêu & Giúp Tác giả hoàn thiện bài nộp, giảm thao tác nhập
 Tác nhân & Tác giả là tác nhân chính; dịch vụ AI hỗ trợ Submission Autofill và Submission Gating \\ \hline
 Sự kiện kích hoạt & Tác giả chọn nộp bài vào một hội nghị đang mở \\ \hline
 Điều kiện tiên quyết & Tác giả đã xác thực; hội nghị còn nhận bài; danh sách chuyên đề và chính sách nộp bài đã được cấu hình \\ \hline
-Luồng chính & Tác giả tạo bản nháp và tải bản thảo; Submission Autofill trích xuất siêu dữ liệu khi được yêu cầu; Tác giả kiểm tra, chỉnh sửa tiêu đề, tóm tắt, từ khóa, tác giả và chuyên đề; Tác giả khai báo xung đột lợi ích; Submission Gating kiểm tra tệp, chính sách và điều kiện gửi; Tác giả xử lý cảnh báo rồi xác nhận gửi \\ \hline
+Luồng chính & Tác giả tạo bản nháp và tải bản thảo; Submission Autofill trích xuất siêu dữ liệu nháp khi được yêu cầu; Tác giả kiểm tra, chỉnh sửa tiêu đề, tóm tắt, từ khóa, tác giả và chuyên đề; Tác giả khai báo xung đột lợi ích; Submission Gating kiểm tra tệp, chính sách và điều kiện gửi; backend kiểm tra trạng thái gating trước khi cho phép gửi; Tác giả xử lý lỗi hoặc cảnh báo rồi xác nhận gửi \\ \hline
 Luồng thay thế và lỗi & Nếu Submission Autofill không đọc được tệp hoặc gặp lỗi, Tác giả nhập thủ công; trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục; nếu Submission Gating không trả kết quả hợp lệ, backend chưa cho phép gửi bài \\ \hline
-Hậu điều kiện & Hệ thống lưu bài ở trạng thái bản nháp hoặc chuyển sang trạng thái đã gửi sau khi Tác giả xác nhận \\ \hline
+Kết quả đạt được & Hệ thống lưu bài ở trạng thái bản nháp hoặc chuyển sang trạng thái đã gửi sau khi Tác giả xác nhận \\ \hline
 \end{longtable}
 
 \begin{figure}[H]
 \centering
-\begin{adjustbox}{max width=0.88\textwidth, max height=0.78\textheight, keepaspectratio}
+\begin{adjustbox}{max width=0.9\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
   processNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.8cm, minimum height=10mm, fill=blue!7},
-  decision/.style={draw=black!65, diamond, aspect=2.1, align=center, text width=3.0cm, fill=orange!9}]
+  decision/.style={draw=black!65, diamond, aspect=2.1, align=center, text width=3.2cm, fill=orange!9}]
   \node[processNode] (draft) at (0,0) {Tạo bản nháp và tải bản thảo};
   \node[decision] (autofill) at (0,-2.8) {Dùng Submission Autofill?};
-  \node[processNode] (auto) at (-4.2,-5.6) {Trích xuất siêu dữ liệu và gợi ý chuyên đề};
-  \node[processNode] (manual) at (4.2,-5.6) {Nhập siêu dữ liệu thủ công};
+  \node[processNode] (auto) at (-4.4,-5.6) {Trích xuất siêu dữ liệu nháp và gợi ý chuyên đề};
+  \node[processNode] (manual) at (4.4,-5.6) {Nhập siêu dữ liệu thủ công};
   \node[processNode] (review) at (0,-8.4) {Tác giả kiểm tra và chỉnh sửa};
   \node[processNode] (coi) at (0,-10.8) {Khai báo xung đột lợi ích};
   \node[processNode] (gate) at (0,-13.2) {Submission Gating};
-  \node[decision] (status) at (0,-16.0) {Trạng thái kiểm tra};
-  \node[processNode] (send) at (-5.2,-19.0) {Cho phép xác nhận gửi};
-  \node[processNode] (warn) at (0,-19.0) {Hiển thị cảnh báo};
-  \node[processNode] (block) at (5.2,-19.0) {Yêu cầu sửa lỗi};
+  \node[processNode] (backend) at (0,-15.6) {Backend kiểm tra trạng thái trước khi gửi};
+  \node[decision] (status) at (0,-18.4) {Gating verdict};
+  \node[processNode] (send) at (-5.4,-21.4) {Pass: cho phép xác nhận gửi};
+  \node[processNode] (warn) at (0,-21.4) {Warn: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
+  \node[processNode] (block) at (5.4,-21.4) {Block/Error: yêu cầu sửa lỗi};
   \draw[-{Latex},thick] (draft) -- (autofill);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Có} (auto);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Không} (manual);
   \draw[-{Latex},thick] (auto) -- (review);
   \draw[-{Latex},thick] (manual) -- (review);
-  \draw[-{Latex},thick,dashed] (auto) to[bend right=18] (manual);
+  \draw[-{Latex},thick,dashed] (auto) to[bend right=18] node[fill=white] {lỗi/thiếu dữ liệu} (manual);
   \draw[-{Latex},thick] (review) -- (coi);
   \draw[-{Latex},thick] (coi) -- (gate);
-  \draw[-{Latex},thick] (gate) -- (status);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {đạt} (send);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {cảnh báo} (warn);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {chặn} (block);
+  \draw[-{Latex},thick] (gate) -- (backend);
+  \draw[-{Latex},thick] (backend) -- (status);
+  \draw[-{Latex},thick] (status) -- node[fill=white] {pass} (send);
+  \draw[-{Latex},thick] (status) -- node[fill=white] {warn} (warn);
+  \draw[-{Latex},thick] (status) -- node[fill=white] {block/error} (block);
   \draw[-{Latex},thick] (warn) -- (send);
   \draw[-{Latex},thick] (block.east) -- ++(1.2,0) |- (review.east);
 \end{tikzpicture}
@@ -101,7 +103,7 @@ Sự kiện kích hoạt & Tác giả mở danh sách bài hoặc nhận thông 
 Điều kiện tiên quyết & Tác giả sở hữu bài nộp và đã xác thực \\ \hline
 Luồng chính & Tác giả xem danh sách bài, trạng thái và hạn chót; tiếp tục chỉnh sửa bản nháp; theo dõi bài đã gửi; xem phản biện khi được công bố; gửi phản hồi khi giai đoạn được mở; xem quyết định; tải bản thảo hoàn chỉnh nếu bài được chấp nhận \\ \hline
 Luồng thay thế và lỗi & Backend từ chối sửa, rút bài hoặc gửi phản hồi nếu trạng thái hoặc hạn chót không cho phép; hệ thống chỉ nhận bản thảo hoàn chỉnh khi bài được chấp nhận và tệp hợp lệ; phiên bản hiện tại chưa kiểm tra hạn chót nộp bản thảo hoàn chỉnh tại thời điểm thực thi \\ \hline
-Hậu điều kiện & Hệ thống cập nhật trạng thái hoặc giữ nguyên trạng thái kèm thông báo lỗi có căn cứ \\ \hline
+Kết quả đạt được & Hệ thống cập nhật trạng thái hoặc giữ nguyên trạng thái kèm thông báo lỗi có căn cứ \\ \hline
 \end{longtable}
 
 \subsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
@@ -120,7 +122,7 @@ Sự kiện kích hoạt & Chủ tọa gửi lời mời tham gia hội nghị h
 Điều kiện tiên quyết & Hội nghị tồn tại; Chủ tọa có quyền mời; địa chỉ thư điện tử của người nhận hợp lệ \\ \hline
 Luồng chính & Chủ tọa gửi lời mời; hệ thống lưu lời mời và gửi thông báo; Phản biện viên xem thông tin hội nghị rồi chấp nhận hoặc từ chối; sau khi có phân công, Phản biện viên xem bài, hạn chót và trạng thái; Phản biện viên mở bài hợp lệ để chuyển sang UC-05 \\ \hline
 Luồng thay thế và lỗi & Hệ thống từ chối lời mời không hợp lệ hoặc hết hiệu lực; nếu Phản biện viên từ chối, hệ thống ghi trạng thái để Chủ tọa điều chỉnh; backend từ chối truy cập khi người dùng không có quyền đối với bài được phân công \\ \hline
-Hậu điều kiện & Trạng thái lời mời được cập nhật; bài được phân công xuất hiện trong không gian làm việc của đúng Phản biện viên \\ \hline
+Kết quả đạt được & Trạng thái lời mời được cập nhật; bài được phân công xuất hiện trong không gian làm việc của đúng Phản biện viên \\ \hline
 \end{longtable}
 
 \subsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
@@ -137,9 +139,9 @@ Mục tiêu & Hỗ trợ Phản biện viên quản lý quá trình đọc và h
 Tác nhân & Phản biện viên là tác nhân chính; dịch vụ AI hỗ trợ Reviewer Initial Analysis và Review Quality Auditor \\ \hline
 Sự kiện kích hoạt & Phản biện viên mở một bài được phân công mà mình có quyền truy cập \\ \hline
 Điều kiện tiên quyết & Phân công hợp lệ; Phản biện viên là người phụ trách; bản thảo có thể truy cập \\ \hline
-Luồng chính & Hệ thống tải bài, hạn chót và biểu mẫu; Phản biện viên có thể yêu cầu bản định hướng; Phản biện viên đọc bài và tự hình thành đánh giá; nhập điểm, nhận xét, khuyến nghị và độ tự tin; Review Quality Auditor rà soát bản nháp trước khi gửi; Phản biện viên xem phát hiện, chỉnh sửa khi cần và xác nhận gửi; phát hiện có mức nghiêm trọng blocking có thể được lớp nghiệp vụ ánh xạ thành trạng thái block khi gửi chính thức; phiên bản hiện tại chưa có cơ chế ghi đè phát hiện blocking; sau phản hồi của Tác giả, Phản biện viên có thể cập nhật đánh giá \\ \hline
-Luồng thay thế và lỗi & Nếu Reviewer Initial Analysis không khả dụng, Phản biện viên vẫn đọc và phản biện thủ công; khi lưu nháp, phát hiện mức blocking chỉ được hiển thị để người dùng chỉnh sửa; khi gửi chính thức, phát hiện mức blocking có thể tạo trạng thái block và phiên bản hiện tại chưa có cơ chế ghi đè; nếu bước rà soát không thể thực hiện, backend yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký \\ \hline
-Hậu điều kiện & Hệ thống lưu bản nháp hoặc bản phản biện đã gửi; mọi cập nhật sau phản hồi được gắn với bài tương ứng \\ \hline
+Luồng chính & Hệ thống tải bài, hạn chót và biểu mẫu; Phản biện viên có thể yêu cầu bản định hướng; Phản biện viên đọc bài và tự hình thành đánh giá; nhập điểm, nhận xét, khuyến nghị và độ tự tin; Review Quality Auditor rà soát bản nháp trước khi gửi; Phản biện viên xem phát hiện (kể cả mức blocking), quyết định chỉnh sửa hoặc tiếp tục gửi; các nhãn severity=blocking và status=block chỉ dùng để ưu tiên hiển thị, không vô hiệu hóa thao tác gửi; sau phản hồi của Tác giả, Phản biện viên có thể cập nhật đánh giá \\ \hline
+Luồng thay thế và lỗi & Nếu Reviewer Initial Analysis không khả dụng, Phản biện viên vẫn đọc và phản biện thủ công; khi lưu nháp hoặc gửi chính thức, phát hiện mức blocking chỉ được ưu tiên hiển thị để Phản biện viên xem xét và quyết định chỉnh sửa hoặc tiếp tục gửi; nếu bước rà soát không thể thực hiện, backend yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký \\ \hline
+Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản biện đã gửi; mọi cập nhật sau phản hồi được gắn với bài tương ứng \\ \hline
 \end{longtable}
 
 \subsection{UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}
@@ -152,13 +154,13 @@ Thuộc tính & Đặc tả \\ \hline
 \hline
 Thuộc tính & Đặc tả \\ \hline
 \endhead
-Mục tiêu & Cung cấp cho Chủ tọa đề xuất phân công có điểm phù hợp, trạng thái xung đột và căn cứ để kiểm tra \\ \hline
+Mục tiêu & Cung cấp cho Chủ tọa đề xuất phân công có điểm phù hợp, trạng thái xung đột và bằng chứng để kiểm tra \\ \hline
 Tác nhân & Chủ tọa hoặc Đồng chủ tọa \\ \hline
 Sự kiện kích hoạt & Chủ tọa yêu cầu hệ thống tạo đề xuất phân công \\ \hline
 Điều kiện tiên quyết & Hội nghị có bài hợp lệ, danh sách Phản biện viên và cấu hình phân công \\ \hline
 Luồng chính & Hệ thống chuẩn bị tập bài và Phản biện viên; tính điểm Jaccard; kiểm tra quan hệ tác giả, khai báo và đồng tác giả; loại cặp xung đột; thuật toán tham lam tạo đề xuất; Chủ tọa xem điểm, lý do, tải phát sinh và bài chưa đủ người; Chủ tọa điều chỉnh và xác nhận \\ \hline
 Luồng thay thế và lỗi & Nếu Neo4j không khả dụng, hệ thống dùng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị; lượt dự phòng bỏ ngưỡng điểm và giới hạn tải nhưng giữ xung đột lợi ích; nếu vẫn thiếu người, hệ thống giữ bài trong danh sách cần xử lý; đề xuất thủ công trả cảnh báo xung đột nhưng hiện chưa ngăn lưu \\ \hline
-Hậu điều kiện & Hệ thống trả đề xuất để Chủ tọa xem hoặc lưu phân công sau khi Chủ tọa xác nhận \\ \hline
+Kết quả đạt được & Hệ thống trả đề xuất để Chủ tọa xem hoặc lưu phân công sau khi Chủ tọa xác nhận \\ \hline
 \end{longtable}
 
 \subsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
@@ -177,7 +179,7 @@ Sự kiện kích hoạt & Chủ tọa tạo hội nghị hoặc mở bảng đi
 Điều kiện tiên quyết & Người dùng đã xác thực và có vai trò quản lý trong hội nghị \\ \hline
 Luồng chính & Chủ tọa cấu hình thông tin, chuyên đề, hạn chót, biểu mẫu và chính sách; mời hội đồng chương trình; theo dõi số bài, tiến độ phản biện và xung đột; chuyển sang phân công khi dữ liệu sẵn sàng; mở và kết thúc phản hồi; theo dõi thảo luận cùng thay đổi sau phản hồi trước khi ra quyết định \\ \hline
 Luồng thay thế và lỗi & Backend từ chối cấu hình thiếu trường bắt buộc hoặc có hạn chót không hợp lệ; bảng điều khiển giữ trạng thái cần xử lý khi thiếu Phản biện viên hoặc bản phản biện; hệ thống từ chối thao tác ghi của người dùng không có quyền \\ \hline
-Hậu điều kiện & Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật \\ \hline
+Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật \\ \hline
 \end{longtable}
 
 \subsection{UC-08. Trao đổi theo bài nộp}
@@ -193,38 +195,53 @@ Thuộc tính & Đặc tả \\ \hline
 Mục tiêu & Cho phép Tác giả và Phản biện viên trao đổi có cấu trúc về bài nộp, đồng thời cung cấp lịch sử để Chủ tọa giám sát \\ \hline
 Tác nhân & Phản biện viên được phân công và Tác giả trao đổi; Chủ tọa hoặc Đồng chủ tọa giám sát \\ \hline
 Sự kiện kích hoạt & Phản biện viên được phân công tạo chuỗi thảo luận trong giai đoạn cho phép \\ \hline
-Điều kiện tiên quyết & Bài nộp tồn tại; hội nghị cho phép thảo luận; Phản biện viên có phân công hợp lệ \\ \hline
-Luồng chính & Phản biện viên tạo chuỗi và tin nhắn đầu tiên; hệ thống liên kết chuỗi với bài và người tạo; Tác giả nhận thông báo; Tác giả và Phản biện viên trao đổi trong chuỗi; Chủ tọa xem toàn bộ lịch sử; nội dung trở thành một nguồn bằng chứng cho Chair Decision Copilot \\ \hline
+Điều kiện tiên quyết & Bài nộp tồn tại; hội nghị đang ở giai đoạn reviewing; Phản biện viên có phân công hợp lệ \\ \hline
+Luồng chính & Phản biện viên tạo chuỗi và tin nhắn đầu tiên; backend kiểm tra giai đoạn hội nghị và phân công; hệ thống liên kết chuỗi với bài và người tạo; Tác giả nhận thông báo; Tác giả và Phản biện viên trao đổi trong chuỗi sau khi backend kiểm tra quyền tham gia; Chủ tọa xem toàn bộ lịch sử; nội dung trở thành một nguồn bằng chứng cho Chair Decision Copilot \\ \hline
 Luồng thay thế và lỗi & Tác giả và Chủ tọa không được tạo chuỗi; Chủ tọa không gửi tin nhắn trong cách triển khai hiện tại; backend từ chối thao tác khi người dùng không liên quan đến bài hoặc chuỗi, khi giai đoạn không cho phép hoặc khi tệp đính kèm vượt giới hạn \\ \hline
-Hậu điều kiện & Chuỗi, tin nhắn và thông báo được lưu gắn với bài nộp trong phạm vi quyền của từng vai trò \\ \hline
+Kết quả đạt được & Chuỗi, tin nhắn và thông báo được lưu gắn với bài nộp trong phạm vi quyền của từng vai trò \\ \hline
 \end{longtable}
+
+Trong phiên bản hiện tại, Chủ tọa/Đồng chủ tọa có quyền xem toàn bộ lịch sử thảo luận của bài nhưng không tạo chuỗi hoặc gửi tin nhắn trong chuỗi.
+
 
 \begin{figure}[H]
 \centering
-\begin{adjustbox}{max width=\textwidth}
+\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
-  participant/.style={draw=black!65, rounded corners=2pt, align=center, text width=2.6cm, minimum height=9mm, fill=blue!7},
+  participant/.style={draw=black!65, rounded corners=2pt, align=center, text width=2.5cm, minimum height=9mm, fill=blue!7},
+  message/.style={midway, above=2pt, fill=white, inner xsep=2pt, inner ysep=1pt, align=center},
   line/.style={dashed,draw=black!50}]
   \node[participant] (reviewer) at (0,0) {Phản biện viên};
-  \node[participant] (backend) at (4.0,0) {Backend};
-  \node[participant] (db) at (8.0,0) {PostgreSQL};
-  \node[participant] (notify) at (12.0,0) {Thông báo};
-  \node[participant] (author) at (16.0,0) {Tác giả};
-  \node[participant] (chair) at (20.0,0) {Chủ tọa};
-  \foreach \x in {0,4,8,12,16,20} \draw[line] (\x,-0.5) -- (\x,-13.0);
-  \draw[-{Latex},thick] (0,-1.5) -- node[fill=white] {Tạo chuỗi} (4,-1.5);
-  \draw[-{Latex},thick] (4,-3.0) -- node[fill=white] {Lưu chuỗi và tin nhắn} (8,-3.0);
-  \draw[-{Latex},thick] (4,-4.5) -- node[fill=white] {Phát thông báo} (12,-4.5);
-  \draw[-{Latex},thick,dashed] (12,-6.0) -- node[fill=white] {Có thảo luận mới} (16,-6.0);
-  \draw[-{Latex},thick] (16,-7.5) -- node[fill=white] {Gửi phản hồi} (4,-7.5);
-  \draw[-{Latex},thick] (4,-9.0) -- node[fill=white] {Lưu tin nhắn} (8,-9.0);
-  \draw[-{Latex},thick] (20,-10.5) -- node[fill=white] {Yêu cầu lịch sử} (4,-10.5);
-  \draw[-{Latex},thick,dashed] (4,-12.0) -- node[fill=white] {Toàn bộ lịch sử ở chế độ xem} (20,-12.0);
+  \node[participant] (backend) at (3.8,0) {Backend};
+  \node[participant] (db) at (7.6,0) {PostgreSQL};
+  \node[participant] (notify) at (11.4,0) {Thông báo};
+  \node[participant] (author) at (15.2,0) {Tác giả};
+  \node[participant] (chair) at (19.0,0) {Chủ tọa};
+  \foreach \x in {0,3.8,7.6,11.4,15.2,19.0} \draw[line] (\x,-0.5) -- (\x,-25.0);
+
+  \draw[-{Latex},thick] (0,-1.4) -- node[message] {Tạo chuỗi} (3.8,-1.4);
+  \draw[-{Latex},thick] (3.8,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra giai đoạn reviewing} (3.8,-4.0);
+  \draw[-{Latex},thick] (3.8,-5.2) -- node[message] {Kiểm tra phân công} (7.6,-5.2);
+  \draw[-{Latex},thick] (3.8,-6.6) -- node[message] {Lưu thread + message đầu} (7.6,-6.6);
+  \draw[-{Latex},thick] (3.8,-8.0) -- node[message] {Phát thông báo} (11.4,-8.0);
+  \draw[-{Latex},thick,dashed] (11.4,-9.4) -- node[message] {Có thảo luận mới} (15.2,-9.4);
+
+  \draw[-{Latex},thick] (15.2,-10.8) -- node[message] {Gửi phản hồi} (3.8,-10.8);
+  \draw[-{Latex},thick] (3.8,-12.2) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra người tham gia chuỗi} (3.8,-13.4);
+  \draw[-{Latex},thick] (3.8,-14.6) -- node[message] {Lưu message} (7.6,-14.6);
+  \draw[-{Latex},thick] (3.8,-16.0) -- node[message] {Thông báo phản hồi} (11.4,-16.0);
+  \draw[-{Latex},thick,dashed] (11.4,-17.4) -- node[message] {Có phản hồi mới} (0,-17.4);
+
+  \draw[-{Latex},thick] (19.0,-18.8) -- node[message] {Yêu cầu lịch sử} (3.8,-18.8);
+  \draw[-{Latex},thick] (3.8,-20.2) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra quyền Chủ tọa} (3.8,-21.4);
+  \draw[-{Latex},thick] (3.8,-22.8) -- node[message] {Đọc thread/messages} (7.6,-22.8);
+  \draw[-{Latex},thick,dashed] (3.8,-24.2) -- node[message] {Trả lịch sử read-only} (19.0,-24.2);
 \end{tikzpicture}
 \end{adjustbox}
 \caption{Trình tự trao đổi giữa các vai trò trong UC-08}
 \label{fig:appendix-a-uc08-sequence}
 \end{figure}
+\pagebreak
 
 \subsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
@@ -242,8 +259,9 @@ Sự kiện kích hoạt & Chủ tọa mở bài ở giai đoạn chuẩn bị q
 Điều kiện tiên quyết & Chủ tọa có quyền đối với hội nghị; bài có dữ liệu phản biện hoặc bằng chứng phù hợp \\ \hline
 Luồng chính & Backend thu thập bản phản biện, điểm, phản hồi và thảo luận; hệ thống tạo mã nhận diện cho bộ bằng chứng; nếu kết quả đã lưu còn hiệu lực, hệ thống trả kết quả đó, nếu không thì Chair Decision Copilot tạo bản mới; Chủ tọa đối chiếu bản tổng hợp với nguồn gốc và tự lưu quyết định \\ \hline
 Luồng thay thế và lỗi & Nếu dữ liệu chưa đủ, hệ thống nêu phần bằng chứng còn thiếu; nếu dịch vụ AI gặp lỗi, Chủ tọa vẫn đọc dữ liệu gốc để tiếp tục; khi bằng chứng thay đổi, hệ thống đánh dấu bản tổng hợp cũ là không còn hiệu lực \\ \hline
-Hậu điều kiện & Hệ thống lưu bản tổng hợp có thể truy vết; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
+Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể kiểm tra lại; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
 \end{longtable}
+\pagebreak
 
 \subsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
 
@@ -259,9 +277,9 @@ Mục tiêu & Giúp Tác giả, Phản biện viên và Chủ tọa tra cứu tr
 Tác nhân & Tác giả, Phản biện viên và Chủ tọa; dịch vụ AI cùng bộ máy truy vấn của backend xử lý yêu cầu \\ \hline
 Sự kiện kích hoạt & Người dùng gửi câu hỏi cho Chatbot Agent \\ \hline
 Điều kiện tiên quyết & Người dùng đã xác thực khi truy vấn dữ liệu hạn chế; dịch vụ AI và endpoint truy vấn của backend đã được cấu hình \\ \hline
-Luồng chính & Chatbot Agent nhận câu hỏi, lịch sử và ngữ cảnh trang; xác định có cần dữ liệu hệ thống; nếu cần, gửi yêu cầu gồm tài nguyên, trường và điều kiện đến backend; backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên và quyền; backend trả phần dữ liệu tối thiểu được phép; Chatbot Agent tạo câu trả lời phù hợp với vai trò \\ \hline
-Luồng thay thế và lỗi & Backend từ chối tài nguyên hoặc trường nằm ngoài danh mục và dữ liệu người dùng không có quyền xem; nếu công cụ hoặc dịch vụ AI gặp lỗi, hệ thống trả lỗi rõ ràng; yêu cầu nghiên cứu hoặc báo cáo ngoài phạm vi nền tảng bị từ chối \\ \hline
-Hậu điều kiện & Người dùng nhận câu trả lời dựa trên dữ liệu được phép hoặc thông báo lỗi có giải thích; Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu \\ \hline
+Luồng chính & Chatbot Agent nhận câu hỏi, lịch sử và ngữ cảnh trang; xác định có cần dữ liệu hệ thống; nếu cần, gửi yêu cầu gồm tài nguyên, trường và điều kiện đến backend; backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên, trường được phép và quyền của người dùng hiện tại; backend trả phần dữ liệu tối thiểu được phép; Chatbot Agent tạo câu trả lời phù hợp với vai trò \\ \hline
+Luồng thay thế và lỗi & Backend từ chối tài nguyên, trường hoặc bộ lọc ngoài danh mục, cũng như dữ liệu người dùng không có quyền xem; nếu công cụ hoặc dịch vụ AI gặp lỗi, hệ thống trả lỗi rõ ràng; yêu cầu nghiên cứu hoặc báo cáo ngoài phạm vi nền tảng bị từ chối \\ \hline
+Kết quả đạt được & Người dùng nhận câu trả lời dựa trên dữ liệu được phép hoặc thông báo lỗi có giải thích; Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu \\ \hline
 \end{longtable}
 
 \section{Truy vết yêu cầu, dữ liệu và phân quyền}
@@ -290,9 +308,12 @@ F-COMMON-02, F-COMMON-03 & Xuyên suốt & Ma trận quyền, mã xác thực li
 
 \subsection{Nhóm dữ liệu chính}
 
-ConferenceSpace không dùng một kho duy nhất cho mọi loại dữ liệu. PostgreSQL lưu dữ liệu nghiệp vụ và kết quả cần giao dịch nhất quán; Neo4j lưu quan hệ học thuật dạng đồ thị; Redis lưu dữ liệu tạm thời và trạng thái ngắn hạn.
+ConferenceSpace không lưu mọi loại dữ liệu trong cùng một hệ quản trị cơ sở dữ liệu. PostgreSQL lưu dữ liệu nghiệp vụ và kết quả cần giao dịch nhất quán; Neo4j lưu quan hệ học thuật dạng đồ thị; Redis lưu dữ liệu tạm thời và trạng thái ngắn hạn.
 
-\begin{longtable}{|T{0.24\textwidth}|T{0.31\textwidth}|T{0.35\textwidth}|}
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\_}{\textunderscore\allowbreak}
+\begin{longtable}{|T{0.20\textwidth}|T{0.42\textwidth}|T{0.28\textwidth}|}
 \caption{Nhóm dữ liệu chính và vai trò trong hệ thống}\label{tab:appendix-a-data-groups}\\
 \hline
 Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò \\ \hline
@@ -300,47 +321,162 @@ Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò \\ \hline
 \hline
 Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò \\ \hline
 \endhead
-Nghiệp vụ hội nghị & \textit{conferences}, \textit{conference\_submissions}, \textit{paper\_assignments}, \textit{rebuttal\_points} & Bảo toàn vòng đời nộp bài, phản biện, phản hồi và quyết định \\ \hline
-Phân quyền và phối hợp & \textit{users}, \textit{conference\_user\_roles}, \textit{discussion\_threads}, \textit{notifications} & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
-Học thuật và xung đột lợi ích & \textit{scholar\_profiles}, \textit{scholar\_papers}, \textit{coi\_relationships}, đồ thị đồng tác giả & Lưu căn cứ để loại ứng viên và hỗ trợ Chủ tọa kiểm tra \\ \hline
-Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn, phiên hội thoại và nhật ký gọi công cụ & Theo dõi đầu vào, đầu ra, trạng thái, lỗi và thời gian xử lý \\ \hline
+Nghiệp vụ hội nghị & \textit{conferences}, \textit{conference\_submissions}, \textit{conference\_reviewers}, \textit{paper\_assignments}, \textit{rebuttal\_points} & Bảo toàn vòng đời nộp bài, phản biện, phản hồi và quyết định \\ \hline
+Phân quyền và phối hợp & \textit{users}, \textit{conference\_user\_roles}, \textit{discussion\_threads}, \textit{discussion\_messages}, \textit{notifications} & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
+Học thuật và xung đột lợi ích & \textit{scholar\_profiles}, \textit{scholar\_papers}, \textit{scholar\_profile\_papers}, \textit{coi\_relationships}, đồ thị đồng tác giả & Lưu bằng chứng để loại ứng viên và hỗ trợ Chủ tọa kiểm tra \\ \hline
+Kết quả AI và kiểm toán & \textit{ai.ai\_sessions}, \textit{ai.ai\_messages}, \textit{ai.gating\_runs}, \textit{ai.review\_quality\_audit\_runs}, \textit{ai.reviewer\_initial\_analysis\_*}, \textit{review\_audit\_events} & Theo dõi đầu vào, đầu ra, trạng thái, lỗi và thời gian xử lý \\ \hline
 Trạng thái ngắn hạn & Phiên, kết quả công cụ đang chờ và bộ đếm giới hạn tần suất & Hỗ trợ xử lý tạm thời mà không thay thế dữ liệu nghiệp vụ lâu dài \\ \hline
 \end{longtable}
+\endgroup
+
+
+Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và \ref{fig:appendix-a-core-erd-c} trình bày ERD logic của dữ liệu nghiệp vụ chính. Đường liền biểu diễn quan hệ có khóa ngoại trong migration; đường đứt biểu diễn liên kết nghiệp vụ hoặc liên kết được kiểm soát ở tầng ứng dụng nhưng không nhất thiết được ràng buộc bằng khóa ngoại vật lý.
+
+% ===================== Figure A.3a — Conference & review core =====================
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
+\begin{tikzpicture}[
+  entity/.style={draw=black!70, rounded corners=2pt, align=left,
+                 font=\footnotesize, fill=green!6, inner sep=5pt},
+  fk/.style={-{Latex},thick,draw=black!75},
+  logical/.style={-{Latex},thick,dashed,draw=blue!70!black},
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+
+  \node[entity] (users)  at (-7.2, 0)    {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
+  \node[entity] (confs)  at (-1.3, 0)    {\textbf{conferences}\\PK conference\_id\\chair\\configurations\\domain};
+
+  \node[entity] (roles)  at (-4.25, 3.4) {\textbf{conference\_user\_roles}\\PK id\\conference\_id\\user\_id\\user\_email\\role,status};
+  \node[entity] (revs)   at (-7.2,-3.7)  {\textbf{conference\_reviewers}\\PK id\\user\_id\\conference\_id\\domain,status};
+  \node[entity] (subs)   at (-1.3,-3.7)  {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status\\title,abstract};
+
+  \node[entity] (assign) at (-7.2,-7.6)  {\textbf{paper\_assignments}\\PK id\\FK conference\_id\\FK submission\_id\\FK reviewer\_id\\score, status\\review\_score, review\_status\\review\_data};
+  \node[entity] (audit)  at (-1.3,-7.6)  {\textbf{review\_audit\_events}\\PK id\\FK assignment\_id\\FK conference\_id\\actor\_id, actor\_email\\event\_type, payload};
+
+  \draw[logical] (users) -- node[note] {1--N} (roles);
+  \draw[logical] (confs) -- node[note] {1--N} (roles);
+
+  \draw[logical] (users) -- node[note] {1--N} (revs);
+  \draw[logical] (confs) -- node[note,pos=0.35] {1--N} (revs);
+  \draw[logical] (confs) -- node[note] {1--N} (subs);
+
+  \draw[fk] (confs) -- node[note,pos=0.6] {1--N} (assign);
+  \draw[fk] (subs)  -- node[note,pos=0.4] {1--N} (assign);
+  \draw[fk] (revs)  -- node[note] {1--N} (assign);
+
+  \draw[fk] (assign)-- node[note] {1--N} (audit);
+  \draw[fk] (confs) to[bend left=60] node[note] {1--N} (audit);
+
+\end{tikzpicture}
+\end{adjustbox}
+\caption{ERD — Hội nghị và luồng phản biện.}
+\label{fig:appendix-a-core-erd-a}
+\end{figure}
+
+
+% ===================== Figure A.3b — Discussion, COI & notifications =====================
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
+\begin{tikzpicture}[
+  entity/.style={draw=black!70, rounded corners=2pt, align=left,
+                 font=\footnotesize, fill=green!6, inner sep=5pt},
+  fk/.style={-{Latex},thick,draw=black!75},
+  logical/.style={-{Latex},thick,dashed,draw=blue!70!black},
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+
+  \node[entity] (users)   at (-6.5, 0)   {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
+  \node[entity] (confs)   at (-2.0, 0)   {\textbf{conferences}\\PK conference\_id\\domain};
+  \node[entity] (subs)    at ( 3.0, 0)   {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status};
+  \node[entity] (revs)    at ( 7.6, 0)   {\textbf{conference\_reviewers}\\PK id\\user\_id\\conference\_id};
+
+  \node[entity] (threads) at (-4.0,-3.8) {\textbf{discussion\_threads}\\PK id\\FK submission\_id\\FK reviewer\_id $\rightarrow$ users.user\_id\\FK conference\_id\\title, visibility};
+  \node[entity] (coi)     at ( 5.3,-3.8) {\textbf{coi\_relationships}\\PK id\\conference\_id\\reviewer\_id\\submission\_id\\author\_email\\relationship\_type\\severity};
+  \node[entity] (msgs)    at (-4.0,-7.6) {\textbf{discussion\_messages}\\PK id\\FK thread\_id\\FK author\_id\\content};
+  \node[entity] (notifs)  at ( 0.8,-7.6) {\textbf{notifications}\\PK id\\user\_email\\conference\_id\\type,title,message\\metadata, read};
+  \node[entity] (prefs)   at ( 5.3,-7.6) {\textbf{notification\_preferences}\\PK id\\user\_email UNIQUE\\notification flags};
+
+  \draw[fk] (users)   -- node[note,pos=0.4] {1--N} (threads);
+  \draw[fk] (users)   to[out=-150,in=150] node[note] {1--N} (msgs);
+  \draw[fk] (confs)   -- node[note] {1--N} (threads);
+  \draw[fk] (subs)    -- node[note,pos=0.7] {1--N} (threads);
+  \draw[fk] (threads) -- node[note] {1--N} (msgs);
+
+  \draw[logical] (confs) -- node[note] {1--N} (coi);
+  \draw[logical] (subs)  -- node[note] {1--N} (coi);
+  \draw[logical] (revs)  -- node[note] {1--N} (coi);
+
+  \draw[logical] (users)  to[bend right=35] node[note] {user\_email} (notifs);
+  \draw[logical] (confs)  to[bend right=20] node[note] {conference\_id} (notifs);
+  \draw[logical] (msgs)   -- node[note] {creates} (notifs);
+  \draw[logical] (users)  to[bend left=35] node[note] {user\_email} (prefs);
+
+\end{tikzpicture}
+\end{adjustbox}
+\caption{ERD — Thảo luận, xung đột lợi ích và thông báo.}
+\label{fig:appendix-a-core-erd-b}
+\end{figure}
+
+
+% ===================== Figure A.3c — Scholar data =====================
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth, max height=0.82\textheight, keepaspectratio}
+\begin{tikzpicture}[
+  entity/.style={draw=black!70, rounded corners=2pt, align=left,
+                 font=\footnotesize, fill=green!6, inner sep=5pt,
+                 text width=4.2cm},
+  fk/.style={-{Latex},thick,draw=black!75},
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+
+  \node[entity] (users)   at (-6.2, 0)    {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
+  \node[entity] (profs)   at ( 0.0, 0)    {\textbf{scholar\_profiles}\\PK id\\FK user\_id UNIQUE\\semantic\_scholar\_id UNIQUE\\name};
+
+  \node[entity] (ppapers) at (-2.8,-3.6)  {\textbf{scholar\_profile\_papers}\\PK profile\_id, paper\_id\\FK profile\_id\\FK paper\_id};
+  \node[entity] (papers)  at ( 3.4,-3.6)  {\textbf{scholar\_papers}\\PK id\\semantic\_scholar\_id UNIQUE\\title\\authors};
+
+  \draw[fk] (users)  -- node[note] {1--0/1} (profs);
+  \draw[fk] (profs)  -- node[note] {1--N} (ppapers);
+  \draw[fk] (papers) -- node[note] {1--N} (ppapers);
+
+\end{tikzpicture}
+\end{adjustbox}
+\caption{ERD — Hồ sơ học giả và bài báo.}
+\label{fig:appendix-a-core-erd-c}
+\end{figure}
+
+Hình~\ref{fig:appendix-a-ai-erd} tách riêng các bảng thuộc schema \textit{ai}. Các bảng này lưu phiên Chatbot Agent, nhật ký công cụ, lượt chạy của Submission Gating, Review Quality Auditor và Reviewer Initial Analysis. Chair Decision Copilot trong phần backend sử dụng dữ liệu nguồn và lớp lưu trữ riêng của hệ thống; phần phụ lục chỉ mô tả bảng đã xác nhận trong schema \textit{ai}.
 
 \begin{figure}[H]
 \centering
-\begin{adjustbox}{max width=\textwidth}
+\begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
-  entity/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.5cm, minimum height=9mm, fill=green!6, font=\scriptsize},
-  relation/.style={-{Latex},thick,draw=black!70},
-  logical/.style={-{Latex},thick,dashed,draw=blue!65!black}, >=Latex]
-  \node[entity] (users) at (-6.6,0) {users};
-  \node[entity] (conferences) at (-2.2,0) {conferences};
-  \node[entity] (roles) at (2.2,0) {conference\_user\_roles};
-  \node[entity] (sessions) at (6.6,0) {ai\_sessions / ai\_messages};
-  \node[entity] (scholar) at (-6.6,-2.4) {scholar\_profiles};
-  \node[entity] (submissions) at (-2.2,-2.4) {conference\_submissions};
-  \node[entity] (reviewers) at (2.2,-2.4) {conference\_reviewers};
-  \node[entity] (coi) at (6.6,-2.4) {coi\_relationships};
-  \node[entity] (assignments) at (-2.2,-4.8) {paper\_assignments};
-  \node[entity] (audit) at (2.2,-4.8) {review\_audit\_events};
-  \node[entity] (threads) at (6.6,-4.8) {discussion\_threads};
-  \node[entity] (messages) at (6.6,-7.2) {discussion\_messages};
-  \draw[relation] (users) -- (scholar);
-  \draw[relation] (submissions) -- (assignments);
-  \draw[relation] (reviewers) -- (assignments);
-  \draw[relation] (assignments) -- (audit);
-  \draw[relation] (threads) -- (messages);
-  \draw[logical] (users) -- (roles);
-  \draw[logical] (conferences) -- (roles);
-  \draw[logical] (conferences) -- (submissions);
-  \draw[logical] (submissions) to[bend left=12] (coi);
-  \draw[logical] (users) -- (sessions);
-  \draw[logical] (submissions) to[bend right=12] (threads);
+  entity/.style={draw=black!70, rounded corners=2pt, align=left,
+                 font=\scriptsize, fill=purple!6, inner sep=5pt},
+  fk/.style={-{Latex},thick,draw=black!75},
+  note/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}]
+  % Cluster A: ai_sessions -> {ai_messages, ai_tool_audit}
+  \node[entity] (sessions) at (-6.5, 0)    {\textbf{ai.ai\_sessions}\\PK thread\_id\\user\_id,user\_email\\status\\pending\_tool\_call};
+  \node[entity] (messages) at (-0.5, 1.4)  {\textbf{ai.ai\_messages}\\PK id\\FK thread\_id\\sequence\_no\\role,parts};
+  \node[entity] (tool)     at (-0.5,-1.4)  {\textbf{ai.ai\_tool\_audit}\\PK id\\FK thread\_id\\tool\_call\_id\\status,tool\_input,output};
+  % Cluster B: gating_runs -> gating_stage_records
+  \node[entity] (gatingRuns)   at (-6.5,-5.1) {\textbf{ai.gating\_runs}\\PK id\\conference\_id\\submission\_id\\mode,verdict};
+  \node[entity] (gatingStages) at (-0.5,-5.1) {\textbf{ai.gating\_stage\_records}\\PK id\\FK run\_id\\stage\_name\\status,detail};
+  % Isolated: review_quality_audit_runs
+  \node[entity] (rqa) at (5.7,-5.1) {\textbf{ai.review\_quality\_audit\_runs}\\PK id\\conference\_id\\assignment\_id\\mode,status\\result\_status};
+  % Cluster C: reviewer_initial_analysis_runs -> {artifacts, stage_records}
+  \node[entity] (riaRuns) at (-6.5,-10.4) {\textbf{ai.reviewer\_initial\_}\\\textbf{analysis\_runs}\\PK id\\conference\_id\\assignment\_id\\submission\_id\\status};
+  \node[entity] (riaArtifacts) at (-0.5,-8.9) {\textbf{ai.reviewer\_initial\_}\\\textbf{analysis\_artifacts}\\PK id\\FK run\_id\\input\_fingerprint\\artifact\_json};
+  \node[entity] (riaStages) at (-0.5,-11.9) {\textbf{ai.reviewer\_initial\_}\\\textbf{analysis\_stage\_records}\\PK id\\FK run\_id\\stage\_name\\status};
+  \draw[fk] (sessions)   -- node[note] {1--N} (messages);
+  \draw[fk] (sessions)   -- node[note] {1--N} (tool);
+  \draw[fk] (gatingRuns) -- node[note] {1--N} (gatingStages);
+  \draw[fk] (riaRuns)    -- node[note,pos=0.55] {1--N} (riaArtifacts);
+  \draw[fk] (riaRuns)    -- node[note,pos=0.55] {1--N} (riaStages);
 \end{tikzpicture}
 \end{adjustbox}
-\caption{Các thực thể triển khai và quan hệ chính trong PostgreSQL}
-\label{fig:appendix-a-data-model}
+\caption{ERD của các bảng lưu vết trong schema \textit{ai}}
+\label{fig:appendix-a-ai-erd}
 \end{figure}
 
 Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện cùng mã chính sách cho mỗi lần chạy. Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill không lưu kết quả theo cơ chế hết hiệu lực mà trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa. Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
@@ -362,7 +498,7 @@ Chủ tọa hoặc Đồng chủ tọa & Không & Toàn bộ chuỗi và tin nh�
 \end{tabular}
 \end{table}
 
-Ngoài mã xác thực dành cho người dùng cuối, hệ thống dùng mã riêng cho tác vụ quản trị nội bộ và giao tiếp giữa dịch vụ AI với endpoint truy vấn của backend. Mã liên dịch vụ không thay thế kiểm tra quyền. Backend vẫn giới hạn tài nguyên, trường dữ liệu và thao tác theo người dùng hiện tại.
+Các quyền trong Bảng~\ref{tab:appendix-a-discussion-permission} chỉ được thực thi khi hội nghị ở giai đoạn reviewing. Ngoài mã xác thực dành cho người dùng cuối, hệ thống dùng mã riêng cho tác vụ quản trị nội bộ và giao tiếp giữa dịch vụ AI với endpoint truy vấn của backend. Mã liên dịch vụ không thay thế kiểm tra quyền. Backend vẫn giới hạn tài nguyên, trường dữ liệu và thao tác theo người dùng hiện tại.
 
 \section{Thuật toán đối sánh và xung đột lợi ích}
 \label{sec:appendix-a-algorithms}
@@ -378,7 +514,7 @@ J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
 \label{eq:appendix-a-jaccard}
 \end{equation}
 
-Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\). Jaccard xem miền chuyên môn như tập không trọng số; điểm không phản ánh mức thành thạo, độ mới của công bố hoặc tầm quan trọng khác nhau giữa các miền.
+Nếu một trong hai tập rỗng, hệ thống gán điểm bằng \(0\). Jaccard xem miền chuyên môn như tập không trọng số; điểm không phản ánh mức thành thạo, độ mới của công bố hoặc tầm quan trọng khác nhau giữa các miền.
 
 \subsection{Thủ tục tạo đề xuất}
 
@@ -387,7 +523,7 @@ Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\). Jaccard xem
 \item Hệ thống loại các cặp có xung đột lợi ích trước khi xếp hạng.
 \item Hệ thống sắp xếp các cặp theo điểm giảm dần. Khi nhiều cặp bằng điểm, hệ thống ưu tiên Phản biện viên có ít bài đang được phân công hơn; nếu mức tải vẫn bằng nhau, hệ thống dùng thứ tự cố định theo định danh.
 \item Lượt đầu giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh trong lượt chạy và xung đột lợi ích.
-\item Đối với bài chưa có Phản biện viên sau lượt đầu, lượt dự phòng bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích và chỉ bổ sung một Phản biện viên.
+\item Đối với bài chưa có Phản biện viên sau lượt đầu, lượt dự phòng bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích và bổ sung ứng viên còn thiếu theo cấu hình hiện hành.
 \item Hệ thống trả đề xuất, điểm số, số phân công phát sinh và danh sách bài còn thiếu người để Chủ tọa kiểm tra.
 \end{enumerate}
 
@@ -401,7 +537,7 @@ Tình huống & Cách xử lý \\ \hline
 \endhead
 Bài không có đủ ứng viên không xung đột & Đánh dấu thiếu Phản biện viên để Chủ tọa mời thêm hoặc phân công thủ công \\ \hline
 Hồ sơ thiếu miền chuyên môn & Giữ ứng viên với điểm thấp nếu không có xung đột, nhưng không ưu tiên \\ \hline
-Neo4j chưa được cấu hình & Áp dụng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị \\ \hline
+Neo4j chưa được cấu hình hoặc không khả dụng & Áp dụng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị \\ \hline
 Tất cả ứng viên phù hợp đều có xung đột & Không tự động gán; xung đột lợi ích vẫn là ràng buộc cứng \\ \hline
 Nhiều cặp bằng điểm & Ưu tiên Phản biện viên có ít bài đang được phân công hơn; nếu vẫn bằng nhau, dùng thứ tự cố định theo định danh để giữ kết quả ổn định \\ \hline
 \end{longtable}
@@ -412,39 +548,12 @@ Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biệ
 
 \begin{figure}[H]
 \centering
-\begin{adjustbox}{max width=\textwidth}
-\begin{tikzpicture}[
-  source/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.7cm, minimum height=12mm, fill=blue!7},
-  process/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.4cm, minimum height=13mm, fill=green!7},
-  warning/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.4cm, minimum height=13mm, fill=orange!9}, >=Latex]
-  \node[source] (author) at (-5.2,0) {Quan hệ tác giả của bài};
-  \node[source] (declared) at (0,0) {Xung đột đã khai báo};
-  \node[source] (graph) at (5.2,0) {Đồng tác giả nhiều bậc};
-  \node[process] (map) at (-5.2,-3.1) {Tạo bản đồ xung đột cho lượt đối sánh};
-  \node[process] (auto) at (-5.2,-5.8) {Loại cặp xung đột trong cả hai lượt};
-  \node[process] (refresh) at (0,-3.1) {Tác vụ cập nhật quan hệ xung đột};
-  \node[process] (stored) at (0,-5.8) {Lưu bằng chứng trong PostgreSQL};
-  \node[warning] (manual) at (5.2,-3.1) {Đề xuất thủ công kiểm tra trực tiếp và đọc dữ liệu đã lưu nếu có};
-  \node[warning] (result) at (5.2,-5.8) {Trả cảnh báo và lưu trạng thái kiểm tra trong đề xuất};
-  \draw[-{Latex},thick] (author) -- (map);
-  \draw[-{Latex},thick] (declared) -- (map);
-  \draw[-{Latex},thick] (graph) -- (map);
-  \draw[-{Latex},thick] (map) -- (auto);
-  \draw[-{Latex},thick] (author) -- (refresh);
-  \draw[-{Latex},thick] (declared) -- (refresh);
-  \draw[-{Latex},thick] (graph) -- (refresh);
-  \draw[-{Latex},thick] (refresh) -- (stored);
-  \draw[-{Latex},thick] (author) -- (manual);
-  \draw[-{Latex},thick] (declared) -- (manual);
-  \draw[-{Latex},thick,dashed] (stored) to[bend right=15] (manual);
-  \draw[-{Latex},thick] (manual) -- (result);
-\end{tikzpicture}
-\end{adjustbox}
+\includegraphics[width=0.95\textwidth]{images/appendix_a_coi.png}
 \caption{Ba luồng sử dụng kết quả phát hiện xung đột lợi ích}
-\label{fig:appendix-a-coi-flows}
+\label{fig:appendix_a_coi_flow}
 \end{figure}
 
-Bản đồ xung đột phục vụ trực tiếp cho lượt đối sánh tự động. Bảng quan hệ xung đột lưu bằng chứng qua tác vụ cập nhật riêng. Đề xuất thủ công kiểm tra quan hệ hiện có và trả cảnh báo nhưng chưa ngăn Chủ tọa lưu đề xuất, đồng thời chưa có bản ghi kiểm toán riêng cho quyết định tiếp tục.
+Bản đồ xung đột phục vụ trực tiếp cho lượt đối sánh tự động và được xem như ràng buộc cứng trong thuật toán. Bảng \textit{coi\_relationships} lưu bằng chứng qua tác vụ cập nhật riêng. Đề xuất thủ công kiểm tra quan hệ hiện có và trả cảnh báo nhưng chưa ngăn Chủ tọa lưu đề xuất, đồng thời chưa có bản ghi kiểm toán riêng cho quyết định tiếp tục.
 
 \section{Đặc tả các luồng AI}
 \label{sec:appendix-a-ai}
@@ -487,10 +596,10 @@ Lỗi & Cảnh báo đọc tệp, thiếu thông tin hoặc thất bại khi t�
 
 \subsection{Submission Gating}
 
-Submission Gating gồm bảy giai đoạn: chuẩn hóa yêu cầu, kiểm tra tính toàn vẹn của tệp, trích xuất tài liệu, xác định dữ kiện, đánh giá nội dung, kiểm tra chính sách bằng quy tắc xác định và ánh xạ trạng thái. Lỗi cấu trúc, định dạng không được hỗ trợ, tệp hỏng hoặc không thể trích xuất tạo lỗi chặn rõ ràng. Quy tắc về số trang, tài liệu tham khảo, phần bắt buộc, ẩn danh, cụm từ cấm, phông chữ, lề, khổ giấy và số cột có thể tạo trạng thái chặn. Nhận định định tính của AI chỉ tạo cảnh báo hoặc trạng thái đạt.
+Ở mức triển khai, Submission Gating gồm các bước: \textit{intake\_normalization}, \textit{binary\_integrity}, \textit{document\_extraction}, \textit{format\_compliance}, \textit{fact\_derivation}, \textit{content\_evaluation}, \textit{policy\_evaluation}, \textit{verdict\_mapping}, \textit{guidance\_rendering} và \textit{persistence\_audit}. Trong báo cáo, các bước này được nhóm thành các giai đoạn khái quát ở Bảng~\ref{tab:appendix-a-gating-stages}. Lỗi cấu trúc, định dạng không được hỗ trợ, tệp hỏng hoặc không thể trích xuất tạo lỗi chặn rõ ràng. Quy tắc về số trang, tài liệu tham khảo, phần bắt buộc, ẩn danh, cụm từ cấm, phông chữ, lề, khổ giấy và số cột có thể tạo trạng thái chặn. Nhận định định tính của AI chỉ tạo cảnh báo hoặc trạng thái đạt.
 
 \begin{longtable}{|N{0.08\textwidth}|T{0.25\textwidth}|T{0.31\textwidth}|T{0.25\textwidth}|}
-\caption{Các giai đoạn của Submission Gating}\label{tab:appendix-a-gating-stages}\\
+\caption{Các giai đoạn khái quát của Submission Gating}\label{tab:appendix-a-gating-stages}\\
 \hline
 Bước & Giai đoạn & Xử lý & Kết quả lỗi \\ \hline
 \endfirsthead
@@ -499,11 +608,11 @@ Bước & Giai đoạn & Xử lý & Kết quả lỗi \\ \hline
 \endhead
 1 & Chuẩn hóa đầu vào & Chuẩn hóa yêu cầu, tác nhân, chính sách và siêu dữ liệu tệp & Từ chối yêu cầu sai cấu trúc \\ \hline
 2 & Kiểm tra tệp & Kiểm tra định dạng, dung lượng và khả năng đọc & Chặn định dạng không hỗ trợ hoặc vượt giới hạn \\ \hline
-3 & Trích xuất & Đọc tài liệu và trích văn bản, phần cùng bố cục & Chặn tệp hỏng, bị khóa hoặc không trích xuất được \\ \hline
+3 & Trích xuất và kiểm tra định dạng & Đọc tài liệu, trích văn bản, phần và dữ kiện bố cục & Chặn tệp hỏng, bị khóa hoặc không trích xuất được \\ \hline
 4 & Xác định dữ kiện & Xác định số trang, tài liệu tham khảo, phần, ẩn danh và định dạng & Ghi dữ kiện để các bước sau sử dụng \\ \hline
-5 & Đánh giá nội dung & Kiểm tra nội dung theo chỉ dẫn rà soát của Chủ tọa & Chỉ tạo cảnh báo hoặc trạng thái đạt \\ \hline
+5 & Đánh giá nội dung & Kiểm tra nội dung theo chỉ dẫn rà soát của Chủ tọa nếu được cấu hình & Chỉ tạo cảnh báo hoặc trạng thái đạt \\ \hline
 6 & Kiểm tra chính sách & Áp dụng các quy tắc xác định của hội nghị & Có thể tạo trạng thái chặn \\ \hline
-7 & Ánh xạ trạng thái & Tổng hợp phát hiện, hướng dẫn và dữ liệu kiểm toán & Trả trạng thái đạt, cảnh báo, chặn hoặc lỗi \\ \hline
+7 & Ánh xạ, hướng dẫn và lưu vết & Tổng hợp phát hiện, hướng dẫn, mã nhận diện và dữ liệu kiểm toán & Trả trạng thái đạt, cảnh báo, chặn hoặc lỗi \\ \hline
 \end{longtable}
 
 Dữ liệu kiểm toán gồm mã nhận diện đầu vào, mã chính sách, bản tóm tắt theo mức độ, thời gian từng giai đoạn và các giai đoạn bị bỏ qua hoặc gặp lỗi. Luồng không đưa ra quyết định từ chối bài về mặt học thuật.
@@ -528,7 +637,7 @@ Kiểm soát & Phản biện viên đọc bản định hướng rồi đối ch
 
 \subsection{Review Quality Auditor}
 
-Luồng đọc bản nháp phản biện, điểm số, khuyến nghị, độ tự tin, chính sách và ngữ cảnh bài nộp. Đầu ra gồm trạng thái pass, warn hoặc block; bản tóm tắt về độ cụ thể, mức độ dựa trên bằng chứng và tính nhất quán; cùng danh sách phát hiện có mã vấn đề, trường liên quan, mức độ, lý do và hướng khắc phục. Luồng không đánh giá chất lượng học thuật của bài và không thay đổi điểm hoặc khuyến nghị. Tuy nhiên, lớp nghiệp vụ có thể ánh xạ phát hiện mức blocking thành trạng thái block khi Phản biện viên gửi chính thức; phiên bản hiện tại chưa cho phép ghi đè phát hiện blocking.
+Luồng đọc bản nháp phản biện, điểm số, khuyến nghị, độ tự tin, chính sách và ngữ cảnh bài nộp. Đầu ra gồm trạng thái pass, warn hoặc block; bản tóm tắt về độ cụ thể, mức độ dựa trên bằng chứng và tính nhất quán; cùng danh sách phát hiện có mã vấn đề, trường liên quan, mức độ, lý do và hướng khắc phục. Luồng không đánh giá chất lượng học thuật của bài và không thay đổi điểm hoặc khuyến nghị. Tuy nhiên, lớp nghiệp vụ có thể ánh xạ phát hiện mức blocking thành trạng thái block khi Phản biện viên gửi chính thức; phiên bản hiện tại chưa cho phép ghi đè phát hiện blocking. Đây là giới hạn của phiên bản hiện tại so với nguyên tắc AI chỉ hỗ trợ và cần được ghi nhận riêng trong đánh giá.
 
 \begin{longtable}{|T{0.17\textwidth}|T{0.32\textwidth}|T{0.40\textwidth}|}
 \caption{Trạng thái và hành vi của Review Quality Auditor}\label{tab:appendix-a-rqa-states}\\
@@ -540,11 +649,11 @@ Trạng thái & Khi xảy ra & Hành vi \\ \hline
 \endhead
 Pass & Không có phát hiện đáng kể về độ cụ thể, căn cứ hoặc tính nhất quán & Phản biện viên có thể tiếp tục lưu hoặc gửi \\ \hline
 Warn & Có vấn đề cần xem lại nhưng không ngăn thao tác & Giao diện hiển thị phát hiện; Phản biện viên có thể sửa, bỏ qua hoặc xác nhận theo chính sách \\ \hline
-Block & Lớp nghiệp vụ ánh xạ ít nhất một phát hiện mức blocking thành yêu cầu xử lý trước khi gửi chính thức & Khi lưu nháp, giao diện chỉ hiển thị phát hiện; khi gửi chính thức, hệ thống chặn thao tác và phiên bản hiện tại chưa có cơ chế ghi đè \\ \hline
-Lỗi thực thi & Dịch vụ không thể hoàn tất bước rà soát & Backend yêu cầu Phản biện viên xác nhận tiếp tục khi không có kết quả và ghi sự kiện vào nhật ký \\ \hline
+Block & Có ít nhất một phát hiện mức blocking; trạng thái tổng hợp được gắn \CodeBreak{status=block} để ưu tiên hiển thị & Giao diện làm nổi bật phát hiện nghiêm trọng; thao tác gửi vẫn khả dụng; Phản biện viên quyết định chỉnh sửa hoặc tiếp tục gửi \\ \hline
+Lỗi thực thi & Dịch vụ không thể hoàn tất bước rà soát & Backend yêu cầu Phản biện viên xác nhận tiếp tục khi không có kết quả và ghi sự kiện vào nhật ký; nhánh này không phải cơ chế ghi đè đối với phát hiện blocking \\ \hline
 \end{longtable}
 
-Hệ thống phân biệt phát hiện về chất lượng với lỗi không thể thực hiện bước rà soát. Phát hiện chất lượng cung cấp thông tin để Phản biện viên xem xét, nhưng phát hiện mức blocking hiện có thể hạn chế quyền gửi phản biện vì chưa có cơ chế ghi đè. Lỗi thực thi được thông báo rõ và ghi vào nhật ký. Phản biện viên vẫn chịu trách nhiệm về nhận định chuyên môn trong bản phản biện cuối cùng; cơ chế block là giới hạn chưa đáp ứng đầy đủ nguyên tắc AI chỉ hỗ trợ.
+Hệ thống phân biệt phát hiện về chất lượng với lỗi không thể thực hiện bước rà soát. Phát hiện chất lượng, kể cả mức blocking, chỉ cung cấp thông tin để Phản biện viên xem xét và không vô hiệu hóa thao tác gửi. Lỗi thực thi được thông báo rõ, yêu cầu xác nhận tiếp tục và ghi vào nhật ký. Phản biện viên vẫn chịu trách nhiệm về nhận định chuyên môn trong bản phản biện cuối cùng.
 
 \subsection{Chair Decision Copilot}
 
@@ -568,36 +677,47 @@ Kiểm soát & Chủ tọa đối chiếu trực tiếp với dữ liệu gốc 
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang. Nếu cần dữ liệu hệ thống, công cụ gửi yêu cầu gồm tài nguyên, trường cần lấy, điều kiện lọc, phép tổng hợp, thứ tự và giới hạn số dòng đến backend. Backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên, quyền trên từng trường và điều kiện lọc.
 
+Đầu ra gồm câu trả lời, các dòng dữ liệu được phép trả, thông tin phân trang và trạng thái thành công, lỗi hoặc hết thời gian. Backend từ chối tài nguyên hoặc trường nằm ngoài danh mục, bộ lọc không được phép và dữ liệu vượt quyền của người dùng. Dịch vụ AI không được truy cập trực tiếp cơ sở dữ liệu hoặc bỏ qua cơ chế phân quyền.
+
 \begin{figure}[H]
 \centering
-\begin{adjustbox}{max width=0.88\textwidth, max height=0.76\textheight, keepaspectratio}
+\begin{adjustbox}{max width=0.9\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
   processNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=5.0cm, minimum height=10mm, fill=blue!7},
   decision/.style={draw=black!65, diamond, aspect=2.1, align=center, text width=3.2cm, fill=orange!9}]
   \node[processNode] (question) at (0,0) {Người dùng gửi câu hỏi};
-  \node[processNode] (context) at (0,-2.5) {Nhận lịch sử hội thoại và ngữ cảnh trang};
-  \node[decision] (need) at (0,-5.5) {Cần dữ liệu hệ thống?};
-  \node[processNode] (guide) at (-4.8,-8.5) {Trả lời hướng dẫn trong phạm vi nền tảng};
-  \node[processNode] (query) at (4.8,-8.5) {Gửi yêu cầu có cấu trúc đến backend};
-  \node[processNode] (auth) at (4.8,-11.2) {Kiểm tra hai mã xác thực và danh mục tài nguyên};
-  \node[processNode] (data) at (4.8,-13.9) {Trả phần dữ liệu tối thiểu được phép};
-  \node[processNode] (answer) at (0,-16.8) {Tạo câu trả lời và trạng thái công cụ};
+  \node[processNode] (context) at (0,-2.4) {Nhận lịch sử hội thoại và ngữ cảnh trang};
+  \node[decision] (need) at (0,-5.2) {Cần dữ liệu hệ thống?};
+  \node[processNode] (guide) at (-5.2,-8.2) {Trả lời hướng dẫn trong phạm vi nền tảng};
+  \node[processNode] (query) at (5.2,-8.2) {Gửi yêu cầu có cấu trúc đến backend};
+  \node[processNode] (serviceAuth) at (5.2,-10.8) {Kiểm tra mã xác thực dịch vụ};
+  \node[processNode] (userAuth) at (5.2,-13.4) {Kiểm tra quyền người dùng hiện tại};
+  \node[processNode] (allowlist) at (5.2,-16.0) {Kiểm tra tài nguyên, trường và bộ lọc được phép};
+  \node[decision] (allowed) at (5.2,-18.8) {Hợp lệ?};
+  \node[processNode] (reject) at (10.2,-21.6) {Từ chối yêu cầu ngoài phạm vi};
+  \node[processNode] (data) at (0,-21.6) {Trả phần dữ liệu tối thiểu được phép};
+  \node[processNode] (answer) at (0,-24.4) {Tạo câu trả lời và trạng thái công cụ};
+
   \draw[-{Latex},thick] (question) -- (context);
   \draw[-{Latex},thick] (context) -- (need);
   \draw[-{Latex},thick] (need) -- node[fill=white] {Không} (guide);
   \draw[-{Latex},thick] (need) -- node[fill=white] {Có} (query);
-  \draw[-{Latex},thick] (query) -- (auth);
-  \draw[-{Latex},thick] (auth) -- (data);
-  \draw[-{Latex},thick] (guide) -- (answer);
+  \draw[-{Latex},thick] (query) -- (serviceAuth);
+  \draw[-{Latex},thick] (serviceAuth) -- (userAuth);
+  \draw[-{Latex},thick] (userAuth) -- (allowlist);
+  \draw[-{Latex},thick] (allowlist) -- (allowed);
+  \draw[-{Latex},thick] (allowed) -- node[fill=white] {Không} (reject);
+  \draw[-{Latex},thick] (allowed) -- node[fill=white] {Có} (data);
+  \draw[-{Latex},thick] (guide) |- (answer);
   \draw[-{Latex},thick] (data) -- (answer);
+  \draw[-{Latex},thick,dashed] (reject) |- (answer);
 \end{tikzpicture}
 \end{adjustbox}
 \caption{Luồng Chatbot Agent truy vấn dữ liệu theo quyền}
 \label{fig:appendix-a-chatbot-flow}
 \end{figure}
 
-Đầu ra gồm câu trả lời, các dòng dữ liệu được phép trả, thông tin phân trang và trạng thái thành công, lỗi hoặc hết thời gian. Backend từ chối tài nguyên hoặc trường nằm ngoài danh mục, bộ lọc không được phép và dữ liệu vượt quyền của người dùng. Dịch vụ AI không được truy cập trực tiếp cơ sở dữ liệu hoặc bỏ qua cơ chế phân quyền.
-
+\pagebreak
 \subsection{Kiểm soát dùng chung}
 
 \begin{longtable}{|T{0.28\textwidth}|T{0.62\textwidth}|}

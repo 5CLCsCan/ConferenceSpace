@@ -130,14 +130,14 @@ Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp v
         \node[actorLabel] at (0,-0.95) {Phản biện viên};
         \coordinate (reviewerPt) at (-0.4, 0.35);
       \end{scope}
-      \begin{scope}[shift={(1.25, -12.5)}]
+      \begin{scope}[shift={(1.25, -13.5)}]
         \draw[thin, fill=orange!70] (0, 1.2) circle (0.22);
         \draw[thin] (0, 0.98) -- (0, 0.0);
         \draw[thin] (0, 0.75) -- (-0.4, 0.35);
         \draw[thin] (0, 0.75) -- (0.4, 0.35);
         \draw[thin] (0, 0.0) -- (-0.35, -0.5);
         \draw[thin] (0, 0.0) -- (0.35, -0.5);
-        \node[actorLabel, text width=2.8cm, align=center] at (0,-1.05) {Chủ tọa /\\Đồng chủ tọa};
+        \node[actorLabel, text width=10cm, align=center] at (0,-1.25) {Chủ tọa /\\Đồng chủ tọa};
         \coordinate (chairPt) at (0, 1.42);
       \end{scope}
       \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc01.west);
@@ -221,7 +221,7 @@ Mười use case cùng tham gia một vòng đời từ khi Tác giả chuẩn b
   stage/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.0cm, minimum height=12mm, fill=blue!7},
   decision/.style={draw=black!65, diamond, aspect=2.2, align=center, text width=2.5cm, fill=orange!9},
   note/.style={font=\footnotesize, align=center, fill=white, inner sep=1pt}, >=Latex]
-  \node[stage] (draft) at (0,0) {Bài nháp};
+  \node[stage] (draft) at (-1,0) {Bài nháp};
   \node[stage] (submitted) at (4.2,0) {Bài đã gửi};
   \node[stage,fill=gray!9] (withdrawn) at (4.2,-2.4) {Bài đã rút};
   \node[stage] (assigned) at (8.4,0) {Phân công phản biện};
@@ -385,12 +385,12 @@ Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận t
 \label{fig:ch3-demo-uc04-invitations}
 \end{figure}
 
-Sau khi phân công được tạo, Hình~\ref{fig:ch3-demo-uc04-accept-deny} cho thấy giao diện chi tiết bài viết để Phản biện viên lựa chọn đồng ý hoặc từ chối.
+Sau khi phân công được tạo, Hình~\ref{fig:ch3-demo-uc04-accept-deny} cho thấy giao diện tổng quan bài viết để Phản biện viên lựa chọn đồng ý hoặc từ chối.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
-\caption{Giao diện chi tiết bài viết được phân công để Phản biện viên lựa chọn đồng ý hoặc từ chối}
+\caption{Giao diện giới thiệu tổng quan được phân công để Phản biện viên lựa chọn đồng ý hoặc từ chối}
 \label{fig:ch3-demo-uc04-accept-deny}
 \end{figure}
 
@@ -556,16 +556,16 @@ ConferenceSpace gồm giao diện web Next.js, backend Go và Gin, dịch vụ A
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[>=Latex,
   box/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.0cm, minimum height=11mm, fill=blue!7}]
-  \node[box] (browser) at (0,0) {Trình duyệt};
-  \node[box] (caddy) at (0,-2.2) {Caddy};
-  \node[box] (web) at (0,-4.4) {Next.js};
-  \node[box] (backend) at (0,-6.6) {Backend Go và Gin};
+  \node[box] (browser) at (-2,0) {Trình duyệt};
+  \node[box] (caddy) at (-2,-2.2) {Caddy};
+  \node[box] (web) at (-2,-4.4) {Next.js};
+  \node[box] (backend) at (-2,-6.6) {Backend Go và Gin};
   \node[box,fill=green!7] (postgres) at (-6.0,-9.2) {PostgreSQL};
   \node[box,fill=green!7] (neo4j) at (-2.0,-9.2) {Neo4j};
-  \node[box,fill=orange!9] (ai) at (2.0,-9.2) {Dịch vụ AI};
-  \node[box] (external) at (6.0,-9.2) {Nguồn dữ liệu học thuật};
-  \node[box,fill=green!7] (redis) at (0,-11.8) {Redis};
-  \node[box] (provider) at (4.2,-11.8) {Nhà cung cấp mô hình};
+  \node[box,fill=orange!9] (ai) at (4.0,-2.2) {Dịch vụ AI};
+  \node[box] (external) at (2.4,-9.2) {Nguồn dữ liệu học thuật};
+  \node[box,fill=green!7] (redis) at (2.4,-6.8) {Redis};
+  \node[box] (provider) at (6.2,-6.8) {Nhà cung cấp mô hình};
   \draw[-{Latex},thick] (browser) -- (caddy);
   \draw[-{Latex},thick] (caddy) -- (web);
   \draw[-{Latex},thick] (web) -- (backend);
@@ -651,8 +651,8 @@ Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\) vì không c
   \node[processNode] (filter) at (0,-2.2) {Loại các cặp có xung đột lợi ích};
   \node[processNode] (sort) at (0,-4.4) {Sắp xếp điểm giảm dần};
   \node[pass] (pass1) at (0,-7.0) {Lượt 1: giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh và xung đột lợi ích};
-  \node[decision] (missing) at (0,-10.2) {Bài nào vẫn chưa có Phản biện viên?};
-  \node[pass] (pass2) at (5.8,-13.4) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
+  \node[decision] (missing) at (0,-11.2) {Bài nào vẫn chưa có Phản biện viên?};
+  \node[pass] (pass2) at (8.8,-13.4) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
   \node[processNode] (result) at (0,-16.4) {Trả đề xuất và danh sách bài còn thiếu người};
   \node[processNode,fill=orange!9] (confirm) at (0,-18.8) {Chủ tọa xem, điều chỉnh và xác nhận};
   \draw[-{Latex},thick] (matrix) -- (filter);

@@ -3,12 +3,12 @@
 \chapter{Môi trường và triển khai}
 \label{AppendixB}
 
-Phụ lục này cung cấp thông tin kỹ thuật để tái lập môi trường phát triển và đối chiếu quy trình triển khai đã trình bày trong Chương~\ref{Chapter3}. Nội dung được tổ chức theo trình tự vận hành, từ chuẩn bị môi trường cục bộ, cấu hình các dịch vụ, đóng gói container đến phát hành image và cập nhật hệ thống chính thức. Các tên dịch vụ, cổng, biến cấu hình và lệnh được giữ theo hai tài liệu nguồn của Chương~3 để bảo đảm khả năng truy vết.
+Phụ lục này trình bày các thông tin kỹ thuật cần thiết để tái lập môi trường phát triển và đối chiếu quy trình triển khai đã nêu trong Chương~\ref{Chapter3}. Nội dung được tổ chức theo trình tự vận hành: chuẩn bị môi trường cục bộ, cấu hình dịch vụ, đóng gói container, phát hành image và cập nhật hệ thống chính thức. Tên dịch vụ, cổng, biến cấu hình và lệnh triển khai được giữ theo các file cấu hình gốc để người đọc có thể đối chiếu khi cần.
 
 \section{Phạm vi và nguyên tắc triển khai}
 \label{sec:appendix-b-scope}
 
-Hệ thống được vận hành theo hai chế độ. Môi trường phát triển cục bộ ưu tiên khả năng kiểm tra độc lập từng thành phần, trong khi môi trường chính thức ưu tiên tính lặp lại của bản phát hành, cô lập mạng và bảo vệ bí mật. Hai chế độ dùng cùng các thành phần nền tảng nhưng khác cách khởi tạo và cung cấp cấu hình.
+Hệ thống được mô tả theo hai chế độ vận hành. Môi trường phát triển cục bộ ưu tiên khả năng kiểm tra độc lập từng thành phần. Môi trường chính thức ưu tiên tính lặp lại của bản phát hành, cô lập mạng và bảo vệ thông tin nhạy cảm. Hai chế độ sử dụng cùng nhóm thành phần nền tảng, nhưng khác nhau ở cách khởi tạo, cấu hình và phạm vi công bố dịch vụ.
 
 \begin{table}[H]
 \centering
@@ -18,22 +18,22 @@ Hệ thống được vận hành theo hai chế độ. Môi trường phát tri
 \hline
 Chế độ & Mục tiêu & Cách vận hành \\ \hline
 Phát triển cục bộ & Hỗ trợ lập trình, kiểm thử và quan sát lỗi của từng thành phần & PostgreSQL, Redis, Neo4j và dịch vụ AI chạy bằng Docker Compose; backend và frontend có thể chạy trực tiếp trên máy phát triển \\ \hline
-Triển khai chính thức & Phát hành phiên bản có thể tái tạo và thay thế nhất quán & Caddy, frontend, backend, dịch vụ AI, tác vụ migration, PostgreSQL, Redis và Neo4j chạy bằng Docker Compose; ba thành phần ứng dụng dùng image phát hành từ GitHub Container Registry \\ \hline
+Triển khai chính thức & Phát hành phiên bản có thể tái lập và thay thế nhất quán & Caddy, frontend, backend, dịch vụ AI, tác vụ migration, PostgreSQL, Redis và Neo4j chạy bằng Docker Compose; ba thành phần ứng dụng dùng image phát hành từ GitHub Container Registry \\ \hline
 \end{tabularx}
 \end{table}
 
-Các nguyên tắc vận hành gồm: tách bí mật khỏi mã nguồn và image; chỉ công bố các cổng cần thiết; đặt các dịch vụ nội bộ trong cùng mạng Docker; duy trì dữ liệu bằng volume; kiểm tra trạng thái dịch vụ trước khi xác nhận triển khai; và dùng định danh phiên bản bất biến thay cho việc phụ thuộc duy nhất vào nhãn mới nhất.
+Các nguyên tắc vận hành gồm: tách thông tin nhạy cảm khỏi mã nguồn và image; chỉ mở các cổng cần thiết; đặt các dịch vụ nội bộ trong cùng mạng Docker; duy trì dữ liệu bằng volume; kiểm tra trạng thái dịch vụ trước khi xác nhận triển khai; và dùng định danh commit cố định thay vì chỉ phụ thuộc vào nhãn \textit{latest}.
 
 \section{Môi trường phát triển cục bộ}
 \label{sec:appendix-b-local}
 
 \subsection{Yêu cầu công cụ}
 
-Máy phát triển cần có Docker cùng Docker Compose, Go phiên bản 1.24, Node.js phiên bản 20 trở lên và npm. Docker cung cấp PostgreSQL, Redis và Neo4j; Go chạy backend; Node.js và npm chạy frontend. Cách tách này cho phép lập trình viên khởi động lại mã ứng dụng mà không phải tái tạo các dịch vụ dữ liệu.
+Máy phát triển cần có Docker cùng Docker Compose, Go phiên bản 1.24, Node.js phiên bản 20 trở lên và npm. Docker cung cấp PostgreSQL, Redis và Neo4j; Go chạy backend; Node.js và npm chạy frontend. Cách tổ chức này giúp lập trình viên khởi động lại backend hoặc frontend nhanh hơn mà không phải tạo lại các dịch vụ dữ liệu.
 
 \subsection{Quy trình khởi động môi trường}
 
-Từ thư mục \path{backend}, Makefile tự động hóa trình tự khởi tạo kho dữ liệu, migration, đồ thị, dịch vụ AI, tài liệu API và backend. Target chính của quy trình là:
+Từ thư mục \path{backend}, Makefile tự động hóa việc khởi động các dịch vụ dữ liệu, chạy migration, khởi tạo Neo4j, tạo lại tài liệu Swagger và chạy backend. Target chính của quy trình là:
 
 \begin{lstlisting}[language=bash, caption={Trình tự khởi động môi trường phát triển}, label={lst:appendix-b-local-make-dev}]
 dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server
@@ -46,7 +46,7 @@ migrate-up:
     -database "postgresql://postgres:postgres@localhost:5432/conferencespace?sslmode=disable" up
 \end{lstlisting}
 
-Lệnh \textit{make dev} khởi động PostgreSQL, Redis, Neo4j và dịch vụ AI, áp dụng migration, khởi tạo Neo4j, tạo lại tài liệu Swagger rồi chạy backend trên cổng 8080. Khi cần chạy toàn bộ backend trong container, người phát triển dùng \textit{make docker-up}; các target \textit{docker-down}, \textit{docker-logs} và \textit{status} lần lượt dừng dịch vụ, theo dõi nhật ký và kiểm tra trạng thái.
+Lệnh \textit{make dev} khởi động PostgreSQL, Redis, Neo4j và dịch vụ AI, áp dụng migration, khởi tạo Neo4j, tạo lại tài liệu Swagger rồi chạy backend trên cổng 8080. Khi cần chạy toàn bộ backend trong container, người phát triển dùng \textit{make docker-up}; các target \textit{docker-down}, \textit{docker-logs} và \textit{status} lần lượt dùng để dừng dịch vụ, theo dõi nhật ký và kiểm tra trạng thái.
 
 Frontend được khởi động trong thư mục \path{frontend}.
 
@@ -55,7 +55,7 @@ npm install
 npm run dev
 \end{lstlisting}
 
-Dịch vụ AI có thể chạy trong Docker Compose hoặc chạy độc lập để kiểm tra điểm tích hợp.
+Dịch vụ AI có thể chạy cùng Docker Compose hoặc chạy riêng khi cần kiểm tra trực tiếp các điểm tích hợp.
 
 \begin{lstlisting}[language=bash, caption={Khởi động riêng dịch vụ AI để kiểm thử}, label={lst:appendix-b-local-ai}]
 poetry install
@@ -76,7 +76,7 @@ Thành phần & Điểm truy cập & Cổng & Tiêu chí kiểm tra \\ \hline
 \endhead
 Frontend & \url{http://localhost:3000} & 3000 & Trang ứng dụng được tải và có thể gọi backend \\ \hline
 Backend & \url{http://localhost:8080} & 8080 & Máy chủ tiếp nhận yêu cầu HTTP \\ \hline
-Backend health & \url{http://localhost:8080/health} & 8080 & Phản hồi kiểm tra sức khỏe thành công \\ \hline
+Backend health & \url{http://localhost:8080/health} & 8080 & Phản hồi kiểm tra trạng thái thành công \\ \hline
 Swagger & \url{http://localhost:8080/swagger/index.html} & 8080 & Tài liệu API được hiển thị \\ \hline
 Dịch vụ AI & \url{http://localhost:8090/health} và \path{/ready} & 8090 & Hai điểm kiểm tra trạng thái trả phản hồi hợp lệ \\ \hline
 PostgreSQL & localhost & 5432 & \textit{make db-shell} hoặc \textit{pg\_isready} thành công \\ \hline
@@ -87,14 +87,14 @@ Neo4j Bolt & localhost & 7687 & Backend thiết lập được kết nối Bolt 
 
 \subsection{Trình tự xác nhận môi trường cục bộ}
 
-Môi trường chỉ được xem là sẵn sàng sau khi hoàn tất bốn bước kiểm tra. Thứ nhất, các container PostgreSQL, Redis và Neo4j phải ở trạng thái hoạt động. Thứ hai, backend phải hoàn tất kết nối cơ sở dữ liệu và migration mà không có lỗi. Thứ ba, điểm kiểm tra sức khỏe phải trả phản hồi thành công. Thứ tư, frontend phải tải được và gửi yêu cầu qua backend. Trình tự này giúp phân biệt lỗi hạ tầng, lỗi migration và lỗi tích hợp giao diện thay vì gộp chúng thành một lỗi khởi động chung.
+Môi trường cục bộ nên được xem là sẵn sàng sau khi vượt qua bốn bước kiểm tra cơ bản. Thứ nhất, các container PostgreSQL, Redis và Neo4j phải ở trạng thái hoạt động. Thứ hai, backend phải kết nối được cơ sở dữ liệu và hoàn tất migration mà không có lỗi. Thứ ba, các điểm kiểm tra trạng thái phải trả phản hồi thành công. Thứ tư, frontend phải tải được và gửi yêu cầu qua backend. Trình tự này giúp tách lỗi hạ tầng, lỗi migration và lỗi tích hợp giao diện, thay vì xem tất cả như một lỗi khởi động chung.
 
 \section{Cấu hình môi trường}
 \label{sec:appendix-b-configuration}
 
 \subsection{Cấu hình backend}
 
-Backend đọc cấu hình từ tệp \path{backend/.env} trong môi trường phát triển. Bảng~\ref{tab:appendix-b-backend-env} giữ nguyên các tên biến cấu hình được mô tả trong nguồn, đồng thời nêu rõ phạm vi trách nhiệm của từng nhóm.
+Backend đọc cấu hình từ tệp \path{backend/.env} trong môi trường phát triển. Bảng~\ref{tab:appendix-b-backend-env} giữ nguyên tên biến cấu hình và mô tả ngắn gọn vai trò của từng nhóm biến.
 
 \begin{longtable}{|T{0.31\textwidth}|T{0.59\textwidth}|}
 \caption{Biến cấu hình của backend}\label{tab:appendix-b-backend-env}\\
@@ -130,15 +130,15 @@ Biến cấu hình & Mục đích \\ \hline
 \CodeBreak{JWT\_EXPIRY\_SECONDS} & Thời hạn cookie hoặc phiên xác thực tại frontend \\ \hline
 \CodeBreak{SMTP\_HOST}, \CodeBreak{SMTP\_PORT} & Máy chủ và cổng SMTP \\ \hline
 \CodeBreak{SMTP\_USERNAME}, \CodeBreak{SMTP\_PASSWORD} & Thông tin xác thực SMTP \\ \hline
-\CodeBreak{FROM\_EMAIL} & Địa chỉ người gửi thư điện tử \\ \hline
-\CodeBreak{EMAIL\_BASE\_URL} & Địa chỉ cơ sở dùng trong liên kết gửi qua thư điện tử \\ \hline
+\CodeBreak{FROM\_EMAIL} & Địa chỉ người gửi email \\ \hline
+\CodeBreak{EMAIL\_BASE\_URL} & Địa chỉ cơ sở dùng trong các liên kết gửi qua email \\ \hline
 \end{longtable}
 
-Các bí mật như mật khẩu cơ sở dữ liệu, khóa JWT, khóa dịch vụ AI và thông tin SMTP không được ghi trực tiếp vào mã nguồn, Dockerfile hoặc image. Mỗi môi trường phải cung cấp giá trị riêng thông qua tệp cấu hình không được theo dõi bởi Git hoặc thông qua cơ chế quản lý bí mật của nền tảng triển khai.
+Các bí mật như mật khẩu cơ sở dữ liệu, khóa JWT, khóa dịch vụ AI và thông tin gửi email không được ghi trực tiếp vào mã nguồn, Dockerfile hoặc image. Mỗi môi trường cần cung cấp giá trị riêng thông qua tệp cấu hình không được theo dõi bởi Git hoặc thông qua cơ chế quản lý bí mật của nền tảng triển khai.
 
 \subsection{Cấu hình dịch vụ AI}
 
-Dịch vụ AI đọc tệp \path{ai-service/.env} bằng \CodeBreak{pydantic-settings}. Nhóm cấu hình nhà cung cấp phải hợp lệ theo một trong hai lựa chọn: OpenRouter với \CodeBreak{OPENROUTER\_API\_KEY} và \CodeBreak{AGENT\_MODEL}, hoặc nhà cung cấp tương thích với API của OpenAI với \CodeBreak{OPENAI\_API\_KEY}, \CodeBreak{OPENAI\_BASE\_URL} và \CodeBreak{OPENAI\_MODEL}. Nguồn quy định giá trị mặc định \CodeBreak{AGENT\_MODEL=openrouter/google/gemini-3.1-flash-lite}, \CodeBreak{OPENAI\_MODEL=gemini-3.1-flash-lite} và \CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS=60}; các khóa truy cập không được ghi giá trị trong báo cáo.
+Dịch vụ AI đọc tệp \path{ai-service/.env} bằng \CodeBreak{pydantic-settings}. Nhóm cấu hình nhà cung cấp mô hình cần thỏa một trong hai cách thiết lập: OpenRouter với \CodeBreak{OPENROUTER\_API\_KEY} và \CodeBreak{AGENT\_MODEL}, hoặc nhà cung cấp tương thích với API của OpenAI với \CodeBreak{OPENAI\_API\_KEY}, \CodeBreak{OPENAI\_BASE\_URL} và \CodeBreak{OPENAI\_MODEL}. Nguồn quy định giá trị mặc định \CodeBreak{AGENT\_MODEL=openrouter/google/gemini-3.1-flash-lite}, \CodeBreak{OPENAI\_MODEL=gemini-3.1-flash-lite} và \CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS=60}; báo cáo chỉ nêu tên biến, không ghi giá trị thật của các khóa truy cập.
 
 \begin{longtable}{|T{0.38\textwidth}|T{0.52\textwidth}|}
 \caption{Biến cấu hình của dịch vụ AI}\label{tab:appendix-b-ai-env}\\
@@ -188,7 +188,7 @@ Sự khác biệt giữa địa chỉ API công khai và địa chỉ backend n�
 \section{Kiến trúc triển khai chính thức}
 \label{sec:appendix-b-production}
 
-Môi trường chính thức sử dụng máy chủ riêng ảo chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu gồm 2 vCPU, 4 GB RAM và 30 GB dung lượng lưu trữ; cấu hình đề xuất khi tải tăng là ít nhất 4 vCPU và 8 GB RAM. Hệ thống gồm Caddy, frontend, backend, tác vụ migration, dịch vụ AI, PostgreSQL, Redis và Neo4j. Caddy là điểm vào duy nhất cho lưu lượng HTTP và HTTPS. Frontend, backend và dịch vụ AI không công bố trực tiếp các cổng ứng dụng ra Internet; PostgreSQL, Redis và Neo4j chỉ phục vụ các thành phần nội bộ và duy trì dữ liệu bằng volume.
+Môi trường chính thức được triển khai trên máy chủ riêng ảo chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu gồm 2 vCPU, 4 GB RAM và 30 GB dung lượng lưu trữ; cấu hình đề xuất khi tải tăng là ít nhất 4 vCPU và 8 GB RAM. Hệ thống gồm Caddy, frontend, backend, tác vụ migration, dịch vụ AI, PostgreSQL, Redis và Neo4j. Caddy đóng vai trò là điểm vào công khai cho lưu lượng HTTP và HTTPS. Frontend, backend và dịch vụ AI không mở trực tiếp các cổng ứng dụng ra Internet; PostgreSQL, Redis và Neo4j chỉ phục vụ các thành phần nội bộ và duy trì dữ liệu bằng volume.
 
 \begin{figure}[H]
 \centering
@@ -224,14 +224,14 @@ Môi trường chính thức sử dụng máy chủ riêng ảo chạy Ubuntu Se
 \begin{longtable}{|T{0.16\textwidth}|T{0.27\textwidth}|T{0.22\textwidth}|T{0.25\textwidth}|}
 \caption{Trách nhiệm của các dịch vụ trong môi trường chính thức}\label{tab:appendix-b-production-services}\\
 \hline
-Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu bền vững \\ \hline
+Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu cần duy trì \\ \hline
 \endfirsthead
 \hline
-Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu bền vững \\ \hline
+Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu cần duy trì \\ \hline
 \endhead
-Caddy & Kết thúc TLS, chuyển tiếp giao diện và WebSocket & Công khai cổng 80 và 443 & Chứng chỉ và dữ liệu Caddy \\ \hline
+Caddy & Xử lý TLS, chuyển tiếp giao diện và WebSocket & Công khai cổng 80 và 443 & Chứng chỉ và dữ liệu Caddy \\ \hline
 Frontend & Cung cấp giao diện Next.js, chuyển tiếp API và hội thoại & Nội bộ qua Caddy & Không lưu dữ liệu nghiệp vụ \\ \hline
-Backend & Cung cấp API, xác thực, nghiệp vụ và tích hợp dịch vụ & Nội bộ qua frontend hoặc Caddy & Sử dụng volume tệp tải lên \\ \hline
+Backend & Cung cấp API, xác thực, nghiệp vụ và tích hợp dịch vụ & Nội bộ qua frontend hoặc Caddy & Sử dụng volume cho tệp tải lên \\ \hline
 Backend migration & Áp dụng migration PostgreSQL trước khi cập nhật ứng dụng & Tác vụ nội bộ chạy một lần & Không duy trì filesystem riêng \\ \hline
 Dịch vụ AI & Thực thi sáu luồng AI, migration Alembic và truy vấn backend có kiểm soát & Nội bộ qua frontend và backend & Dùng PostgreSQL và Redis \\ \hline
 PostgreSQL & Lưu dữ liệu quan hệ của hệ thống & Chỉ trong mạng Docker & Volume PostgreSQL \\ \hline
@@ -239,15 +239,15 @@ Redis & Lưu dữ liệu tạm thời và dữ liệu phục vụ thời gian th
 Neo4j & Lưu đồ thị đồng tác giả và dữ liệu phục vụ phát hiện xung đột lợi ích & Chỉ trong mạng Docker & Volume dữ liệu và nhật ký Neo4j \\ \hline
 \end{longtable}
 
-\section{Docker Compose chính thức}
+\section{Docker Compose chính}
 \label{sec:appendix-b-compose}
 
 \subsection{Cấu trúc dịch vụ}
 
-Tệp \path{deployment/docker-compose.prod.yml} mô tả toàn bộ hệ thống chính thức. Frontend, backend và dịch vụ AI nhận image lần lượt từ \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE} và \CodeBreak{AI\_SERVICE\_IMAGE}; các dịch vụ dữ liệu dùng image nền tảng cố định theo phiên bản. Tác vụ \CodeBreak{backend-migrate} dùng image backend để áp dụng migration trước khi các container ứng dụng được cập nhật.
+Tệp \path{deployment/docker-compose.prod.yml} mô tả các dịch vụ cần chạy trong môi trường chính thức. Frontend, backend và dịch vụ AI nhận image lần lượt từ \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE} và \CodeBreak{AI\_SERVICE\_IMAGE}; các dịch vụ dữ liệu dùng image nền tảng cố định theo phiên bản. Tác vụ \CodeBreak{backend-migrate} dùng image backend để áp dụng migration trước khi các container ứng dụng được cập nhật.
 
 \begin{longtable}{|T{0.19\textwidth}|T{0.31\textwidth}|T{0.18\textwidth}|T{0.22\textwidth}|}
-\caption{Image và cấu phần đóng gói của các dịch vụ}\label{tab:appendix-b-images}\\
+\caption{Image và thành phần đóng gói của các dịch vụ}\label{tab:appendix-b-images}\\
 \hline
 Dịch vụ & Image hoặc tệp đóng gói & Phiên bản & Ghi chú \\ \hline
 \endfirsthead
@@ -259,19 +259,19 @@ Frontend & \CodeBreak{ghcr.io/[owner]/conferencespace-frontend} & Theo commit SH
 Backend & \CodeBreak{ghcr.io/[owner]/conferencespace-backend} & Theo commit SHA và latest & Go 1.24 Alpine; xây dựng từ \path{backend/Dockerfile} \\ \hline
 Dịch vụ AI & \CodeBreak{ghcr.io/[owner]/conferencespace-ai-service} & Theo commit SHA và latest & Python 3.12 slim; xây dựng từ \path{ai-service/Dockerfile} \\ \hline
 PostgreSQL & postgres & 15-alpine & Cơ sở dữ liệu quan hệ \\ \hline
-Redis & redis & 7-alpine & Kho dữ liệu tạm thời \\ \hline
+Redis & redis & 7-alpine & Bộ nhớ đệm và dữ liệu tạm thời \\ \hline
 Neo4j & neo4j & 5.15-community & Cơ sở dữ liệu đồ thị \\ \hline
 \end{longtable}
 
-Ký hiệu \textit{[owner]} trong tên image được thay bằng chủ sở hữu kho mã khi pipeline phát hành chạy. Nhãn theo định danh commit là tham chiếu bất biến dùng để truy vết phiên bản; nhãn \textit{latest} chỉ biểu thị bản phát hành mới nhất và không thay thế định danh commit trong hồ sơ triển khai.
+Ký hiệu \textit{[owner]} trong tên image được thay bằng chủ sở hữu kho mã khi pipeline phát hành chạy. Nhãn theo định danh commit là tham chiếu cố định dùng để truy vết phiên bản; nhãn \textit{latest} chỉ biểu thị bản phát hành mới nhất và không thay thế định danh commit trong hồ sơ triển khai.
 
 \subsection{Cổng, mạng và quan hệ phụ thuộc}
 
-Chỉ Caddy công bố cổng 80 và 443. Các cổng 3000 của frontend, 8080 của backend, 8090 của dịch vụ AI, 5432 của PostgreSQL, 6379 của Redis, 7474 và 7687 của Neo4j chỉ dùng trong mạng nội bộ. Frontend phụ thuộc vào backend và dịch vụ AI; backend phụ thuộc vào PostgreSQL, Neo4j và dịch vụ AI; dịch vụ AI phụ thuộc vào PostgreSQL và Redis.
+Chỉ Caddy mở cổng 80 và 443. Các cổng 3000 của frontend, 8080 của backend, 8090 của dịch vụ AI, 5432 của PostgreSQL, 6379 của Redis, 7474 và 7687 của Neo4j chỉ dùng trong mạng nội bộ. Frontend phụ thuộc vào backend và dịch vụ AI; backend phụ thuộc vào PostgreSQL, Neo4j và dịch vụ AI; dịch vụ AI phụ thuộc vào PostgreSQL và Redis.
 
-Cấu hình chính thức tách mạng \textit{app} và \textit{data}. Mạng \textit{data} dùng thuộc tính \textit{internal: true}; PostgreSQL và Redis chỉ tham gia mạng này. Backend và dịch vụ AI tham gia cả hai mạng; Neo4j cũng tham gia hai mạng trong cấu hình hiện tại; Caddy chỉ tham gia mạng \textit{app}. Việc tách mạng giảm số dịch vụ dữ liệu có thể bị truy cập trực tiếp từ Internet nhưng không được xem là bằng chứng bảo mật toàn diện.
+Cấu hình chính thức tách mạng \textit{app} và \textit{data}. Mạng \textit{data} dùng thuộc tính \textit{internal: true}; PostgreSQL và Redis chỉ tham gia mạng này. Backend và dịch vụ AI tham gia cả hai mạng; Neo4j cũng tham gia hai mạng trong cấu hình hiện tại; Caddy chỉ tham gia mạng \textit{app}. Cách tách mạng này làm giảm bề mặt truy cập trực tiếp đến các dịch vụ dữ liệu, nhưng không thay thế cho các biện pháp bảo mật khác.
 
-\subsection{Volume và tính bền vững dữ liệu}
+\subsection{Volume và dữ liệu cần duy trì}
 
 \begin{longtable}{|T{0.25\textwidth}|T{0.28\textwidth}|T{0.37\textwidth}|}
 \caption{Dữ liệu cần duy trì ngoài vòng đời container}\label{tab:appendix-b-volumes}\\
@@ -281,23 +281,23 @@ Thành phần & Nhóm dữ liệu & Mục đích \\ \hline
 \hline
 Thành phần & Nhóm dữ liệu & Mục đích \\ \hline
 \endhead
-PostgreSQL & Dữ liệu quan hệ & Duy trì người dùng, hội nghị, bài nộp, phân công, phản biện và quyết định \\ \hline
-Redis & Dữ liệu Redis & Duy trì dữ liệu khi cấu hình vận hành yêu cầu khả năng phục hồi sau khi thay container \\ \hline
-Neo4j & Dữ liệu đồ thị & Duy trì nút, quan hệ đồng tác giả và dữ liệu phục vụ phát hiện xung đột lợi ích \\ \hline
+PostgreSQL & Dữ liệu quan hệ & Lưu người dùng, hội nghị, bài nộp, phân công, bài phản biện và quyết định \\ \hline
+Redis & Dữ liệu Redis & Giữ dữ liệu Redis khi cấu hình vận hành yêu cầu khả năng phục hồi sau khi thay container \\ \hline
+Neo4j & Dữ liệu đồ thị & Lưu nút, quan hệ đồng tác giả và dữ liệu phục vụ phát hiện xung đột lợi ích \\ \hline
 Neo4j & Nhật ký & Hỗ trợ kiểm tra và chẩn đoán hoạt động của cơ sở dữ liệu đồ thị \\ \hline
 Caddy & Dữ liệu và cấu hình runtime & Duy trì chứng chỉ và trạng thái cần thiết cho TLS tự động \\ \hline
 Backend & Tệp người dùng tải lên & Duy trì bản thảo và các tệp nghiệp vụ ngoài vòng đời container \\ \hline
 Neo4j & Plugin & Duy trì plugin cần thiết cho cấu hình Neo4j \\ \hline
 \end{longtable}
 
-Các volume được khai báo gồm \CodeBreak{caddy\_data}, \CodeBreak{caddy\_config}, \CodeBreak{postgres\_data}, \CodeBreak{redis\_data}, \CodeBreak{neo4j\_data}, \CodeBreak{neo4j\_logs}, \CodeBreak{neo4j\_plugins} và \CodeBreak{uploads\_data}. Việc xóa hoặc tái tạo container không được đồng nghĩa với xóa volume. Các thao tác ảnh hưởng volume phải được xem là thao tác dữ liệu, cần có bản sao lưu và xác nhận riêng thay vì được gộp vào quy trình cập nhật ứng dụng.
+Các volume được khai báo gồm \CodeBreak{caddy\_data}, \CodeBreak{caddy\_config}, \CodeBreak{postgres\_data}, \CodeBreak{redis\_data}, \CodeBreak{neo4j\_data}, \CodeBreak{neo4j\_logs}, \CodeBreak{neo4j\_plugins} và \CodeBreak{uploads\_data}. Xóa hoặc tạo lại container không đồng nghĩa với xóa dữ liệu trong volume. Mọi thao tác ảnh hưởng đến volume cần được xem là thao tác trên dữ liệu thật; do đó cần có sao lưu và xác nhận riêng, không nên gộp vào quy trình cập nhật ứng dụng thông thường.
 
 \section{Đóng gói frontend, backend và dịch vụ AI}
 \label{sec:appendix-b-dockerfiles}
 
 \subsection{Frontend}
 
-Tệp \path{frontend/Dockerfile} dùng quy trình nhiều giai đoạn. Giai đoạn phụ thuộc cài đặt các gói Node.js; giai đoạn xây dựng tạo bản Next.js cho môi trường chính thức; giai đoạn chạy chỉ chứa các tệp cần thiết. Cách tách này giảm kích thước image và tránh đưa toàn bộ công cụ xây dựng vào container đang phục vụ người dùng.
+Tệp \path{frontend/Dockerfile} dùng quy trình nhiều giai đoạn. Giai đoạn phụ thuộc cài đặt các gói Node.js; giai đoạn xây dựng tạo bản Next.js cho môi trường chính thức; giai đoạn chạy chỉ chứa các tệp cần thiết. Cách chia giai đoạn này giúp giảm kích thước image runtime và tránh đưa các công cụ build vào container phục vụ người dùng.
 
 \begin{longtable}{|T{0.20\textwidth}|T{0.30\textwidth}|T{0.40\textwidth}|}
 \caption{Các giai đoạn đóng gói frontend}\label{tab:appendix-b-frontend-dockerfile}\\
@@ -326,11 +326,11 @@ Giai đoạn & Đầu vào chính & Kết quả \\ \hline
 \hline
 Giai đoạn & Đầu vào chính & Kết quả \\ \hline
 \endhead
-Builder & Go 1.24 Alpine, mã nguồn và module & Tạo Swagger, biên dịch tệp thực thi Linux tĩnh và cài công cụ \textit{migrate} \\ \hline
+Builder & Go 1.24 Alpine, mã nguồn và module & Tạo Swagger, biên dịch tệp thực thi tĩnh cho Linux và cài công cụ \textit{migrate} \\ \hline
 Runner & Tệp thực thi, migration, công cụ \textit{migrate} và chứng chỉ CA & Container Alpine chạy backend trên cổng 8080 \\ \hline
 \end{longtable}
 
-Image backend không chứa mật khẩu cơ sở dữ liệu, khóa JWT, khóa nhà cung cấp mô hình hoặc thông tin SMTP. Các giá trị này được cung cấp khi container khởi động. Việc thay bí mật vì vậy không yêu cầu xây dựng lại image ứng dụng.
+Image backend không chứa mật khẩu cơ sở dữ liệu, khóa JWT, khóa nhà cung cấp mô hình hoặc thông tin SMTP. Các giá trị này được cung cấp khi container khởi động. Nhờ đó, việc thay đổi bí mật không yêu cầu xây dựng lại image ứng dụng.
 
 \subsection{Dịch vụ AI}
 
@@ -340,11 +340,11 @@ Tệp \path{ai-service/Dockerfile} sử dụng Python 3.12 slim, cài \textit{li
 alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8090
 \end{lstlisting}
 
-Việc chạy migration cùng lệnh khởi động bảo đảm lược đồ của dịch vụ AI được cập nhật trước khi nhận yêu cầu. Điểm kiểm tra \path{/health} và \path{/ready} được dùng để phân biệt tiến trình đã chạy với trạng thái sẵn sàng phục vụ.
+Việc chạy migration cùng lệnh khởi động bảo đảm lược đồ của dịch vụ AI được cập nhật trước khi nhận yêu cầu. Các điểm kiểm tra \path{/health} và \path{/ready} được dùng để phân biệt tiến trình đã chạy với trạng thái sẵn sàng phục vụ.
 
 \subsection{Kiểm tra image trước khi phát hành}
 
-Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định danh commit để có thể truy ngược về mã nguồn. Các điểm kiểm tra sức khỏe của backend và dịch vụ AI cung cấp tiêu chí kỹ thuật để kiểm tra container sau khi khởi động. Tuy nhiên, workflow hiện hành chưa bao gồm đầy đủ bước kiểm tra chất lượng bắt buộc hoặc kiểm tra hoạt động cơ bản sau triển khai; vì vậy, nguồn không đủ để khẳng định các kiểm tra này là cổng bắt buộc trước khi cập nhật nhãn latest.
+Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định danh commit để có thể truy ngược về mã nguồn. Các điểm kiểm tra trạng thái của backend và dịch vụ AI cung cấp tiêu chí kỹ thuật để kiểm tra container sau khi khởi động. Tuy nhiên, workflow hiện hành chưa bao gồm đầy đủ bước kiểm tra chất lượng bắt buộc hoặc kiểm tra hoạt động cơ bản sau triển khai; vì vậy, nguồn không đủ để khẳng định các kiểm tra này là cổng bắt buộc trước khi cập nhật nhãn latest.
 
 \section{Caddy, TLS và định tuyến}
 \label{sec:appendix-b-caddy}
@@ -397,7 +397,7 @@ Build dịch vụ AI & Xây dựng image từ \path{ai-service/Dockerfile} & Ima
 Registry authentication & Đăng nhập GHCR bằng \CodeBreak{GHCR\_TOKEN} & Registry chấp nhận thông tin xác thực \\ \hline
 Container publish & Đẩy ba image theo commit SHA và \textit{latest} & Có đủ ba image trên GHCR \\ \hline
 Deployment files & Sao chép Compose, Caddyfile và bootstrap lên VPS & Máy chủ nhận đúng tệp triển khai \\ \hline
-Deployment & Cập nhật ba biến image, pull, chạy \CodeBreak{backend-migrate} và khởi động Compose & Container mới đạt điểm kiểm tra sức khỏe \\ \hline
+Deployment & Cập nhật ba biến image, pull, chạy \CodeBreak{backend-migrate} và khởi động Compose & Container mới đạt điểm kiểm tra trạng thái \\ \hline
 \end{longtable}
 
 \subsection{Tên và phiên bản image}
@@ -413,7 +413,7 @@ ghcr.io/<owner>/conferencespace-backend:latest
 ghcr.io/<owner>/conferencespace-ai-service:latest
 \end{lstlisting}
 
-Định danh commit là khóa truy vết giữa image, mã nguồn và lần chạy workflow. Khi cần quay lại phiên bản trước, hệ thống chọn lại image theo định danh commit thay vì suy đoán nội dung của nhãn \textit{latest}.
+Định danh commit là điểm nối để truy vết giữa image, mã nguồn và lần chạy workflow. Khi cần quay lại phiên bản trước, người vận hành có thể chọn lại image theo định danh commit thay vì phụ thuộc vào nhãn \textit{latest}.
 
 \subsection{Cập nhật hệ thống chính thức}
 
@@ -432,7 +432,7 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --rem
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 \end{lstlisting}
 
-Sau khi cập nhật, các điểm kiểm tra sức khỏe của backend và dịch vụ AI, trạng thái container, khả năng tải frontend và tuyến HTTPS qua Caddy là những bằng chứng cần thu thập để nghiệm thu. Tuy nhiên, workflow trong nguồn chưa tự động hóa đầy đủ các bước này; do đó, chúng được trình bày như danh sách kiểm tra vận hành, không phải điều kiện đã được pipeline bảo đảm.
+Sau khi cập nhật, các điểm kiểm tra trạng thái của backend và dịch vụ AI, trạng thái container, khả năng tải frontend và tuyến HTTPS qua Caddy là những bằng chứng cần thu thập để nghiệm thu. Tuy nhiên, workflow trong nguồn chưa tự động hóa đầy đủ các bước này; do đó, chúng được trình bày như danh sách kiểm tra vận hành, không phải điều kiện đã được pipeline bảo đảm.
 
 \subsection{Quay lại phiên bản ổn định}
 
@@ -442,7 +442,7 @@ Cấu hình theo commit SHA cho phép người vận hành xác định lại im
 \label{sec:appendix-b-secrets}
 
 \begin{longtable}{|T{0.25\textwidth}|T{0.29\textwidth}|T{0.36\textwidth}|}
-\caption{Phân loại và biện pháp bảo vệ cấu hình}\label{tab:appendix-b-secret-controls}\\
+\caption{Phân loại cấu hình và biện pháp bảo vệ}\label{tab:appendix-b-secret-controls}\\
 \hline
 Nhóm cấu hình & Ví dụ & Biện pháp \\ \hline
 \endfirsthead
@@ -450,8 +450,8 @@ Nhóm cấu hình & Ví dụ & Biện pháp \\ \hline
 Nhóm cấu hình & Ví dụ & Biện pháp \\ \hline
 \endhead
 Bí mật xác thực & \CodeBreak{JWT\_SECRET}, mật khẩu PostgreSQL, Redis và Neo4j & Không commit; không ghi trong Dockerfile; cung cấp khi runtime; thay đổi theo môi trường \\ \hline
-Khóa dịch vụ bên ngoài & \CodeBreak{GEMINI\_API\_KEY}, \CodeBreak{OPENROUTER\_API\_KEY} và nhóm biến nhà cung cấp AI & Lưu trong GitHub Secrets hoặc kho bí mật của máy chủ; giới hạn phạm vi quyền; thay khóa khi nghi ngờ lộ \\ \hline
-Thông tin thư điện tử & \CodeBreak{SMTP\_USERNAME}, \CodeBreak{SMTP\_PASSWORD} & Chỉ cung cấp cho backend; không đưa vào frontend hoặc image \\ \hline
+Khóa dịch vụ bên ngoài & \CodeBreak{GEMINI\_API\_KEY}, \CodeBreak{OPENROUTER\_API\_KEY} và nhóm biến nhà cung cấp AI & Lưu trong GitHub Secrets hoặc hệ thống quản lý bí mật của máy chủ; giới hạn phạm vi quyền; thay khóa khi nghi ngờ lộ \\ \hline
+Thông tin email & \CodeBreak{SMTP\_USERNAME}, \CodeBreak{SMTP\_PASSWORD} & Chỉ cung cấp cho backend; không đưa vào frontend hoặc image \\ \hline
 Mã xác thực dịch vụ & Mã dành cho tác vụ quản trị và Chatbot Agent gọi backend & Chỉ cung cấp cho dịch vụ được cấp quyền; vẫn phải kiểm tra RBAC trên tài nguyên \\ \hline
 Cấu hình công khai & \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL}, tên miền và CORS origin & Cho phép đưa vào bản frontend khi giá trị không chứa thông tin xác thực \\ \hline
 Định danh image & \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE}, \CodeBreak{AI\_SERVICE\_IMAGE} & Ghi trong \textit{.env.production} để truy vết và quay lại phiên bản \\ \hline
@@ -471,8 +471,8 @@ STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
 STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
 \endhead
 1 & Công cụ cục bộ đáp ứng phiên bản Docker, Go và Node.js yêu cầu & Kết quả hiển thị phiên bản \\ \hline
-2 & PostgreSQL, Redis và Neo4j khởi động và đạt trạng thái sẵn sàng & Trạng thái container và healthcheck \\ \hline
-3 & Backend hoàn tất migration và trả phản hồi tại điểm kiểm tra sức khỏe & Nhật ký khởi động và phản hồi health \\ \hline
+2 & PostgreSQL, Redis và Neo4j khởi động và đạt trạng thái sẵn sàng & Trạng thái container và kết quả kiểm tra trạng thái \\ \hline
+3 & Backend hoàn tất migration và trả phản hồi tại điểm kiểm tra trạng thái & Nhật ký khởi động và phản hồi kiểm tra trạng thái \\ \hline
 4 & Frontend tải được và gọi backend qua địa chỉ đã cấu hình & Kết quả kiểm tra giao diện và yêu cầu mạng \\ \hline
 5 & Các biến cấu hình bắt buộc được cung cấp nhưng không xuất hiện trong mã nguồn hoặc nhật ký & Danh sách tên biến và kiểm tra kho mã \\ \hline
 6 & Image frontend, backend và dịch vụ AI mang định danh commit tương ứng & Tên ba image và commit nguồn \\ \hline
@@ -480,7 +480,7 @@ STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
 8 & PostgreSQL, Redis, Neo4j, tệp tải lên và Caddy dùng volume phù hợp & Danh sách volume được gắn \\ \hline
 9 & Workflow xây dựng ba image trước khi phát hành và triển khai & Kết quả lần chạy GitHub Actions và GHCR \\ \hline
 10 & Máy chủ chỉ pull image, chạy backend-migrate và khởi động Compose & Nhật ký migration và trạng thái container \\ \hline
-11 & Quy trình quay lại phiên bản đã được kiểm tra bằng image có định danh bất biến & Định danh image ổn định và biên bản kiểm tra \\ \hline
+11 & Quy trình quay lại phiên bản đã được kiểm tra bằng image có định danh cố định & Định danh image ổn định và biên bản kiểm tra \\ \hline
 \end{longtable}
 
-Phụ lục B kết thúc tại mức cần thiết để tái lập và kiểm tra môi trường: thành phần, phiên bản, cấu hình, image, định tuyến, dữ liệu bền vững, quy trình phát hành và điểm nghiệm thu. Các kết quả đánh giá hiệu năng và chất lượng hệ thống không thuộc phạm vi phụ lục này; chúng được trình bày cùng Chương~4 và Phụ lục~C để tránh trộn lẫn quyết định triển khai với bằng chứng đánh giá.
+Phụ lục B dừng ở mức mô tả cần thiết để tái lập và kiểm tra môi trường: thành phần, phiên bản, cấu hình, image, định tuyến, dữ liệu cần duy trì, quy trình phát hành và điểm nghiệm thu. Các kết quả đánh giá hiệu năng và chất lượng hệ thống không thuộc phạm vi phụ lục này; chúng được trình bày cùng Chương~4 và Phụ lục~C nhằm tránh trộn phần mô tả triển khai với phần đánh giá chất lượng hệ thống.
