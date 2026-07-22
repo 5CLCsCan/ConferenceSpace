@@ -1920,8 +1920,9 @@ Trao đổi và Chatbot Agent chỉ sử dụng dữ liệu trong phạm vi quy�
 **Trao đổi theo bài nộp**
 
 - Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi.
-- Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả và Phản biện viên trao đổi trong chuỗi tương ứng.
-- Chủ tọa xem lịch sử trao đổi ở chế độ giám sát.
+- Phản biện viên được phân công có thể tạo chuỗi và gửi tin nhắn trong chuỗi do mình tạo.
+- Tác giả xem và phản hồi trong các chuỗi gắn với bài của mình.
+- Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát nhưng hiện không tạo chuỗi hoặc gửi tin nhắn.
 - Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
 
 **Chatbot Agent**
@@ -2048,13 +2049,13 @@ Mỗi nhóm trách nhiệm được đánh giá bằng nguồn bằng chứng ri
 **Lớp thuật toán xác định**
 
 - **Câu hỏi:** Thuật toán có chạy nhanh, tạo kết quả có thể kiểm tra lại và biểu hiện như thế nào trên dữ liệu tổng hợp?
-- **Bằng chứng:** Go microbenchmark; phép thử xếp hạng và phân công trên 60 hồ sơ tác giả cùng 2.565 bài báo.
+- **Bằng chứng:** Go microbenchmark; phép thử xếp hạng và phân công trên 60 hồ sơ tác giả tổng hợp cùng 2.565 bài báo tổng hợp; hai kiểm tra xung đột lợi ích xác định được đo riêng.
 - **Chỉ số:** Thời gian, bộ nhớ, Hit@k, MRR, nDCG, độ phủ và độ đồng đều của phân công.
 
 **Các luồng AI hỗ trợ**
 
 - **Câu hỏi:** Từng luồng tạo đầu ra ở mức nào và có giữ đúng ranh giới hỗ trợ không?
-- **Bằng chứng:** Đối chiếu trực tiếp, TCA trên các bài đủ điều kiện và 40 hội thoại Chatbot Agent.
+- **Bằng chứng:** 1.127 bài cho bộ thực thi AI; 1.097 bài có kết quả đủ điều kiện cho TCA; các trường hợp kiểm thử riêng cho Submission Gating; 40 hội thoại Chatbot Agent.
 - **Chỉ số:** Exact Match, ROUGE, F1, Truthfulness, Coverage, Additionality và kết quả hội thoại.
 
 **Khảo sát người dùng**
@@ -2157,7 +2158,7 @@ Reviewer Initial Analysis bám nguồn tốt ở trích dẫn, nhưng các đi�
 
 **Mục tiêu đánh giá**
 
-Đo mức độ mà trích dẫn và các điểm cần lưu ý có thể được dữ liệu nguồn hỗ trợ; phép đo không đánh giá chất lượng phản biện cuối cùng.
+TCA được thực hiện trên 1.097 bài có kết quả đủ điều kiện để đo quan hệ giữa trích dẫn, các điểm cần lưu ý và dữ liệu nguồn; phép đo không đánh giá chất lượng phản biện cuối cùng.
 
 **Kết quả**
 
@@ -2216,13 +2217,13 @@ Chair Decision Copilot có mức bám nguồn tương đối cao, nhưng chưa �
 
 **Mục tiêu đánh giá**
 
-Đo mức bám nguồn của cơ sở bằng chứng và phần tổng hợp bất đồng; phép đo không đánh giá quyết định chấp nhận hoặc từ chối bài.
+Trên 1.097 bài có kết quả đủ điều kiện, TCA đo mức bám nguồn của cơ sở bằng chứng và phần tổng hợp bất đồng; phép đo không đánh giá quyết định chấp nhận hoặc từ chối bài.
 
 **Kết quả**
 
 - Độ trung thực (Truthfulness) của cơ sở bằng chứng đạt **87,34%**.
 - Độ trung thực (Truthfulness) của bản tổng hợp bất đồng đạt **87,11%**.
-- Tỷ lệ rủi ro cao đạt **1,28%**, tương đương khoảng 14 bài trong tập chấm.
+- Tỷ lệ rủi ro cao đạt **1,28%**, tương đương khoảng 14 bài trong 1.097 bài có kết quả đủ điều kiện.
 
 **Giới hạn**
 
@@ -2354,7 +2355,7 @@ Mức độ kết luận phụ thuộc vào loại bằng chứng của từng t
 **2. Chỉ số gián tiếp**
 
 - Phép thử leave-one-out của đối sánh dùng nhãn tác giả gốc, không phải nhãn phản biện viên phù hợp.
-- TCA và NLI đo quan hệ giữa mệnh đề với bằng chứng, chưa thay thế đánh giá chuyên gia về tính hữu ích hoặc độ đầy đủ.
+- TCA sử dụng NLI để đo quan hệ giữa mệnh đề với bằng chứng, chưa thay thế đánh giá chuyên gia về tính hữu ích hoặc độ đầy đủ.
 
 **3. Bằng chứng theo kịch bản hoặc cảm nhận**
 
@@ -2414,13 +2415,14 @@ Các hạn chế chính nằm ở dữ liệu thực tế, phương pháp đánh
 **Dữ liệu và phương pháp đánh giá**
 
 - Đối sánh chưa sử dụng dữ liệu phân công thực tế hoặc nhãn xác nhận của Chủ tọa; nhãn tác giả gốc chỉ là chỉ số gián tiếp về quan hệ chủ đề.
-- Cơ chế phát hiện xung đột lợi ích chưa có tập dữ liệu do chuyên gia gán nhãn để đo precision, recall và độ phủ theo từng nguồn.
-- Một số đầu ra AI chưa được chuyên gia đánh giá trực tiếp; TCA và NLI chưa thay thế đánh giá về tính hữu ích, độ đầy đủ hoặc mức nghiêm trọng của lỗi.
+- Cơ chế phát hiện xung đột lợi ích chưa có tập cặp có và không có xung đột do chuyên gia gán nhãn để đo precision, recall và độ phủ theo từng nguồn.
+- Một số đầu ra AI chưa được chuyên gia đánh giá trực tiếp; TCA sử dụng NLI chưa thay thế đánh giá về tính hữu ích, độ đầy đủ hoặc mức nghiêm trọng của lỗi.
 - UAT dùng mẫu thuận tiện; Tác giả chiếm 83,5% và hai nhóm vai trò chuyên môn có cỡ mẫu nhỏ.
 
 **Vận hành và quản trị dữ liệu**
 
 - Kiểm thử backend mới bao phủ tải ngắn hạn trên ba đường xử lý; chưa có kiểm thử đầu cuối, chạy bền, tải phân tán hoặc chủ động gây lỗi.
+- Chưa kiểm tra đầu cuối khi dịch vụ AI hết thời gian chờ hoặc ngừng hoạt động; khả năng phục hồi của toàn bộ chuỗi xử lý chưa được xác nhận.
 - Một số luồng AI có trường hợp vượt 100 giây; Chatbot Agent có 31/128 lượt gọi công cụ thất bại.
 - Bộ thử Chatbot Agent không tương đương kiểm toán bảo mật hoặc kiểm thử đối kháng.
 - Phân quyền ở cấp ứng dụng không thay thế việc kiểm toán chính sách lưu giữ, sử dụng, xử lý và xóa dữ liệu tại nhà cung cấp AI.
@@ -2443,22 +2445,22 @@ Hướng phát triển ưu tiên bằng chứng thực tế và độ tin cậy 
 
 **Ưu tiên 1 — Bổ sung dữ liệu đánh giá có nhãn**
 
-- Thu thập dữ liệu phân công, nhãn của Chủ tọa và tỷ lệ chấp nhận đề xuất.
-- Xây dựng tập xung đột lợi ích do chuyên gia gán nhãn.
-- Đánh giá các luồng gần quyết định về độ đầy đủ, mức hữu ích và ảnh hưởng đến phán đoán.
+- Thu thập dữ liệu phân công, xác nhận của Chủ tọa và tỷ lệ chấp nhận đề xuất.
+- Xây dựng tập cặp xung đột lợi ích do chuyên gia gán nhãn.
+- Đánh giá các đầu ra AI gần quyết định về độ đầy đủ, mức hữu ích và ảnh hưởng đến phán đoán.
 - Mở rộng UAT với mẫu cân bằng hơn, nhiệm vụ chuẩn hóa và điều kiện đối chứng không sử dụng AI.
 
 **Ưu tiên 2 — Hoàn thiện vận hành tác vụ dài**
 
 - Chuyển tác vụ kéo dài sang hàng đợi bất đồng bộ.
-- Hiển thị tiến độ, giới hạn thời gian và số lần thử lại.
+- Hiển thị tiến độ, giới hạn thời gian, số lần thử lại và trạng thái khôi phục sau lỗi.
 - Liên kết nguồn dữ liệu, kết quả AI, công cụ đã gọi và quyết định của người dùng trong nhật ký kiểm toán.
 
 **Ưu tiên 3 — Phát triển lớp truy hồi có kiểm soát**
 
 - Quản lý nguồn, phiên bản và quyền truy cập đối với chính sách, hướng dẫn, biểu mẫu và hồ sơ chuyên môn.
 - Kết hợp tìm kiếm từ khóa, siêu dữ liệu và tìm kiếm véc-tơ; mỗi câu trả lời hoặc bản tổng hợp phải kèm nguồn để người dùng kiểm tra.
-- Quy định rõ cấu trúc đầu vào, quyền và cách xử lý lỗi cho từng công cụ của Chatbot Agent.
+- Quy định rõ cấu trúc đầu vào, quyền, cách xử lý lỗi và các kịch bản vượt quyền cho từng công cụ của Chatbot Agent.
 
 **Ưu tiên 4 — Tăng quyền kiểm soát dữ liệu và hoàn thiện nghiệp vụ**
 
