@@ -3,20 +3,20 @@
 \chapter{Môi trường và triển khai}
 \label{AppendixB}
 
-Phụ lục này trình bày các thông tin kỹ thuật cần thiết để tái lập môi trường phát triển và đối chiếu quy trình triển khai đã nêu trong Chương~\ref{Chapter3}. Nội dung được tổ chức theo trình tự vận hành: chuẩn bị môi trường cục bộ, cấu hình dịch vụ, đóng gói container, phát hành image và cập nhật hệ thống chính thức. Tên dịch vụ, cổng, biến cấu hình và lệnh triển khai được giữ theo các file cấu hình gốc để người đọc có thể đối chiếu khi cần.
+Phụ lục này trình bày các thông tin kỹ thuật cần thiết để tái lập môi trường phát triển và đối chiếu quy trình triển khai đã nêu trong Chương~\ref{Chapter3}. Nội dung được tổ chức theo trình tự vận hành: chuẩn bị môi trường cục bộ, cấu hình dịch vụ, đóng gói container, phát hành image và cập nhật hệ thống chính thức. Tên dịch vụ, cổng, biến cấu hình và lệnh triển khai được giữ theo các tệp cấu hình gốc để người đọc có thể đối chiếu khi cần.
 
 \section{Phạm vi và nguyên tắc triển khai}
 \label{sec:appendix-b-scope}
 
-Hệ thống được mô tả theo hai chế độ vận hành. Môi trường phát triển cục bộ ưu tiên khả năng kiểm tra độc lập từng thành phần. Môi trường chính thức ưu tiên tính lặp lại của bản phát hành, cô lập mạng và bảo vệ thông tin nhạy cảm. Hai chế độ sử dụng cùng nhóm thành phần nền tảng, nhưng khác nhau ở cách khởi tạo, cấu hình và phạm vi công bố dịch vụ.
+Hệ thống được mô tả theo hai chế độ vận hành. Môi trường phát triển cục bộ ưu tiên khả năng kiểm tra độc lập từng thành phần. Môi trường chính thức ưu tiên tính lặp lại của bản phát hành, cô lập mạng và bảo vệ thông tin nhạy cảm. Hai chế độ sử dụng cùng nhóm thành phần nền tảng, nhưng khác nhau ở cách khởi tạo, cấu hình và phạm vi công bố dịch vụ. Bảng~\ref{tab:appendix-b-operation-modes} đối chiếu mục tiêu và cách vận hành của hai chế độ.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Phạm vi của hai chế độ vận hành}
 \label{tab:appendix-b-operation-modes}
 \begin{tabularx}{\textwidth}{|T{0.20\textwidth}|X|X|}
 \hline
-Chế độ & Mục tiêu & Cách vận hành \\ \hline
+\TableHeader{Chế độ} & \TableHeader{Mục tiêu} & \TableHeader{Cách vận hành} \\ \hline
 Phát triển cục bộ & Hỗ trợ lập trình, kiểm thử và quan sát lỗi của từng thành phần & PostgreSQL, Redis, Neo4j và dịch vụ AI chạy bằng Docker Compose; backend và frontend có thể chạy trực tiếp trên máy phát triển \\ \hline
 Triển khai chính thức & Phát hành phiên bản có thể tái lập và thay thế nhất quán & Caddy, frontend, backend, dịch vụ AI, tác vụ migration, PostgreSQL, Redis và Neo4j chạy bằng Docker Compose; ba thành phần ứng dụng dùng image phát hành từ GitHub Container Registry \\ \hline
 \end{tabularx}
@@ -33,7 +33,7 @@ Máy phát triển cần có Docker cùng Docker Compose, Go phiên bản 1.24, 
 
 \subsection{Quy trình khởi động môi trường}
 
-Từ thư mục \path{backend}, Makefile tự động hóa việc khởi động các dịch vụ dữ liệu, chạy migration, khởi tạo Neo4j, tạo lại tài liệu Swagger và chạy backend. Target chính của quy trình là:
+Từ thư mục \path{backend}, Makefile tự động hóa việc khởi động các dịch vụ dữ liệu, chạy migration, khởi tạo Neo4j, tạo lại tài liệu Swagger và chạy backend. Đoạn mã~\ref{lst:appendix-b-local-make-dev} trích các tác vụ chính của quy trình.
 
 \begin{lstlisting}[language=bash, caption={Trình tự khởi động môi trường phát triển}, label={lst:appendix-b-local-make-dev}]
 dev: db-up redis-up neo4j-up migrate-up neo4j-init ai-service-up swagger server
@@ -48,14 +48,14 @@ migrate-up:
 
 Lệnh \textit{make dev} khởi động PostgreSQL, Redis, Neo4j và dịch vụ AI, áp dụng migration, khởi tạo Neo4j, tạo lại tài liệu Swagger rồi chạy backend trên cổng 8080. Khi cần chạy toàn bộ backend trong container, người phát triển dùng \textit{make docker-up}; các target \textit{docker-down}, \textit{docker-logs} và \textit{status} lần lượt dùng để dừng dịch vụ, theo dõi nhật ký và kiểm tra trạng thái.
 
-Frontend được khởi động trong thư mục \path{frontend}.
+Frontend được khởi động trong thư mục \path{frontend} theo các lệnh ở Đoạn mã~\ref{lst:appendix-b-local-frontend}.
 
 \begin{lstlisting}[language=bash, caption={Khởi động frontend trong môi trường cục bộ}, label={lst:appendix-b-local-frontend}]
 npm install
 npm run dev
 \end{lstlisting}
 
-Dịch vụ AI có thể chạy cùng Docker Compose hoặc chạy riêng khi cần kiểm tra trực tiếp các điểm tích hợp.
+Dịch vụ AI có thể chạy cùng Docker Compose hoặc chạy riêng khi cần kiểm tra trực tiếp các điểm tích hợp. Đoạn mã~\ref{lst:appendix-b-local-ai} trình bày trình tự cài đặt, cập nhật lược đồ và khởi động dịch vụ khi chạy riêng.
 
 \begin{lstlisting}[language=bash, caption={Khởi động riêng dịch vụ AI để kiểm thử}, label={lst:appendix-b-local-ai}]
 poetry install
@@ -66,15 +66,17 @@ poetry run uvicorn app.main:app --reload --port 8090
 
 \subsection{Điểm truy cập và tiêu chí kiểm tra}
 
+Bảng~\ref{tab:appendix-b-local-endpoints} liệt kê các điểm truy cập và tiêu chí kiểm tra tương ứng trong môi trường cục bộ.
+
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{|T{0.18\textwidth}|T{0.27\textwidth}|T{0.20\textwidth}|T{0.25\textwidth}|}
+\begin{longtable}{|T{0.18\textwidth}|T{0.32\textwidth}|T{0.10\textwidth}|T{0.30\textwidth}|}
 \caption{Điểm truy cập trong môi trường phát triển cục bộ}\label{tab:appendix-b-local-endpoints}\\
 \hline
-Thành phần & Điểm truy cập & Cổng & Tiêu chí kiểm tra \\ \hline
+\TableHeader{Thành phần} & \TableHeader{Điểm truy cập} & \TableHeader{Cổng} & \TableHeader{Tiêu chí kiểm tra} \\ \hline
 \endfirsthead
 \hline
-Thành phần & Điểm truy cập & Cổng & Tiêu chí kiểm tra \\ \hline
+\TableHeader{Thành phần} & \TableHeader{Điểm truy cập} & \TableHeader{Cổng} & \TableHeader{Tiêu chí kiểm tra} \\ \hline
 \endhead
 Frontend & \url{http://localhost:3000} & 3000 & Trang ứng dụng được tải và có thể gọi backend \\ \hline
 Backend & \url{http://localhost:8080} & 8080 & Máy chủ tiếp nhận yêu cầu HTTP \\ \hline
@@ -99,13 +101,13 @@ Môi trường cục bộ nên được xem là sẵn sàng sau khi vượt qua 
 
 Backend đọc cấu hình từ tệp \path{backend/.env} trong môi trường phát triển. Bảng~\ref{tab:appendix-b-backend-env} giữ nguyên tên biến cấu hình và mô tả ngắn gọn vai trò của từng nhóm biến.
 
-\begin{longtable}{|T{0.31\textwidth}|T{0.59\textwidth}|}
+\begin{longtable}{|T{0.40\textwidth}|T{0.50\textwidth}|}
 \caption{Biến cấu hình của backend}\label{tab:appendix-b-backend-env}\\
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endfirsthead
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endhead
 \CodeBreak{SERVER\_PORT} & Cổng lắng nghe của backend \\ \hline
 \CodeBreak{GIN\_MODE} & Chế độ chạy của Gin \\ \hline
@@ -141,15 +143,15 @@ Các bí mật như mật khẩu cơ sở dữ liệu, khóa JWT, khóa dịch v
 
 \subsection{Cấu hình dịch vụ AI}
 
-Dịch vụ AI đọc tệp \path{ai-service/.env} bằng \CodeBreak{pydantic-settings}. Nhóm cấu hình nhà cung cấp mô hình cần thỏa một trong hai cách thiết lập: OpenRouter với \CodeBreak{OPENROUTER\_API\_KEY} và \CodeBreak{AGENT\_MODEL}, hoặc nhà cung cấp tương thích với API của OpenAI với \CodeBreak{OPENAI\_API\_KEY}, \CodeBreak{OPENAI\_BASE\_URL} và \CodeBreak{OPENAI\_MODEL}. Nguồn quy định giá trị mặc định \CodeBreak{AGENT\_MODEL=openrouter/google/gemini-3.1-flash-lite}, \CodeBreak{OPENAI\_MODEL=gemini-3.1-flash-lite} và \CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS=60}; báo cáo chỉ nêu tên biến, không ghi giá trị thật của các khóa truy cập.
+Dịch vụ AI đọc tệp \path{ai-service/.env} bằng \CodeBreak{pydantic-settings}. Nhóm cấu hình nhà cung cấp mô hình cần thỏa một trong hai cách thiết lập: OpenRouter với \CodeBreak{OPENROUTER\_API\_KEY} và \CodeBreak{AGENT\_MODEL}, hoặc nhà cung cấp tương thích với API của OpenAI với \CodeBreak{OPENAI\_API\_KEY}, \CodeBreak{OPENAI\_BASE\_URL} và \CodeBreak{OPENAI\_MODEL}. Nguồn quy định giá trị mặc định \CodeBreak{AGENT\_MODEL=openrouter/google/gemini-3.1-flash-lite}, \CodeBreak{OPENAI\_MODEL=gemini-3.1-flash-lite} và \CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS=60}; báo cáo chỉ nêu tên biến, không ghi giá trị thật của các khóa truy cập. Bảng~\ref{tab:appendix-b-ai-env} tóm tắt các biến cấu hình chính.
 
 \begin{longtable}{|T{0.38\textwidth}|T{0.52\textwidth}|}
 \caption{Biến cấu hình của dịch vụ AI}\label{tab:appendix-b-ai-env}\\
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endfirsthead
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endhead
 \CodeBreak{AI\_SERVICE\_PORT} & Cổng lắng nghe của dịch vụ AI \\ \hline
 \CodeBreak{OPENROUTER\_API\_KEY} & Khóa truy cập OpenRouter \\ \hline
@@ -169,15 +171,16 @@ Biến cấu hình & Mục đích \\ \hline
 
 \subsection{Cấu hình frontend}
 
-Frontend đọc cấu hình từ tệp \path{frontend/.env.local} trong môi trường phát triển. Các biến công khai chỉ được dùng cho giá trị có thể xuất hiện trong trình duyệt; khóa bí mật không được đặt trong biến có tiền tố công khai.
+Frontend đọc cấu hình từ tệp \path{frontend/.env.local} trong môi trường phát triển. Các biến công khai chỉ được dùng cho giá trị có thể xuất hiện trong trình duyệt; khóa bí mật không được đặt trong biến có tiền tố công khai. Bảng~\ref{tab:appendix-b-frontend-env} mô tả các biến được dùng tại phía trình duyệt và phía máy chủ của frontend.
 
-\begin{longtable}{|T{0.36\textwidth}|T{0.54\textwidth}|}
+
+\begin{longtable}{|T{0.40\textwidth}|T{0.50\textwidth}|}
 \caption{Biến cấu hình của frontend}\label{tab:appendix-b-frontend-env}\\
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endfirsthead
 \hline
-Biến cấu hình & Mục đích \\ \hline
+\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
 \endhead
 \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL} & Địa chỉ API mà mã chạy trong trình duyệt sử dụng \\ \hline
 \CodeBreak{BACKEND\_API\_BASE\_URL} & Địa chỉ backend mà phần chạy phía máy chủ của frontend sử dụng \\ \hline
@@ -191,9 +194,9 @@ Sự khác biệt giữa địa chỉ API công khai và địa chỉ backend n�
 \section{Kiến trúc triển khai chính thức}
 \label{sec:appendix-b-production}
 
-Môi trường chính thức được triển khai trên máy chủ riêng ảo chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu gồm 2 vCPU, 4 GB RAM và 30 GB dung lượng lưu trữ; cấu hình đề xuất khi tải tăng là ít nhất 4 vCPU và 8 GB RAM. Hệ thống gồm Caddy, frontend, backend, tác vụ migration, dịch vụ AI, PostgreSQL, Redis và Neo4j. Caddy đóng vai trò là điểm vào công khai cho lưu lượng HTTP và HTTPS. Frontend, backend và dịch vụ AI không mở trực tiếp các cổng ứng dụng ra Internet; PostgreSQL, Redis và Neo4j chỉ phục vụ các thành phần nội bộ và duy trì dữ liệu bằng volume.
+Môi trường chính thức được triển khai trên máy chủ riêng ảo chạy Ubuntu Server 22.04 LTS hoặc mới hơn. Cấu hình tối thiểu gồm 2 vCPU, 4 GB RAM và 30 GB dung lượng lưu trữ; cấu hình đề xuất khi tải tăng là ít nhất 4 vCPU và 8 GB RAM. Hệ thống gồm Caddy, frontend, backend, tác vụ migration, dịch vụ AI, PostgreSQL, Redis và Neo4j. Caddy đóng vai trò là điểm vào công khai cho lưu lượng HTTP và HTTPS. Frontend, backend và dịch vụ AI không mở trực tiếp các cổng ứng dụng ra Internet; PostgreSQL, Redis và Neo4j chỉ phục vụ các thành phần nội bộ và duy trì dữ liệu bằng volume. Hình~\ref{fig:appendix-b-production-topology} trình bày quan hệ giữa các thành phần; Bảng~\ref{tab:appendix-b-production-services} nêu trách nhiệm và phạm vi truy cập của từng dịch vụ.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.96\textwidth, max height=0.72\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
@@ -228,13 +231,13 @@ Môi trường chính thức được triển khai trên máy chủ riêng ảo 
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{|T{0.16\textwidth}|T{0.27\textwidth}|T{0.22\textwidth}|T{0.25\textwidth}|}
+\begin{longtable}{|T{0.15\textwidth}|T{0.35\textwidth}|T{0.20\textwidth}|T{0.20\textwidth}|}
 \caption{Trách nhiệm của các dịch vụ trong môi trường chính thức}\label{tab:appendix-b-production-services}\\
 \hline
-Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu cần duy trì \\ \hline
+\TableHeader{Dịch vụ} & \TableHeader{Trách nhiệm} & \TableHeader{Phạm vi truy cập} & \TableHeader{Dữ liệu cần duy trì} \\ \hline
 \endfirsthead
 \hline
-Dịch vụ & Trách nhiệm & Phạm vi truy cập & Dữ liệu cần duy trì \\ \hline
+\TableHeader{Dịch vụ} & \TableHeader{Trách nhiệm} & \TableHeader{Phạm vi truy cập} & \TableHeader{Dữ liệu cần duy trì} \\ \hline
 \endhead
 Caddy & Xử lý TLS, chuyển tiếp giao diện và WebSocket & Công khai cổng 80 và 443 & Chứng chỉ và dữ liệu Caddy \\ \hline
 Frontend & Cung cấp giao diện Next.js, chuyển tiếp API và hội thoại & Nội bộ qua Caddy & Không lưu dữ liệu nghiệp vụ \\ \hline
@@ -252,22 +255,22 @@ Neo4j & Lưu đồ thị đồng tác giả và dữ liệu phục vụ phát hi
 
 \subsection{Cấu trúc dịch vụ}
 
-Tệp \path{deployment/docker-compose.prod.yml} mô tả các dịch vụ cần chạy trong môi trường chính thức. Frontend, backend và dịch vụ AI nhận image lần lượt từ \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE} và \CodeBreak{AI\_SERVICE\_IMAGE}; các dịch vụ dữ liệu dùng image nền tảng cố định theo phiên bản. Tác vụ \CodeBreak{backend-migrate} dùng image backend để áp dụng migration trước khi các container ứng dụng được cập nhật.
+Tệp \path{deployment/docker-compose.prod.yml} mô tả các dịch vụ cần chạy trong môi trường chính thức. Frontend, backend và dịch vụ AI nhận image lần lượt từ \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE} và \CodeBreak{AI\_SERVICE\_IMAGE}; các dịch vụ dữ liệu dùng image nền tảng cố định theo phiên bản. Tác vụ \CodeBreak{backend-migrate} dùng image backend để áp dụng migration trước khi các container ứng dụng được cập nhật. Bảng~\ref{tab:appendix-b-images} đối chiếu image, phiên bản và thành phần đóng gói của từng dịch vụ.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{|T{0.19\textwidth}|T{0.31\textwidth}|T{0.18\textwidth}|T{0.22\textwidth}|}
+\begin{longtable}{|T{0.16\textwidth}|T{0.27\textwidth}|T{0.17\textwidth}|T{0.30\textwidth}|}
 \caption{Image và thành phần đóng gói của các dịch vụ}\label{tab:appendix-b-images}\\
 \hline
-Dịch vụ & Image hoặc tệp đóng gói & Phiên bản & Ghi chú \\ \hline
+\TableHeader{Dịch vụ} & \TableHeader{Image/tệp đóng gói} & \TableHeader{Phiên bản} & \TableHeader{Ghi chú} \\ \hline
 \endfirsthead
 \hline
-Dịch vụ & Image hoặc tệp đóng gói & Phiên bản & Ghi chú \\ \hline
+\TableHeader{Dịch vụ} & \TableHeader{Image/tệp đóng gói} & \TableHeader{Phiên bản} & \TableHeader{Ghi chú} \\ \hline
 \endhead
 Caddy & caddy & 2-alpine & Reverse proxy và TLS \\ \hline
-Frontend & \CodeBreak{ghcr.io/[owner]/conferencespace-frontend} & Theo commit SHA và latest & Node 22 Alpine; xây dựng từ \path{frontend/Dockerfile} \\ \hline
-Backend & \CodeBreak{ghcr.io/[owner]/conferencespace-backend} & Theo commit SHA và latest & Go 1.24 Alpine; xây dựng từ \path{backend/Dockerfile} \\ \hline
-Dịch vụ AI & \CodeBreak{ghcr.io/[owner]/conferencespace-ai-service} & Theo commit SHA và latest & Python 3.12 slim; xây dựng từ \path{ai-service/Dockerfile} \\ \hline
+Frontend & \CodeBreak{ghcr.io/[owner]/conferencespace-frontend} & Theo commit SHA, latest & Node 22 Alpine; xây dựng từ \path{frontend/Dockerfile} \\ \hline
+Backend & \CodeBreak{ghcr.io/[owner]/conferencespace-backend} & Theo commit SHA, latest & Go 1.24 Alpine; xây dựng từ \path{backend/Dockerfile} \\ \hline
+Dịch vụ AI & \CodeBreak{ghcr.io/[owner]/conferencespace-ai-service} & Theo commit SHA, latest & Python 3.12 slim; xây dựng từ \path{ai-service/Dockerfile} \\ \hline
 PostgreSQL & postgres & 15-alpine & Cơ sở dữ liệu quan hệ \\ \hline
 Redis & redis & 7-alpine & Bộ nhớ đệm và dữ liệu tạm thời \\ \hline
 Neo4j & neo4j & 5.15-community & Cơ sở dữ liệu đồ thị \\ \hline
@@ -284,13 +287,15 @@ Cấu hình chính thức tách mạng \textit{app} và \textit{data}. Mạng \t
 
 \subsection{Volume và dữ liệu cần duy trì}
 
-\begin{longtable}{|T{0.25\textwidth}|T{0.28\textwidth}|T{0.37\textwidth}|}
+Bảng~\ref{tab:appendix-b-volumes} liệt kê các nhóm dữ liệu phải được duy trì độc lập với vòng đời của container.
+
+\begin{longtable}{|T{0.20\textwidth}|T{0.20\textwidth}|T{0.50\textwidth}|}
 \caption{Dữ liệu cần duy trì ngoài vòng đời container}\label{tab:appendix-b-volumes}\\
 \hline
-Thành phần & Nhóm dữ liệu & Mục đích \\ \hline
+\TableHeader{Thành phần} & \TableHeader{Nhóm dữ liệu} & \TableHeader{Mục đích} \\ \hline
 \endfirsthead
 \hline
-Thành phần & Nhóm dữ liệu & Mục đích \\ \hline
+\TableHeader{Thành phần} & \TableHeader{Nhóm dữ liệu} & \TableHeader{Mục đích} \\ \hline
 \endhead
 PostgreSQL & Dữ liệu quan hệ & Lưu người dùng, hội nghị, bài nộp, phân công, bài phản biện và quyết định \\ \hline
 Redis & Dữ liệu Redis & Giữ dữ liệu Redis khi cấu hình vận hành yêu cầu khả năng phục hồi sau khi thay container \\ \hline
@@ -308,15 +313,15 @@ Các volume được khai báo gồm \CodeBreak{caddy\_data}, \CodeBreak{caddy\_
 
 \subsection{Frontend}
 
-Tệp \path{frontend/Dockerfile} dùng quy trình nhiều giai đoạn. Giai đoạn phụ thuộc cài đặt các gói Node.js; giai đoạn xây dựng tạo bản Next.js cho môi trường chính thức; giai đoạn chạy chỉ chứa các tệp cần thiết. Cách chia giai đoạn này giúp giảm kích thước image runtime và tránh đưa các công cụ build vào container phục vụ người dùng.
+Tệp \path{frontend/Dockerfile} dùng quy trình nhiều giai đoạn. Giai đoạn phụ thuộc cài đặt các gói Node.js; giai đoạn xây dựng tạo bản Next.js cho môi trường chính thức; giai đoạn chạy chỉ chứa các tệp cần thiết. Cách chia giai đoạn này giúp giảm kích thước image khi chạy và tránh đưa các công cụ xây dựng vào container phục vụ người dùng. Bảng~\ref{tab:appendix-b-frontend-dockerfile} tóm tắt đầu vào và kết quả của từng giai đoạn.
 
-\begin{longtable}{|T{0.20\textwidth}|T{0.30\textwidth}|T{0.40\textwidth}|}
+\begin{longtable}{|T{0.20\textwidth}|T{0.35\textwidth}|T{0.35\textwidth}|}
 \caption{Các giai đoạn đóng gói frontend}\label{tab:appendix-b-frontend-dockerfile}\\
 \hline
-Giai đoạn & Đầu vào chính & Kết quả \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
 \endfirsthead
 \hline
-Giai đoạn & Đầu vào chính & Kết quả \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
 \endhead
 Dependencies & \path{package.json} và \path{pnpm-lock.yaml} & Cài phụ thuộc bằng \textit{pnpm install --frozen-lockfile} \\ \hline
 Builder & Node 22 Alpine, mã nguồn và \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL} & Chạy \textit{pnpm build} với giới hạn bộ nhớ 4096 MB \\ \hline
@@ -327,15 +332,15 @@ Giá trị xây dựng mặc định của \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_U
 
 \subsection{Backend}
 
-Tệp \path{backend/Dockerfile} cũng dùng quy trình nhiều giai đoạn. Giai đoạn xây dựng tải module Go và biên dịch tệp thực thi; giai đoạn chạy dùng image nhỏ hơn, chứa tệp thực thi, chứng chỉ cần cho kết nối HTTPS và các tài nguyên runtime được yêu cầu.
+Tệp \path{backend/Dockerfile} cũng dùng quy trình nhiều giai đoạn. Giai đoạn xây dựng tải module Go và biên dịch tệp thực thi; giai đoạn chạy dùng image nhỏ hơn, chứa tệp thực thi, chứng chỉ cần cho kết nối HTTPS và các tài nguyên cần thiết khi chạy. Bảng~\ref{tab:appendix-b-backend-dockerfile} tóm tắt hai giai đoạn đóng gói này.
 
-\begin{longtable}{|T{0.20\textwidth}|T{0.30\textwidth}|T{0.40\textwidth}|}
+\begin{longtable}{|T{0.15\textwidth}|T{0.35\textwidth}|T{0.40\textwidth}|}
 \caption{Các giai đoạn đóng gói backend}\label{tab:appendix-b-backend-dockerfile}\\
 \hline
-Giai đoạn & Đầu vào chính & Kết quả \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
 \endfirsthead
 \hline
-Giai đoạn & Đầu vào chính & Kết quả \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
 \endhead
 Builder & Go 1.24 Alpine, mã nguồn và module & Tạo Swagger, biên dịch tệp thực thi tĩnh cho Linux và cài công cụ \textit{migrate} \\ \hline
 Runner & Tệp thực thi, migration, công cụ \textit{migrate} và chứng chỉ CA & Container Alpine chạy backend trên cổng 8080 \\ \hline
@@ -345,7 +350,7 @@ Image backend không chứa mật khẩu cơ sở dữ liệu, khóa JWT, khóa 
 
 \subsection{Dịch vụ AI}
 
-Tệp \path{ai-service/Dockerfile} sử dụng Python 3.12 slim, cài \textit{libmagic1}, \textit{curl} và Poetry 1.8.5, sau đó cài nhóm phụ thuộc chính mà không tạo môi trường ảo trong container. Lệnh khởi động thực hiện migration Alembic trước khi chạy Uvicorn.
+Tệp \path{ai-service/Dockerfile} sử dụng Python 3.12 slim, cài \textit{libmagic1}, \textit{curl} và Poetry 1.8.5, sau đó cài nhóm phụ thuộc chính mà không tạo môi trường ảo trong container. Đoạn mã~\ref{lst:appendix-b-ai-dockerfile} cho thấy lệnh khởi động thực hiện migration Alembic trước khi chạy Uvicorn.
 
 \begin{lstlisting}[language=bash, caption={Lệnh khởi động của image dịch vụ AI}, label={lst:appendix-b-ai-dockerfile}]
 alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8090
@@ -360,23 +365,23 @@ Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định dan
 \section{Caddy, TLS và định tuyến}
 \label{sec:appendix-b-caddy}
 
-Caddy nhận lưu lượng công khai, tự động quản lý TLS và chuyển tiếp yêu cầu đến dịch vụ phù hợp. Lưu lượng giao diện được chuyển đến frontend; lưu lượng API được chuyển đến backend theo quy tắc định tuyến được khai báo trong Caddyfile. Caddy là thành phần duy nhất cần tiếp xúc trực tiếp với Internet, nhờ đó giảm số cổng phải bảo vệ tại máy chủ.
+Caddy nhận lưu lượng công khai, tự động quản lý TLS và chuyển tiếp yêu cầu đến dịch vụ phù hợp. Lưu lượng WebSocket được chuyển trực tiếp đến backend; các yêu cầu còn lại được chuyển đến frontend, nơi các route phía máy chủ chuyển tiếp yêu cầu API khi cần. Caddy là thành phần duy nhất cần tiếp xúc trực tiếp với Internet, nhờ đó giảm số cổng phải bảo vệ tại máy chủ. Bảng~\ref{tab:appendix-b-caddy-routing} tóm tắt ranh giới định tuyến này.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Ranh giới định tuyến qua Caddy}
 \label{tab:appendix-b-caddy-routing}
 \begin{tabularx}{\textwidth}{|T{0.25\textwidth}|T{0.29\textwidth}|X|}
 \hline
-Nhóm yêu cầu & Đích đến & Trách nhiệm \\ \hline
+\TableHeader{Nhóm yêu cầu} & \TableHeader{Đích đến} & \TableHeader{Trách nhiệm} \\ \hline
 WebSocket & Backend trên cổng nội bộ 8080 & Chuyển tiếp đường dẫn \path{/ws/*} cho thông báo thời gian thực \\ \hline
 Giao diện người dùng & Frontend trên cổng nội bộ 3000 & Phục vụ trang Next.js và tài nguyên tĩnh \\ \hline
 Yêu cầu HTTPS & Caddy & Nén bằng zstd hoặc gzip và tự động thiết lập TLS cho tên miền \\ \hline
 \end{tabularx}
 \end{table}
 
-\pagebreak
-Cấu hình Caddy hiện tại dùng tên miền \path{conference-space.com} và \path{www.conference-space.com}, với các quy tắc định tuyến sau.
+\clearpage
+Cấu hình Caddy hiện tại dùng tên miền \path{conference-space.com} và \path{www.conference-space.com}; các quy tắc định tuyến được trình bày trong Đoạn mã~\ref{lst:appendix-b-caddyfile}.
 
 \begin{lstlisting}[language={}, caption={Định tuyến Caddy trong môi trường chính thức}, label={lst:appendix-b-caddyfile}]
 conference-space.com, www.conference-space.com {
@@ -393,15 +398,15 @@ Theo cấu hình trên, mọi truy cập công khai đều đi qua Caddy; trình
 
 \subsection{Phạm vi luồng công việc CI/CD}
 
-Luồng công việc trong \path{.github/workflows/deploy.yml} không xây dựng image trên máy chủ. GitHub Actions xây dựng và đẩy song song ba image frontend, backend và dịch vụ AI lên GHCR; máy chủ VPS chỉ lấy image, cập nhật tệp triển khai, chạy migration và thay container. Luồng công việc được kích hoạt khi commit vào nhánh \textit{main} hoặc khi người vận hành yêu cầu chạy thủ công.
+Luồng công việc trong \path{.github/workflows/deploy.yml} không xây dựng image trên máy chủ. GitHub Actions xây dựng và đẩy song song ba image frontend, backend và dịch vụ AI lên GHCR; máy chủ VPS chỉ lấy image, cập nhật tệp triển khai, chạy migration và thay container. Luồng công việc được kích hoạt khi commit vào nhánh \textit{main} hoặc khi người vận hành yêu cầu chạy thủ công. ng~\ref{tab:appendix-b-cicd-stages} trình bày các giai đoạn và điều kiện hoàn tất tương ứng.
 
-\begin{longtable}{|T{0.20\textwidth}|T{0.31\textwidth}|T{0.39\textwidth}|}
+\begin{longtable}{|T{0.20\textwidth}|T{0.40\textwidth}|T{0.35\textwidth}|}
 \caption{Các giai đoạn của quy trình CI/CD}\label{tab:appendix-b-cicd-stages}\\
 \hline
-Giai đoạn & Kiểm tra chính & Điều kiện hoàn tất \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Kiểm tra chính} & \TableHeader{Điều kiện hoàn tất} \\ \hline
 \endfirsthead
 \hline
-Giai đoạn & Kiểm tra chính & Điều kiện hoàn tất \\ \hline
+\TableHeader{Giai đoạn} & \TableHeader{Kiểm tra chính} & \TableHeader{Điều kiện hoàn tất} \\ \hline
 \endhead
 Build frontend & Xây dựng image từ \path{frontend/Dockerfile} với \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL=api/backend} & Image frontend được tạo từ đúng commit \\ \hline
 Build backend & Xây dựng image từ \path{backend/Dockerfile} và tạo Swagger & Image backend được tạo từ đúng commit \\ \hline
@@ -414,7 +419,7 @@ Deployment & Cập nhật ba biến image, pull, chạy \CodeBreak{backend-migra
 
 \subsection{Tên và phiên bản image}
 
-Ba image được phát hành theo mẫu sau.
+Ba image được phát hành theo các mẫu trong Đoạn mã~\ref{lst:appendix-b-ghcr-images}.
 
 \begin{lstlisting}[language=bash, caption={Mẫu tên image phát hành trên GitHub Container Registry}, label={lst:appendix-b-ghcr-images}]
 ghcr.io/<owner>/conferencespace-frontend:<GITHUB_SHA>
@@ -429,7 +434,7 @@ ghcr.io/<owner>/conferencespace-ai-service:latest
 
 \subsection{Cập nhật hệ thống chính thức}
 
-Tác vụ triển khai cập nhật ba biến image trong \textit{.env.production}, đăng nhập GHCR, lấy image, chạy migration bằng dịch vụ \CodeBreak{backend-migrate}, rồi khởi động toàn bộ hệ thống.
+Tác vụ triển khai cập nhật ba biến image trong \path{.env.production}, đăng nhập GHCR, lấy image, chạy migration bằng dịch vụ \CodeBreak{backend-migrate}, rồi khởi động toàn bộ hệ thống theo Đoạn mã~\ref{lst:appendix-b-production-update}.
 
 \begin{lstlisting}[language=bash, caption={Cập nhật các dịch vụ ứng dụng trong môi trường chính thức}, label={lst:appendix-b-production-update}]
 chmod 600 .env.production
@@ -453,13 +458,15 @@ Cấu hình theo commit SHA cho phép người vận hành xác định lại im
 \section{Bảo vệ cấu hình và bí mật}
 \label{sec:appendix-b-secrets}
 
-\begin{longtable}{|T{0.25\textwidth}|T{0.29\textwidth}|T{0.36\textwidth}|}
+Bảng~\ref{tab:appendix-b-secret-controls} phân loại các nhóm cấu hình và biện pháp bảo vệ tương ứng.
+
+\begin{longtable}{|T{0.23\textwidth}|T{0.30\textwidth}|T{0.40\textwidth}|}
 \caption{Phân loại cấu hình và biện pháp bảo vệ}\label{tab:appendix-b-secret-controls}\\
 \hline
-Nhóm cấu hình & Ví dụ & Biện pháp \\ \hline
+\TableHeader{Nhóm cấu hình} & \TableHeader{Ví dụ} & \TableHeader{Biện pháp} \\ \hline
 \endfirsthead
 \hline
-Nhóm cấu hình & Ví dụ & Biện pháp \\ \hline
+\TableHeader{Nhóm cấu hình} & \TableHeader{Ví dụ} & \TableHeader{Biện pháp} \\ \hline
 \endhead
 Bí mật xác thực & \CodeBreak{JWT\_SECRET}, mật khẩu PostgreSQL, Redis và Neo4j & Không commit; không ghi trong Dockerfile; cung cấp khi runtime; thay đổi theo môi trường \\ \hline
 Khóa dịch vụ bên ngoài & \CodeBreak{GEMINI\_API\_KEY}, \CodeBreak{OPENROUTER\_API\_KEY} và nhóm biến nhà cung cấp AI & Lưu trong GitHub Secrets hoặc hệ thống quản lý bí mật của máy chủ; giới hạn phạm vi quyền; thay khóa khi nghi ngờ lộ \\ \hline
@@ -469,18 +476,20 @@ Cấu hình công khai & \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL}, tên miền v
 Định danh image & \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE}, \CodeBreak{AI\_SERVICE\_IMAGE} & Ghi trong \textit{.env.production} để truy vết và quay lại phiên bản \\ \hline
 \end{longtable}
 
-Tệp \textit{.env.production} trên máy chủ được đặt quyền \textit{600}. Bí mật không được in đầy đủ trong nhật ký CI/CD hoặc nhật ký khởi động. Các lỗi cấu hình phải nêu tên biến bị thiếu nhưng không tiết lộ giá trị. Quyền đọc và cập nhật bí mật chỉ được cấp cho luồng công việc CI/CD và người vận hành cần thiết. Khi thành viên rời nhóm hoặc có dấu hiệu lộ thông tin, khóa liên quan phải được thay và container phải được khởi động lại với giá trị mới.
+Tệp \path{.env.production} trên máy chủ được đặt quyền \CodeBreak{600}. Bí mật không được in đầy đủ trong nhật ký CI/CD hoặc nhật ký khởi động. Các lỗi cấu hình phải nêu tên biến bị thiếu nhưng không tiết lộ giá trị. Quyền đọc và cập nhật bí mật chỉ được cấp cho workflow và người vận hành cần thiết. Khi thành viên rời nhóm hoặc có dấu hiệu lộ thông tin, khóa liên quan phải được thay và container phải được khởi động lại với giá trị mới.
 
 \section{Danh sách kiểm tra tái lập và nghiệm thu triển khai}
 \label{sec:appendix-b-checklist}
 
-\begin{longtable}{|N{0.08\textwidth}|T{0.57\textwidth}|T{0.25\textwidth}|}
+Bảng~\ref{tab:appendix-b-reproducibility} cung cấp danh sách kiểm tra và bằng chứng cần ghi nhận khi tái lập hoặc nghiệm thu môi trường.
+
+\begin{longtable}{|N{0.08\textwidth}|T{0.5\textwidth}|T{0.4\textwidth}|}
 \caption{Danh sách kiểm tra tái lập môi trường}\label{tab:appendix-b-reproducibility}\\
 \hline
-STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
+\TableHeader{STT} & \TableHeader{Hạng mục kiểm tra} & \TableHeader{Bằng chứng cần ghi nhận} \\ \hline
 \endfirsthead
 \hline
-STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
+\TableHeader{STT} & \TableHeader{Hạng mục kiểm tra} & \TableHeader{Bằng chứng cần ghi nhận} \\ \hline
 \endhead
 1 & Công cụ cục bộ đáp ứng phiên bản Docker, Go và Node.js yêu cầu & Kết quả hiển thị phiên bản \\ \hline
 2 & PostgreSQL, Redis và Neo4j khởi động và đạt trạng thái sẵn sàng & Trạng thái container và kết quả kiểm tra trạng thái \\ \hline

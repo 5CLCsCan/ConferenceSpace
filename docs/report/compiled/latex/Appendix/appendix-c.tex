@@ -103,22 +103,22 @@ Trong đặc tả benchmark, TCA là viết tắt của ba tên chỉ số Truth
 
 Bộ thực thi hoàn tất 1.097 trên 1.127 bài đầu vào. Ba mươi trường hợp không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy phép đánh giá, chiếm 2,66\% tổng số bài; tỷ lệ hoàn tất đạt 97,34\%. Các trường hợp này vẫn thuộc thống kê vận hành nhưng không được đưa vào hậu kiểm chất lượng vì không có gói kết quả đủ điều kiện. Bảng~\ref{tab:appc-tca-denominators} tách mẫu số chung khỏi đơn vị đánh giá của từng nhánh; trường dữ liệu vắng mặt không được quy thành giá trị~0.
 
-\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|>{\RaggedRight\arraybackslash}p{0.19\textwidth}|>{\RaggedRight\arraybackslash}p{0.47\textwidth}|}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.15\textwidth}|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|>{\RaggedRight\arraybackslash}p{0.52\textwidth}|}
   \caption{Mẫu số và đơn vị của quy trình hậu kiểm}\label{tab:appc-tca-denominators}\\[0.5\baselineskip]
   \hline
-  Phạm vi & Quy mô & Cách sử dụng \\ \hline
+  \TableHeader{Phạm vi} & \TableHeader{Quy mô} & \TableHeader{Cách sử dụng} \\ \hline
   \endfirsthead
   \hline
-  Phạm vi & Quy mô & Cách sử dụng \\ \hline
+  \TableHeader{Phạm vi} & \TableHeader{Quy mô} & \TableHeader{Cách sử dụng} \\ \hline
   \endhead
   \hline
   \endfoot
   Đầu vào bộ thực thi & 1.127 bài & Mẫu số của tỷ lệ hoàn tất vận hành. \\ \hline
   Gói đủ điều kiện chung & 1.097 bài & Mẫu số nền của quy trình hậu kiểm; mỗi nhánh tiếp tục kiểm tra điều kiện riêng. \\ \hline
-  B1 -- chú thích & 28.874 chú thích trên 1.097 bài & Đối chiếu trực tiếp phần trích dẫn trong Reviewer Initial Analysis. \\ \hline
-  B2 -- điểm cần lưu ý & 6.677 điểm trên 1.097 bài & Kiểm tra mức bám nguồn; 1.061 bài có mệnh đề bám nguồn đủ điều kiện để tính hai tỷ lệ đối chiếu với bản phản biện. \\ \hline
-  B3 -- phát hiện kiểm tra & 3.567 bản phản biện, 8.461 phát hiện trên 1.097 bài & Chấm đầu ra Review Quality Auditor. Bộ thực thi đã tạo 3.658 lượt; chỉ các bản ghi đủ dữ liệu hậu kiểm mới đi vào mẫu chấm. \\ \hline
-  B5 -- cơ sở bằng chứng & 6.781 nhận định trên 1.071 bài đủ chỉ số bám nguồn & Kiểm tra cơ sở bằng chứng của Chair Decision Copilot; 1.063 bài có mệnh đề bám nguồn đủ điều kiện để tính hai tỷ lệ đối chiếu với metareview. Nhãn rủi ro cao vẫn được đếm trên 1.097 gói đủ điều kiện chung. \\ \hline
+  B1 - chú thích & 28.874 chú thích trên 1.097 bài & Đối chiếu trực tiếp phần trích dẫn trong Reviewer Initial Analysis. \\ \hline
+  B2 - điểm cần lưu ý & 6.677 điểm trên 1.097 bài & Kiểm tra mức bám nguồn; 1.061 bài có mệnh đề bám nguồn đủ điều kiện để tính hai tỷ lệ đối chiếu với bản phản biện. \\ \hline
+  B3 - phát hiện kiểm tra & 3.567 bản phản biện, 8.461 phát hiện trên 1.097 bài & Chấm đầu ra Review Quality Auditor. Bộ thực thi đã tạo 3.658 lượt; chỉ các bản ghi đủ dữ liệu hậu kiểm mới đi vào mẫu chấm. \\ \hline
+  B5 - cơ sở bằng chứng & 6.781 nhận định trên 1.071 bài đủ chỉ số bám nguồn & Kiểm tra cơ sở bằng chứng của Chair Decision Copilot; 1.063 bài có mệnh đề bám nguồn đủ điều kiện để tính hai tỷ lệ đối chiếu với metareview. Nhãn rủi ro cao vẫn được đếm trên 1.097 gói đủ điều kiện chung. \\ \hline
 \end{longtable}
 
 Đối với Review Quality Auditor, trường \CodeBreak{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \CodeBreak{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Backend vẫn tiếp tục lưu bản phản biện khi dịch vụ trả về trạng thái \CodeBreak{block}; frontend cũng không dùng trạng thái này để vô hiệu hóa thao tác nộp. Hai nhãn này chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không phải điều kiện từ chối thao tác. Nếu dịch vụ kiểm tra không hoàn tất, hệ thống chuyển sang một nhánh xác nhận riêng và không tính đó là thao tác bị từ chối do phát hiện của Review Quality Auditor.

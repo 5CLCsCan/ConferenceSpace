@@ -427,47 +427,83 @@ Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng t
 
 Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu diễn trạng thái hội nghị và mối quan hệ giữa lời mời tham gia hội đồng với phân công bài.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\begin{adjustbox}{max width=0.96\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixState] (draftConf) at (-8,0) {Draft};
-  \node[appendixState] (openConf) at (-4,0) {Open};
-  \node[appendixState] (reviewingConf) at (0,0) {Reviewing};
-  \node[appendixState] (completedConf) at (4,0) {Completed};
-  \node[appendixState] (archivedConf) at (8,0) {Archived};
-  \node[appendixOutcome, text width=60mm] (archiveRule) at (4,-2.0) {Draft, Open, Reviewing hoặc Completed đều có thể chuyển sang Archived};
+\begin{adjustbox}{max width=\textwidth}
+\begin{tikzpicture}[
+  >=Latex,
+  appendixProcess/.append style={font=\normalsize},
+  appendixDecision/.append style={font=\normalsize},
+  appendixState/.append style={font=\normalsize},
+  appendixOutcome/.append style={font=\normalsize},
+  appendixEdgeLabel/.append style={font=\normalsize, fill=none, inner sep=0pt},
+  conferenceState/.style={appendixState, text width=24mm, inner sep=2pt, minimum height=10mm},
+  compactState/.style={appendixState, text width=23mm, inner sep=2pt},
+  compactDecision/.style={appendixDecision, aspect=1.8, text width=18mm, inner sep=1pt}
+]
+  \node[conferenceState] (draftConf) at (-6.4,0) {Draft};
+  \node[conferenceState] (openConf) at (-3.2,0) {Open};
+  \node[conferenceState] (reviewingConf) at (0,0) {Reviewing};
+  \node[conferenceState] (completedConf) at (3.2,0) {Completed};
+  \node[conferenceState] (archivedConf) at (6.4,0) {Archived};
 
   \draw[appendixArrow] (draftConf) -- (openConf);
   \draw[appendixArrow] (openConf) -- (reviewingConf);
   \draw[appendixArrow] (reviewingConf) -- (completedConf);
-  \draw[appendixArrow] (completedConf) -- (archivedConf);
-  \draw[appendixDashedArrow] (archiveRule.east) -| (archivedConf.south);
-  \draw[appendixArrow] (archivedConf.north) to[out=110,in=70,looseness=1.15] node[appendixEdgeLabel, above] {Khôi phục} (completedConf.north);
+  \draw[appendixArrow] (completedConf) --
+    node[appendixEdgeLabel, below=16pt] {Lưu trữ} (archivedConf);
+  \draw[appendixArrow] (archivedConf.north)
+    to[out=110,in=70,looseness=1.15]
+    node[appendixEdgeLabel, above=4pt] {Khôi phục} (completedConf.north);
 
-  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-4.1) {Lời mời tham gia hội đồng trong giai đoạn Open};
-  \node[appendixProcess] (invite) at (-10.8,-5.3) {Chủ tọa gửi lời mời};
-  \node[appendixState] (invitePending) at (-5.7,-5.3) {Pending};
-  \node[appendixDecision] (inviteResponse) at (-1,-5.3) {Phản hồi lời mời?};
-  \node[appendixState, fill=green!9] (reviewerAccepted) at (5.0,-4.5) {Accepted\\Cấp vai trò Phản biện viên};
-  \node[appendixState, fill=red!6] (reviewerRejected) at (5.0,-6.2) {Rejected};
+  \node[font=\normalsize\bfseries, anchor=west] at (-7.6,-3.0)
+    {Lời mời tham gia hội đồng trong giai đoạn Open};
+  \node[appendixProcess, text width=26mm] (invite) at (-6.0,-5.4)
+    {Chủ tọa gửi lời mời};
+  \node[compactState] (invitePending) at (-2.0,-5.4) {Pending};
+  \node[compactDecision] (inviteResponse) at (2.8,-5.4)
+    {Phản hồi lời mời?};
+  \node[appendixState, fill=green!9] (reviewerAccepted) at (-0.4,-8.8)
+    {Accepted\\Cấp vai trò Phản biện viên};
+  \node[compactState, fill=red!6] (reviewerRejected) at (5.5,-8.8)
+    {Rejected};
+  \coordinate (inviteSplit) at (2.8,-7.2);
+
   \draw[appendixArrow] (invite) -- (invitePending);
   \draw[appendixArrow] (invitePending) -- (inviteResponse);
-  \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, above] {Chấp nhận} (reviewerAccepted);
-  \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, below] {Từ chối} (reviewerRejected);
+  \draw[thick] (inviteResponse.south) -- (inviteSplit);
+  \draw[appendixArrow] (inviteSplit) --
+    node[appendixEdgeLabel, above=5pt] {Chấp nhận}
+    (-0.4,-7.2) -- (reviewerAccepted.north);
+  \draw[appendixArrow] (inviteSplit) --
+    node[appendixEdgeLabel, above=5pt] {Từ chối}
+    (5.5,-7.2) -- (reviewerRejected.north);
 
-  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-7.2) {Phân công bài khi hội nghị chuyển sang Reviewing};
-  \node[appendixProcess] (suggested) at (-10.8,-9.5) {Hệ thống tạo đề xuất\\Suggested};
-  \node[appendixProcess, text width=43mm] (chairConfirm) at (-6.3,-9.5) {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
-  \node[appendixDecision] (assignmentResponse) at (-1,-9.5) {Phản hồi phân công?};
-  \node[appendixState, fill=green!9] (assignmentAccepted) at (5.0,-8.7) {Accepted};
-  \node[appendixState, fill=red!6] (assignmentDeclined) at (5.0,-10.4) {Declined};
-  \node[appendixOutcome] (workspace) at (9.0,-8.7) {Bài xuất hiện trong không gian làm việc};
+  \node[font=\normalsize\bfseries, anchor=west] at (-7.6,-10.8)
+    {Phân công bài khi hội nghị chuyển sang Reviewing};
+  \node[appendixProcess] (suggested) at (-6.0,-13.3)
+    {Hệ thống tạo đề xuất\\Suggested};
+  \node[appendixProcess, text width=34mm] (chairConfirm) at (-1.8,-13.3)
+    {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
+  \node[compactDecision] (assignmentResponse) at (4.0,-13.3)
+    {Phản hồi phân công?};
+  \node[compactState, fill=green!9] (assignmentAccepted) at (0.5,-16.7)
+    {Accepted};
+  \node[compactState, fill=red!6] (assignmentDeclined) at (8.5,-16.7)
+    {Declined};
+  \node[appendixOutcome] (workspace) at (0.5,-19.2)
+    {Bài xuất hiện trong không gian làm việc};
+  \coordinate (assignmentSplit) at (4.0,-15.2);
 
   \draw[appendixArrow] (suggested) -- (chairConfirm);
   \draw[appendixArrow] (chairConfirm) -- (assignmentResponse);
-  \draw[appendixArrow] (assignmentResponse) -- node[appendixEdgeLabel, above] {Chấp nhận} (assignmentAccepted);
-  \draw[appendixArrow] (assignmentResponse) -- node[appendixEdgeLabel, below] {Từ chối} (assignmentDeclined);
+  \draw[thick] (assignmentResponse.south) -- (assignmentSplit);
+  \draw[appendixArrow] (assignmentSplit) --
+    node[appendixEdgeLabel, above=5pt] {Chấp nhận}
+    (0.5,-15.2) -- (assignmentAccepted.north);
+  \draw[appendixArrow] (assignmentSplit) --
+    node[appendixEdgeLabel, above=5pt] {Từ chối}
+    (8.5,-15.2) -- (assignmentDeclined.north);
   \draw[appendixArrow] (assignmentAccepted) -- (workspace);
 \end{tikzpicture}
 \end{adjustbox}
@@ -994,7 +1030,7 @@ Sơ đồ~\ref{fig:appendix-a-matching-coi-execution} biểu diễn luồng đ�
 
 Bảng~\ref{tab:appendix-a-matching-exceptions} tổng hợp các tình huống ngoại lệ và cách hệ thống xử lý.
 
-\begin{longtable}{|T{0.43\textwidth}|T{0.47\textwidth}|}
+\begin{longtable}{|T{0.30\textwidth}|T{0.60\textwidth}|}
 \caption{Tình huống ngoại lệ trong đối sánh Phản biện viên}\label{tab:appendix-a-matching-exceptions}\\
 \hline
 \TableHeader{Tình huống} & \TableHeader{Cách xử lý} \\ \hline
