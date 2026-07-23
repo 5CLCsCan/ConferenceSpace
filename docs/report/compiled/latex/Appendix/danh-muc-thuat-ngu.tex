@@ -33,23 +33,23 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   \hline
    \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
   AI     &     Artificial Intelligence     &     Nhóm chức năng hỗ trợ bằng mô hình trí tuệ nhân tạo trong hệ thống. Không bao gồm các cơ chế thuật toán cố định, có thể kiểm chứng như đối sánh phản biện (reviewer matching) và phát hiện xung đột lợi ích \\ \hline
-  LLM     &     Large Language Model     &     Mô hình ngôn ngữ lớn dùng trong các luồng hỗ trợ nhập liệu, đọc bài, kiểm tra bản nháp nhận xét phản biện, tổng hợp bằng chứng hoặc chatbot \\ \hline
-  Luồng AI      &      luồng xử lý AI / AI workflow      &      Luồng xử lý sử dụng AI, có đầu vào, đầu ra, ranh giới kiểm soát và tiêu chí đánh giá riêng \\ \hline
-  Sáu luồng AI chính     &     tên sản phẩm tiếng Anh giữ nguyên     &     Submission Autofill (tự động điền bài nộp); Submission Gating (kiểm tra trước khi nộp bài); Reviewer Initial Analysis (phân tích và tóm tắt bài báo); Review Quality Auditor (kiểm tra chất lượng nhận xét phản biện); Chair Decision Copilot (báo cáo tổng hợp hỗ trợ Chủ tọa); Chatbot Agent (trợ lý hội thoại có công cụ và phân quyền) \\ \hline
+  LLM     &     Large Language Model     &     Mô hình ngôn ngữ lớn dùng trong các luồng công việc hỗ trợ nhập liệu, đọc bài, kiểm tra bản nháp nhận xét phản biện, tổng hợp bằng chứng hoặc chatbot \\ \hline
+  Luồng công việc AI      &      luồng công việc sử dụng AI      &      Luồng công việc sử dụng AI, có đầu vào, đầu ra, ranh giới kiểm soát và tiêu chí đánh giá riêng \\ \hline
+  Sáu luồng công việc AI chính     &     tên sản phẩm tiếng Anh giữ nguyên     &     Submission Autofill (tự động điền bài nộp); Submission Gating (kiểm tra trước khi nộp bài); Reviewer Initial Analysis (phân tích và tóm tắt bài báo); Review Quality Auditor (kiểm tra chất lượng nhận xét phản biện); Chair Decision Copilot (báo cáo tổng hợp hỗ trợ Chủ tọa); Chatbot Agent (trợ lý hội thoại có công cụ và phân quyền) \\ \hline
   Thuật toán xác định, có thể kiểm chứng      &      deterministic / thuật toán xác định      &      Lớp xử lý đối sánh Phản biện viên và xung đột lợi ích với kết quả có thể tái lập và kiểm tra lại; không sử dụng AI tạo sinh \\ \hline
   Agent      &      tác nhân (agent)      &      Thành phần AI có thể chia nhỏ tác vụ, truy xuất dữ liệu và gọi công cụ trong phạm vi quyền đã xác định \\ \hline
   human-in-the-loop     &     sự can thiệp của con người (human-in-the-loop)     &     Bước người hoặc vai trò có thẩm quyền xem lại, chỉnh sửa, ghi đè hoặc xác nhận trước khi dùng đầu ra AI gần quyết định học thuật \\ \hline
   ReAct     &     Reasoning and Acting     &     Mẫu kết hợp suy luận và gọi công cụ cho agent nhiều bước \\ \hline
-  Bộ thực thi luồng xử lý     &     workflow runner     &     Thành phần chạy luồng AI trên tập dữ liệu đánh giá, lưu đầu ra, điểm kiểm tra, thời gian xử lý, token và trạng thái hoàn tất \\ \hline
+  Bộ thực thi luồng công việc     &     thành phần thực thi luồng công việc     &     Thành phần chạy luồng công việc AI trên tập dữ liệu đánh giá, lưu đầu ra, điểm kiểm tra, thời gian xử lý, token và trạng thái hoàn tất \\ \hline
   Dispatcher-worker     &     bộ điều phối và worker xử lý     &     Mô hình vận hành trong đó dispatcher phân phối tác vụ AI cho các worker chạy độc lập và lưu kết quả theo từng tác vụ \\ \hline
-  Artifact      &      gói kết quả kỹ thuật (artifact)      &      Kết quả hoặc đối tượng kỹ thuật được tạo và lưu để đối chiếu, ví dụ đầu ra của luồng AI, siêu dữ liệu kiểm toán hoặc dữ liệu đã gắn fingerprint \\ \hline
+  Artifact      &      gói kết quả kỹ thuật (artifact)      &      Kết quả hoặc đối tượng kỹ thuật được tạo và lưu để đối chiếu, ví dụ đầu ra của luồng công việc AI, siêu dữ liệu kiểm toán hoặc dữ liệu đã gắn fingerprint \\ \hline
   Structured output     &     đầu ra có cấu trúc (structured output)     &     Đầu ra của mô hình phải tuân theo schema hoặc ràng buộc field để backend có thể kiểm tra, lưu và hiển thị \\ \hline
   Schema      &      lược đồ dữ liệu      &      Đặc tả cấu trúc dữ liệu, kiểu field và ràng buộc kiểm tra cho request/response, đầu ra AI hoặc artifact \\ \hline
   Data contract      &      đặc tả trao đổi dữ liệu (data contract) / chuẩn đầu ra      &      Quy ước bắt buộc về cấu trúc và điều kiện đầu ra giữa dịch vụ AI và backend; khi nhấn mạnh hành động kiểm tra dùng \textit{đối chiếu đầu ra với chuẩn đã định sẵn} \\ \hline
   Composite pattern      &      mẫu Composite      &      Mẫu thiết kế gom nhiều detector hoặc thành phần xử lý cùng giao diện để bật/tắt hoặc kết hợp theo cấu hình, dùng trong phát hiện xung đột lợi ích nhiều lớp \\ \hline
   Hallucination     &     hallucination / nội dung do AI tạo ra không có căn cứ     &     Trường hợp AI tạo nội dung không được dữ liệu đầu vào hoặc bằng chứng hệ thống hỗ trợ. Báo cáo cũng diễn đạt là \textit{thông tin thiếu căn cứ} hoặc \textit{nội dung do AI tạo ra không có căn cứ} \\ \hline
   Retrieval-Augmented Generation     &     Retrieval-Augmented Generation (RAG)     &     Cách kết hợp mô hình ngôn ngữ với bước truy xuất tài liệu hoặc artifact liên quan trước khi sinh câu trả lời, nhằm tăng mức bám nguồn \\ \hline
-  RAG      &      Retrieval-Augmented Generation      &      Viết tắt của Retrieval-Augmented Generation; trong báo cáo chủ yếu là hướng phát triển để tăng mức độ bám nguồn của luồng AI \\ \hline
+  RAG      &      Retrieval-Augmented Generation      &      Viết tắt của Retrieval-Augmented Generation; trong báo cáo chủ yếu là hướng phát triển để tăng mức độ bám nguồn của luồng công việc AI \\ \hline
   Agentic RAG     &     Agentic RAG     &     Hướng mở rộng trong đó agent chọn chiến lược truy xuất, chia nhỏ tác vụ, gọi công cụ và kiểm tra lại nguồn thay vì chạy một pipeline cố định \\ \hline
   Vector search      &      tìm kiếm vector (vector search)      &      Cách tìm tài liệu, chủ đề hoặc hồ sơ gần nhau trong không gian embedding thay vì chỉ khớp từ khóa \\ \hline
   Hybrid retrieval     &     truy hồi lai (hybrid retrieval)     &     Cách kết hợp tìm kiếm từ khóa, metadata và vector search để tăng khả năng lấy đúng nguồn liên quan \\ \hline
@@ -95,7 +95,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   \hline
    \TableHeader{Thuật ngữ}    &    \TableHeader{Tên đầy đủ / tương đương}    &    \TableHeader{Nghĩa sử dụng trong báo cáo} \\ \hline
   Xung đột lợi ích     &     Conflict of Interest     &     Quan hệ có thể ảnh hưởng đến tính khách quan giữa phản biện viên và bài nộp, cần được phát hiện trước khi phân công phản biện \\ \hline
-  Reviewer matching      &      đối sánh phản biện (reviewer matching)      &      Cơ chế gợi ý phản biện viên phù hợp với bài nộp dựa trên miền chuyên môn, khối lượng công việc và ràng buộc xung đột lợi ích. Lớp này thuộc thuật toán cố định, có thể kiểm chứng, không phải luồng AI tạo sinh \\ \hline
+  Reviewer matching      &      đối sánh phản biện (reviewer matching)      &      Cơ chế gợi ý phản biện viên phù hợp với bài nộp dựa trên miền chuyên môn, khối lượng công việc và ràng buộc xung đột lợi ích. Lớp này thuộc thuật toán cố định, có thể kiểm chứng, không phải luồng công việc AI tạo sinh \\ \hline
   Domain Jaccard     &     Jaccard theo miền chuyên môn     &     Công thức đo độ tương đồng giữa tập từ khóa/miền của bài nộp và phản biện viên bằng tỷ lệ giao trên hợp \\ \hline
   Greedy assignment      &      phân công tham lam (greedy)      &      Thuật toán xét các cặp bài nộp--phản biện viên có điểm cao trước, đồng thời tôn trọng giới hạn tải và xung đột lợi ích \\ \hline
   Cân bằng tải     &     load balancing     &     Nguyên tắc phân bổ phân công để tránh dồn quá nhiều bài cho một phản biện viên khi có nhiều ứng viên tương đương \\ \hline
@@ -154,7 +154,7 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   TTFT      &      thời gian đến token đầu tiên (TTFT)      &      Thời gian từ lúc gửi yêu cầu đến khi hệ thống bắt đầu trả token đầu tiên trong luồng phản hồi chatbot \\ \hline
   Thời lượng luồng phản hồi     &     stream duration     &     Thời gian hệ thống duy trì luồng trả lời sau khi bắt đầu truyền dữ liệu về giao diện \\ \hline
   Tỷ lệ gọi công cụ thành công      &      tool-call success rate      &      Tỷ lệ lời gọi công cụ (tool call) của agent trả về kết quả hợp lệ trong đánh giá hội thoại \\ \hline
-  Kết quả hội thoại     &     conversation / workflow outcome     &     Nhãn đánh giá cuối cùng của một hội thoại chatbot, gồm đạt, đạt một phần hoặc không đạt \\ \hline
+  Kết quả hội thoại     &     conversation outcome     &     Nhãn đánh giá cuối cùng của một hội thoại chatbot, gồm đạt, đạt một phần hoặc không đạt \\ \hline
   UAT     &     User Acceptance Testing / kiểm thử chấp nhận của người dùng     &     Hoạt động đánh giá mức chấp nhận của người dùng sau khi trải nghiệm hệ thống, được thực hiện với các vai trò Tác giả, Phản biện viên và Chủ tọa \\ \hline
 \end{longtable}
 \endgroup

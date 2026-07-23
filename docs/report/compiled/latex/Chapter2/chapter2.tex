@@ -1,7 +1,7 @@
 \chapter{Khảo sát nhu cầu, hiện trạng và định hướng thiết kế}
 \label{Chapter2}
 
-Chương này tổng hợp nhu cầu người dùng và khảo sát các nền tảng quản lý hội nghị để xác định vấn đề thiết kế, yêu cầu hệ thống và nguyên tắc sử dụng AI trong ConferenceSpace.
+Chương này tổng hợp nhu cầu người dùng và khảo sát các nền tảng quản lý hội nghị để xác định cách tích hợp cơ chế hỗ trợ vào từng luồng công việc (workflow) của vòng đời xét duyệt. Kết quả phân tích được chuyển thành vấn đề thiết kế, yêu cầu hệ thống và nguyên tắc sử dụng AI trong ConferenceSpace.
 
 \section{Khảo sát nhu cầu người dùng}
 \label{sec:ch2-user-survey}
@@ -242,7 +242,7 @@ Tổng hợp trước quyết định & Cung cấp bảng điểm, thảo luận
 \end{longtable}
 \endgroup
 
-Khác biệt quan trọng không nằm ở việc một tác vụ có được tự động hóa hay không, mà ở loại đầu ra và quyền áp dụng kết quả. ConferenceSpace dùng thuật toán xác định cho đối sánh và xung đột lợi ích; các tác vụ tạo nội dung chỉ cung cấp bản nháp, cảnh báo hoặc bản tổng hợp để người dùng kiểm tra.
+Khác biệt quan trọng không nằm ở việc một tác vụ có được tự động hóa hay không, mà ở vị trí của cơ chế hỗ trợ trong vòng đời, loại đầu ra được tạo và chủ thể có quyền áp dụng kết quả. ConferenceSpace dùng thuật toán xác định cho đối sánh và xung đột lợi ích; các tác vụ tạo nội dung chỉ cung cấp bản nháp, cảnh báo hoặc bản tổng hợp để người dùng kiểm tra. Đầu ra hỗ trợ không tự thay đổi trạng thái bài nộp, bản phản biện hoặc quyết định học thuật.
 
 \subsection{Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}
 
@@ -262,10 +262,12 @@ Các nền tảng đã bao phủ phần lớn nghiệp vụ cốt lõi và tự 
     
     \item \textbf{Nội dung hỗ trợ đọc và tổng hợp} phải bám sát bằng chứng. Hệ thống cần liên kết tóm tắt, cảnh báo và nhận định tổng hợp với nội dung nguồn để người dùng kiểm tra và nhận biết giới hạn.
     
-    \item \textbf{Các luồng gần bước ra quyết định} phải xác định rõ trách nhiệm học thuật. AI cung cấp tóm tắt, cảnh báo và bản tổng hợp để hỗ trợ xem xét; Phản biện viên chịu trách nhiệm viết, chấm điểm và gửi bản phản biện, còn Chủ tọa chịu trách nhiệm về quyết định chấp nhận hoặc từ chối \cite{ch2ref15,ch2ref16,ch2ref17,ch2ref18}.
+    \item \textbf{Các luồng công việc gần bước ra quyết định} phải xác định rõ trách nhiệm học thuật. AI cung cấp tóm tắt, cảnh báo và bản tổng hợp để hỗ trợ xem xét; Phản biện viên chịu trách nhiệm viết, chấm điểm và gửi bản phản biện, còn Chủ tọa chịu trách nhiệm về quyết định chấp nhận hoặc từ chối \cite{ch2ref15,ch2ref16,ch2ref17,ch2ref18}.
     
     \item \textbf{Trợ lý phục vụ nhiều vai trò} phải tuân thủ quyền truy cập. Lớp kiểm soát truy cập cấp cho Chatbot Agent đúng dữ liệu và công cụ tương ứng với vai trò, hội nghị và trạng thái của người dùng; mọi hành động của trợ lý được thực hiện trong phạm vi quyền đã xác lập.
 \end{enumerate}
+
+Năm vấn đề trên không dẫn đến năm nhóm tính năng độc lập. Chúng xác định các điểm cần can thiệp trong cùng vòng đời xét duyệt: nhập liệu và kiểm tra trước khi nộp, đối sánh và kiểm tra xung đột lợi ích, hỗ trợ đọc và rà soát bản phản biện, tổng hợp trước quyết định, cùng truy vấn theo vai trò. Tại mỗi điểm, trạng thái nghiệp vụ và quyền hạn hiện có xác định cơ chế nào được sử dụng, đầu ra nào được phép tạo và ai phải kiểm tra kết quả.
 
 \subsection{Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}
 
@@ -311,7 +313,7 @@ Thông báo và trạng thái phân tán & Bảng điều khiển và thông bá
 
 \subsection{Nguyên tắc thiết kế từ các vấn đề đã xác định}
 
-ConferenceSpace áp dụng ba nguyên tắc thiết kế: duy trì nghiệp vụ cốt lõi độc lập với AI; cung cấp căn cứ cho các đề xuất và cảnh báo có ảnh hưởng đến thao tác; đánh giá mỗi thành phần bằng tiêu chí phù hợp với loại đầu ra.
+ConferenceSpace áp dụng ba nguyên tắc thiết kế. Thứ nhất, vòng đời nghiệp vụ phải vận hành độc lập và cung cấp ngữ cảnh trạng thái, dữ liệu, vai trò cùng quyền hạn cho các cơ chế hỗ trợ. Thứ hai, mô hình ba lớp trách nhiệm phải quy định cơ chế tạo kết quả, căn cứ cần hiển thị và chủ thể có quyền áp dụng kết quả tại từng điểm nghiệp vụ. Thứ ba, mỗi thành phần phải được đánh giá bằng tiêu chí phù hợp với loại đầu ra và phạm vi ảnh hưởng của tác vụ.
 
 \section{Tổng hợp yêu cầu hệ thống}
 \label{sec:ch2-requirements}
@@ -506,7 +508,7 @@ F-COMMON-03 & Hệ thống phân quyền theo vai trò và ngăn truy cập dữ
 % ==================== NỘI DUNG BẢNG ====================
 Khả năng vận hành độc lập với AI & Nghiệp vụ cốt lõi duy trì luồng thực hiện đầy đủ; đầu ra AI bổ sung hỗ trợ tại các điểm đã xác định. \\ \hline
 Hiệu năng & Tác vụ tương tác phản hồi trong thời gian phù hợp; tác vụ kéo dài hiển thị trạng thái và thông báo kết quả. \\ \hline
-Bảo mật và dữ liệu & Hệ thống dùng HTTPS/TLS, xác thực và phân quyền; bảo vệ bản thảo và chỉ bật luồng AI khi chính sách cùng thỏa thuận xử lý dữ liệu cho phép. \\ \hline
+Bảo mật và dữ liệu & Hệ thống dùng HTTPS/TLS, xác thực và phân quyền; bảo vệ bản thảo và chỉ bật luồng công việc AI khi chính sách cùng thỏa thuận xử lý dữ liệu cho phép. \\ \hline
 Khả năng giải thích & Điểm đối sánh, cảnh báo xung đột và nội dung AI hiển thị căn cứ để người dùng kiểm tra. \\ \hline
 Mức độ dễ sử dụng & Quy trình được tổ chức theo vai trò, tập trung trạng thái, thông báo lỗi rõ và cho phép chỉnh sửa trước khi gửi. \\ \hline
 Khả năng mở rộng & Thiết kế hỗ trợ nhiều hội nghị, chuyên đề, bài nộp và Phản biện viên, đồng thời cho phép tích hợp dữ liệu học thuật. \\ \hline
@@ -516,7 +518,7 @@ Khả năng đánh giá & Luồng quan trọng lưu đầu vào, đầu ra, tr�
 
 \subsection{Nguyên tắc sử dụng AI có trách nhiệm}
 
-Các chức năng hỗ trợ phải giữ quyền xác nhận ở đúng vai trò, hiển thị căn cứ và tuân thủ chính sách xử lý dữ liệu của từng hội nghị. Bảng~\ref{tab:ch2-responsibility-conventions} quy định đầu ra, rủi ro và hành động được phép đối với từng chức năng \cite{ch2ref19}.
+Khi được đặt vào một điểm nghiệp vụ, mỗi chức năng hỗ trợ phải giữ quyền xác nhận ở đúng vai trò, hiển thị căn cứ và tuân thủ chính sách xử lý dữ liệu của từng hội nghị. Bảng~\ref{tab:ch2-responsibility-conventions} quy định đầu ra, rủi ro và hành động được phép đối với từng chức năng \cite{ch2ref19}.
 
 \pagebreak
 \subsection{Quy ước trách nhiệm của các chức năng hỗ trợ}
@@ -560,4 +562,4 @@ Chatbot Agent & Câu trả lời và kết quả công cụ; có thể vượt q
 \end{longtable}
 \endgroup
 
-Các yêu cầu và quy ước trách nhiệm trên là cơ sở cho thiết kế ConferenceSpace ở Chương~\ref{Chapter3}. Chương~\ref{Chapter4} trình bày phương pháp đánh giá và mức độ đáp ứng của từng nhóm yêu cầu trong phạm vi thực nghiệm.
+Các yêu cầu và quy ước trách nhiệm trên là cơ sở để Chương~\ref{Chapter3} áp dụng mô hình ba lớp tại từng điểm nghiệp vụ trong vòng đời xét duyệt. Chương~\ref{Chapter4} trình bày phương pháp đánh giá và mức độ đáp ứng của từng nhóm yêu cầu trong phạm vi thực nghiệm.

@@ -1,9 +1,9 @@
 % !TEX root = ../main.tex
 
-\chapter{Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng AI}
+\chapter{Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng công việc AI}
 \label{AppendixA}
 
-Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
+Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng công việc AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
 
 \tikzset{
   appendixProcess/.style={draw=black!65, rounded corners=2pt, align=center, fill=blue!6, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=32mm},
@@ -69,16 +69,16 @@ Hình~\ref{fig:appendix-a-uc02-flow} khái quát luồng chính và các nhánh 
   decision/.style={draw=black!65, diamond, aspect=2.1, align=center, text width=3.2cm, fill=orange!9}]
   \node[processNode] (draft) at (0,0) {Tạo bản nháp và tải bản thảo};
   \node[decision] (autofill) at (0,-2.8) {Dùng Submission Autofill?};
-  \node[processNode] (auto) at (-4.4,-5.6) {Trích xuất siêu dữ liệu nháp và gợi ý chuyên đề};
-  \node[processNode] (manual) at (4.4,-5.6) {Nhập siêu dữ liệu thủ công};
+  \node[processNode] (auto) at (-6.4,-5.6) {Trích xuất siêu dữ liệu nháp và gợi ý chuyên đề};
+  \node[processNode] (manual) at (6.4,-5.6) {Nhập siêu dữ liệu thủ công};
   \node[processNode] (review) at (0,-8.4) {Tác giả kiểm tra và chỉnh sửa};
   \node[processNode] (coi) at (0,-10.8) {Khai báo xung đột lợi ích};
   \node[processNode] (gate) at (0,-13.2) {Submission Gating};
-  \node[processNode] (backend) at (0,-15.6) {Backend kiểm tra trạng thái trước khi gửi};
+  \node[processNode] (backend) at (0,-15.3) {Backend kiểm tra trạng thái trước khi gửi};
   \node[decision] (status) at (0,-18.4) {Kết quả kiểm tra};
-  \node[processNode] (send) at (-5.4,-21.4) {\textit{Pass}: cho phép xác nhận gửi};
-  \node[processNode] (warn) at (0,-21.4) {\textit{Warn}: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
-  \node[processNode] (block) at (5.4,-21.4) {\textit{Block/Error}: yêu cầu sửa lỗi};
+  \node[processNode] (send) at (-6.4,-21.4) {\textit{Pass}: cho phép xác nhận gửi};
+  \node[processNode] (warn) at (0,-22.4) {\textit{Warn}: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
+  \node[processNode] (block) at (6.4,-21.4) {\textit{Block/Error}: yêu cầu sửa lỗi};
   \draw[-{Latex},thick] (draft) -- (autofill);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Có} (auto);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Không} (manual);
@@ -225,9 +225,9 @@ Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu di�
   \draw[appendixArrow] (archivedConf.north) to[out=110,in=70,looseness=1.15] node[appendixEdgeLabel, above] {Khôi phục} (completedConf.north);
 
   \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-4.1) {Lời mời tham gia hội đồng trong giai đoạn Open};
-  \node[appendixProcess] (invite) at (-7.8,-5.3) {Chủ tọa gửi lời mời};
-  \node[appendixState] (invitePending) at (-3.7,-5.3) {Pending};
-  \node[appendixDecision] (inviteResponse) at (0.5,-5.3) {Phản hồi lời mời?};
+  \node[appendixProcess] (invite) at (-10.8,-5.3) {Chủ tọa gửi lời mời};
+  \node[appendixState] (invitePending) at (-5.7,-5.3) {Pending};
+  \node[appendixDecision] (inviteResponse) at (-1,-5.3) {Phản hồi lời mời?};
   \node[appendixState, fill=green!9] (reviewerAccepted) at (5.0,-4.5) {Accepted\\Cấp vai trò Phản biện viên};
   \node[appendixState, fill=red!6] (reviewerRejected) at (5.0,-6.2) {Rejected};
   \draw[appendixArrow] (invite) -- (invitePending);
@@ -235,10 +235,10 @@ Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu di�
   \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, above] {Chấp nhận} (reviewerAccepted);
   \draw[appendixArrow] (inviteResponse) -- node[appendixEdgeLabel, below] {Từ chối} (reviewerRejected);
 
-  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-8.2) {Phân công bài khi hội nghị chuyển sang Reviewing};
-  \node[appendixProcess] (suggested) at (-7.8,-9.5) {Hệ thống tạo đề xuất\\Suggested};
-  \node[appendixProcess, text width=43mm] (chairConfirm) at (-3.7,-9.5) {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
-  \node[appendixDecision] (assignmentResponse) at (0.5,-9.5) {Phản hồi phân công?};
+  \node[font=\footnotesize\bfseries, anchor=west] at (-9.6,-7.2) {Phân công bài khi hội nghị chuyển sang Reviewing};
+  \node[appendixProcess] (suggested) at (-10.8,-9.5) {Hệ thống tạo đề xuất\\Suggested};
+  \node[appendixProcess, text width=43mm] (chairConfirm) at (-6.3,-9.5) {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
+  \node[appendixDecision] (assignmentResponse) at (-1,-9.5) {Phản hồi phân công?};
   \node[appendixState, fill=green!9] (assignmentAccepted) at (5.0,-8.7) {Accepted};
   \node[appendixState, fill=red!6] (assignmentDeclined) at (5.0,-10.4) {Declined};
   \node[appendixOutcome] (workspace) at (9.0,-8.7) {Bài xuất hiện trong không gian làm việc};
@@ -293,7 +293,7 @@ Trong phiên bản hiện tại, Chủ tọa và Đồng chủ tọa có quyền
   \node[participant] (chair) at (19.0,0) {Chủ tọa};
   \foreach \x in {0,3.8,7.6,11.4,15.2,19.0} \draw[line] (\x,-0.5) -- (\x,-25.0);
 
-  \draw[-{Latex},thick] (0,-1.4) -- node[message] {Tạo chuỗi} (3.8,-1.4);
+  \draw[-{Latex},thick] (0,-1.8) -- node[message] {Tạo chuỗi} (3.8,-1.8);
   \draw[-{Latex},thick] (3.8,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra giai đoạn reviewing} (3.8,-4.0);
   \draw[-{Latex},thick] (3.8,-5.2) -- node[message] {Kiểm tra phân công} (7.6,-5.2);
   \draw[-{Latex},thick] (3.8,-6.6) -- node[message] {Lưu chuỗi và tin nhắn đầu tiên} (7.6,-6.6);
@@ -407,7 +407,7 @@ Trạng thái ngắn hạn & Phiên, kết quả công cụ đang chờ và bộ
 Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và \ref{fig:appendix-a-core-erd-c} trình bày ERD logic của dữ liệu nghiệp vụ chính. Đường liền biểu diễn quan hệ có khóa ngoại trong migration; đường đứt biểu diễn liên kết nghiệp vụ hoặc liên kết được kiểm soát ở tầng ứng dụng nhưng không nhất thiết được ràng buộc bằng khóa ngoại vật lý.
 
 % ===================== Figure A.3a - Conference & review core =====================
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -466,7 +466,7 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 
 % ===================== Figure A.3b - Discussion, COI & notifications =====================
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -482,9 +482,9 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
   \node[group title] at (-7.8,1.5) {Thảo luận};
   \node[entity] (users)   at (-6.2, 0)   {\textbf{users}\\PK user\_id\\email UNIQUE\\domain};
   \node[entity] (confs)   at (-1.8, 0)   {\textbf{conferences}\\PK conference\_id\\domain};
-  \node[entity] (subs)    at ( 3.4, 0)   {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status};
+  \node[entity] (subs)    at ( 5.4, 0)   {\textbf{conference\_submissions}\\PK submission\_id\\conference\_id\\author\\status};
   \node[entity] (threads) at (-1.8,-3.0) {\textbf{discussion\_threads}\\PK id\\FK submission\_id\\FK reviewer\_id $\rightarrow$ users.user\_id\\FK conference\_id\\title, visibility};
-  \node[entity] (msgs)    at (-1.8,-5.8) {\textbf{discussion\_messages}\\PK id\\FK thread\_id\\FK author\_id\\content};
+  \node[entity] (msgs)    at (-1.8,-6.8) {\textbf{discussion\_messages}\\PK id\\FK thread\_id\\FK author\_id\\content};
 
   \draw[fk] (users.south east) -- node[note,above left] {1--N} (threads.north west);
   \draw[fk] (users.west) -- ++(-0.9,0) |- (msgs.west);
@@ -493,11 +493,11 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
   \draw[fk] (subs.south west) -- node[note,above right] {1--N} (threads.north east);
   \draw[fk] (threads) -- node[note,right] {1--N} (msgs);
 
-  \node[group title] at (-7.8,-7.5) {Xung đột lợi ích};
+  \node[group title] at (-9,-12) {Xung đột lợi ích};
   \node[reference] (coiConfs) at (-6.5,-8.9) {\textbf{conferences}\\conference\_id};
   \node[reference] (coiSubs)  at (-4.0,-8.9) {\textbf{conference\_}\\\textbf{submissions}\\submission\_id};
   \node[reference] (coiRevs)  at (-1.5,-8.9) {\textbf{conference\_}\\\textbf{reviewers}\\id};
-  \node[entity] (coi) at (-4.0,-11.8) {\textbf{coi\_relationships}\\PK id\\conference\_id\\reviewer\_id\\submission\_id\\author\_email\\relationship\_type\\severity};
+  \node[entity] (coi) at (-4.0,-12.5) {\textbf{coi\_relationships}\\PK id\\conference\_id\\reviewer\_id\\submission\_id\\author\_email\\relationship\_type\\severity};
 
   \draw[logical] (coiConfs) -- node[note,above left] {1--N} (coi.north west);
   \draw[logical] (coiSubs)  -- node[note,left] {1--N} (coi);
@@ -512,12 +512,12 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
   \node[entity] (notifs) at (5.6,-11.8) {\textbf{notifications}\\PK id\\user\_email\\conference\_id\\type,title,message\\metadata, read};
 
   \draw[logical] (prefUsers) -- node[note,left=1mm] {user\_email} (prefs);
-  \draw[logical] (notifUsers.south east) --
+  \draw[logical] (notifUsers.south west) --
     node[note,above left] {user\_email} (notifs.north west);
   \draw[logical] (notifConfs.south) -- node[note,left] {conference\_id} (notifs.north);
-  \draw[logical] (notifMsgs.south west) -- node[note,above right] {creates} (notifs.north east);
+  \draw[logical] (notifMsgs.south) -- node[note,above right] {creates} (notifs.north east);
 
-  \node[font=\scriptsize,align=center,text width=14cm] at (0,-14.2)
+  \node[font=\scriptsize,align=center,text width=14cm] at (0,-15.2)
     {Các nút màu xanh biểu diễn thực thể nguồn được lặp lại giữa các nhóm để tránh giao cắt đường nối.};
 
 \end{tikzpicture}
@@ -528,7 +528,7 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 
 % ===================== Figure A.3c - Scholar data =====================
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.82\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -644,12 +644,12 @@ Sơ đồ~\ref{fig:appendix-a-matching-coi-execution} biểu diễn luồng đ�
 \centering
 \begin{adjustbox}{max width=0.96\textwidth, max height=0.74\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
-  \node[appendixData, text width=36mm] (matchingInput) at (-8,0) {Bài chưa có phân công xác nhận\\Phản biện viên đã chấp nhận\\Cấu hình phân công};
-  \node[appendixProcess, text width=37mm] (coiMap) at (-4,0) {Tạo bản đồ COI\\Tác giả/đồng tác giả\\Khai báo\\Quan hệ Neo4j};
+  \node[appendixData, text width=36mm] (matchingInput) at (-10,0) {Bài chưa có phân công xác nhận\\Phản biện viên đã chấp nhận\\Cấu hình phân công};
+  \node[appendixProcess, text width=37mm] (coiMap) at (-5,0) {Tạo bản đồ COI\\Tác giả/đồng tác giả\\Khai báo\\Quan hệ Neo4j};
   \node[appendixProcess] (scoreMatrix) at (0,0) {Tính ma trận điểm Jaccard};
   \node[appendixProcess] (sortScores) at (4,0) {Sắp xếp cặp theo điểm giảm dần};
-  \node[appendixProcess, text width=38mm] (strictPass) at (8,0) {Lượt nghiêm ngặt\\Giữ ngưỡng điểm, tải, số người tối đa và COI};
-  \node[appendixDecision] (zeroReviewer) at (8,-3.3) {Bài có 0 Phản biện viên?};
+  \node[appendixProcess, text width=38mm] (strictPass) at (9,0) {Lượt nghiêm ngặt\\Giữ ngưỡng điểm, tải, số người tối đa và COI};
+  \node[appendixDecision] (zeroReviewer) at (9,-3.3) {Bài có 0 Phản biện viên?};
   \node[appendixProcess, text width=40mm] (fallbackPass) at (3.8,-3.3) {Lượt dự phòng\\Bỏ ngưỡng điểm và giới hạn tải; luôn giữ COI};
   \node[appendixProcess] (collectResult) at (-0.6,-3.3) {Tổng hợp đề xuất và bài chưa đủ người};
   \node[appendixData] (saveSuggestions) at (-4.8,-3.3) {Lưu đề xuất ở trạng thái Suggested};
@@ -701,13 +701,13 @@ Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biệ
 
 Bản đồ xung đột phục vụ trực tiếp cho lượt đối sánh tự động và được xem như ràng buộc cứng trong thuật toán. Bảng \textit{coi\_relationships} lưu bằng chứng qua tác vụ cập nhật riêng. Đề xuất thủ công kiểm tra quan hệ hiện có và trả cảnh báo nhưng chưa ngăn Chủ tọa lưu đề xuất, đồng thời chưa có bản ghi kiểm toán riêng cho quyết định tiếp tục.
 
-\section{Đặc tả các luồng AI}
+\section{Đặc tả các luồng công việc AI}
 \label{sec:appendix-a-ai}
 
 \subsection{Tổng quan}
 
 \begin{longtable}{|T{0.18\textwidth}|T{0.24\textwidth}|T{0.24\textwidth}|T{0.22\textwidth}|}
-\caption{Đầu vào, đầu ra và điểm kiểm soát của sáu luồng AI}\label{tab:appendix-a-ai-summary}\\
+\caption{Đầu vào, đầu ra và điểm kiểm soát của sáu luồng công việc AI}\label{tab:appendix-a-ai-summary}\\
 \hline
 Luồng & Đầu vào chính & Đầu ra chính & Điểm kiểm soát \\ \hline
 \endfirsthead
@@ -1020,7 +1020,7 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 \subsection{Kiểm soát dùng chung}
 
 \begin{longtable}{|T{0.28\textwidth}|T{0.62\textwidth}|}
-\caption{Các kiểm soát dùng chung của luồng AI}\label{tab:appendix-a-ai-controls}\\
+\caption{Các kiểm soát dùng chung của luồng công việc AI}\label{tab:appendix-a-ai-controls}\\
 \hline
 Kiểm soát & Vai trò \\ \hline
 \endfirsthead

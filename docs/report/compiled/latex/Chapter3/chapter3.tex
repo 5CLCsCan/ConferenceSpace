@@ -3,14 +3,14 @@
 \chapter{Xây dựng hệ thống}
 \label{Chapter3}
 
-Chương này trình bày mô hình trách nhiệm, use case, kiến trúc, dữ liệu, thuật toán xác định, các luồng AI và môi trường vận hành của ConferenceSpace. Đặc tả chi tiết được trình bày tại Phụ lục~\ref{AppendixA} và Phụ lục~\ref{AppendixB}.
+Chương này trình bày cách mô hình ba lớp trách nhiệm được áp dụng tại từng điểm nghiệp vụ trong các luồng công việc (workflow) của ConferenceSpace, thông qua use case, kiến trúc, dữ liệu, thuật toán xác định và các luồng công việc AI. Đặc tả chi tiết được trình bày tại Phụ lục~\ref{AppendixA} và Phụ lục~\ref{AppendixB}.
 
 \section{Tổng quan hệ thống}
 \label{sec:ch3-demo-overview}
 
 \subsection{Mô hình trách nhiệm}
 
-ConferenceSpace phân chia tác vụ thành ba lớp theo cơ chế tạo kết quả và thẩm quyền áp dụng kết quả: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Một thành phần kỹ thuật có thể tham gia nhiều lớp; cách phân chia này không tương ứng trực tiếp với ranh giới triển khai.
+ConferenceSpace phân chia tác vụ thành ba lớp theo cơ chế tạo kết quả và thẩm quyền áp dụng kết quả: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Mô hình này là lớp quy ước trách nhiệm được đặt lên các ca sử dụng của vòng đời xét duyệt, không phải cách chia dịch vụ hoặc ranh giới triển khai. Vì vậy, một thành phần kỹ thuật có thể tham gia nhiều lớp, nhưng đầu ra của thành phần đó vẫn chịu quy tắc về người kiểm tra và hành động được phép tại điểm nghiệp vụ tương ứng.
 
 Bảng~\ref{tab:ch3-demo-responsibility} tóm tắt tác vụ, kết quả và chủ thể chịu trách nhiệm trong từng lớp.
 
@@ -69,7 +69,7 @@ ConferenceSpace phục vụ ba tác nhân nghiệp vụ chính: Tác giả, Ph�
 
 \subsection{Bản đồ use case}
 
-Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò; trong đó UC-08 và UC-10 được chia sẻ giữa nhiều vai trò nhưng vẫn áp dụng quyền truy cập riêng theo từng người dùng và tài nguyên. Bảng~\ref{tab:ch3-demo-usecase-overview} tóm tắt mục tiêu, tác nhân chính và kết quả đầu ra của từng use case, làm cơ sở cho phần đặc tả chi tiết ở các mục tiếp theo.
+Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Mỗi use case xác định một điểm nghiệp vụ mà tại đó lớp nghiệp vụ cốt lõi, thuật toán xác định hoặc AI hỗ trợ tham gia với loại đầu ra và thẩm quyền tương ứng. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò; trong đó UC-08 và UC-10 được chia sẻ giữa nhiều vai trò nhưng vẫn áp dụng quyền truy cập riêng theo từng người dùng và tài nguyên. Bảng~\ref{tab:ch3-demo-usecase-overview} tóm tắt mục tiêu, tác nhân chính và kết quả đầu ra của từng use case, làm cơ sở cho phần đặc tả chi tiết ở các mục tiếp theo.
 
 \begin{figure}[!htbp]
   \centering
@@ -580,7 +580,7 @@ Bảng~\ref{tab:ch3-demo-data-groups} tóm tắt các nhóm dữ liệu chính v
 Nghiệp vụ hội nghị & Hội nghị, bài nộp, phân công và phản hồi & Bảo toàn vòng đời nộp bài, phản biện và quyết định \\ \hline
 Phân quyền và phối hợp & Người dùng, vai trò, chuỗi thảo luận và thông báo & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
 Học thuật và xung đột lợi ích & Hồ sơ học thuật, bài công bố, quan hệ xung đột và đồ thị Neo4j & Lưu căn cứ để loại cặp xung đột và hỗ trợ Chủ tọa kiểm tra \\ \hline
-Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn và nhật ký công cụ & Theo dõi đầu vào, đầu ra, trạng thái và lỗi của từng luồng AI \\
+Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo giai đoạn và nhật ký công cụ & Theo dõi đầu vào, đầu ra, trạng thái và lỗi của từng luồng công việc AI \\
 \end{longtable}
 \endgroup
 
@@ -641,15 +641,15 @@ Nếu Neo4j chưa được cấu hình, hệ thống tiếp tục bằng các ng
 \section{Giải pháp AI}
 \label{sec:ch3-demo-ai}
 
-AI được tích hợp vào sáu luồng hỗ trợ: Tự động điền bài nộp (Submission Autofill); Kiểm tra trước khi nộp bài (Submission Gating) hỗ trợ kiểm tra bài nộp; Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) hỗ trợ định hướng đọc; Kiểm tra chất lượng nhận xét (Review Quality Auditor) hỗ trợ rà soát bản nháp; Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) hỗ trợ tổng hợp bằng chứng; Chatbot Agent hỗ trợ truy vấn dữ liệu.
+AI được tích hợp vào sáu luồng công việc hỗ trợ tại các công đoạn của vòng đời xét duyệt: Tự động điền bài nộp (Submission Autofill) và Kiểm tra trước khi nộp bài (Submission Gating) tham gia công đoạn nộp bài; Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) cùng Kiểm tra chất lượng nhận xét (Review Quality Auditor) tham gia công đoạn phản biện; Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) tham gia công đoạn chuẩn bị ra quyết định; Chatbot Agent hỗ trợ truy vấn dữ liệu theo vai trò và trạng thái nghiệp vụ.
 
-Bảng~\ref{tab:ch3-demo-ai-overview} tóm tắt các đầu ra và điểm kiểm soát của các luồng AI trong thiết kế hệ thống.
+Bảng~\ref{tab:ch3-demo-ai-overview} tóm tắt các đầu ra và điểm kiểm soát của các luồng công việc AI trong thiết kế hệ thống.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.25\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}p{0.25\textwidth}|}
-\caption{Đầu ra và điểm kiểm soát của các luồng AI}
+\caption{Đầu ra và điểm kiểm soát của các luồng công việc AI}
 \label{tab:ch3-demo-ai-overview} \\
 
 \hline
@@ -678,7 +678,7 @@ Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quy�
 
 \pagebreak
 
-Các luồng kiểm tra cấu trúc đầu ra, lưu thông tin truy vết và xử lý lỗi theo cơ chế phù hợp với từng tác vụ. Review Quality Auditor dùng nhãn \textit{blocking} để tăng mức ưu tiên hiển thị nhưng không ngăn Phản biện viên gửi bản phản biện. Các đặc tả đầu vào, đầu ra và lỗi được trình bày tại Phụ lục~\ref{AppendixA}.
+Các luồng công việc kiểm tra cấu trúc đầu ra, lưu thông tin truy vết và xử lý lỗi theo cơ chế phù hợp với từng tác vụ. Review Quality Auditor dùng nhãn \textit{blocking} để tăng mức ưu tiên hiển thị nhưng không ngăn Phản biện viên gửi bản phản biện. Các đặc tả đầu vào, đầu ra và lỗi được trình bày tại Phụ lục~\ref{AppendixA}.
 
 \section{Môi trường triển khai và vận hành}
 \label{sec:ch3-demo-deployment}
@@ -726,5 +726,5 @@ Cấu hình và quy trình triển khai chi tiết được trình bày tại Ph
 \section{Tổng kết chương}
 \label{sec:ch3-demo-conclusion}
 
-Chương này đã trình bày cách ConferenceSpace triển khai vòng đời xét duyệt bằng giao diện theo vai trò, backend có phân quyền, thuật toán đối sánh và phát hiện xung đột lợi ích, cùng sáu luồng AI hỗ trợ. Các thành phần tạo kết quả xác định được tách khỏi các luồng tạo nội dung, còn thao tác nghiệp vụ và quyết định học thuật do người dùng có thẩm quyền thực hiện. Chương~\ref{Chapter4} đánh giá từng nhóm thành phần bằng nguồn bằng chứng tương ứng.
+Chương này đã trình bày cách ConferenceSpace dùng vòng đời xét duyệt làm ngữ cảnh kiểm soát và áp dụng mô hình ba lớp trách nhiệm tại từng điểm nghiệp vụ. Các luồng công việc tích hợp nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ theo loại đầu ra cùng thẩm quyền đã quy định; thao tác làm thay đổi dữ liệu chính thức hoặc quyết định học thuật vẫn do người dùng có thẩm quyền thực hiện. Chương~\ref{Chapter4} đánh giá cách tiếp cận này bằng nguồn bằng chứng tương ứng với từng điểm nghiệp vụ và từng loại đầu ra.
 

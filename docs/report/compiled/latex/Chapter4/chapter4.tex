@@ -6,7 +6,7 @@
 
 \section{Mục tiêu và phạm vi đánh giá}
 
-Chương này đánh giá lớp nghiệp vụ, thuật toán xác định và các luồng AI bằng nguồn bằng chứng phù hợp với từng loại đầu ra, sau đó đối chiếu kết quả kỹ thuật với UAT.
+Chương này đánh giá cách mô hình ba lớp trách nhiệm được áp dụng tại các điểm nghiệp vụ trong từng luồng công việc (workflow). Nhóm sử dụng nguồn bằng chứng phù hợp với loại đầu ra của lớp nghiệp vụ cốt lõi, thuật toán xác định và các luồng công việc AI, sau đó đối chiếu kết quả kỹ thuật với UAT.
 
 Bốn câu hỏi đánh giá xác định đối tượng, nguồn bằng chứng và phạm vi kết luận của từng nhóm thực nghiệm.
 
@@ -29,7 +29,7 @@ Bốn câu hỏi đánh giá xác định đối tượng, nguồn bằng chứn
 \endlastfoot
 Hệ thống nghiệp vụ có đủ nhanh và ổn định trong điều kiện tải thử nghiệm hay không? & Kiểm thử tải bằng k6, thống kê yêu cầu thất bại và giám sát tài nguyên & Thông lượng, độ trễ p95, tỷ lệ yêu cầu thất bại, mức sử dụng CPU và RAM & Các đường xử lý và cấu hình đã chọn \\ \hline
 Thuật toán đối sánh và phát hiện xung đột lợi ích có chạy nhanh, cho kết quả có thể tái lập và có thể giải thích hay không? & Go microbenchmark và thử nghiệm trên dữ liệu tổng hợp mô phỏng lược đồ Semantic Scholar & Thời gian xử lý, bộ nhớ, Hit@k, MRR, nDCG, độ phủ và độ đồng đều của phân công & Chi phí mã thuật toán và hành vi trên dữ liệu tổng hợp \\ \hline
-Các luồng AI có tạo đầu ra đủ bám bằng chứng và giữ đúng ranh giới hỗ trợ hay không? & Đối chiếu trực tiếp, hậu kiểm mệnh đề--nguồn và thử nghiệm hội thoại & Exact Match, ROUGE, F1, mức bám nguồn, quan hệ với văn bản tham chiếu và kết quả hội thoại & Từng tác vụ và từng bộ kiểm thử tương ứng \\ \hline
+Các luồng công việc AI có tạo đầu ra đủ bám bằng chứng và giữ đúng ranh giới hỗ trợ hay không? & Đối chiếu trực tiếp, hậu kiểm mệnh đề--nguồn và thử nghiệm hội thoại & Exact Match, ROUGE, F1, mức bám nguồn, quan hệ với văn bản tham chiếu và kết quả hội thoại & Từng tác vụ và từng bộ kiểm thử tương ứng \\ \hline
 Kết quả kỹ thuật có tương ứng với trải nghiệm của người dùng hay không? & Khảo sát sau sử dụng theo ba vai trò & Mức hài lòng, cảm nhận giảm thao tác và phản hồi định tính & Cảm nhận của mẫu người dùng tham gia \\
 \end{longtable}
 \endgroup
@@ -88,14 +88,14 @@ Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên v�
 
 Đối với xếp hạng, nhóm giữ lại một bài từ mỗi hồ sơ tác giả làm truy vấn, loại bài đó khỏi hồ sơ tương ứng rồi xếp hạng các hồ sơ còn lại bằng Jaccard, \CodeBreak{overlap\_count} và phương pháp ngẫu nhiên. Kết quả được mô tả bằng Hit@k, MRR và nDCG@10, là các chỉ số thường dùng để đánh giá danh sách xếp hạng~\cite{ch4ref8}. Đối với phân công, nhóm so sánh Greedy với gán tuần tự và ngẫu nhiên bằng độ phủ, độ đồng đều, điểm Jaccard, lượt dự phòng và số ca tự gán.
 
-Các luồng AI thực hiện những trách nhiệm khác nhau nên không được đánh giá bằng một chỉ số chung. Đối với đầu ra có dữ liệu tham chiếu xác định, nhóm đối chiếu trực tiếp kết quả của hệ thống với giá trị kỳ vọng trong tập tham khảo. Đối với đầu ra văn bản mở, nhóm kiểm tra từng mệnh đề dựa trên nguồn dữ liệu và chỉ so sánh với văn bản tham chiếu khi nguồn tham chiếu phù hợp tồn tại. Chatbot Agent được đánh giá riêng theo kịch bản hội thoại, quyền truy cập và hành vi gọi công cụ. Bảng~\ref{tab:ch4-ai-evaluation-contracts} tóm tắt đầu vào, đầu ra và cách kiểm tra của từng luồng; Phụ lục~\ref{AppendixC} trình bày cấu trúc dữ liệu, trường hợp kiểm thử và quy trình tái lập.
+Các luồng công việc AI thực hiện những trách nhiệm khác nhau nên không được đánh giá bằng một chỉ số chung. Đối với đầu ra có dữ liệu tham chiếu xác định, nhóm đối chiếu trực tiếp kết quả của hệ thống với giá trị kỳ vọng trong tập tham khảo. Đối với đầu ra văn bản mở, nhóm kiểm tra từng mệnh đề dựa trên nguồn dữ liệu và chỉ so sánh với văn bản tham chiếu khi nguồn tham chiếu phù hợp tồn tại. Chatbot Agent được đánh giá riêng theo kịch bản hội thoại, quyền truy cập và hành vi gọi công cụ. Bảng~\ref{tab:ch4-ai-evaluation-contracts} tóm tắt đầu vào, đầu ra và cách kiểm tra của từng luồng công việc; Phụ lục~\ref{AppendixC} trình bày cấu trúc dữ liệu, trường hợp kiểm thử và quy trình tái lập.
 
 \begingroup
 \small
 \setlength{\tabcolsep}{2pt}
 \renewcommand{\arraystretch}{1.2}
 \begin{longtable}{|>{\RaggedRight\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.17\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|}
-\caption{Đầu vào, đầu ra và cách đánh giá các luồng AI hỗ trợ}
+\caption{Đầu vào, đầu ra và cách đánh giá các luồng công việc AI hỗ trợ}
 \label{tab:ch4-ai-evaluation-contracts} \\
 \hline
 \TableHeader{Luồng} & \TableHeader{Đầu vào} & \TableHeader{Đầu ra quan sát} & \TableHeader{Cách kiểm tra} & \TableHeader{Phạm vi kết luận} \\ \hline
@@ -169,7 +169,7 @@ Môi trường và tư liệu của từng nhóm đánh giá được tổng h�
 Hiệu năng backend & k6 tạo tải HTTP lên API; yêu cầu được xử lý qua PostgreSQL, Neo4j và Redis; 20 người dùng ảo trong 30 giây cho mỗi kịch bản & 300 hội nghị; 15.000 bài; 9.000 quan hệ phản biện viên--hội nghị & Tóm tắt k6 và nhật ký tài nguyên \\ \hline
 Chi phí thuật toán & Go microbenchmark chạy trực tiếp trên mã và lặp 5 lần; không gồm HTTP, cơ sở dữ liệu và mạng & Nhiều quy mô đầu vào & Thời gian, bộ nhớ và số lần cấp phát trên mỗi thao tác \\ \hline
 Xếp hạng và phân công & Leave-one-out theo tác giả; so sánh Jaccard, đếm số chủ đề chung, gán tuần tự và ngẫu nhiên & 60 hồ sơ; 2.565 bài tổng hợp & Báo cáo Markdown/CSV và bảng chỉ số \\ \hline
-Luồng AI & Bộ điều phối và các tiến trình xử lý tạo đầu ra cho từng bài; Gemini 3.1 Flash Lite được gọi qua bộ định tuyến mô hình & 1.127 bài & Ngữ cảnh nguồn, đầu ra, trạng thái, thời gian và token \\ \hline
+Luồng công việc AI & Bộ điều phối và các tiến trình xử lý tạo đầu ra cho từng bài; Gemini 3.1 Flash Lite được gọi qua bộ định tuyến mô hình & 1.127 bài & Ngữ cảnh nguồn, đầu ra, trạng thái, thời gian và token \\ \hline
 Hậu kiểm mệnh đề--nguồn & \CodeBreak{dleemiller/ModernCE-large-nli} phân loại quan hệ bằng chứng--mệnh đề; Qwen3.5-2B và Qwen3.5-0.8B thực hiện chuẩn hóa và phân loại mức độ hỗ trợ~\cite{ch4ref2,ch4ref3} & 1.097 bài có kết quả đủ điều kiện & JSONL theo bài và nhóm chỉ số \\ \hline
 Chatbot Agent & Thử nghiệm thủ công hồi cứu theo vai trò, công cụ dự kiến được gọi và tiêu chí định trước & 40 hội thoại & Bản ghi hội thoại và nhật ký gọi công cụ \\ \hline
 Khảo sát sau sử dụng & Bảng hỏi theo vai trò sau khi người tham gia trải nghiệm hệ thống & 91 phản hồi & Điểm số và phản hồi định tính \\
@@ -185,7 +185,7 @@ Các đầu ra AI được đánh giá theo ba cách. Tự động điền bài 
 \subsection{Hậu kiểm mệnh đề--nguồn}
 \label{subsec:ch4-tca}
 
-Đối với đầu ra văn bản mở, nhóm đánh giá từng mệnh đề dựa trên nguồn dữ liệu được cung cấp cho luồng AI. Trong đặc tả benchmark, TCA là viết tắt của ba tên chỉ số Truthfulness, Coverage và Additionality, lần lượt chỉ mức bám nguồn, tỷ lệ mệnh đề bám nguồn được văn bản tham chiếu ghi nhận và tỷ lệ mệnh đề bám nguồn không được văn bản tham chiếu ghi nhận.
+Đối với đầu ra văn bản mở, nhóm đánh giá từng mệnh đề dựa trên nguồn dữ liệu được cung cấp cho luồng công việc AI. Trong đặc tả benchmark, TCA là viết tắt của ba tên chỉ số Truthfulness, Coverage và Additionality, lần lượt chỉ mức bám nguồn, tỷ lệ mệnh đề bám nguồn được văn bản tham chiếu ghi nhận và tỷ lệ mệnh đề bám nguồn không được văn bản tham chiếu ghi nhận.
 
 Quy trình trước hết kiểm tra liệu mệnh đề có được nguồn dữ liệu hỗ trợ hay không. Chỉ các mệnh đề vượt qua bước này mới được so sánh với văn bản tham chiếu khi nguồn tham chiếu phù hợp tồn tại. Tổ hợp chỉ số cụ thể phụ thuộc vào loại đầu ra và nguồn đối chiếu của từng luồng xử lý; cách lựa chọn được trình bày cùng thiết lập benchmark và kết quả tương ứng. Các chỉ số cung cấp bằng chứng gián tiếp về quan hệ mệnh đề--nguồn và mệnh đề--tham chiếu, không trực tiếp đo tính hữu ích chuyên môn hoặc độ chính xác của quyết định học thuật.
 
@@ -351,7 +351,7 @@ Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nh�
   \label{fig:ch4-assignment-tradeoff}
 \end{figure}
 
-\section{Đánh giá các luồng AI hỗ trợ}
+\section{Đánh giá các luồng công việc AI hỗ trợ}
 \label{sec:chap4-ai-flows}
 
 \subsection{Submission Autofill và Submission Gating}
@@ -463,7 +463,7 @@ Các luồng dùng đơn vị công việc khác nhau: theo bài, lượt kiểm
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.94\textwidth]{fig12_resource_tokens.png}
-  \caption{Token trung bình theo đơn vị công việc của các luồng AI}
+  \caption{Token trung bình theo đơn vị công việc của các luồng công việc AI}
   \label{fig:ch4-resource-tokens}
 \end{figure}
 
@@ -472,7 +472,7 @@ Các luồng dùng đơn vị công việc khác nhau: theo bài, lượt kiểm
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.94\textwidth]{fig13_resource_ops_mode.png}
-  \caption{Khuyến nghị cách tổ chức vận hành theo luồng AI}
+  \caption{Khuyến nghị cách tổ chức vận hành theo luồng công việc AI}
   \label{fig:ch4-resource-ops-mode}
 \end{figure}
 
@@ -542,4 +542,6 @@ Trải nghiệm người dùng & 91 phản hồi gồm 76 Tác giả, 7 Phản b
 
 Bằng chứng trực tiếp rõ nhất gồm hiệu năng của ba endpoint, khả năng trích xuất siêu dữ liệu của Submission Autofill và hành vi của bộ kiểm thử luật trong Submission Gating. Phép thử đối sánh, hậu kiểm đầu ra mở, Chatbot Agent và UAT cung cấp bằng chứng gián tiếp hoặc mô tả.
 
-Khoảng trống chính gồm thiếu nhãn chuyên gia, dữ liệu đối sánh tổng hợp, bài thử chủ yếu bằng tiếng Anh, thiếu kiểm thử chạy bền và truy vết UAT nhóm Chủ tọa chưa đầy đủ. Vì vậy, kết quả chưa xác nhận chất lượng phát hiện xung đột lợi ích, độ chính xác của quyết định học thuật hay độ sẵn sàng triển khai.
+Xét theo vòng đời, nhóm bằng chứng về nộp bài bao gồm hiệu năng endpoint, Submission Autofill và Submission Gating; nhóm bằng chứng về phân công bao gồm đối sánh Phản biện viên và kiểm tra xung đột lợi ích; nhóm bằng chứng về phản biện bao gồm Reviewer Initial Analysis và Review Quality Auditor; nhóm bằng chứng trước quyết định bao gồm Chair Decision Copilot; còn Chatbot Agent kiểm tra khả năng truy vấn theo vai trò qua nhiều trạng thái. Cách tổ chức này cho phép đối chiếu mỗi cơ chế hỗ trợ với đúng điểm nghiệp vụ, loại đầu ra và chủ thể chịu trách nhiệm đã xác định ở Chương~\ref{Chapter3}.
+
+Khoảng trống chính gồm thiếu nhãn chuyên gia, dữ liệu đối sánh tổng hợp, bài thử chủ yếu bằng tiếng Anh, thiếu kiểm thử chạy bền và truy vết UAT nhóm Chủ tọa chưa đầy đủ. Vì vậy, kết quả chưa xác nhận chất lượng phát hiện xung đột lợi ích, độ chính xác của quyết định học thuật hay độ sẵn sàng triển khai. Bằng chứng hiện có xác nhận việc triển khai và một số thuộc tính tại các điểm nghiệp vụ đã kiểm tra; bằng chứng này chưa cho phép kết luận cách tích hợp hiệu quả hơn việc cung cấp các công cụ độc lập hoặc mô hình ba lớp duy trì hiệu lực trong vận hành dài hạn.

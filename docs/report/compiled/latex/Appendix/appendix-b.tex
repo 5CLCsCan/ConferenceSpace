@@ -240,7 +240,7 @@ Caddy & Xử lý TLS, chuyển tiếp giao diện và WebSocket & Công khai c�
 Frontend & Cung cấp giao diện Next.js, chuyển tiếp API và hội thoại & Nội bộ qua Caddy & Không lưu dữ liệu nghiệp vụ \\ \hline
 Backend & Cung cấp API, xác thực, nghiệp vụ và tích hợp dịch vụ & Nội bộ qua frontend hoặc Caddy & Sử dụng volume cho tệp tải lên \\ \hline
 Backend migration & Áp dụng migration PostgreSQL trước khi cập nhật ứng dụng & Tác vụ nội bộ chạy một lần & Không duy trì filesystem riêng \\ \hline
-Dịch vụ AI & Thực thi sáu luồng AI, migration Alembic và truy vấn backend có kiểm soát & Nội bộ qua frontend và backend & Dùng PostgreSQL và Redis \\ \hline
+Dịch vụ AI & Thực thi sáu luồng công việc AI, migration Alembic và truy vấn backend có kiểm soát & Nội bộ qua frontend và backend & Dùng PostgreSQL và Redis \\ \hline
 {\small PostgreSQL} & Lưu dữ liệu quan hệ của hệ thống & Chỉ trong mạng Docker & Volume PostgreSQL \\ \hline
 Redis & Lưu dữ liệu tạm thời và dữ liệu phục vụ thời gian thực & Chỉ trong mạng Docker & Volume Redis khi cấu hình yêu cầu \\ \hline
 Neo4j & Lưu đồ thị đồng tác giả và dữ liệu phục vụ phát hiện xung đột lợi ích & Chỉ trong mạng Docker & Volume dữ liệu và nhật ký Neo4j \\ \hline
@@ -355,7 +355,7 @@ Việc chạy migration cùng lệnh khởi động bảo đảm lược đồ c
 
 \subsection{Kiểm tra image trước khi phát hành}
 
-Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định danh commit để có thể truy ngược về mã nguồn. Các điểm kiểm tra trạng thái của backend và dịch vụ AI cung cấp tiêu chí kỹ thuật để kiểm tra container sau khi khởi động. Tuy nhiên, workflow hiện hành chưa bao gồm đầy đủ bước kiểm tra chất lượng bắt buộc hoặc kiểm tra hoạt động cơ bản sau triển khai; vì vậy, nguồn không đủ để khẳng định các kiểm tra này là cổng bắt buộc trước khi cập nhật nhãn latest.
+Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định danh commit để có thể truy ngược về mã nguồn. Các điểm kiểm tra trạng thái của backend và dịch vụ AI cung cấp tiêu chí kỹ thuật để kiểm tra container sau khi khởi động. Tuy nhiên, luồng công việc (workflow) CI/CD hiện hành chưa bao gồm đầy đủ bước kiểm tra chất lượng bắt buộc hoặc kiểm tra hoạt động cơ bản sau triển khai; vì vậy, nguồn không đủ để khẳng định các kiểm tra này là cổng bắt buộc trước khi cập nhật nhãn latest.
 
 \section{Caddy, TLS và định tuyến}
 \label{sec:appendix-b-caddy}
@@ -391,9 +391,9 @@ Theo cấu hình trên, mọi truy cập công khai đều đi qua Caddy; trình
 \section{CI/CD và GitHub Container Registry}
 \label{sec:appendix-b-cicd}
 
-\subsection{Phạm vi workflow}
+\subsection{Phạm vi luồng công việc CI/CD}
 
-Workflow trong \path{.github/workflows/deploy.yml} không xây dựng image trên máy chủ. GitHub Actions xây dựng và đẩy song song ba image frontend, backend và dịch vụ AI lên GHCR; máy chủ VPS chỉ lấy image, cập nhật tệp triển khai, chạy migration và thay container. Luồng được kích hoạt khi commit vào nhánh \textit{main} hoặc khi người vận hành yêu cầu chạy thủ công.
+Luồng công việc trong \path{.github/workflows/deploy.yml} không xây dựng image trên máy chủ. GitHub Actions xây dựng và đẩy song song ba image frontend, backend và dịch vụ AI lên GHCR; máy chủ VPS chỉ lấy image, cập nhật tệp triển khai, chạy migration và thay container. Luồng công việc được kích hoạt khi commit vào nhánh \textit{main} hoặc khi người vận hành yêu cầu chạy thủ công.
 
 \begin{longtable}{|T{0.20\textwidth}|T{0.31\textwidth}|T{0.39\textwidth}|}
 \caption{Các giai đoạn của quy trình CI/CD}\label{tab:appendix-b-cicd-stages}\\
@@ -425,7 +425,7 @@ ghcr.io/<owner>/conferencespace-backend:latest
 ghcr.io/<owner>/conferencespace-ai-service:latest
 \end{lstlisting}
 
-Định danh commit là điểm nối để truy vết giữa image, mã nguồn và lần chạy workflow. Khi cần quay lại phiên bản trước, người vận hành có thể chọn lại image theo định danh commit thay vì phụ thuộc vào nhãn \textit{latest}.
+Định danh commit là điểm nối để truy vết giữa image, mã nguồn và lần chạy luồng công việc. Khi cần quay lại phiên bản trước, người vận hành có thể chọn lại image theo định danh commit thay vì phụ thuộc vào nhãn \textit{latest}.
 
 \subsection{Cập nhật hệ thống chính thức}
 
@@ -444,7 +444,7 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --rem
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 \end{lstlisting}
 
-Sau khi cập nhật, các điểm kiểm tra trạng thái của backend và dịch vụ AI, trạng thái container, khả năng tải frontend và tuyến HTTPS qua Caddy là những bằng chứng cần thu thập để nghiệm thu. Tuy nhiên, workflow trong nguồn chưa tự động hóa đầy đủ các bước này; do đó, chúng được trình bày như danh sách kiểm tra vận hành, không phải điều kiện đã được pipeline bảo đảm.
+Sau khi cập nhật, các điểm kiểm tra trạng thái của backend và dịch vụ AI, trạng thái container, khả năng tải frontend và tuyến HTTPS qua Caddy là những bằng chứng cần thu thập để nghiệm thu. Tuy nhiên, luồng công việc trong nguồn chưa tự động hóa đầy đủ các bước này; do đó, chúng được trình bày như danh sách kiểm tra vận hành, không phải điều kiện đã được pipeline bảo đảm.
 
 \subsection{Quay lại phiên bản ổn định}
 
@@ -469,7 +469,7 @@ Cấu hình công khai & \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL}, tên miền v
 Định danh image & \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE}, \CodeBreak{AI\_SERVICE\_IMAGE} & Ghi trong \textit{.env.production} để truy vết và quay lại phiên bản \\ \hline
 \end{longtable}
 
-Tệp \textit{.env.production} trên máy chủ được đặt quyền \textit{600}. Bí mật không được in đầy đủ trong nhật ký CI/CD hoặc nhật ký khởi động. Các lỗi cấu hình phải nêu tên biến bị thiếu nhưng không tiết lộ giá trị. Quyền đọc và cập nhật bí mật chỉ được cấp cho workflow và người vận hành cần thiết. Khi thành viên rời nhóm hoặc có dấu hiệu lộ thông tin, khóa liên quan phải được thay và container phải được khởi động lại với giá trị mới.
+Tệp \textit{.env.production} trên máy chủ được đặt quyền \textit{600}. Bí mật không được in đầy đủ trong nhật ký CI/CD hoặc nhật ký khởi động. Các lỗi cấu hình phải nêu tên biến bị thiếu nhưng không tiết lộ giá trị. Quyền đọc và cập nhật bí mật chỉ được cấp cho luồng công việc CI/CD và người vận hành cần thiết. Khi thành viên rời nhóm hoặc có dấu hiệu lộ thông tin, khóa liên quan phải được thay và container phải được khởi động lại với giá trị mới.
 
 \section{Danh sách kiểm tra tái lập và nghiệm thu triển khai}
 \label{sec:appendix-b-checklist}
@@ -490,7 +490,7 @@ STT & Hạng mục kiểm tra & Bằng chứng cần ghi nhận \\ \hline
 6 & Image frontend, backend và dịch vụ AI mang định danh commit tương ứng & Tên ba image và commit nguồn \\ \hline
 7 & Caddy chuyển tiếp giao diện và WebSocket qua các dịch vụ nội bộ đã định nghĩa & Cấu hình Caddy và kết quả HTTPS \\ \hline
 8 & PostgreSQL, Redis, Neo4j, tệp tải lên và Caddy dùng volume phù hợp & Danh sách volume được gắn \\ \hline
-9 & Workflow xây dựng ba image trước khi phát hành và triển khai & Kết quả lần chạy GitHub Actions và GHCR \\ \hline
+9 & Luồng công việc xây dựng ba image trước khi phát hành và triển khai & Kết quả lần chạy GitHub Actions và GHCR \\ \hline
 10 & Máy chủ chỉ pull image, chạy backend-migrate và khởi động Compose & Nhật ký migration và trạng thái container \\ \hline
 11 & Quy trình quay lại phiên bản đã được kiểm tra bằng image có định danh cố định & Định danh image ổn định và biên bản kiểm tra \\ \hline
 \end{longtable}

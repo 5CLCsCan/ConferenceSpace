@@ -92,14 +92,14 @@ Bộ kiểm thử luật gồm 8 trường hợp được khởi tạo có kiể
 
 Bộ kiểm thử cảnh báo nội dung gồm 24 trường hợp; nhánh này không được tự động loại bài. Nhánh này chỉ được phép tạo cảnh báo hỗ trợ và không được tạo trạng thái block tự động. Tài liệu gồm đầu vào, đầu ra kỳ vọng, đầu ra thực tế và tóm tắt số lượng cảnh báo. Tập hiện tại tạo 26 cảnh báo, chưa có nhãn chuyên gia để đánh giá mức độ bám bằng chứng, mức độ nghiêm trọng hoặc khả năng hỗ trợ chỉnh sửa.
 
-\section{Bộ thực thi luồng AI và đặc tả hậu kiểm mệnh đề--nguồn}
+\section{Bộ thực thi luồng công việc AI và đặc tả hậu kiểm mệnh đề--nguồn}
 \label{appc:tca}
 
 \subsection{Ranh giới giữa tạo đầu ra và chấm hậu kiểm}
 
-Bộ thực thi luồng AI tạo đầu ra cho 1.127 bài từ tập ReviewRebuttal đã chọn lọc. Mỗi tác vụ tương ứng với một bài nộp và lưu ngữ cảnh nguồn, điểm kiểm tra theo giai đoạn, đầu ra cuối cùng, số token, thời gian xử lý và trạng thái hoàn tất. Reviewer Initial Analysis nhận siêu dữ liệu bài nộp và nội dung bản thảo. Review Quality Auditor nhận bản phản biện, chính sách và có thể nhận kết quả phân tích ban đầu. Chair Decision Copilot nhận bài nộp, các bản phản biện, thảo luận và phản hồi của tác giả; bản tổng hợp nhận xét tham chiếu chỉ được dùng ở bước chấm.
+Bộ thực thi luồng công việc AI tạo đầu ra cho 1.127 bài từ tập ReviewRebuttal đã chọn lọc. Mỗi tác vụ tương ứng với một bài nộp và lưu ngữ cảnh nguồn, điểm kiểm tra theo giai đoạn, đầu ra cuối cùng, số token, thời gian xử lý và trạng thái hoàn tất. Reviewer Initial Analysis nhận siêu dữ liệu bài nộp và nội dung bản thảo. Review Quality Auditor nhận bản phản biện, chính sách và có thể nhận kết quả phân tích ban đầu. Chair Decision Copilot nhận bài nộp, các bản phản biện, thảo luận và phản hồi của tác giả; bản tổng hợp nhận xét tham chiếu chỉ được dùng ở bước chấm.
 
-Trong đặc tả benchmark, TCA là viết tắt của ba tên chỉ số Truthfulness, Coverage và Additionality. Ba chỉ số lần lượt biểu thị mức bám nguồn, tỷ lệ mệnh đề bám nguồn được văn bản tham chiếu ghi nhận và tỷ lệ mệnh đề bám nguồn không được văn bản tham chiếu ghi nhận. TCA không phải tên mô hình chấm và không tạo một điểm tổng hợp duy nhất. Quy trình hậu kiểm chỉ đọc các gói kết quả đã lưu, không gọi lại các luồng AI và không thay đổi đầu ra ban đầu.
+Trong đặc tả benchmark, TCA là viết tắt của ba tên chỉ số Truthfulness, Coverage và Additionality. Ba chỉ số lần lượt biểu thị mức bám nguồn, tỷ lệ mệnh đề bám nguồn được văn bản tham chiếu ghi nhận và tỷ lệ mệnh đề bám nguồn không được văn bản tham chiếu ghi nhận. TCA không phải tên mô hình chấm và không tạo một điểm tổng hợp duy nhất. Quy trình hậu kiểm chỉ đọc các gói kết quả đã lưu, không gọi lại các luồng công việc AI và không thay đổi đầu ra ban đầu.
 
 Bộ thực thi hoàn tất 1.097 trên 1.127 bài đầu vào. Ba mươi trường hợp không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy phép đánh giá, chiếm 2,66\% tổng số bài; tỷ lệ hoàn tất đạt 97,34\%. Các trường hợp này vẫn thuộc thống kê vận hành nhưng không được đưa vào hậu kiểm chất lượng vì không có gói kết quả đủ điều kiện. Bảng~\ref{tab:appc-tca-denominators} tách mẫu số chung khỏi đơn vị đánh giá của từng nhánh; trường dữ liệu vắng mặt không được quy thành giá trị~0.
 
@@ -188,7 +188,7 @@ Quy trình xử lý mỗi bài qua năm giai đoạn. Thứ nhất, quy trình x
 
 \subsection{Cấu trúc bản ghi JSONL và khả năng truy vết}
 
-Mỗi dòng trong tệp \CodeBreak{tca\_benchmark\_results (5).jsonl} là một đối tượng JSON ứng với một bài. Cấu trúc này cho phép truy từ số liệu tổng hợp về bài, bản phản biện, phát hiện hoặc mệnh đề cụ thể mà không cần tạo lại đầu ra của các luồng AI.
+Mỗi dòng trong tệp \CodeBreak{tca\_benchmark\_results (5).jsonl} là một đối tượng JSON ứng với một bài. Cấu trúc này cho phép truy từ số liệu tổng hợp về bài, bản phản biện, phát hiện hoặc mệnh đề cụ thể mà không cần tạo lại đầu ra của các luồng công việc AI.
 
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|>{\RaggedRight\arraybackslash}p{0.33\textwidth}|>{\RaggedRight\arraybackslash}p{0.39\textwidth}|}
   \caption{Các trường cấp cao trong bản ghi hậu kiểm}\label{tab:appc-tca-jsonl}\\[0.5\baselineskip]
