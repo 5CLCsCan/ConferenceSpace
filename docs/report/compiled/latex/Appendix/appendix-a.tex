@@ -23,8 +23,6 @@ Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự
 
 \subsection{UC-01. Khám phá và theo dõi hội nghị}
 
-Bảng~\ref{tab:appendix-a-uc01} trình bày đặc tả chi tiết của UC-01.
-
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-01: Khám phá và theo dõi hội nghị}\label{tab:appendix-a-uc01}\\
 \hline
@@ -43,8 +41,6 @@ Kết quả đạt được & Tác giả chọn được hội nghị để nộ
 \end{longtable}
 
 \subsection{UC-02. Hoàn tất và kiểm tra bài nộp}
-
-Bảng~\ref{tab:appendix-a-uc02} trình bày đặc tả chi tiết của UC-02.
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-02: Hoàn tất và kiểm tra bài nộp}\label{tab:appendix-a-uc02}\\
@@ -106,8 +102,6 @@ Hình~\ref{fig:appendix-a-uc02-flow} khái quát luồng chính và các nhánh 
 
 \subsection{UC-03. Quản lý vòng đời bài nộp}
 
-Bảng~\ref{tab:appendix-a-uc03} trình bày đặc tả chi tiết của UC-03.
-
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-03: Quản lý vòng đời bài nộp}\label{tab:appendix-a-uc03}\\
 \hline
@@ -127,8 +121,6 @@ Kết quả đạt được & Hệ thống cập nhật trạng thái hoặc gi�
 
 \subsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
 
-Bảng~\ref{tab:appendix-a-uc04} trình bày đặc tả chi tiết của UC-04.
-
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-04: Tiếp nhận lời mời và xem bài được phân công}\label{tab:appendix-a-uc04}\\
 \hline
@@ -147,8 +139,6 @@ Kết quả đạt được & Trạng thái lời mời được cập nhật; b
 \end{longtable}
 
 \subsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
-
-Bảng~\ref{tab:appendix-a-uc05} trình bày đặc tả chi tiết của UC-05.
 
 \begingroup
 \small
@@ -172,8 +162,6 @@ Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản 
 
 \subsection{UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}
 
-Bảng~\ref{tab:appendix-a-uc06} trình bày đặc tả chi tiết của UC-06.
-
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -195,8 +183,6 @@ Kết quả đạt được & Hệ thống trả đề xuất để Chủ tọa 
 \endgroup
 
 \subsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
-
-Bảng~\ref{tab:appendix-a-uc07} trình bày đặc tả chi tiết của UC-07.
 
 \begingroup
 \small
@@ -270,8 +256,6 @@ Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu di�
 
 \subsection{UC-08. Trao đổi theo bài nộp}
 
-Bảng~\ref{tab:appendix-a-uc08} trình bày đặc tả chi tiết của UC-08.
-
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -334,8 +318,6 @@ Trong phiên bản hiện tại, Chủ tọa và Đồng chủ tọa có quyền
 
 \subsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
-Bảng~\ref{tab:appendix-a-uc09} trình bày đặc tả chi tiết của UC-09.
-
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-09: Tổng hợp bằng chứng hỗ trợ quyết định}\label{tab:appendix-a-uc09}\\
 \hline
@@ -354,8 +336,6 @@ Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể ki�
 \end{longtable}
 
 \subsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
-
-Bảng~\ref{tab:appendix-a-uc10} trình bày đặc tả chi tiết của UC-10.
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-10: Truy vấn trạng thái và hướng dẫn}\label{tab:appendix-a-uc10}\\
@@ -652,7 +632,7 @@ Nếu một trong hai tập rỗng, hệ thống gán điểm bằng \(0\). Jacc
 \begin{enumerate}
 \item Hệ thống tạo ma trận điểm cho tất cả cặp bài nộp và Phản biện viên hợp lệ.
 \item Hệ thống loại các cặp có xung đột lợi ích trước khi xếp hạng.
-\item Hệ thống sắp xếp các cặp theo điểm giảm dần. Cách triển khai hiện tại chưa quy định tiêu chí phân xử riêng khi nhiều cặp bằng điểm; thứ tự giữa các cặp này phụ thuộc vào thứ tự đầu vào của lượt chạy.
+\item Hệ thống sắp xếp các cặp theo điểm giảm dần. Khi nhiều cặp có cùng điểm, triển khai hiện tại chưa có tiêu chí phân xử riêng; thứ tự giữa các cặp này không được bảo đảm bởi một quy tắc nghiệp vụ.
 \item Lượt đầu giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh trong lượt chạy và xung đột lợi ích.
 \item Đối với bài chưa có Phản biện viên sau lượt đầu, lượt dự phòng bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích và chỉ bổ sung một Phản biện viên.
 \item Hệ thống trả đề xuất, điểm số, số phân công phát sinh và danh sách bài còn thiếu người để Chủ tọa kiểm tra.
@@ -705,12 +685,12 @@ Bài không có đủ ứng viên không xung đột & Đánh dấu thiếu Ph�
 Hồ sơ thiếu miền chuyên môn & Giữ ứng viên với điểm thấp nếu không có xung đột, nhưng không ưu tiên \\ \hline
 Neo4j chưa được cấu hình hoặc không khả dụng & Áp dụng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị \\ \hline
 Tất cả ứng viên phù hợp đều có xung đột & Không tự động gán; xung đột lợi ích vẫn là ràng buộc cứng \\ \hline
-Nhiều cặp bằng điểm & Ưu tiên Phản biện viên có ít bài đang được phân công hơn; nếu vẫn bằng nhau, dùng thứ tự cố định theo định danh để giữ kết quả ổn định \\ \hline
+Nhiều cặp bằng điểm & Chưa có tiêu chí phân xử riêng; thứ tự giữa các cặp không được bảo đảm bởi một quy tắc nghiệp vụ \\ \hline
 \end{longtable}
 
 \subsection{Ba nguồn phát hiện xung đột lợi ích}
 
-Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biện viên. Nguồn thứ nhất xác định Phản biện viên có phải tác giả hoặc đồng tác giả của bài hay không. Nguồn thứ hai kiểm tra xung đột do người dùng khai báo. Nguồn thứ ba truy vấn quan hệ đồng tác giả nhiều bậc trong Neo4j. Hình~\ref{fig:appendix-a-coi-flow} cho thấy cách kết quả phát hiện xung đột lợi ích được sử dụng trong các luồng liên quan.
+Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biện viên. Nguồn thứ nhất xác định Phản biện viên có phải tác giả hoặc đồng tác giả của bài hay không. Nguồn thứ hai kiểm tra xung đột do người dùng khai báo. Nguồn thứ ba truy vấn quan hệ đồng tác giả nhiều bậc trong Neo4j. Hình~\ref{fig:appendix_a_coi_flow} cho thấy cách kết quả phát hiện xung đột lợi ích được sử dụng trong các luồng liên quan.
 
 \begin{figure}[!htbp]
 \centering
@@ -925,7 +905,7 @@ Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đ
 \label{fig:appendix-a-reviewer-support-lifecycle}
 \end{figure}
 
-Hệ thống phân biệt phát hiện chất lượng với lỗi thực thi. Kể cả mức \textit{blocking}, phát hiện chất lượng chỉ cung cấp thông tin để Phản biện viên xem xét, không vô hiệu hóa thao tác gửi. Lỗi thực thi được thông báo, yêu cầu xác nhận tiếp tục và ghi nhật ký. Phản biện viên chịu trách nhiệm về nhận định cuối cùng.
+Hệ thống phân biệt phát hiện chất lượng với lỗi thực thi. Lỗi thực thi được thông báo qua nhánh xác nhận riêng và được ghi vào nhật ký.
 
 \subsection{Chair Decision Copilot}
 
@@ -1055,4 +1035,4 @@ Nhật ký kiểm toán & Lưu trạng thái, lỗi, tổng thời gian và th�
 Kiểm soát của người dùng & Xác định riêng cho từng luồng; không suy ra từ một cơ chế chung \\ \hline
 \end{longtable}
 
-Các kiểm soát trên hỗ trợ truy vết nhưng không chứng minh đầu ra luôn đúng. Chất lượng tệp, nguy cơ tạo thông tin không có căn cứ, giới hạn độ dài, tần suất gọi dịch vụ và rủi ro khi gửi dữ liệu đến nhà cung cấp bên ngoài vẫn yêu cầu đánh giá riêng. Đề tài chưa kiểm toán vòng đời dữ liệu của nhà cung cấp, chưa đo thiên lệch tự động hóa và chưa thử nghiệm chèn lỗi đầu cuối cho toàn bộ dịch vụ.
+Các cơ chế dùng chung hỗ trợ truy vết đầu vào, đầu ra và lỗi thực thi. Việc đánh giá chất lượng đầu ra, vòng đời dữ liệu tại nhà cung cấp và ảnh hưởng của AI đến hành vi người dùng được thực hiện riêng ở Chương~\ref{Chapter4} và Chương~\ref{Chapter5}.

@@ -1,7 +1,7 @@
 \chapter{Khảo sát nhu cầu, hiện trạng và định hướng thiết kế}
 \label{Chapter2}
 
-Chương 2 phân tích nhu cầu người dùng, quy trình nghiệp vụ của các nền tảng hiện có và xu hướng tích hợp AI để xác định định hướng thiết kế cho ConferenceSpace. Trọng tâm của chương là phân biệt các tác vụ cần dựa trên nghiệp vụ ổn định, các tác vụ cần thuật toán xác định và các tác vụ phù hợp với AI hỗ trợ có kiểm soát. Từ các nguồn này, chương lần lượt xác lập vấn đề thiết kế, yêu cầu hệ thống và quy ước trách nhiệm làm cơ sở cho Chương~\ref{Chapter3} và Chương~\ref{Chapter4}.
+Chương này tổng hợp nhu cầu người dùng và khảo sát các nền tảng quản lý hội nghị để xác định vấn đề thiết kế, yêu cầu hệ thống và nguyên tắc sử dụng AI trong ConferenceSpace.
 
 \section{Khảo sát nhu cầu người dùng}
 \label{sec:ch2-user-survey}
@@ -56,16 +56,14 @@ Thông báo và hạn chót nộp bài bị phân tán, dễ bỏ sót & 28 & 39
 \end{table}
 
 \pagebreak
-Năm khó khăn được lựa chọn nhiều nhất liên quan đến chỉ dẫn thao tác, nhập liệu, kiểm tra lỗi và theo dõi thông tin. Bảng \ref{tab:ch2-survey-top-issues} trình bày số lượng, tỷ lệ và hàm ý tương ứng.
-
-Các kết quả cho thấy người dùng không chỉ cần đủ chức năng nghiệp vụ mà còn cần một quy trình dễ theo dõi, hạn chế nhập lại và phát hiện thiếu sót trước các bước quan trọng.
+Kết quả cho thấy nhu cầu không dừng ở việc cung cấp đủ chức năng. Người tham gia còn cần quy trình dễ theo dõi, giảm nhập lại thông tin và phát hiện thiếu sót trước các bước quan trọng.
 
 \subsection{Kết quả theo vai trò}
 \label{subsec:ch2-survey-roles}
 
 \subsubsection{a) Nhóm Chủ tọa/Ban tổ chức}
 
-Trong mẫu 7 Chủ tọa, cảnh báo xung đột lợi ích và bảng điều khiển nhận nhiều đánh giá cao hơn gợi ý Phản biện viên theo chuyên môn. Để hiểu rõ hơn về ưu tiên của nhóm Chủ tọa, Bảng~\ref{tab:ch2-chair-priorities} tổng hợp kết quả khảo sát.
+Trong mẫu 7 Chủ tọa, cảnh báo xung đột lợi ích và bảng điều khiển nhận nhiều đánh giá cao hơn gợi ý Phản biện viên theo chuyên môn.
 
 \begin{table}[H]
 \caption{Kết quả khảo sát nhóm Chủ tọa}
@@ -100,7 +98,7 @@ Submission Gating & 40/50 người trả lời (80,0\%) đánh giá hữu ích h
 \end{tabular}
 \end{table}
 
-Hai chức năng từ Bảng~\ref{tab:ch2-author-preferences} đáp ứng các nhu cầu bổ trợ: Submission Autofill tạo dữ liệu nháp để Tác giả chỉnh sửa và xác nhận, còn Submission Gating phát hiện lỗi hoặc cảnh báo trước thời điểm gửi. Tác giả tiếp tục kiểm soát nội dung bài nộp và quyết định hoàn tất thao tác.
+Hai chức năng giải quyết hai thời điểm khác nhau: Submission Autofill giảm nhập liệu khi tạo bài, còn Submission Gating phát hiện thiếu sót trước khi gửi.
 
 \subsubsection{c) Nhóm Phản biện viên}
 
@@ -111,7 +109,7 @@ Hai chức năng từ Bảng~\ref{tab:ch2-author-preferences} đáp ứng các n
     \label{fig:ch2-reviewer-ai-acceptance}
 \end{figure}
 
-Trong nhóm 11 Phản biện viên, 6/11 người đánh giá cao tính năng tạo bản tóm tắt trung lập, trong khi 3/11 người đánh giá cao tính năng nêu bật các điểm cần kiểm tra kỹ. Chênh lệch này cho thấy người tham gia thận trọng hơn với đầu ra có thể định hướng sự chú ý. Tuy nhiên, khảo sát chưa đo tác động đến thời gian, công sức hoặc nhận định chuyên môn; kết quả chỉ phản ánh xu hướng chấp nhận AI trong vai trò hỗ trợ đọc.
+Trong nhóm 11 Phản biện viên, 6/11 người đánh giá cao tính năng tạo bản tóm tắt trung lập, trong khi 3/11 người đánh giá cao tính năng nêu bật các điểm cần kiểm tra kỹ. Chênh lệch này cho thấy người tham gia thận trọng hơn với đầu ra có thể định hướng sự chú ý.
 
 \subsection{Diễn giải kết quả và giới hạn khảo sát}
 \label{subsec:ch2-survey-limitations}
@@ -133,31 +131,33 @@ Các nền tảng được đối chiếu theo bốn nhóm tiêu chí: phạm vi
 
 \subsubsection{a) EasyChair}
 
-EasyChair công bố có hơn 4,8 triệu người dùng và hơn 124.000 hội nghị, đồng thời hỗ trợ nộp bài, quản lý phản biện, quyền truy cập, xung đột lợi ích, phân công, phản hồi của tác giả và xuất bản kỷ yếu \cite{ch2ref1,ch2ref2}. Trường hợp ITiCSE 2025 cho thấy nền tảng có thể vận hành phản biện kín hai chiều, đăng ký nguyện vọng, khai báo xung đột, phân công bằng thuật toán và thảo luận \cite{ch2ref57}. Từ đó, ConferenceSpace tham khảo cách EasyChair tổ chức các giai đoạn nộp bài, phân công, phản biện và ra quyết định trong một vòng đời xét duyệt thống nhất, với trạng thái và quyền hạn được duy trì xuyên suốt giữa các vai trò. EasyChair được dùng làm chuẩn tham chiếu về độ bao phủ nghiệp vụ; khả năng hướng dẫn và mức độ dễ tiếp cận của ConferenceSpace được kiểm chứng bằng khảo sát sau trải nghiệm trên chính người dùng của hệ thống.
+EasyChair công bố có hơn 4,8 triệu người dùng và hơn 124.000 hội nghị, đồng thời hỗ trợ nộp bài, quản lý phản biện, quyền truy cập, xung đột lợi ích, phân công, phản hồi của tác giả và xuất bản kỷ yếu \cite{ch2ref1,ch2ref2}. Trường hợp ITiCSE 2025 cho thấy nền tảng có thể vận hành phản biện kín hai chiều, đăng ký nguyện vọng, khai báo xung đột, phân công bằng thuật toán và thảo luận \cite{ch2ref57}.
 
 \subsubsection{b) HotCRP}
 
-HotCRP hỗ trợ phân công, đăng ký nguyện vọng, xung đột lợi ích, ra quyết định, phân công tự động và chế độ chạy thử trước khi áp dụng \cite{ch2ref3,ch2ref4}. Tại USENIX ATC 2020, kết quả phân công tự động ban đầu hữu ích nhưng vẫn cần Chủ tọa rà soát và điều chỉnh đáng kể; cơ chế xung đột đồng thời ngăn người có xung đột truy cập bài, điểm số và thảo luận liên quan \cite{ch2ref58}. Từ HotCRP, ConferenceSpace tham khảo cách tách quy trình thành ba bước: thuật toán tạo phương án dưới các ràng buộc, Chủ tọa kiểm tra và điều chỉnh, sau đó hệ thống mới áp dụng phân công cùng quyền truy cập tương ứng. Cách tổ chức này biến tự động hóa thành công cụ giảm tải nhưng vẫn duy trì khả năng kiểm soát đối với một tác vụ có ảnh hưởng trực tiếp đến tính công bằng của phản biện.
+HotCRP hỗ trợ phân công, đăng ký nguyện vọng, xung đột lợi ích, ra quyết định, phân công tự động và chế độ chạy thử trước khi áp dụng \cite{ch2ref3,ch2ref4}. Tại USENIX ATC 2020, kết quả phân công tự động ban đầu hữu ích nhưng vẫn cần Chủ tọa rà soát và điều chỉnh đáng kể; cơ chế xung đột đồng thời ngăn người có xung đột truy cập bài, điểm số và thảo luận liên quan \cite{ch2ref58}.
 
 \subsubsection{c) OpenReview}
 
-OpenReview hỗ trợ nhiều mức độ công khai, quyền đọc và quyền ghi, thảo luận, xác định xung đột lợi ích và đối sánh bài với Phản biện viên \cite{ch2ref5}. NeurIPS 2021 sử dụng OpenReview nhưng vẫn duy trì phản biện kín hai chiều trong thời gian xét duyệt \cite{ch2ref59}. Trường hợp ACT 2023 cho thấy một số xung đột đặc thù và quyền xem thảo luận vẫn cần cấu hình hoặc xử lý thủ công \cite{ch2ref60}. Từ OpenReview, ConferenceSpace tham khảo nguyên tắc minh bạch theo từng giai đoạn: trạng thái và căn cứ cần thiết được hiển thị cho đúng vai trò, còn danh tính, bản thảo và thảo luận được bảo vệ theo chính sách của hội nghị. Như vậy, mức độ công khai trở thành một quyết định cấu hình gắn với quyền đọc, quyền ghi và thời điểm của quy trình, qua đó hỗ trợ cả phản biện kín lẫn các bước công bố sau quyết định.
+OpenReview hỗ trợ nhiều mức độ công khai, quyền đọc và quyền ghi, thảo luận, xác định xung đột lợi ích và đối sánh bài với Phản biện viên \cite{ch2ref5}. NeurIPS 2021 sử dụng OpenReview nhưng vẫn duy trì phản biện kín hai chiều trong thời gian xét duyệt \cite{ch2ref59}. Trường hợp ACT 2023 cho thấy một số xung đột đặc thù và quyền xem thảo luận vẫn cần cấu hình hoặc xử lý thủ công \cite{ch2ref60}.
 
 \subsubsection{d) Microsoft CMT}
 
-Microsoft CMT hỗ trợ toàn bộ vòng đời nộp bài, quản lý xung đột, đăng ký nguyện vọng, thảo luận và phân công tích hợp với TPMS; điểm TPMS từ 0 đến 1 biểu thị mức độ phù hợp giữa bài báo và Phản biện viên \cite{ch2ref6,ch2ref7,ch2ref8}. Tại CVPR 2013, CMT và TPMS tạo danh sách ứng viên và loại các trường hợp xung đột, nhưng Chủ tọa vẫn điều chỉnh theo chuyên môn và khối lượng công việc \cite{ch2ref61}. ConferenceSpace từ đó thiết kế đối sánh như một quy trình có thể kiểm tra: điểm phù hợp chuyên môn được trình bày cùng xung đột lợi ích và khối lượng công việc, tạo thành căn cứ để Chủ tọa xác nhận hoặc điều chỉnh phương án phân công. Quyền xác nhận phản ánh trách nhiệm điều phối của Chủ tọa đối với các ràng buộc mà một điểm đối sánh riêng lẻ không thể biểu diễn đầy đủ.
+Microsoft CMT hỗ trợ toàn bộ vòng đời nộp bài, quản lý xung đột, đăng ký nguyện vọng, thảo luận và phân công tích hợp với TPMS; điểm TPMS từ 0 đến 1 biểu thị mức độ phù hợp giữa bài báo và Phản biện viên \cite{ch2ref6,ch2ref7,ch2ref8}. Tại CVPR 2013, CMT và TPMS tạo danh sách ứng viên và loại các trường hợp xung đột, nhưng Chủ tọa vẫn điều chỉnh theo chuyên môn và khối lượng công việc \cite{ch2ref61}.
 
 \subsubsection{e) PeerSubmit: nền tảng lấy AI làm trọng tâm}
 
-PeerSubmit công bố các chức năng AI cho sàng lọc bài, đối sánh Phản biện viên, kiểm tra xung đột lợi ích, tóm tắt và hỗ trợ quyết định \cite{ch2ref48}. Tuy nhiên, tài liệu sản phẩm giao quyết định cho Chủ tọa, trong khi trang thông tin giá còn giới thiệu chức năng tạo phán quyết cuối cùng kèm điểm tin cậy \cite{ch2ref48,ch2ref52}. Các tỷ lệ cải thiện được công bố thiếu dữ liệu nguồn, định nghĩa chỉ số và phương pháp đo để có thể đối chiếu độc lập. ConferenceSpace tham khảo PeerSubmit ở hai khía cạnh: phân loại tự động hóa theo mức độ gần với quyết định học thuật và gắn mỗi đầu ra với người chịu trách nhiệm xác nhận.
+PeerSubmit công bố các chức năng AI cho sàng lọc bài, đối sánh Phản biện viên, kiểm tra xung đột lợi ích, tóm tắt và hỗ trợ quyết định \cite{ch2ref48}. Tuy nhiên, tài liệu sản phẩm giao quyết định cho Chủ tọa, trong khi trang thông tin giá còn giới thiệu chức năng tạo phán quyết cuối cùng kèm điểm tin cậy \cite{ch2ref48,ch2ref52}. Các tỷ lệ cải thiện được công bố thiếu dữ liệu nguồn, định nghĩa chỉ số và phương pháp đo để có thể đối chiếu độc lập.
 
 \subsubsection{f) Morressier: tham khảo về liêm chính và phân công có xác nhận}
 
-Morressier tích hợp kiểm tra đạo văn, trùng lặp hình ảnh và dấu hiệu của ``hành vi sản xuất báo hàng loạt'' (paper mill) để nhóm biên tập xem xét trước khi quyết định \cite{ch2ref47}. Chức năng Auto-Assign phân phối bài giữa các Phản biện viên đã chấp nhận và tạo danh sách để Ban tổ chức điều chỉnh trước khi xác nhận; các điều kiện chặn được công bố bao phủ một số trường hợp cụ thể \cite{ch2ref55}. ConferenceSpace tham khảo Morressier ở hai mẫu thiết kế: công cụ sàng lọc tạo báo cáo chuyên biệt cho người chịu trách nhiệm xem xét, còn công cụ phân công tạo phương án có thể sửa trước khi áp dụng. Giá trị tham khảo nằm ở cách tổ chức đầu ra và bước xác nhận; chất lượng của từng chức năng được đánh giá bằng dữ liệu riêng của đề tài.
+Morressier tích hợp kiểm tra đạo văn, trùng lặp hình ảnh và dấu hiệu của ``hành vi sản xuất báo hàng loạt'' (paper mill) để nhóm biên tập xem xét trước khi quyết định \cite{ch2ref47}. Chức năng Auto-Assign phân phối bài giữa các Phản biện viên đã chấp nhận và tạo danh sách để Ban tổ chức điều chỉnh trước khi xác nhận; các điều kiện chặn được công bố bao phủ một số trường hợp cụ thể \cite{ch2ref55}.
+
+Các nền tảng khảo sát gợi ra ba nguyên tắc cho ConferenceSpace. Thứ nhất, trạng thái và quyền hạn phải được duy trì xuyên suốt vòng đời xét duyệt. Thứ hai, đối sánh và phát hiện xung đột lợi ích cần cung cấp điểm số, căn cứ và khả năng điều chỉnh trước khi áp dụng. Thứ ba, đầu ra AI gần quyết định học thuật phải được gắn với người chịu trách nhiệm kiểm tra và xác nhận.
 
 \subsection{So sánh phạm vi nghiệp vụ}
 
-Bảng~\ref{tab:ch2-scope-comparison} kiểm tra mức độ liên kết giữa các nghiệp vụ trong toàn bộ vòng đời xét duyệt. Cột ConferenceSpace xác định những nghiệp vụ được tích hợp trong phạm vi đề tài; chất lượng vận hành của chúng được kiểm chứng bằng các kịch bản và thước đo ở chương đánh giá.
+Bảng~\ref{tab:ch2-scope-comparison} đối chiếu mức độ bao phủ các nghiệp vụ chính của vòng đời xét duyệt. Cột ConferenceSpace xác định phần đã được tích hợp trong phạm vi đề tài.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
@@ -198,8 +198,6 @@ Bản hoàn thiện sau chấp nhận & Có ở một số nền tảng & Có t�
 Đăng ký, thanh toán và trang thông tin sự kiện & Có ở một số gói hoặc qua tích hợp & Không phải trọng tâm chung & Có & Ngoài phạm vi đề tài \\
 \end{longtable}
 \endgroup
-
-So sánh cho thấy ConferenceSpace đặt các luồng hỗ trợ trong một vòng đời xét duyệt thống nhất, nơi trạng thái và quyền hạn được duy trì từ nộp bài đến quyết định và nộp bản hoàn thiện. Kết quả này xác nhận tính liền mạch của phạm vi thiết kế và tạo cơ sở xác định các luồng cần kiểm chứng trong Chương~\ref{Chapter4}.
 
 \pagebreak
 
@@ -244,17 +242,11 @@ Tổng hợp trước quyết định & Cung cấp bảng điểm, thảo luận
 \end{longtable}
 \endgroup
 
-So sánh từ Bảng~\ref{tab:ai-strategy-responsibility} cho thấy giá trị chiến lược của tự động hóa được quyết định bởi loại đầu ra và quyền xác nhận. ConferenceSpace dùng thuật toán xác định cho đối sánh và phát hiện xung đột lợi ích, nơi kết quả cần ổn định và có thể truy vết; các tác vụ tạo nội dung cung cấp bản nháp, tóm tắt hoặc cảnh báo để người có thẩm quyền kiểm tra. Cách phân lớp này gắn mức tự động hóa với hậu quả của tác vụ và trách nhiệm của từng vai trò.
+Khác biệt quan trọng không nằm ở việc một tác vụ có được tự động hóa hay không, mà ở loại đầu ra và quyền áp dụng kết quả. ConferenceSpace dùng thuật toán xác định cho đối sánh và xung đột lợi ích; các tác vụ tạo nội dung chỉ cung cấp bản nháp, cảnh báo hoặc bản tổng hợp để người dùng kiểm tra.
 
 \subsection{Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}
 
-Do mẫu khảo sát có ít Chủ tọa và Phản biện viên, nhóm dùng thêm báo cáo vận hành và chính sách học thuật để kiểm tra tính phù hợp của các yêu cầu; tỷ lệ khảo sát được diễn giải trong phạm vi mẫu đã thu thập. Các trường hợp HotCRP tại USENIX ATC 2020 và CMT/TPMS tại CVPR 2013 cùng cho thấy điểm phù hợp, xung đột lợi ích, khối lượng công việc và bước xác nhận là các thành phần riêng của quy trình phân công \cite{ch2ref58,ch2ref61}. ACM cũng yêu cầu khai báo xung đột tiềm ẩn nhưng giao cho Chủ tọa hoặc biên tập viên trách nhiệm đánh giá và xử lý \cite{ch2ref12}. Vì vậy, ConferenceSpace trình bày đồng thời điểm phù hợp, căn cứ xung đột và khối lượng công việc để Chủ tọa đánh giá phương án phân công trong một ngữ cảnh đầy đủ hơn.
-
-Các chính sách AI đều yêu cầu bảo mật bản thảo và giữ trách nhiệm ở con người, nhưng khác nhau về phạm vi cho phép. ICLR 2026 và ACM chấp nhận một số hình thức hỗ trợ khi người dùng tuân thủ yêu cầu khai báo và bảo mật \cite{ch2ref15,ch2ref40}; ICML 2025 và Nature Portfolio áp dụng giới hạn nghiêm ngặt hơn đối với việc xử lý bài nộp bằng AI tạo sinh \cite{ch2ref16,ch2ref41}. Do đó, chức năng AI dành cho Phản biện viên phải được cấu hình theo chính sách của từng hội nghị.
-
-Các thử nghiệm gần đây cung cấp mẫu kiểm soát bổ sung. Review Feedback Agent tại ICLR 2025 chỉ góp ý trên bản phản biện do con người viết và để Phản biện viên quyết định có cập nhật hay không \cite{ch2ref17,ch2ref18}. Thử nghiệm NeurIPS 2026 áp dụng cơ chế tự nguyện tham gia, không lưu dữ liệu và dùng công cụ để hỗ trợ hiểu bài thay vì viết phản biện hoặc thay thế phán đoán chuyên môn \cite{ch2ref19}. Tại thời điểm khảo sát, thử nghiệm chưa công bố kết quả nên chỉ được dùng làm tham chiếu về biện pháp kiểm soát.
-
-Từ các nguồn trên, nhóm xác lập ba yêu cầu: kết quả đối sánh và cảnh báo xung đột phải có căn cứ để Chủ tọa xác nhận; chức năng AI phải tuân theo chính sách của từng hội nghị; mỗi luồng hỗ trợ phải được đánh giá trong điều kiện sử dụng đã xác định.
+Bằng chứng vận hành và chính sách học thuật bổ sung cho kết quả khảo sát ở các nhóm có quy mô nhỏ. Các trường hợp HotCRP và CMT/TPMS cho thấy điểm phù hợp, xung đột lợi ích, tải và bước xác nhận là những thành phần riêng của quy trình phân công \cite{ch2ref58,ch2ref61}. Đối với AI, chính sách giữa các hội nghị khác nhau về mức cho phép nhưng cùng yêu cầu bảo mật bản thảo và giữ trách nhiệm ở con người \cite{ch2ref15,ch2ref16,ch2ref40,ch2ref41}. Vì vậy, ConferenceSpace hiển thị căn cứ của đề xuất phân công và cấu hình chức năng AI theo chính sách của từng hội nghị.
 
 \section{Vấn đề thực tiễn và nguyên tắc giải pháp}
 \label{sec:ch2-design-issues}
@@ -274,8 +266,6 @@ Các nền tảng đã bao phủ phần lớn nghiệp vụ cốt lõi và tự 
     
     \item \textbf{Trợ lý phục vụ nhiều vai trò} phải tuân thủ quyền truy cập. Lớp kiểm soát truy cập cấp cho Chatbot Agent đúng dữ liệu và công cụ tương ứng với vai trò, hội nghị và trạng thái của người dùng; mọi hành động của trợ lý được thực hiện trong phạm vi quyền đã xác lập.
 \end{enumerate}
-
-Năm vấn đề trên dẫn đến cách phân chia tác vụ thành nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ có kiểm soát.
 
 \subsection{Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}
 
@@ -319,15 +309,9 @@ Thông báo và trạng thái phân tán & Bảng điều khiển và thông bá
 \end{longtable}
 \endgroup
 
-Bảng cho thấy mỗi chức năng đều được dẫn xuất từ một nhu cầu hoặc vấn đề cụ thể, qua đó giữ phạm vi giải pháp tập trung vào giá trị nghiệp vụ và rủi ro cần xử lý.
-
 \subsection{Nguyên tắc thiết kế từ các vấn đề đã xác định}
 
-\textbf{Nguyên tắc 1: Tách nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ.} Nghiệp vụ quản lý trạng thái, quyền hạn và hành động; thuật toán xác định xử lý đối sánh và xung đột lợi ích; AI hỗ trợ trích xuất, tóm tắt, rà soát và tổng hợp. Nghiệp vụ cốt lõi duy trì luồng thực hiện độc lập, còn đầu ra AI được bổ sung tại các điểm có giá trị hỗ trợ rõ ràng.
-
-\textbf{Nguyên tắc 2: Gợi ý quan trọng phải có căn cứ.} Điểm đối sánh, cảnh báo xung đột và nhận định tổng hợp phải kèm thông tin nguồn để người dùng kiểm tra trước khi hành động.
-
-\textbf{Nguyên tắc 3: Đánh giá theo bản chất của từng luồng.} Dữ liệu nháp, kiểm tra theo quy tắc, hỗ trợ đọc và tổng hợp bằng chứng cần các tiêu chí riêng, tránh dùng một thước đo chung cho mọi đầu ra.
+ConferenceSpace áp dụng ba nguyên tắc thiết kế: duy trì nghiệp vụ cốt lõi độc lập với AI; cung cấp căn cứ cho các đề xuất và cảnh báo có ảnh hưởng đến thao tác; đánh giá mỗi thành phần bằng tiêu chí phù hợp với loại đầu ra.
 
 \section{Tổng hợp yêu cầu hệ thống}
 \label{sec:ch2-requirements}
@@ -337,8 +321,6 @@ Mục này chuyển các nhu cầu và vấn đề thiết kế thành yêu cầ
 \subsection{Yêu cầu chức năng theo vai trò}
 
 \subsubsection{a) Yêu cầu cho Tác giả}
-
-Bảng~\ref{tab:ch2-author-requirements} trình bày các yêu cầu chức năng dành cho Tác giả.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
@@ -379,8 +361,6 @@ F-AUTHOR-06 & Tác giả có thể lưu, sửa hoặc rút bài, xem phản bi�
 
 \subsubsection{b) Yêu cầu cho Phản biện viên}
 
-Bảng~\ref{tab:ch2-reviewer-requirements} trình bày các yêu cầu chức năng dành cho Phản biện viên.
-
 \begingroup
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.3}
@@ -419,8 +399,6 @@ F-REVIEWER-06 & Review Quality Auditor cảnh báo điểm thiếu căn cứ, qu
 \endgroup
 
 \subsubsection{c) Yêu cầu cho Chủ tọa/Ban tổ chức}
-
-Bảng~\ref{tab:ch2-chair-requirements} trình bày các yêu cầu chức năng dành cho Chủ tọa và Ban tổ chức.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
@@ -461,8 +439,6 @@ F-CHAIR-06 & Chair Decision Copilot tổng hợp bằng chứng, đồng thuận
 
 \pagebreak
 \subsubsection{d) Yêu cầu chung}
-
-Bảng~\ref{tab:ch2-common-requirements} trình bày các yêu cầu chức năng chung của hệ thống.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
@@ -540,7 +516,7 @@ Khả năng đánh giá & Luồng quan trọng lưu đầu vào, đầu ra, tr�
 
 \subsection{Nguyên tắc sử dụng AI có trách nhiệm}
 
-ConferenceSpace áp dụng ba nguyên tắc chung. Thứ nhất, quyền hạn được gắn với trách nhiệm: Tác giả xác nhận và gửi bài, Phản biện viên viết và gửi bản phản biện, Chủ tọa xác nhận phân công và quyết định kết quả. Thứ hai, hệ thống phân biệt nguồn dữ liệu, cung cấp căn cứ và cho phép người dùng sửa, bỏ qua hoặc ghi đè đầu ra hỗ trợ. Thứ ba, phạm vi sử dụng AI được cấu hình theo chính sách hội nghị và thỏa thuận xử lý dữ liệu; các biện pháp kiểm soát cụ thể được trình bày trong Bảng~\ref{tab:ch2-responsibility-conventions} \cite{ch2ref19}.
+Các chức năng hỗ trợ phải giữ quyền xác nhận ở đúng vai trò, hiển thị căn cứ và tuân thủ chính sách xử lý dữ liệu của từng hội nghị. Bảng~\ref{tab:ch2-responsibility-conventions} quy định đầu ra, rủi ro và hành động được phép đối với từng chức năng \cite{ch2ref19}.
 
 \pagebreak
 \subsection{Quy ước trách nhiệm của các chức năng hỗ trợ}

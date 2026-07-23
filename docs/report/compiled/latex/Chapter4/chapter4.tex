@@ -6,9 +6,9 @@
 
 \section{Mục tiêu và phạm vi đánh giá}
 
-Chương 3 đã phân chia ConferenceSpace thành ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định có thể kiểm chứng và AI hỗ trợ. Chương này đánh giá mức độ hoàn thành trách nhiệm của từng lớp trong các điều kiện thử nghiệm đã xác định, sau đó đối chiếu kết quả kỹ thuật với phản hồi của người dùng. Do mỗi lớp tạo ra một loại đầu ra khác nhau, quy trình kiểm thử sử dụng các nguồn bằng chứng riêng thay vì quy toàn bộ hệ thống về một thước đo chung.
+Chương này đánh giá lớp nghiệp vụ, thuật toán xác định và các luồng AI bằng nguồn bằng chứng phù hợp với từng loại đầu ra, sau đó đối chiếu kết quả kỹ thuật với UAT.
 
-Bảng~\ref{tab:ch4-demo-questions} trình bày bốn câu hỏi đánh giá, nguồn bằng chứng và phạm vi kết luận tương ứng.
+Bốn câu hỏi đánh giá xác định đối tượng, nguồn bằng chứng và phạm vi kết luận của từng nhóm thực nghiệm.
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
@@ -36,7 +36,7 @@ Kết quả kỹ thuật có tương ứng với trải nghiệm của người 
 
 \subsection{Chuỗi thực nghiệm và ranh giới với Phụ lục C}
 
-Chuỗi thực nghiệm được tổ chức theo quan hệ từ đầu vào đến kết luận. Nhóm khởi tạo dữ liệu và điều kiện chạy, thực hiện thao tác tương ứng với từng kịch bản, lưu đầu ra cùng thông tin truy vết, tính các chỉ số đã xác định, rồi phân tích kết quả trong phạm vi của phép đo. Hình~\ref{fig:ch4-evaluation-chain} minh họa chuỗi bằng chứng ở mức khái quát.
+Chuỗi thực nghiệm được tổ chức theo quan hệ từ đầu vào đến kết luận. Nhóm khởi tạo dữ liệu và điều kiện chạy, thực hiện thao tác tương ứng với từng kịch bản, lưu đầu ra cùng thông tin truy vết, tính các chỉ số đã xác định, rồi phân tích kết quả trong phạm vi của phép đo.
 
 \begin{figure}[H]
   \centering
@@ -61,7 +61,7 @@ Chuỗi thực nghiệm được tổ chức theo quan hệ từ đầu vào đ�
   \label{fig:ch4-evaluation-chain}
 \end{figure}
 
-Chương 4 giữ phần thông tin cần thiết để người đọc hiểu mục tiêu, đối tượng, đầu vào, kịch bản, thao tác, giá trị của phép đo và giới hạn diễn giải. Phụ lục C không thay thế phần trình bày này; phụ lục cung cấp mức chi tiết sâu hơn về điều kiện khởi tạo, bộ dữ liệu kiểm thử, bản dữ liệu cố định, đơn vị đo, định dạng tư liệu và các khoảng trống truy vết. Vì vậy, người đọc có thể đọc Chương 4 để nắm mạch đánh giá, sau đó sử dụng các mục~\ref{appc:index}--\ref{appc:operations} để kiểm tra hoặc tái lập từng nhóm phép đo.
+Chương 4 trình bày thông tin cần thiết để diễn giải kết quả; dữ liệu, cấu hình và quy tắc tái lập chi tiết được cung cấp tại Phụ lục~\ref{AppendixC}.
 
 \section{Thiết lập thực nghiệm}
 
@@ -118,7 +118,7 @@ Chatbot Agent & Vai trò, yêu cầu của người dùng và dữ liệu đư�
 \end{longtable}
 \endgroup
 
-Đối với các luồng AI, bộ thực thi tạo và lưu đầu ra trước khi hoạt động chấm bắt đầu. Submission Autofill và nhánh kiểm tra luật của Submission Gating được đối chiếu trực tiếp; Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot được đánh giá theo quan hệ mệnh đề--bằng chứng; Chatbot Agent được chấm theo hành vi hội thoại. Hình~\ref{fig:ch4-ai-evaluation-flow} minh họa ba nhánh đánh giá này.
+Bộ thực thi lưu đầu ra trước khi bắt đầu hoạt động chấm.
 
 \begin{figure}[htbp]
   \centering
@@ -146,7 +146,7 @@ Chatbot Agent & Vai trò, yêu cầu của người dùng và dữ liệu đư�
 
 \subsection{Môi trường và tư liệu thực nghiệm}
 
-Bảng~\ref{tab:ch4-demo-environments} liên kết từng nhóm đánh giá với môi trường thực hiện, quy mô chính và tư liệu đầu ra. Bảng chỉ cung cấp thông tin cần thiết để xác định nguồn của phép đo; cấu hình chi tiết, đơn vị đo và yêu cầu truy vết được trình bày trong Phụ lục~\ref{AppendixC}.
+Môi trường và tư liệu của từng nhóm đánh giá được tổng hợp trong Bảng~\ref{tab:ch4-demo-environments}.
 
 \begingroup
 \setlength{\tabcolsep}{2.5pt}
@@ -191,7 +191,35 @@ Quy trình trước hết kiểm tra liệu mệnh đề có được nguồn d�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.92\textwidth]{fig09_claim_source_reference_flow.png}
+  \begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
+  \begin{tikzpicture}[>=Latex,
+    process/.style={draw=black!65, rounded corners=2pt, align=center, fill=blue!6, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=37mm},
+    decision/.style={draw=black!65, diamond, aspect=2.2, align=center, fill=orange!10, font=\footnotesize, inner sep=1.5pt, text width=31mm},
+    outcome/.style={draw=black!65, rounded corners=2pt, align=center, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=37mm},
+    flowArrow/.style={-{Latex}, thick},
+    edgeLabel/.style={fill=white, inner sep=1.5pt, font=\footnotesize}]
+    \node[process] (claim) at (0,0) {Mệnh đề đầu ra};
+    \node[process] (sourceCheck) at (0,-2.3) {Đối chiếu với nguồn dữ liệu};
+    \node[decision] (sourceSupported) at (0,-5.0) {Nguồn dữ liệu có hỗ trợ?};
+    \node[outcome, fill=red!7] (skipGrounding) at (5.4,-5.0) {Không vượt bước bám nguồn};
+    \node[process, fill=green!7] (groundedClaim) at (0,-7.8) {Mệnh đề bám nguồn};
+    \node[decision] (hasReference) at (0,-10.6) {Có văn bản tham chiếu phù hợp?};
+    \node[outcome, fill=orange!9] (groundingOnly) at (5.8,-10.6) {Chỉ báo cáo mức bám nguồn};
+    \node[process] (referenceCheck) at (0,-13.5) {Đối chiếu với văn bản tham chiếu};
+    \node[outcome, fill=green!7] (referenceRecorded) at (-4.7,-16.2) {Được văn bản tham chiếu ghi nhận};
+    \node[outcome, fill=red!7] (referenceNotRecorded) at (4.7,-16.2) {Không được văn bản tham chiếu ghi nhận};
+
+    \draw[flowArrow] (claim) -- (sourceCheck);
+    \draw[flowArrow] (sourceCheck) -- (sourceSupported);
+    \draw[flowArrow] (sourceSupported) -- node[edgeLabel, above] {Không} (skipGrounding);
+    \draw[flowArrow] (sourceSupported) -- node[edgeLabel, right] {Có} (groundedClaim);
+    \draw[flowArrow] (groundedClaim) -- (hasReference);
+    \draw[flowArrow] (hasReference) -- node[edgeLabel, above] {Không} (groundingOnly);
+    \draw[flowArrow] (hasReference) -- node[edgeLabel, right] {Có} (referenceCheck);
+    \draw[flowArrow] (referenceCheck.south) -- ++(-2.7,-0.9) -- (referenceRecorded.north);
+    \draw[flowArrow] (referenceCheck.south) -- ++(2.7,-0.9) -- (referenceNotRecorded.north);
+  \end{tikzpicture}
+  \end{adjustbox}
   \caption{Quan hệ giữa kiểm tra mức bám nguồn và đối chiếu với văn bản tham chiếu}
   \label{fig:ch4-tca-flow}
 \end{figure}
@@ -202,8 +230,6 @@ Chi tiết về gói kết quả, các nhánh kỹ thuật, công thức và quy
 \label{sec:chap4-core-business}
 
 \subsection{Hiệu năng backend}
-
-Hình~\ref{fig:ch4-k6-throughput} và Hình~\ref{fig:ch4-k6-latency} minh họa hai khía cạnh khác nhau của cùng phép đo: thông lượng cho biết số yêu cầu được xử lý trong một đơn vị thời gian, còn các phân vị độ trễ cho biết mức phản hồi trong từng kịch bản. Các hình không mở rộng phạm vi đo vượt quá ba đường xử lý HTTP đã mô tả.
 
 \begin{figure}[!htbp]
   \centering
@@ -265,7 +291,7 @@ Container API sử dụng trung bình 28\% công suất của một nhân CPU, c
 
 \subsection{Chi phí xử lý}
 
-Hệ thống tính độ tương đồng Jaccard theo công thức $J(A,B)=|A\cap B|/|A\cup B|$~\cite{ch4ref7}, sau đó áp dụng thủ tục gán tham lam có xét giới hạn tải. Go microbenchmark đo trực tiếp mã thuật toán và không bao gồm HTTP, cơ sở dữ liệu hoặc mạng. Hình~\ref{fig:ch4-microbench-scale} trình bày thời gian xử lý theo quy mô đầu vào, còn Hình~\ref{fig:ch4-microbench-allocs} trình bày số lần cấp phát bộ nhớ. Hai hình thay thế cho bảng số liệu chi tiết để làm nổi bật xu hướng tăng chi phí khi quy mô đầu vào mở rộng.
+Hệ thống tính độ tương đồng Jaccard theo công thức $J(A,B)=|A\cap B|/|A\cup B|$~\cite{ch4ref7}, sau đó áp dụng thủ tục gán tham lam có xét giới hạn tải. Go microbenchmark đo trực tiếp mã thuật toán và không bao gồm HTTP, cơ sở dữ liệu hoặc mạng. Hình~\ref{fig:ch4-microbench-scale} trình bày thời gian xử lý theo quy mô đầu vào, còn Hình~\ref{fig:ch4-microbench-allocs} trình bày số lần cấp phát bộ nhớ.
 
 \begin{figure}[!htbp]
   \centering
@@ -364,11 +390,11 @@ Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc tron
 
 \subsection{Review Quality Auditor}
 
-Mỗi phát hiện của Review Quality Auditor gồm nội dung giải thích và mã vấn đề tương ứng. Nội dung giải thích được đối chiếu với bản phản biện đang được kiểm tra để ước lượng mức bám nguồn; mã vấn đề được kiểm tra riêng dựa trên các đặc điểm quan sát được trong bản phản biện. Báo cáo không so sánh các phát hiện này với bản tổng hợp của Chủ tọa, vì văn bản đó tập trung vào quyết định đối với bài báo, không phải chất lượng của từng bản phản biện.
+Mỗi phát hiện của Review Quality Auditor gồm nội dung giải thích và mã vấn đề tương ứng. Nội dung giải thích được đối chiếu với bản phản biện đang được kiểm tra để ước lượng mức bám nguồn; mã vấn đề được kiểm tra riêng dựa trên các đặc điểm quan sát được trong bản phản biện.
 
 Trên 1.127 bài, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
 
-Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Kết quả cho thấy Review Quality Auditor phù hợp với vai trò hiển thị các điểm cần kiểm tra trước khi nộp. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
+Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
 
 \begin{figure}[H]
   \centering
@@ -392,7 +418,7 @@ Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi củ
 
 Trên 1.063 bài có mệnh đề bám nguồn đủ điều kiện để đối chiếu với metareview, tỷ lệ mệnh đề trong cơ sở bằng chứng được metareview ghi nhận đạt 5,44\%, còn tỷ lệ không được ghi nhận đạt 94,56\%. Đối với bản tổng hợp bất đồng, tỷ lệ mệnh đề bám nguồn được metareview ghi nhận đạt 13,82\%. Tỷ lệ bài được gắn cờ rủi ro cao đạt 1,28\%, tương đương khoảng 14 bài trong tập hậu kiểm.
 
-Các kết quả chỉ mô tả quan hệ giữa nhận định, dữ liệu nguồn và metareview. Quá trình kiểm thử chưa đo mức độ đầy đủ và hữu ích theo đánh giá của Chủ tọa, thời gian đọc, độ chính xác quyết định hoặc thiên lệch tự động hóa. Chủ tọa vì vậy vẫn phải kiểm tra nguồn và chịu trách nhiệm về quyết định cuối cùng.
+Các chỉ số này mô tả quan hệ giữa đầu ra, dữ liệu nguồn và metareview; thử nghiệm chưa đo mức hữu ích, thời gian đọc hoặc ảnh hưởng đến quyết định của Chủ tọa.
 
 \subsection{Chatbot Agent}
 \label{subsec:chap4-chatbot}
@@ -415,7 +441,7 @@ Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu C
 
 Hình~\ref{fig:ch4-chatbot-response-stages} phân tách thời gian phản hồi của Chatbot Agent thành thời gian đến token đầu tiên, thời gian đến token đầu tiên của câu trả lời hoàn chỉnh, thời gian truyền nội dung và tổng thời lượng. Thời gian đến token đầu tiên đạt trung bình 2,36 giây, nhưng câu trả lời hoàn chỉnh chỉ bắt đầu sau trung bình 23,02 giây do luồng còn thực hiện các lượt gọi công cụ và tổng hợp dữ liệu. Tổng thời lượng trung bình đạt 26,53 giây; tỷ lệ gọi công cụ thành công đạt 75,78\%.
 
-Thử nghiệm không ghi nhận rò rỉ dữ liệu riêng tư trong kịch bản quyền. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo báo cáo thị trường và một số câu trả lời trình bày lỗi truy vấn thay vì giải thích rõ ranh giới quyền. Các trường chấm theo từng lượt chưa được điền đầy đủ, đồng thời tư liệu chưa ghi người chấm và ngày chấm; vì vậy, phân bố 25/12/3 chỉ là bằng chứng mô tả. Ma trận kịch bản và yêu cầu truy vết được trình bày tại Mục~\ref{appc:chatbot}.
+Không ghi nhận rò rỉ dữ liệu trong các kịch bản quyền đã kiểm tra. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo nội dung không phù hợp, còn tư liệu chấm chưa ghi đầy đủ người chấm và ngày chấm; vì vậy, phân bố 25/12/3 chỉ được xem là bằng chứng mô tả.
 
 \begin{figure}[H]
   \centering
@@ -426,7 +452,7 @@ Thử nghiệm không ghi nhận rò rỉ dữ liệu riêng tư trong kịch b�
 
 \section{Tính khả thi vận hành}
 
-Các luồng xử lý được đo theo những đơn vị khác nhau: Submission Autofill, Reviewer Initial Analysis và Chair Decision Copilot được tính theo bài; Review Quality Auditor được tính theo lượt kiểm tra; Chatbot Agent được tính theo hội thoại. Hình~\ref{fig:ch4-resource-latency} trình bày độ trễ trung bình, trung vị và cao nhất theo từng luồng. Hình~\ref{fig:ch4-resource-tokens} trình bày token trung bình trên mỗi đơn vị công việc. Do mẫu số khác nhau, số token giữa các luồng không được dùng để xếp hạng chi phí.
+Các luồng dùng đơn vị công việc khác nhau: theo bài, lượt kiểm tra hoặc hội thoại. Vì vậy, số token giữa các luồng không được dùng để xếp hạng chi phí trực tiếp.
 
 \begin{figure}[H]
   \centering
@@ -442,7 +468,7 @@ Các luồng xử lý được đo theo những đơn vị khác nhau: Submissio
   \label{fig:ch4-resource-tokens}
 \end{figure}
 
-Hình~\ref{fig:ch4-resource-ops-mode} chuyển các mức độ trễ quan sát được thành khuyến nghị về cách tổ chức vận hành. Đây là khuyến nghị thiết kế dựa trên độ trễ và đặc điểm phản hồi của từng luồng, không phải kết quả so sánh giữa các phương án triển khai thực tế. Nhánh kiểm tra luật của chức năng Kiểm tra trước khi nộp bài (Submission Gating) có thể chạy đồng bộ. Nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot có các trường hợp vượt 100 giây, nên phù hợp hơn với cơ chế chạy nền hoặc chạy trước. Chatbot Agent cần phản hồi từng phần và hiển thị trạng thái tra cứu vì thời gian đến token đầu tiên chỉ đạt 2,36 giây, trong khi câu trả lời hoàn chỉnh bắt đầu sau trung bình 23,02 giây.
+Độ trễ quan sát được gợi ý ba cách tổ chức vận hành. Nhánh kiểm tra luật của Submission Gating có thể chạy đồng bộ; nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot nên chạy nền hoặc chạy trước, còn Chatbot Agent cần trả phản hồi từng phần và hiển thị trạng thái tra cứu.
 
 \begin{figure}[H]
   \centering
@@ -456,7 +482,7 @@ Các kết quả dẫn đến ba yêu cầu vận hành: chuyển tác vụ dài
 \section{Khảo sát người dùng}
 \label{sec:chap4-uat}
 
-Báo cáo tổng hợp ghi nhận 91 phản hồi dùng cho phân tích, gồm 76 phản hồi của Tác giả, 7 phản hồi của Phản biện viên và 8 phản hồi của Chủ tọa. Đây là mẫu thuận tiện và lệch mạnh về nhóm Tác giả; kết quả chỉ mô tả cảm nhận của mẫu tham gia. Riêng số liệu Chủ tọa chưa thể được tái lập độc lập từ tệp dữ liệu thô hiện có, nên được xem là số liệu tổng hợp thứ cấp. Bản ghi thô đang lưu chỉ có sáu bản ghi Chủ tọa, trong đó năm bản ghi thiếu phần đánh giá chính; vì vậy, các thống kê với mẫu số tám được giữ theo báo cáo tổng hợp nhưng không được xem là đã xác minh độc lập.
+Báo cáo tổng hợp ghi nhận 91 phản hồi, gồm 76 Tác giả, 7 Phản biện viên và 8 Chủ tọa. Mẫu thuận tiện lệch mạnh về nhóm Tác giả. Ngoài ra, tệp thô hiện có không đủ để tái lập độc lập thống kê của tám Chủ tọa; số liệu nhóm này vì vậy được xem là bằng chứng mô tả thứ cấp.
 
 Bảng~\ref{tab:ch4-demo-uat} tổng hợp kết quả khảo sát theo ba vai trò.
 
@@ -488,7 +514,7 @@ Bảng~\ref{tab:ch4-demo-synthesis} tổng hợp mức kết luận cho từng n
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.3}
+\renewcommand{\arraystretch}{1.15}
 \begin{longtable}{|>{\raggedright\arraybackslash}p{0.27\textwidth}|>{\raggedright\arraybackslash}p{0.43\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|}
 \caption{Mức kết luận theo trách nhiệm và bằng chứng}
 \label{tab:ch4-demo-synthesis} \\
@@ -515,8 +541,6 @@ Trải nghiệm người dùng & 91 phản hồi gồm 76 Tác giả, 7 Phản b
 \end{longtable}
 \endgroup
 
-Kết quả kỹ thuật và UAT cùng cho thấy chức năng Tự động điền bài nộp (Submission Autofill) có thể hỗ trợ nhập liệu, nhưng quá trình kiểm thử chưa đo trực tiếp số thao tác hoặc thời gian tiết kiệm được. Các phép truy hồi chủ đề và hậu kiểm mệnh đề--nguồn cung cấp chỉ số gián tiếp; chúng không xác nhận mức độ phù hợp của phản biện viên, chất lượng quyết định học thuật hoặc tính hữu ích theo đánh giá của chuyên gia. Với chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor), các phát hiện được hiển thị để Phản biện viên xem xét và chỉnh sửa bản phản biện; trạng thái \textit{block} không ngăn thao tác nộp. Tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%, nên Phản biện viên vẫn phải kiểm tra nội dung phát hiện trước khi sử dụng.
+Bằng chứng trực tiếp rõ nhất gồm hiệu năng của ba endpoint, khả năng trích xuất siêu dữ liệu của Submission Autofill và hành vi của bộ kiểm thử luật trong Submission Gating. Phép thử đối sánh, hậu kiểm đầu ra mở, Chatbot Agent và UAT cung cấp bằng chứng gián tiếp hoặc mô tả.
 
-Các giới hạn chính gồm thiếu nhãn chuyên gia cho một số luồng, dữ liệu đối sánh tổng hợp, phạm vi bài báo chủ yếu bằng tiếng Anh, thiếu thử nghiệm chạy bền và thử nghiệm chủ động gây lỗi, cùng khả năng truy vết chưa đầy đủ của UAT ở nhóm Chủ tọa. Bộ thực thi đạt tỷ lệ hoàn tất 97,34\%; 30 bài không hoàn tất do lỗi dịch vụ AI hoặc lỗi trong quá trình chạy benchmark được giữ trong thống kê vận hành nhưng không được đưa vào hậu kiểm chất lượng. Cơ chế phân quyền cấp ứng dụng cũng chưa cung cấp bằng chứng về chính sách lưu giữ, sử dụng và khu vực lưu trữ dữ liệu của nhà cung cấp AI.
-
-Tóm lại, Chương 4 xác nhận hiệu năng của các endpoint đã chọn, mức độ khớp của siêu dữ liệu do chức năng Tự động điền bài nộp (Submission Autofill) tạo và hành vi của bộ kiểm thử luật trong cấu hình thử nghiệm. Đánh giá đối sánh, hậu kiểm mệnh đề--nguồn, thử nghiệm Chatbot Agent và UAT cung cấp bằng chứng theo phạm vi hẹp hơn. Các kết quả chưa xác nhận chất lượng của toàn bộ cơ chế phát hiện xung đột lợi ích đa tầng, độ chính xác của quyết định học thuật hoặc mức độ sẵn sàng triển khai trong một hội nghị thực tế.
+Khoảng trống chính gồm thiếu nhãn chuyên gia, dữ liệu đối sánh tổng hợp, bài thử chủ yếu bằng tiếng Anh, thiếu kiểm thử chạy bền và truy vết UAT nhóm Chủ tọa chưa đầy đủ. Vì vậy, kết quả chưa xác nhận chất lượng phát hiện xung đột lợi ích, độ chính xác của quyết định học thuật hay độ sẵn sàng triển khai.

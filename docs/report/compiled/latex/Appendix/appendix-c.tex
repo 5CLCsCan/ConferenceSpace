@@ -4,7 +4,7 @@
 \chapter{Đặc tả thực nghiệm và tài liệu tái lập}
 \label{AppendixC}
 
-Phụ lục này mô tả điều kiện thực nghiệm, đầu vào, đầu ra và giới hạn truy vết của các đánh giá trong Chương~\ref{Chapter4}. Phụ lục không lặp lại các bảng kết quả chính, mà tập trung làm rõ đơn vị đo, bộ dữ liệu kiểm thử, bản dữ liệu cố định và các tài liệu cần đối chiếu khi tái lập.
+Phụ lục này mô tả điều kiện, đầu vào, đầu ra, đơn vị đo và tài liệu cần thiết để tái lập các đánh giá trong Chương~\ref{Chapter4}.
 
 \section{Chỉ mục bằng chứng}
 \label{appc:index}
@@ -35,7 +35,7 @@ Bảng~\ref{tab:appc-evidence-index} ánh xạ từng nhóm kết luận trong C
 \end{longtable}
 \endgroup
 
-Chỉ mục này đặt ra một nguyên tắc diễn giải: phạm vi kết luận phải đi cùng phạm vi bằng chứng. Chẳng hạn, kết quả tải HTTP không được dùng để kết luận về chất lượng xếp hạng; các tỷ lệ hậu kiểm mệnh đề--nguồn không được dùng để kết luận về độ chính xác của quyết định chấp nhận hoặc từ chối; UAT không thay thế được phép đo thời gian hoàn thành nhiệm vụ.
+Kết quả tải HTTP không được dùng để kết luận về chất lượng xếp hạng; các tỷ lệ hậu kiểm mệnh đề--nguồn không đo độ chính xác của quyết định chấp nhận hoặc từ chối; UAT không thay thế phép đo thời gian hoàn thành nhiệm vụ.
 
 \section{Thiết lập backend và kiểm thử k6}
 \label{appc:backend-contract}
@@ -290,5 +290,3 @@ Các câu hỏi ở nhóm Phản biện viên gộp nhiều thành phần hỗ t
 Các luồng có đơn vị đo khác nhau. Submission Autofill, Reviewer Initial Analysis và Chair Decision Copilot được tính theo bài; Review Quality Auditor được tính theo lượt kiểm tra; Chatbot Agent được tính theo hội thoại. Không so sánh trực tiếp số token giữa các đơn vị có mẫu số khác nhau.
 
 Các số liệu chính gồm 4.094 token trung bình cho Submission Autofill, 11.575 token cho Reviewer Initial Analysis, 7.874 token cho Review Quality Auditor, 6.242 token cho Chair Decision Copilot và 360,5 token mỗi hội thoại của Chatbot Agent. Chi phí chỉ có thể được tính sau khi xác định đơn giá token tại thời điểm triển khai; báo cáo không gắn kết luận với một mức giá cố định.
-
-Phụ lục C vì vậy cung cấp đặc tả tái lập ở mức thiết lập, đầu vào, đầu ra và giới hạn diễn giải. Phụ lục không trình bày các phép đo chưa thực hiện như kết quả thực nghiệm; mọi khoảng trống bằng chứng vẫn được giữ nguyên để Chương~\ref{Chapter4} có thể kết luận trong đúng phạm vi dữ liệu hiện có.
