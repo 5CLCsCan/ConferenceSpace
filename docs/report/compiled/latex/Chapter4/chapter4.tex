@@ -233,14 +233,14 @@ Chi tiết về gói kết quả, các nhánh kỹ thuật, công thức và quy
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=0.95\textwidth]{fig02_k6_throughput.png}
+  \includegraphics[width=0.8\textwidth]{fig02_k6_throughput.png}
   \caption{Thông lượng HTTP theo kịch bản k6}
   \label{fig:ch4-k6-throughput}
 \end{figure}
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=0.95\textwidth]{fig03_k6_latency_percentiles.png}
+  \includegraphics[width=0.8\textwidth]{fig03_k6_latency_percentiles.png}
   \caption{Các phân vị độ trễ HTTP theo kịch bản k6}
   \label{fig:ch4-k6-latency}
 \end{figure}
@@ -335,25 +335,21 @@ Hình~\ref{fig:ch4-ranking-hit} cho thấy Jaccard và phương pháp đếm s�
 
 \clearpage
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.82\textwidth]{fig02_ranking_hit_at_k.png}
+  \includegraphics[width=0.75\textwidth]{fig02_ranking_hit_at_k.png}
   \caption{Tỷ lệ Hit@k theo phương pháp xếp hạng}
   \label{fig:ch4-ranking-hit}
 \end{figure}
 
-Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhóm đã so sánh thuật toán Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. Kết quả chỉ hỗ trợ sử dụng Greedy để tạo danh sách ứng viên cho Chủ tọa kiểm tra, không hỗ trợ phân công tự động.
+Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhóm đã so sánh thuật toán Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. 
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.84\textwidth]{fig06_assignment_coverage_score.png}
+  \includegraphics[width=0.75\textwidth]{fig06_assignment_coverage_score.png}
   \caption{Đánh đổi giữa độ phủ và điểm Jaccard trung bình của phân công}
   \label{fig:ch4-assignment-tradeoff}
 \end{figure}
-
-\subsection{Phát hiện xung đột lợi ích đa tầng}
-
-Cơ chế phát hiện xung đột lợi ích gồm kiểm tra tự gán, quan hệ do người dùng khai báo và quan hệ đồng tác giả từ một đến ba bậc được truy vấn theo mẫu đường đi trên Neo4j~\cite{ch4ref6} trong khoảng thời gian cấu hình. Microbenchmark chỉ bao phủ hai bộ kiểm tra xác định đầu tiên. Phép đánh giá chưa đo thời gian hoặc chất lượng phát hiện của lớp đồ thị, chưa có tập cặp xung đột do chuyên gia gán nhãn và chưa kiểm tra đầu cuối khi Neo4j không khả dụng. Vì vậy, kết quả hiện tại chưa xác nhận chất lượng của toàn bộ cơ chế đa tầng.
 
 \section{Đánh giá các luồng AI hỗ trợ}
 \label{sec:chap4-ai-flows}
@@ -364,22 +360,22 @@ Trên 1.127 bài, chức năng Tự động điền bài nộp (Submission Autof
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig08_autofill_quality.png}
+  \includegraphics[width=0.8\textwidth]{fig08_autofill_quality.png}
   \caption{Mức khớp của các trường siêu dữ liệu trong Submission Autofill}
   \label{fig:ch4-autofill-quality}
 \end{figure}
 
-Track Recommendation trong Submission Autofill nhận nội dung bài cùng danh sách chuyên đề hợp lệ của hội nghị, sau đó trả về các chuyên đề đề xuất trong chính danh sách này. Bộ kiểm thử riêng gồm 48 trường hợp; luồng hoàn tất 48/48 trường hợp, không tạo đề xuất ngoài danh sách hợp lệ và có độ trễ trung bình 18,19 giây. Kết quả xác nhận tính hợp lệ của đầu ra và khả năng hoàn tất luồng. Tập kiểm thử chưa có nhãn chuyên gia về chuyên đề phù hợp nhất, nên kết quả không được dùng để kết luận độ chính xác Top-1 hoặc Top-3.
+Track Recommendation trong Submission Autofill nhận nội dung bài cùng danh sách chuyên đề hợp lệ của hội nghị, sau đó trả về các chuyên đề đề xuất trong chính danh sách này. Bộ kiểm thử riêng gồm 48 trường hợp; luồng hoàn tất 48/48 trường hợp, không tạo đề xuất ngoài danh sách hợp lệ và có độ trễ trung bình 18,19 giây. Kết quả xác nhận tính hợp lệ của đầu ra và khả năng hoàn tất luồng.
 
-Submission Gating tách hai tuyến đánh giá. Tuyến kiểm tra luật cố định đối chiếu trực tiếp tệp và siêu dữ liệu với các điều kiện nộp bài có kết quả kỳ vọng; tuyến LLM Gating đọc nội dung để tạo cảnh báo không chặn đối với các vấn đề cần Tác giả hoặc người phụ trách xem xét. Nhánh kiểm tra luật hoàn tất 8/8 trường hợp, đạt 100\% về phán quyết và mã luật, đồng thời không ghi nhận trường hợp chặn sai. Nhánh LLM Gating hoàn tất 24/24 trường hợp, tạo 26 cảnh báo và không có trường hợp biến cảnh báo nội dung thành quyết định chặn tự động. Kết quả này xác nhận luồng giữ đúng ranh giới hỗ trợ, nhưng chưa xác nhận độ chính xác hoặc khả năng hỗ trợ chỉnh sửa của từng cảnh báo vì tập kiểm thử chưa có nhãn chuyên gia tương ứng. Cấu trúc của các bộ kiểm thử được trình bày tại Mục~\ref{appc:direct-fixtures}.
+Submission Gating tách hai tuyến đánh giá. Tuyến kiểm tra luật cố định đối chiếu trực tiếp tệp và siêu dữ liệu với các điều kiện nộp bài có kết quả mẫu tham khảo, hoàn tất 8/8 trường hợp, đạt 100\% về phán quyết và mã luật, đồng thời không ghi nhận trường hợp chặn sai. Tuyến LLM Gating đọc nội dung để tạo cảnh báo đối với các vấn đề cần Tác giả hoặc người phụ trách xem xét, hoàn tất 24/24 trường hợp, tạo 26 cảnh báo và không có trường hợp biến cảnh báo nội dung thành quyết định chặn tự động. Kết quả này xác nhận luồng giữ đúng ranh giới hỗ trợ, nhưng chưa xác nhận độ chính xác hoặc khả năng hỗ trợ chỉnh sửa của từng cảnh báo vì tập kiểm thử chưa có nhãn chuyên gia tương ứng. Cấu trúc của các bộ kiểm thử được trình bày tại Mục~\ref{appc:direct-fixtures}.
 
 \subsection{Reviewer Initial Analysis}
 
-Thử nghiệm kiểm tra hai loại đầu ra của Reviewer Initial Analysis theo cách khác nhau. Các đoạn trích dẫn được đối chiếu trực tiếp với bản thảo để xác định mức độ khớp với văn bản nguồn. Các điểm cần lưu ý được kiểm tra mức bám nguồn dựa trên nội dung bản thảo; sau đó, các điểm đã bám nguồn được so sánh với các bản phản biện để xác định tỷ lệ được Phản biện viên ghi nhận và tỷ lệ không được các bản phản biện ghi nhận. Phép đo sau chỉ phản ánh quan hệ với nội dung phản biện hiện có, không trực tiếp đo tính mới hoặc mức hữu ích của điểm cần lưu ý.
+Thử nghiệm kiểm tra hai loại đầu ra của chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) theo cách khác nhau. Các đoạn trích dẫn được đối chiếu trực tiếp với bản thảo để xác định mức độ khớp với văn bản nguồn. Các điểm cần lưu ý (Attention Points) được kiểm tra mức bám nguồn dựa trên nội dung bản thảo; sau đó, các điểm đã bám nguồn được so sánh với các bản phản biện để xác định tỷ lệ được Phản biện viên ghi nhận và tỷ lệ không được các bản phản biện ghi nhận.
 
-Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng trước khi Phản biện viên viết nhận xét. Tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn tỷ lệ điểm cần lưu ý bám nguồn đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Trên 1.061 bài có mệnh đề bám nguồn đủ điều kiện để đối chiếu với bản phản biện, tỷ lệ được bản phản biện ghi nhận đạt 4,64\%, còn tỷ lệ không được bản phản biện ghi nhận đạt 95,36\%.
+Reviewer Initial Analysis tạo bản tóm tắt định hướng hỗ trợ khi Phản biện viên viết nhận xét. Tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn tỷ lệ điểm cần lưu ý bám nguồn đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Trên 1.061 bài có mệnh đề bám nguồn đủ điều kiện để đối chiếu với bản phản biện, tỷ lệ được bản phản biện ghi nhận đạt 4,64\%, còn tỷ lệ không được bản phản biện ghi nhận đạt 95,36\%.
 
-Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc trong phạm vi phép chấm, nhưng Phản biện viên vẫn phải kiểm tra từng nhận định trên bài gốc. Vì đầu ra có thể ảnh hưởng đến phán đoán chuyên môn, mức độ phù hợp với chính sách sử dụng AI phải được xem xét theo từng hội nghị.
+Tổ hợp hai kết quả cho thấy Reviewer Initial Analysis có tiềm năng cung cấp các điểm xuất phát bổ sung để Phản biện viên mở rộng và đào sâu bản phản biện. Cụ thể, 69,8\% điểm cần lưu ý được xác định là bám nguồn; trong số các mệnh đề bám nguồn đủ điều kiện đối chiếu, 95,36\% chưa được các bản phản biện tham chiếu ghi nhận. Các điểm này vì vậy có thể đóng vai trò như những điểm neo ban đầu, giúp Phản biện viên định hướng nội dung cần xem xét và đối chiếu lại trên bản thảo. Tuy nhiên, phép thử chưa đánh giá trực tiếp tính hữu ích chuyên môn, mức độ chấp nhận của Phản biện viên hoặc khả năng giảm số lượt đọc bài; Phản biện viên vẫn cần kiểm tra từng điểm trước khi đưa vào nhận xét.
 
 \begin{figure}[H]
   \centering
@@ -390,11 +386,13 @@ Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc tron
 
 \subsection{Review Quality Auditor}
 
-Mỗi phát hiện của Review Quality Auditor gồm nội dung giải thích và mã vấn đề tương ứng. Nội dung giải thích được đối chiếu với bản phản biện đang được kiểm tra để ước lượng mức bám nguồn; mã vấn đề được kiểm tra riêng dựa trên các đặc điểm quan sát được trong bản phản biện.
+Mỗi phát hiện của chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) gồm nội dung giải thích và mã vấn đề tương ứng. Nội dung giải thích được đối chiếu với bản phản biện đang được kiểm tra để ước lượng mức bám nguồn; mã vấn đề được kiểm tra riêng dựa trên các đặc điểm quan sát được trong bản phản biện.
 
-Trên 1.127 bài, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Trong luồng hiện hành, \textit{severity=blocking} biểu thị mức nghiêm trọng của phát hiện, còn \textit{status=block} làm nổi bật bản phản biện cần được xem xét trên giao diện. Cả hai nhãn chỉ phục vụ hiển thị và hỗ trợ Phản biện viên chỉnh sửa, không ngăn thao tác nộp bản phản biện. Vì vậy, các số liệu này phản ánh mức độ ưu tiên của phát hiện, không phải số lần hệ thống từ chối thao tác.
+Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
 
-Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
+Kết quả cho thấy Review Quality Auditor có tiềm năng đóng vai trò như một lớp rà soát bổ sung trước khi Phản biện viên nộp nhận xét. Tỷ lệ mã vấn đề hợp lệ đạt 71,04\% cho thấy phần lớn mã được tạo có liên hệ với đặc điểm quan sát được trong bản phản biện. Tuy nhiên, chỉ 46,99\% phát hiện đồng thời có mã vấn đề hợp lệ và nội dung giải thích bám nguồn, cho thấy việc xác định đúng loại vấn đề chưa bảo đảm rằng phần giải thích đi kèm được chứng minh đầy đủ từ bản phản biện. Vì vậy, các phát hiện phù hợp nhất để định hướng Phản biện viên xem xét lại những nội dung có thể chưa rõ, thiếu căn cứ hoặc chưa đầy đủ, thay vì được dùng để tự động yêu cầu chỉnh sửa hay ngăn nộp bản phản biện. Thử nghiệm hiện tại chưa đo mức cải thiện của bản phản biện sau khi Phản biện viên tiếp nhận các gợi ý này.
+
+
 
 \begin{figure}[H]
   \centering
@@ -405,7 +403,7 @@ Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đ�
 
 \subsection{Chair Decision Copilot}
 
-Đối với Chair Decision Copilot, các nhận định trong cơ sở bằng chứng và bản tổng hợp bất đồng được đối chiếu với nội dung các bản phản biện để ước lượng mức bám nguồn. Những nhận định đã bám nguồn tiếp tục được so sánh với metareview để xác định tỷ lệ được văn bản này ghi nhận và tỷ lệ không được ghi nhận. Metareview chỉ đại diện cho nội dung Chủ tọa đã viết, không phản ánh đầy đủ mọi thông tin hoặc suy luận mà Chủ tọa đã xem xét.
+Đối với chức năng tạo báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot), các nhận định trong cơ sở bằng chứng và bản tổng hợp bất đồng được đối chiếu với nội dung các bản phản biện để ước lượng mức bám nguồn. Những nhận định đã bám nguồn tiếp tục được so sánh với metareview để xác định tỷ lệ được văn bản này ghi nhận và tỷ lệ không được ghi nhận.
 
 Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi của tác giả và các điểm đồng thuận hoặc bất đồng trước khi Chủ tọa ra quyết định. Tỷ lệ mệnh đề bám nguồn của cơ sở bằng chứng đạt 87,34\%, còn tỷ lệ tương ứng của bản tổng hợp bất đồng đạt 87,11\%. Hình~\ref{fig:ch4-chair-evidence} minh họa các chỉ số của cơ sở bằng chứng; các chỉ số không phản ánh độ chính xác của quyết định học thuật.
 
@@ -418,7 +416,8 @@ Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi củ
 
 Trên 1.063 bài có mệnh đề bám nguồn đủ điều kiện để đối chiếu với metareview, tỷ lệ mệnh đề trong cơ sở bằng chứng được metareview ghi nhận đạt 5,44\%, còn tỷ lệ không được ghi nhận đạt 94,56\%. Đối với bản tổng hợp bất đồng, tỷ lệ mệnh đề bám nguồn được metareview ghi nhận đạt 13,82\%. Tỷ lệ bài được gắn cờ rủi ro cao đạt 1,28\%, tương đương khoảng 14 bài trong tập hậu kiểm.
 
-Các chỉ số này mô tả quan hệ giữa đầu ra, dữ liệu nguồn và metareview; thử nghiệm chưa đo mức hữu ích, thời gian đọc hoặc ảnh hưởng đến quyết định của Chủ tọa.
+Kết quả cho thấy Chair Decision Copilot có tiềm năng cung cấp một cơ sở rà soát có thể truy vết trước khi Chủ tọa đưa ra quyết định. Mức bám nguồn trên 87\% ở cả cơ sở bằng chứng và bản tổng hợp bất đồng cho thấy phần lớn nhận định được tạo có thể đối chiếu với nội dung phản biện. Đồng thời, 94,56\% mệnh đề bám nguồn trong cơ sở bằng chứng không được metareview ghi nhận cho thấy đầu ra có thể đưa thêm các nội dung từ bản phản biện vào phạm vi xem xét của Chủ tọa; tuy nhiên, tỷ lệ này không chứng minh các nội dung đó mới, hữu ích hoặc cần được đưa vào quyết định cuối cùng. Các trường hợp được gắn cờ rủi ro cao có thể được dùng để ưu tiên kiểm tra, không phải để suy ra rằng quyết định tương ứng có sai sót. Vì vậy, chức năng phù hợp với vai trò tổ chức bằng chứng và làm nổi bật các điểm cần cân nhắc, trong khi Chủ tọa vẫn phải xác minh nội dung và chịu trách nhiệm đối với quyết định học thuật. Thử nghiệm hiện tại chưa đo trực tiếp mức hữu ích, thời gian rà soát hoặc ảnh hưởng của chức năng đến quyết định của Chủ tọa.
+
 
 \subsection{Chatbot Agent}
 \label{subsec:chap4-chatbot}
