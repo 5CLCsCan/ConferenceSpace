@@ -91,10 +91,9 @@ Ba kịch bản backend gồm truy vấn đọc, gợi ý phản biện viên v�
 Các luồng công việc AI thực hiện những trách nhiệm khác nhau nên không được đánh giá bằng một chỉ số chung. Đối với đầu ra có dữ liệu tham chiếu xác định, nhóm đối chiếu trực tiếp kết quả của hệ thống với giá trị kỳ vọng trong tập tham khảo. Đối với đầu ra văn bản mở, nhóm kiểm tra từng mệnh đề dựa trên nguồn dữ liệu và chỉ so sánh với văn bản tham chiếu khi nguồn tham chiếu phù hợp tồn tại. Chatbot Agent được đánh giá riêng theo kịch bản hội thoại, quyền truy cập và hành vi gọi công cụ. Bảng~\ref{tab:ch4-ai-evaluation-contracts} tóm tắt đầu vào, đầu ra và cách kiểm tra của từng luồng công việc; Phụ lục~\ref{AppendixC} trình bày cấu trúc dữ liệu, trường hợp kiểm thử và quy trình tái lập.
 
 \begingroup
-\small
-\setlength{\tabcolsep}{2pt}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|>{\RaggedRight\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.17\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|}
+\begin{longtable}{|>{\RaggedRight\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.14\textwidth}|>{\RaggedRight\arraybackslash}p{0.17\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|>{\RaggedRight\arraybackslash}p{0.20\textwidth}|}
 \caption{Đầu vào, đầu ra và cách đánh giá các luồng công việc AI hỗ trợ}
 \label{tab:ch4-ai-evaluation-contracts} \\
 \hline
@@ -117,32 +116,6 @@ Chair Decision Copilot & Bài nộp, bản phản biện, phản hồi của tá
 Chatbot Agent & Vai trò, yêu cầu của người dùng và dữ liệu được phép truy cập & Câu trả lời, chuỗi gọi công cụ và trạng thái hội thoại & Rà soát thủ công theo kịch bản, công cụ dự kiến và tiêu chí hành vi & Hành vi trong 40 hội thoại đã thiết kế \\
 \end{longtable}
 \endgroup
-
-Bộ thực thi lưu đầu ra trước khi bắt đầu hoạt động chấm.
-
-\begin{figure}[htbp]
-  \centering
-  \begin{adjustbox}{max width=0.88\textwidth}
-  \begin{tikzpicture}[>=Latex,
-    block/.style={draw=black!65, rounded corners, align=center, text width=2.9cm, minimum height=0.85cm, fill=gray!8},
-    arrow/.style={-{Latex[length=2mm]}, thick}
-  ]
-    \node[block] (data) at (0,3.6) {Bài nộp và\\ ngữ cảnh nguồn};
-    \node[block] (worker) at (0,1.4) {Bộ thực thi\\ luồng xử lý};
-    \node[block] (outputs) at (0,-0.8) {Gói đầu ra\\ và điểm kiểm tra};
-    \node[block] (direct) at (4.2,-4.3) {Đối chiếu trực tiếp\\ Autofill / Gating};
-    \node[block] (tca) at (-4.2,-4.3) {Hậu kiểm\\ mệnh đề--nguồn};
-    \node[block] (chat) at (0,-4.3) {Chấm theo kịch bản\\ Chatbot Agent};
-    \draw[arrow] (data) -- (worker);
-    \draw[arrow] (worker) -- (outputs);
-    \draw[arrow] (outputs) -- (direct);
-    \draw[arrow] (outputs) -- (tca);
-    \draw[arrow] (outputs) -- (chat);
-  \end{tikzpicture}
-  \end{adjustbox}
-\caption{Các nhánh đánh giá đầu ra của luồng xử lý AI}
-\label{fig:ch4-ai-evaluation-flow}
-\end{figure}
 
 \subsection{Môi trường và tư liệu thực nghiệm}
 
@@ -252,7 +225,7 @@ Ba kịch bản tải gồm truy vấn đọc dữ liệu, gợi ý phản biệ
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.19\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.16\textwidth}|>{\centering\arraybackslash}p{0.14\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.23\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.15\textwidth}|>{\centering\arraybackslash}p{0.14\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|}
   \caption{Kết quả tải HTTP theo kịch bản k6}\label{tab:ch4-demo-http}\\[0.5\baselineskip]
   \hline
   Kịch bản & Số yêu cầu & Thông lượng & Độ trễ trung vị & Độ trễ p95 & Tỷ lệ thất bại \\ \hline
@@ -272,18 +245,18 @@ Bảng~\ref{tab:ch4-demo-http} cho thấy backend xử lý hàng trăm yêu cầ
 
 \subsection{Tài nguyên tiêu thụ}
 
-Container API sử dụng trung bình 28\% công suất của một nhân CPU, cao nhất 43\%, và khoảng 30 MB RAM. PostgreSQL sử dụng trung bình khoảng 115\% công suất của một nhân CPU, cao nhất 163\%, với mức RAM từ 204 đến 222 MB. Neo4j dùng khoảng 508 MB RAM nhưng dưới 1\% CPU, còn Redis dùng khoảng 9 MB RAM. Hình~\ref{fig:ch4-resource-cpu} và Hình~\ref{fig:ch4-resource-ram} cho thấy cùng xu hướng theo thành phần. Vì CPU được báo cáo theo một nhân và phép đo chưa tách thời gian truy vấn theo thành phần, kết quả chỉ xác định PostgreSQL là thành phần cần ưu tiên kiểm tra khi tối ưu, không chứng minh đây là điểm nghẽn duy nhất ở cấu hình khác.
+Container API sử dụng trung bình 28\% công suất của một nhân CPU, cao nhất 43\%, và khoảng 30 MB RAM. PostgreSQL sử dụng trung bình khoảng 115\% công suất của một nhân CPU, cao nhất 163\%, với mức RAM từ 204 đến 222 MB. Neo4j dùng khoảng 508 MB RAM nhưng dưới 1\% CPU, còn Redis dùng khoảng 9 MB RAM. Hình~\ref{fig:ch4-resource-cpu} và Hình~\ref{fig:ch4-resource-ram} cho thấy cùng xu hướng theo thành phần. 
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig09_resource_cpu.png}
+  \includegraphics[width=0.85\textwidth]{fig09_resource_cpu.png}
   \caption{Mức sử dụng CPU theo giai đoạn và thành phần}
   \label{fig:ch4-resource-cpu}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.88\textwidth]{fig10_resource_ram.png}
+  \includegraphics[width=0.70\textwidth]{fig10_resource_ram.png}
   \caption{Mức sử dụng RAM theo thành phần}
   \label{fig:ch4-resource-ram}
 \end{figure}
@@ -388,7 +361,7 @@ Tổ hợp hai kết quả cho thấy Reviewer Initial Analysis có tiềm năng
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig09a_reviewer_annotation_grounding.png}
+  \includegraphics[width=0.85\textwidth]{fig09a_reviewer_annotation_grounding.png}
   \caption{Mức bám nguồn của đầu ra Reviewer Initial Analysis}
   \label{fig:ch4-reviewer-grounding}
 \end{figure}
@@ -397,7 +370,7 @@ Tổ hợp hai kết quả cho thấy Reviewer Initial Analysis có tiềm năng
 
 Mỗi phát hiện của chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) gồm nội dung giải thích và mã vấn đề tương ứng. Nội dung giải thích được đối chiếu với bản phản biện đang được kiểm tra để ước lượng mức bám nguồn; mã vấn đề được kiểm tra riêng dựa trên các đặc điểm quan sát được trong bản phản biện.
 
-Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện. Phản biện viên vẫn quyết định có chỉnh sửa bản phản biện theo các phát hiện này hay không và chịu trách nhiệm đối với nội dung được nộp.
+Trên 1.127 bài, Review Quality Auditor tạo 3.658 lượt kiểm tra, gồm 1.913 lượt mang trạng thái \textit{block}, 1.650 lượt \textit{warn} và 95 lượt \textit{pass}. Tỷ lệ nội dung giải thích bám nguồn so với bản phản biện đạt 58,28\%, tỷ lệ mã vấn đề hợp lệ đạt 71,04\%, còn tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ đạt 46,99\%. Hình~\ref{fig:ch4-quality-auditor} cho thấy sự khác biệt giữa tính hợp lệ, mức bám nguồn và phần đồng thời đạt cả hai điều kiện.
 
 Kết quả cho thấy Review Quality Auditor có tiềm năng đóng vai trò như một lớp rà soát bổ sung trước khi Phản biện viên nộp nhận xét. Tỷ lệ mã vấn đề hợp lệ đạt 71,04\% cho thấy phần lớn mã được tạo có liên hệ với đặc điểm quan sát được trong bản phản biện. Tuy nhiên, chỉ 46,99\% phát hiện đồng thời có mã vấn đề hợp lệ và nội dung giải thích bám nguồn, cho thấy việc xác định đúng loại vấn đề chưa bảo đảm rằng phần giải thích đi kèm được chứng minh đầy đủ từ bản phản biện. Vì vậy, các phát hiện phù hợp nhất để định hướng Phản biện viên xem xét lại những nội dung có thể chưa rõ, thiếu căn cứ hoặc chưa đầy đủ, thay vì được dùng để tự động yêu cầu chỉnh sửa hay ngăn nộp bản phản biện. Thử nghiệm hiện tại chưa đo mức cải thiện của bản phản biện sau khi Phản biện viên tiếp nhận các gợi ý này.
 
@@ -405,8 +378,8 @@ Kết quả cho thấy Review Quality Auditor có tiềm năng đóng vai trò n
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig09c_review_quality_auditor.png}
-  \caption{Các chỉ số bám nguồn và tính hợp lệ của Review Quality Auditor}
+  \includegraphics[width=0.75\textwidth]{fig09c_review_quality_auditor.png}
+  \caption{Chỉ số bám nguồn và tính hợp lệ của Review Quality Auditor}
   \label{fig:ch4-quality-auditor}
 \end{figure}
 
@@ -467,21 +440,21 @@ Các luồng dùng đơn vị công việc khác nhau: theo bài, lượt kiểm
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig12_resource_tokens.png}
-  \caption{Token trung bình theo đơn vị công việc của các luồng công việc AI}
+  \includegraphics[width=0.75\textwidth]{fig12_resource_tokens.png}
+  \caption{Token trung bình theo đơn vị công việc của các workflow AI}
   \label{fig:ch4-resource-tokens}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.80\textwidth]{fig11_resource_latency.png}
+  \includegraphics[width=0.70\textwidth]{fig11_resource_latency.png}
   \caption{Độ trễ theo luồng xử lý AI}
   \label{fig:ch4-resource-latency}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.80\textwidth]{fig13_resource_ops_mode.png}
+  \includegraphics[width=0.70\textwidth]{fig13_resource_ops_mode.png}
   \caption{Khuyến nghị cách tổ chức vận hành theo luồng công việc AI}
   \label{fig:ch4-resource-ops-mode}
 \end{figure}
@@ -501,7 +474,7 @@ Bảng~\ref{tab:ch4-demo-uat} tổng hợp kết quả khảo sát theo ba vai t
 
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.22\textwidth}|>{\RaggedRight\arraybackslash}p{0.39\textwidth}|}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.14\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.17\textwidth}|>{\RaggedRight\arraybackslash}p{0.48\textwidth}|}
   \caption{Tổng hợp kết quả khảo sát theo vai trò}\label{tab:ch4-demo-uat}\\[0.5\baselineskip]
   \hline
   Vai trò & Cỡ mẫu & Hài lòng tổng thể & Tín hiệu chính \\ \hline
@@ -528,7 +501,7 @@ Bảng~\ref{tab:ch4-demo-synthesis} tổng hợp mức kết luận cho từng n
 \begingroup
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.27\textwidth}|>{\raggedright\arraybackslash}p{0.43\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\textwidth}|>{\raggedright\arraybackslash}p{0.45\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|}
 \caption{Mức kết luận theo trách nhiệm và bằng chứng}
 \label{tab:ch4-demo-synthesis} \\
 \hline

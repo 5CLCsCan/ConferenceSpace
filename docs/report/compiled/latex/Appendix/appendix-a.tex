@@ -73,6 +73,7 @@ Hình~\ref{fig:appendix-a-uc01-sequence} biểu diễn trình tự tìm kiếm, 
 \label{fig:appendix-a-uc01-sequence}
 \end{figure}
 
+\pagebreak
 \subsection{UC-02. Hoàn tất và kiểm tra bài nộp}
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -170,6 +171,8 @@ Hình~\ref{fig:appendix-a-uc02-sequence} bổ sung góc nhìn tương tác giữ
 \label{fig:appendix-a-uc02-sequence}
 \end{figure}
 
+ \pagebreak
+
 \subsection{UC-03. Quản lý vòng đời bài nộp}
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -188,6 +191,8 @@ Luồng chính & Tác giả xem danh sách bài, trạng thái và hạn chót; 
 Luồng thay thế và lỗi & Backend từ chối sửa, rút bài hoặc gửi phản hồi nếu trạng thái hoặc hạn chót không cho phép; hệ thống chỉ nhận bản thảo hoàn chỉnh khi bài được chấp nhận và tệp hợp lệ; phiên bản hiện tại chưa kiểm tra hạn chót nộp bản thảo hoàn chỉnh tại thời điểm thực thi \\ \hline
 Kết quả đạt được & Hệ thống cập nhật trạng thái hoặc giữ nguyên trạng thái kèm thông báo lỗi có căn cứ \\ \hline
 \end{longtable}
+
+\pagebreak
 
 Hình~\ref{fig:appendix-a-uc03-sequence} biểu diễn các tương tác chính khi Tác giả theo dõi và cập nhật bài nộp qua các giai đoạn trong UC-03.
 
@@ -244,6 +249,8 @@ Luồng chính & Chủ tọa gửi lời mời; hệ thống lưu lời mời v�
 Luồng thay thế và lỗi & Hệ thống từ chối lời mời không hợp lệ hoặc hết hiệu lực; nếu Phản biện viên từ chối, hệ thống ghi trạng thái để Chủ tọa điều chỉnh; backend từ chối truy cập khi người dùng không có quyền đối với bài được phân công \\ \hline
 Kết quả đạt được & Trạng thái lời mời được cập nhật; bài được phân công xuất hiện trong không gian làm việc của đúng Phản biện viên \\ \hline
 \end{longtable}
+
+\pagebreak
 
 Hình~\ref{fig:appendix-a-uc04-sequence} phân biệt trình tự tiếp nhận lời mời hội nghị với trình tự phản hồi một phân công bài cụ thể trong UC-04.
 
@@ -303,6 +310,8 @@ Luồng thay thế và lỗi & Nếu Reviewer Initial Analysis không khả dụ
 Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản biện đã gửi; mọi cập nhật sau phản hồi được gắn với bài tương ứng \\ \hline
 \end{longtable}
 \endgroup
+
+\pagebreak
 
 Hình~\ref{fig:appendix-a-uc05-sequence} biểu diễn ranh giới giữa hoạt động chuyên môn của Phản biện viên và hai chức năng AI hỗ trợ trong UC-05.
 
@@ -548,6 +557,8 @@ Hình~\ref{fig:appendix-a-uc07-sequence} bổ sung trình tự cấu hình, theo
 \label{fig:appendix-a-uc07-sequence}
 \end{figure}
 
+\pagebreak
+
 \subsection{UC-08. Trao đổi theo bài nộp}
 
 \begingroup
@@ -625,6 +636,8 @@ Luồng thay thế và lỗi & Nếu dữ liệu chưa đủ, hệ thống nêu 
 Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể kiểm tra lại; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
 \end{longtable}
 
+\pagebreak
+
 Hình~\ref{fig:appendix-a-uc09-sequence} biểu diễn cách Backend tập hợp bộ bằng chứng, kiểm tra kết quả đã lưu và gọi Chair Decision Copilot trong UC-09.
 
 \begin{figure}[H]
@@ -690,7 +703,7 @@ Hình~\ref{fig:appendix-a-uc10-sequence} biểu diễn ranh giới truy vấn d�
   \node[appendixParticipant] (backend) at (8.2,0) {Backend};
   \node[appendixParticipant] (engine) at (12.3,0) {Bộ máy\\truy vấn};
   \node[appendixParticipant] (db) at (16.4,0) {PostgreSQL};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-20.8);
+  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-19);
 
   \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Gửi câu hỏi, lịch sử và ngữ cảnh trang} (4.1,-1.8);
   \draw[appendixArrow] (4.1,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Xác định có cần dữ liệu hệ thống} (4.1,-4.0);
@@ -1058,6 +1071,7 @@ Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biệ
 
 Bản đồ xung đột phục vụ trực tiếp cho lượt đối sánh tự động và được xem như ràng buộc cứng trong thuật toán. Bảng \textit{coi\_relationships} lưu bằng chứng qua tác vụ cập nhật riêng. Đề xuất thủ công kiểm tra quan hệ hiện có và trả cảnh báo nhưng chưa ngăn Chủ tọa lưu đề xuất, đồng thời chưa có bản ghi kiểm toán riêng cho quyết định tiếp tục.
 
+\pagebreak
 \section{Đặc tả các luồng công việc AI}
 \label{sec:appendix-a-ai}
 
@@ -1268,7 +1282,7 @@ Hệ thống phân biệt phát hiện chất lượng với lỗi thực thi. L
 
 Luồng tập hợp thông tin hội nghị và bài nộp, các bản phản biện, điểm số, độ tự tin, phản hồi của Tác giả và nội dung thảo luận. Hệ thống tạo mã nhận diện cho bộ bằng chứng và kiểm tra hiệu lực của kết quả đã lưu. Đầu ra gồm tổng quan bằng chứng, điểm mạnh, điểm yếu, đồng thuận, bất đồng, vấn đề chưa giải quyết và ghi chú nháp. Luồng không tạo quyết định hoặc khuyến nghị chấp nhận hay từ chối.
 
-\begin{longtable}{|T{0.20\textwidth}|T{0.32\textwidth}|T{0.38\textwidth}|}
+\begin{longtable}{|T{0.14\textwidth}|T{0.35\textwidth}|T{0.41\textwidth}|}
 \caption{Đặc tả Chair Decision Copilot}\label{tab:appendix-a-decision-copilot}\\
 \hline
 \TableHeader{Nhóm} & \TableHeader{Nội dung} & \TableHeader{Ranh giới hoặc lỗi} \\ \hline
@@ -1277,9 +1291,9 @@ Luồng tập hợp thông tin hội nghị và bài nộp, các bản phản bi
 \TableHeader{Nhóm} & \TableHeader{Nội dung} & \TableHeader{Ranh giới hoặc lỗi} \\ \hline
 \endhead
 Đầu vào & Hội nghị, bài nộp, phản biện, điểm, độ tự tin, phản hồi và thảo luận & Nêu rõ phần bằng chứng còn thiếu khi dữ liệu chưa đủ \\ \hline
-Hiệu lực & Mã nhận diện toàn bộ bộ bằng chứng và từng thành phần & Đánh dấu kết quả cũ không còn hiệu lực khi nguồn thay đổi \\ \hline
+Hiệu lực & Mã nhận diện bằng chứng và từng thành phần & Đánh dấu kết quả không còn hiệu lực khi nguồn thay đổi \\ \hline
 Đầu ra & Tổng quan, đồng thuận, bất đồng, vấn đề còn mở và ghi chú nháp & Không tạo quyết định hoặc khuyến nghị chấp nhận hay từ chối \\ \hline
-Kiểm soát & Chủ tọa đối chiếu trực tiếp với dữ liệu gốc & Nếu dịch vụ AI lỗi, Chủ tọa vẫn tiếp tục bằng bằng chứng gốc \\ \hline
+Kiểm soát & Chủ tọa đối chiếu trực tiếp với dữ liệu gốc & Nếu dịch vụ AI lỗi, Chủ tọa tiếp tục bằng bằng chứng gốc \\ \hline
 \end{longtable}
 
 Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn quá trình tạo bộ bằng chứng, kiểm tra hiệu lực và tạo bản tổng hợp cho Chủ tọa.
@@ -1328,7 +1342,6 @@ Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn
 \label{fig:appendix-a-decision-copilot-evidence-lifecycle}
 \end{figure}
 
-\pagebreak
 \subsection{Chatbot Agent}
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang. Nếu cần dữ liệu hệ thống, công cụ gửi yêu cầu gồm tài nguyên, trường cần lấy, điều kiện lọc, phép tổng hợp, thứ tự và giới hạn số dòng đến backend. Backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên, quyền trên từng trường và điều kiện lọc.
@@ -1427,7 +1440,6 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 \label{fig:appendix-a-chatbot-flow}
 \end{figure}
 
-\pagebreak
 \subsection{Kiểm soát dùng chung}
 
 \begin{longtable}{|T{0.28\textwidth}|T{0.62\textwidth}|}

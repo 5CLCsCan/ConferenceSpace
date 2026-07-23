@@ -164,7 +164,6 @@ Quy trình xử lý mỗi bài qua năm giai đoạn. Thứ nhất, quy trình x
   \end{tabular}
 \end{table}
 
-\pagebreak
 \subsection{Đặc tả bốn nhánh đánh giá}
 
 \begingroup
@@ -232,14 +231,6 @@ trong đó $I_r$ là tập bài đủ điều kiện cho chỉ số $r$. Mức b
 B3 có hai mức tổng hợp phục vụ hai cách đọc khác nhau. Đoạn kết quả theo bản phản biện trong Chương~\ref{Chapter4} lấy trung bình trực tiếp trên 3.567 bản phản biện đủ điều kiện; cách này đặt trọng số lớn hơn cho bài có nhiều bản phản biện. Hình tổng hợp theo bài trước hết lấy trung bình các bản phản biện của từng bài, sau đó lấy trung bình trên 1.097 bài; cách này cho mỗi bài cùng một trọng số. Hai kết quả không được trộn thành một mẫu số duy nhất.
 
 Các số lượng đặt cạnh tỷ lệ trong hình B2, B3 và B5 là số lượng tương đương ước tính, được tính bằng $\widehat{n}=\operatorname{round}(\bar{r}N)$ với $N$ là tổng số đơn vị của nhánh. Chúng không phải số đếm độc lập từ từng nhãn và không được dùng để dựng ma trận nhầm lẫn. Chỉ các số lượng \CodeBreak{exact}, \CodeBreak{partial} và \CodeBreak{fabricated} của B1 là số đếm trực tiếp.
-
-\subsection{Tái lập số liệu và giới hạn}
-
-Quy trình tái lập bắt đầu từ tệp JSONL trong thư mục \CodeBreak{benchmark\_output}. Người kiểm tra đọc từng dòng, xác nhận \CodeBreak{paper\_id}, chọn các bản ghi có giá trị cho nhánh cần tính, tái tính chỉ số theo quy tắc trên và đối chiếu với hai trang tính \CodeBreak{TCA\_Papers} và \CodeBreak{TCA\_Summary} trong tệp xuất. Khi một kết quả bất thường xuất hiện, các trường \CodeBreak{data\_quality\_flags}, \CodeBreak{pdf\_extracted}, \CodeBreak{nli\_pairs\_total} và \CodeBreak{raw\_result} cung cấp chuỗi truy vết về dữ liệu đầu vào và điểm trung gian.
-
-Hiện vật đi kèm báo cáo lưu điểm và nhãn cuối cùng nhưng không chứa đặc tả đầy đủ về ngưỡng NLI hoặc quy tắc tạo nhãn \CodeBreak{high\_risk}. Vì vậy, có thể tái tính các tỷ lệ từ nhãn đã lưu, nhưng chưa thể tái sinh độc lập toàn bộ nhãn từ điểm thô chỉ bằng các tệp trong báo cáo. Phụ lục không suy đoán các ngưỡng còn thiếu.
-
-Quy trình hậu kiểm tự động mang tính thăm dò và chưa được hiệu chuẩn bằng nhãn chuyên gia. Quy trình có thể bỏ sót mệnh đề đúng nhưng diễn đạt khác hoặc đánh giá thấp các suy luận kỹ thuật phức tạp. Do đó, các chỉ số không thay thế đánh giá của chuyên gia, không trực tiếp đo tính hữu ích học thuật và không được dùng làm phán quyết cuối cùng về chất lượng đầu ra hoặc quyết định chấp nhận bài.
 
 \section{Ma trận kịch bản Chatbot Agent}
 \label{appc:chatbot}

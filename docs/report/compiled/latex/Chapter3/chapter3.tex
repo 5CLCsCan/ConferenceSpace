@@ -14,13 +14,13 @@ ConferenceSpace phân chia tác vụ thành ba lớp theo cơ chế tạo kết 
 
 Bảng~\ref{tab:ch3-demo-responsibility} tóm tắt tác vụ, kết quả và chủ thể chịu trách nhiệm trong từng lớp.
 
-\begin{table}[!htbp]
+\begin{table}[H]
 \centering
 \caption{Trách nhiệm và thẩm quyền trong ba lớp của ConferenceSpace}
 \label{tab:ch3-demo-responsibility}
-\setlength{\tabcolsep}{2pt}
+\setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabular}{|T{0.17\textwidth}|T{0.25\textwidth}|T{0.24\textwidth}|T{0.23\textwidth}|}
+\begin{tabular}{|T{0.10\textwidth}|T{0.33\textwidth}|T{0.25\textwidth}|T{0.3\textwidth}|}
 \hline
 \TableHeader{Lớp} & \TableHeader{Tác vụ chính} & \TableHeader{Kết quả} & \TableHeader{Chủ thể chịu trách nhiệm} \\ \hline
 Nghiệp vụ cốt lõi & Kiểm tra quyền và quản lý trạng thái hội nghị, bài nộp, phân công, phản biện, phản hồi và quyết định & Dữ liệu nghiệp vụ chính thức và lịch sử thay đổi trạng thái & Người dùng được phân quyền thực hiện thao tác; backend kiểm tra điều kiện trước khi cập nhật \\ \hline
@@ -31,9 +31,9 @@ AI hỗ trợ & Trích xuất thông tin, kiểm tra bản thảo, hỗ trợ đ
 
 \subsection{Các thành phần chính}
 
-Người dùng tương tác với ConferenceSpace qua giao diện web theo vai trò. Backend xác thực người dùng, kiểm tra quyền trên tài nguyên và thực thi quy tắc nghiệp vụ trước khi đọc hoặc cập nhật dữ liệu. Backend cũng thực hiện các tác vụ có quy tắc rõ ràng, gồm đối sánh Phản biện viên và kiểm tra xung đột lợi ích. Phần lớn chức năng AI được backend điều phối; riêng endpoint hội thoại phía máy chủ Next.js chuyển yêu cầu đã xác thực đến dịch vụ AI. Khi Chatbot Agent cần dữ liệu nghiệp vụ, công cụ của Chatbot Agent vẫn gọi endpoint truy vấn của backend thay vì truy cập cơ sở dữ liệu.
+Người dùng tương tác với ConferenceSpace qua giao diện web theo vai trò. Backend xác thực người dùng, kiểm tra quyền trên tài nguyên và thực thi quy tắc nghiệp vụ trước khi truy cập dữ liệu. Backend cũng thực hiện các tác vụ có quy tắc rõ ràng, gồm đối sánh Phản biện viên và kiểm tra xung đột lợi ích. Phần lớn chức năng AI do backend điều phối; riêng endpoint hội thoại phía máy chủ Next.js chuyển yêu cầu đã xác thực đến dịch vụ AI. Khi Chatbot Agent cần dữ liệu nghiệp vụ, công cụ của Chatbot Agent gọi endpoint truy vấn của backend thay vì truy cập cơ sở dữ liệu.
 
-PostgreSQL lưu dữ liệu nghiệp vụ, phiên và tin nhắn hội thoại cùng các kết quả cần truy vết. Neo4j biểu diễn quan hệ học thuật phục vụ truy vấn đồng tác giả. Redis lưu kết quả công cụ đang chờ và bộ đếm giới hạn tần suất có thời hạn ngắn.
+PostgreSQL lưu dữ liệu nghiệp vụ, phiên, tin nhắn hội thoại và các kết quả cần truy vết. Neo4j biểu diễn quan hệ học thuật phục vụ truy vấn đồng tác giả. Redis lưu kết quả công cụ tạm thời và bộ đếm giới hạn tần suất.
 
 \section{Use case}
 \label{sec:ch3-demo-usecases}
@@ -46,7 +46,7 @@ ConferenceSpace phục vụ ba tác nhân nghiệp vụ chính: Tác giả, Ph�
 
 Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Mỗi use case xác định một điểm nghiệp vụ mà tại đó lớp nghiệp vụ cốt lõi, thuật toán xác định hoặc AI hỗ trợ tham gia với loại đầu ra và thẩm quyền tương ứng. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò; trong đó UC-08 và UC-10 được chia sẻ giữa nhiều vai trò nhưng vẫn áp dụng quyền truy cập riêng theo từng người dùng và tài nguyên. Bảng~\ref{tab:ch3-demo-usecase-overview} tóm tắt mục tiêu, tác nhân chính và kết quả đầu ra của từng use case, làm cơ sở cho phần đặc tả chi tiết ở các mục tiếp theo.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
   \begin{adjustbox}{max width=\textwidth}
     \begin{tikzpicture}[
@@ -282,7 +282,7 @@ Trước khi gửi bài, hệ thống thực hiện cơ chế \textit{Submission
 \label{fig:ch3-demo-uc02-gating}
 \end{figure}
 
-Trước khi thực hiện bước kiểm tra này, Tác giả phải khai báo đầy đủ thông tin đồng tác giả và các xung đột lợi ích với Phản biện viên hoặc đơn vị liên quan.
+Trước khi thực hiện bước kiểm tra này, Tác giả phải khai báo đầy đủ thông tin đồng tác giả và các xung đột lợi ích với Phản biện viên hoặc đơn vị liên quan như trong Hình~\ref{fig:ch3-demo-uc02-conflict}.
 
 \begin{figure}[!htbp]
 \centering
@@ -295,7 +295,9 @@ Trước khi thực hiện bước kiểm tra này, Tác giả phải khai báo 
 
 Tác giả theo dõi các bài đã tạo và thực hiện hành động phù hợp với trạng thái: chỉnh sửa bản nháp; theo dõi hoặc rút bài đã gửi khi được phép; xem phản biện; gửi phản hồi trong giai đoạn do Chủ tọa mở; và tải bản thảo hoàn chỉnh khi bài được chấp nhận. Backend từ chối yêu cầu không phù hợp với trạng thái hoặc hạn chót tương ứng.
 
-\begin{figure}[!htbp]
+Hình~\ref{fig:ch3-demo-uc03-list} trình bày giao diện danh sách bài nộp của Tác giả. Hình~\ref{fig:ch3-demo-uc03-rebuttal} minh họa giao diện soạn thảo và gửi phản hồi (rebuttal) trong giai đoạn được phép. Sau khi bài được chấp nhận, Hình~\ref{fig:ch3-demo-uc03-detail} thể hiện trang chi tiết bài nộp và chức năng tải lên bản chỉnh sửa cuối cùng (Camera-Ready).
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_submissions_list.png}
 \caption{Danh sách bài nộp của Tác giả}
@@ -318,17 +320,15 @@ Tác giả theo dõi các bài đã tạo và thực hiện hành động phù h
 
 \subsubsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
 
-UC-04 gồm hai điểm phản hồi khác nhau. Trước hết, Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo để Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Khi Chủ tọa đề nghị phân công một bài cụ thể, hệ thống hiển thị thông tin tổng quan và điểm phù hợp để Phản biện viên cân nhắc đồng ý hoặc từ chối. Các bài liên quan, hạn chót và trạng thái phản biện được tập trung trong không gian làm việc; backend chỉ trả dữ liệu thuộc phạm vi của người dùng hiện tại. Cách tổ chức này giúp Chủ tọa phân biệt tư cách tham gia hội nghị với trạng thái tiếp nhận từng bài.
+UC-04 gồm hai điểm phản hồi khác nhau. Trước hết, Chủ tọa gửi lời mời tham gia hội nghị; hệ thống lưu trạng thái và thông báo để Phản biện viên chấp nhận hoặc từ chối lời mời của chính mình. Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa thông báo và danh sách lời mời tham gia phản biện mà Phản biện viên nhận được. Khi Chủ tọa đề nghị phân công một bài cụ thể, hệ thống hiển thị thông tin tổng quan và điểm phù hợp để Phản biện viên cân nhắc đồng ý hoặc từ chối như giao diện ở Hình~\ref{fig:ch3-demo-uc04-accept-deny}. Các bài liên quan, hạn chót và trạng thái phản biện được tập trung trong không gian làm việc; backend chỉ trả dữ liệu thuộc phạm vi của người dùng hiện tại. Cách tổ chức này giúp Chủ tọa phân biệt tư cách tham gia hội nghị với trạng thái tiếp nhận từng bài.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_1.png}\\[0.4cm]
 \includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_2.png}
 \caption{Thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện (dưới)}
 \label{fig:ch3-demo-uc04-invitations}
 \end{figure}
-
-Khi nhận đề nghị phân công một bài cụ thể, Phản biện viên xem thông tin tổng quan và điểm phù hợp trên giao diện ở Hình~\ref{fig:ch3-demo-uc04-accept-deny} trước khi phản hồi.
 
 \begin{figure}[!htbp]
 \centering
@@ -339,11 +339,11 @@ Khi nhận đề nghị phân công một bài cụ thể, Phản biện viên x
 
 \subsubsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
-Phản biện viên mở bài được phân công, đọc bản thảo, nhập điểm, nhận xét, khuyến nghị và mức độ tự tin, sau đó lưu nháp hoặc gửi bản phản biện. Phản biện viên chịu trách nhiệm đối với toàn bộ nhận định chuyên môn và quyết định nội dung cuối cùng.
+Phản biện viên mở bài được phân công, đọc bản thảo, nhập điểm, nhận xét, khuyến nghị và mức độ tự tin, sau đó lưu nháp hoặc gửi bản phản biện. Phản biện viên chịu trách nhiệm đối với toàn bộ nhận định chuyên môn và quyết định nội dung cuối cùng. Hình~\ref{fig:ch3-demo-uc05-workspace1} minh họa không gian đọc bài và soạn phản biện của Phản biện viên.
 
-Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng gồm đóng góp mà bài trình bày, các điểm cần kiểm tra, giới hạn và chú thích gắn với từng phần của bản thảo. Đầu ra giúp Phản biện viên xác định vị trí cần đọc kỹ và đối chiếu nhận định với bài gốc; chức năng không tạo điểm số hoặc khuyến nghị phản biện.
+ Hình~\ref{fig:ch3-demo-uc05-ria} là chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng gồm đóng góp mà bài trình bày, các điểm cần kiểm tra, giới hạn và chú thích gắn với từng phần của bản thảo. Đầu ra giúp Phản biện viên xác định vị trí cần đọc kỹ và đối chiếu nhận định với bài gốc; chức năng không tạo điểm số hoặc khuyến nghị phản biện.
 
-Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) rà soát tính cụ thể, căn cứ và tính nhất quán giữa nhận xét, điểm số, khuyến nghị và mức độ tự tin. Mỗi phát hiện nêu phần liên quan, mức độ, lý do và hướng khắc phục để Phản biện viên chỉnh sửa hoặc tiếp tục gửi.
+Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review Quality Auditor) rà soát tính cụ thể, căn cứ và tính nhất quán giữa nhận xét, điểm số, khuyến nghị và mức độ tự tin. Mỗi phát hiện nêu phần liên quan, mức độ, lý do và hướng khắc phục để Phản biện viên chỉnh sửa hoặc tiếp tục gửi (Hình~\ref{fig:ch3-demo-uc05-rqa})
 
 \begin{figure}[!htbp]
 \centering
@@ -368,9 +368,7 @@ Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review 
 
 \subsubsection{UC-06. Phân công phản biện có kiểm tra xung đột lợi ích}
 
-Hệ thống tính điểm phù hợp cho các cặp bài nộp và Phản biện viên, loại các cặp có xung đột lợi ích khỏi đề xuất tự động và theo dõi tải phát sinh trong lượt chạy. Chủ tọa xem điểm số, lý do đối sánh, trạng thái kiểm tra xung đột và danh sách bài chưa đủ người trước khi điều chỉnh hoặc xác nhận.
-
-Quy trình phân công cung cấp ba lớp thông tin để Chủ tọa kiểm tra: trạng thái phân công hiện tại, căn cứ xung đột lợi ích và danh sách ứng viên kèm điểm phù hợp.
+Hệ thống tính điểm phù hợp cho các cặp bài nộp và Phản biện viên, loại các cặp có xung đột lợi ích khỏi đề xuất tự động và theo dõi tải phát sinh trong lượt chạy. Chủ tọa xem điểm số, lý do đối sánh, trạng thái kiểm tra xung đột và danh sách bài chưa đủ người trước khi điều chỉnh hoặc xác nhận. Hình~\ref{fig:ch3-demo-uc06-dashboard} trình bày bảng điều khiển phân công; Hình~\ref{fig:ch3-demo-uc06-coi} minh họa giao diện kiểm tra xung đột lợi ích; và Hình~\ref{fig:ch3-demo-uc06-suggestions} thể hiện danh sách ứng viên cùng điểm phù hợp để Chủ tọa lựa chọn.
 
 \begin{figure}[!htbp]
 \centering
@@ -397,7 +395,7 @@ Quy trình phân công cung cấp ba lớp thông tin để Chủ tọa kiểm t
 
 Chủ tọa cấu hình thông tin hội nghị, chuyên đề, hạn chót, biểu mẫu phản biện và chính sách; mời thành viên hội đồng chương trình; theo dõi số bài, tiến độ phản biện và các trường hợp cần xử lý. Bảng điều khiển hỗ trợ nhận biết điểm nghẽn nhưng không tự chuyển giai đoạn hoặc ra quyết định thay Chủ tọa.
 
-Không gian Chủ tọa kết hợp cấu hình hội nghị, tiến độ xét duyệt và trạng thái của hội đồng chương trình để hỗ trợ điều phối trong cùng một giao diện nghiệp vụ.
+Hình~\ref{fig:ch3-demo-uc07-config} minh họa giao diện cấu hình thông tin và hạn chót hội nghị. Hình~\ref{fig:ch3-demo-uc07-dashboard} trình bày bảng điều khiển theo dõi tiến độ, còn Hình~\ref{fig:ch3-demo-uc07-committee} thể hiện giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên.
 
 \begin{figure}[!htbp]
 \centering
@@ -424,7 +422,7 @@ Không gian Chủ tọa kết hợp cấu hình hội nghị, tiến độ xét 
 
 Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi. Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả của bài và Phản biện viên trao đổi trong chuỗi tương ứng, còn Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát. Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
 
-Việc gắn từng chuỗi thảo luận với một bài nộp giúp giữ nguyên bối cảnh trao đổi: Tác giả làm rõ các vấn đề được nêu, Phản biện viên đối chiếu phản hồi và cập nhật đánh giá khi cần, còn Chủ tọa sử dụng lịch sử này như một nguồn bằng chứng trước khi ra quyết định. Trong phiên bản hiện tại, Chủ tọa chỉ có quyền xem; vai trò này không tạo chuỗi hoặc gửi tin nhắn.
+Mỗi chuỗi thảo luận gắn với một bài nộp để giữ nguyên bối cảnh trao đổi. Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ đề mới, còn Hình~\ref{fig:ch3-demo-uc08-chat} trình bày danh sách chủ đề và nội dung trao đổi. Trong phiên bản hiện tại, Chủ tọa chỉ có quyền xem, không tạo chủ đề hoặc gửi tin nhắn.
 
 \begin{figure}[!htbp]
 \centering
@@ -442,7 +440,7 @@ Việc gắn từng chuỗi thảo luận với một bài nộp giúp giữ ngu
 
 \subsubsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
-Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chức năng Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng.
+Backend tập hợp điểm số, bản phản biện, phản hồi của Tác giả, thay đổi sau phản hồi và nội dung thảo luận. Chức năng Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) tổ chức các nguồn này thành bản tổng hợp gồm điểm đồng thuận, bất đồng, vấn đề còn mở và bằng chứng liên quan. Chủ tọa đối chiếu bản tổng hợp với dữ liệu gốc rồi tự ghi nhận quyết định cuối cùng. Hình~\ref{fig:ch3-demo-uc09} minh họa giao diện tổng hợp bằng chứng phục vụ quyết định của Chủ tọa.
 
 \begin{figure}[!htbp]
 \centering
@@ -455,7 +453,7 @@ Backend tập hợp điểm số, bản phản biện, phản hồi của Tác g
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại. Nếu câu hỏi cần dữ liệu nghiệp vụ, Chatbot Agent gọi công cụ truy vấn để gửi yêu cầu có cấu trúc đến backend. Backend kiểm tra mã xác thực, tài nguyên, trường dữ liệu, bộ lọc và quyền của người dùng trước khi trả phần dữ liệu tối thiểu được phép. Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu.
 
-Ở góc nhìn người dùng, Tác giả có thể tra cứu trạng thái và siêu dữ liệu bài của mình hoặc thông tin công khai của hội nghị; Phản biện viên có thể hỏi về các bài được phân công và khối lượng công việc; Chủ tọa có thể yêu cầu tổng quan vận hành hoặc các công việc còn tồn đọng. Các câu trả lời giúp người dùng xác định trạng thái hiện tại và tìm thông tin liên quan mà không phải chuyển qua nhiều màn hình. Chatbot Agent từ chối hoặc giới hạn câu trả lời khi yêu cầu vượt quyền truy cập hoặc nằm ngoài phạm vi nền tảng.
+Tác giả có thể tra cứu trạng thái và siêu dữ liệu bài của mình hoặc thông tin công khai của hội nghị; Phản biện viên có thể hỏi về các bài được phân công và khối lượng công việc; Chủ tọa có thể yêu cầu tổng quan vận hành hoặc các công việc còn tồn đọng. Chatbot Agent từ chối hoặc giới hạn câu trả lời khi yêu cầu vượt quyền truy cập hoặc nằm ngoài phạm vi nền tảng. Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và kết quả tra cứu theo quyền của người dùng.
 
 \begin{figure}[!htbp]
 \centering
@@ -559,7 +557,7 @@ J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
 
 Nếu một trong hai tập miền chuyên môn rỗng, hệ thống gán điểm bằng \(0\) vì không có thông tin để xác định mức độ tương đồng. Nhóm chọn Jaccard vì điểm số có thể được giải thích trực tiếp từ số miền chuyên môn chung mà không cần dữ liệu huấn luyện.
 
-Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) hoặc làm Phản biện viên vượt giới hạn tải phát sinh trong lượt chạy, nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng và chỉ bổ sung một Phản biện viên cho mỗi bài chưa đủ người. Thuật toán cũng không bảo đảm mọi bài có đủ số người yêu cầu. Đầu ra vì vậy gồm điểm, lý do và danh sách bài còn thiếu người để Chủ tọa kiểm tra. Phụ lục~\ref{sec:appendix-a-algorithms} trình bày thủ tục, ngoại lệ và ranh giới của thuật toán.
+Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng và chỉ bổ sung một Phản biện viên cho mỗi bài chưa đủ người. Thuật toán cũng không bảo đảm mọi bài có đủ số người yêu cầu. Đầu ra vì vậy gồm điểm, lý do và danh sách bài còn thiếu người để Chủ tọa kiểm tra. Phụ lục~\ref{sec:appendix-a-algorithms} trình bày thủ tục, ngoại lệ và ranh giới của thuật toán.
 
 
 \begin{figure}[H]
@@ -573,10 +571,10 @@ Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) hoặc làm 
   \node[processNode] (filter) at (0,-2.2) {Loại các cặp có xung đột lợi ích};
   \node[processNode] (sort) at (0,-4.4) {Sắp xếp điểm giảm dần};
   \node[pass] (pass1) at (0,-7.0) {Lượt 1: giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh và xung đột lợi ích};
-  \node[decision] (missing) at (0,-11.2) {Bài nào vẫn chưa có Phản biện viên?};
-  \node[pass] (pass2) at (8.8,-7) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
-  \node[processNode] (result) at (8.8,-10) {Trả đề xuất và danh sách bài còn thiếu người};
-  \node[processNode,fill=orange!9] (confirm) at (8.8,-13) {Chủ tọa xem, điều chỉnh và xác nhận};
+  \node[decision] (missing) at (0,-10.7) {Bài nào vẫn chưa có Phản biện viên?};
+  \node[pass] (pass2) at (8.8,-6) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
+  \node[processNode] (result) at (8.8,-9) {Trả đề xuất và danh sách bài còn thiếu người};
+  \node[processNode,fill=orange!9] (confirm) at (8.8,-11.2) {Chủ tọa xem, điều chỉnh và xác nhận};
   \draw[-{Latex},thick] (matrix) -- (filter);
   \draw[-{Latex},thick] (filter) -- (sort);
   \draw[-{Latex},thick] (sort) -- (pass1);
@@ -634,8 +632,6 @@ Chair Decision Copilot & Bản tổng hợp đồng thuận, bất đồng và v
 Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quyền & Người dùng và backend & Không truy cập trực tiếp cơ sở dữ liệu \\
 \end{longtable}
 \endgroup
-
-\pagebreak
 
 Các luồng công việc kiểm tra cấu trúc đầu ra, lưu thông tin truy vết và xử lý lỗi theo cơ chế phù hợp với từng tác vụ. Review Quality Auditor dùng nhãn \textit{blocking} để tăng mức ưu tiên hiển thị nhưng không ngăn Phản biện viên gửi bản phản biện. Các đặc tả đầu vào, đầu ra và lỗi được trình bày tại Phụ lục~\ref{AppendixA}.
 
