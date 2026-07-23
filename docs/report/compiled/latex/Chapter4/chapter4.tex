@@ -198,16 +198,16 @@ Quy trình trước hết kiểm tra liệu mệnh đề có được nguồn d�
     outcome/.style={draw=black!65, rounded corners=2pt, align=center, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=37mm},
     flowArrow/.style={-{Latex}, thick},
     edgeLabel/.style={fill=white, inner sep=1.5pt, font=\footnotesize}]
-    \node[process] (claim) at (0,0) {Mệnh đề đầu ra};
-    \node[process] (sourceCheck) at (0,-2.3) {Đối chiếu với nguồn dữ liệu};
-    \node[decision] (sourceSupported) at (0,-5.0) {Nguồn dữ liệu có hỗ trợ?};
-    \node[outcome, fill=red!7] (skipGrounding) at (5.4,-5.0) {Không vượt bước bám nguồn};
-    \node[process, fill=green!7] (groundedClaim) at (0,-7.8) {Mệnh đề bám nguồn};
-    \node[decision] (hasReference) at (0,-10.6) {Có văn bản tham chiếu phù hợp?};
-    \node[outcome, fill=orange!9] (groundingOnly) at (5.8,-10.6) {Chỉ báo cáo mức bám nguồn};
-    \node[process] (referenceCheck) at (0,-13.5) {Đối chiếu với văn bản tham chiếu};
-    \node[outcome, fill=green!7] (referenceRecorded) at (-4.7,-16.2) {Được văn bản tham chiếu ghi nhận};
-    \node[outcome, fill=red!7] (referenceNotRecorded) at (4.7,-16.2) {Không được văn bản tham chiếu ghi nhận};
+    \node[process] (claim) at (0,0.5) {Mệnh đề đầu ra};
+    \node[process] (sourceCheck) at (0,-0.8) {Đối chiếu với nguồn dữ liệu};
+    \node[decision] (sourceSupported) at (0,-3.3) {Nguồn dữ liệu có hỗ trợ?};
+    \node[outcome, fill=red!7] (skipGrounding) at (6.4,-3.3) {Không vượt bước bám nguồn};
+    \node[process, fill=green!7] (groundedClaim) at (0,-5.5) {Mệnh đề bám nguồn};
+    \node[decision] (hasReference) at (0,-8.0) {Có văn bản tham chiếu phù hợp?};
+    \node[outcome, fill=orange!9] (groundingOnly) at (6.4,-8.0) {Chỉ báo cáo mức bám nguồn};
+    \node[process] (referenceCheck) at (0,-10.5) {Đối chiếu với văn bản tham chiếu};
+    \node[outcome, fill=green!7] (referenceRecorded) at (-3,-12.2) {Được văn bản tham chiếu ghi nhận};
+    \node[outcome, fill=red!7] (referenceNotRecorded) at (3,-12.2) {Không được văn bản tham chiếu ghi nhận};
 
     \draw[flowArrow] (claim) -- (sourceCheck);
     \draw[flowArrow] (sourceCheck) -- (sourceSupported);
@@ -216,8 +216,8 @@ Quy trình trước hết kiểm tra liệu mệnh đề có được nguồn d�
     \draw[flowArrow] (groundedClaim) -- (hasReference);
     \draw[flowArrow] (hasReference) -- node[edgeLabel, above] {Không} (groundingOnly);
     \draw[flowArrow] (hasReference) -- node[edgeLabel, right] {Có} (referenceCheck);
-    \draw[flowArrow] (referenceCheck.south) -- ++(-2.7,-0.9) -- (referenceRecorded.north);
-    \draw[flowArrow] (referenceCheck.south) -- ++(2.7,-0.9) -- (referenceNotRecorded.north);
+    \draw[flowArrow] (referenceCheck.south) --  (referenceRecorded.north);
+    \draw[flowArrow] (referenceCheck.south) --  (referenceNotRecorded.north);
   \end{tikzpicture}
   \end{adjustbox}
   \caption{Quan hệ giữa kiểm tra mức bám nguồn và đối chiếu với văn bản tham chiếu}
@@ -231,21 +231,23 @@ Chi tiết về gói kết quả, các nhánh kỹ thuật, công thức và quy
 
 \subsection{Hiệu năng backend}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{fig02_k6_throughput.png}
-  \caption{Thông lượng HTTP theo kịch bản k6}
-  \label{fig:ch4-k6-throughput}
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig02_k6_throughput.png}
+    \caption{Thông lượng HTTP theo kịch bản k6}
+    \label{fig:ch4-k6-throughput}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig03_k6_latency_percentiles.png}
+    \caption{Các phân vị độ trễ HTTP theo kịch bản k6}
+    \label{fig:ch4-k6-latency}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{fig03_k6_latency_percentiles.png}
-  \caption{Các phân vị độ trễ HTTP theo kịch bản k6}
-  \label{fig:ch4-k6-latency}
-\end{figure}
-
-\pagebreak
 Ba kịch bản tải gồm truy vấn đọc dữ liệu, gợi ý phản biện viên và kiểm tra xung đột lợi ích. Mỗi kịch bản sử dụng 20 người dùng ảo trong 30 giây. Kịch bản được gọi là CRUD chỉ thực hiện ba thao tác đọc: liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng; kịch bản không tạo, cập nhật hoặc xóa bản ghi. Cấu hình đầy đủ được trình bày tại Mục~\ref{appc:backend-contract}.
 
 \begingroup
@@ -293,21 +295,25 @@ Container API sử dụng trung bình 28\% công suất của một nhân CPU, c
 
 Hệ thống tính độ tương đồng Jaccard theo công thức $J(A,B)=|A\cap B|/|A\cup B|$~\cite{ch4ref7}, sau đó áp dụng thủ tục gán tham lam có xét giới hạn tải. Go microbenchmark đo trực tiếp mã thuật toán và không bao gồm HTTP, cơ sở dữ liệu hoặc mạng. Hình~\ref{fig:ch4-microbench-scale} trình bày thời gian xử lý theo quy mô đầu vào, còn Hình~\ref{fig:ch4-microbench-allocs} trình bày số lần cấp phát bộ nhớ.
 
-\begin{figure}[!htbp]
+
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.90\textwidth]{fig07_microbench_scale.png}
+  \begin{minipage}[b]{0.55\textwidth}
+    \centering
+  \includegraphics[width=\linewidth]{fig07_microbench_scale.png}
   \caption{Thời gian Go microbenchmark theo quy mô đầu vào}
   \label{fig:ch4-microbench-scale}
-\end{figure}
-
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.90\textwidth]{fig08_microbench_allocs.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.44\textwidth}
+    \centering
+  \includegraphics[width=\linewidth]{fig08_microbench_allocs.png}
   \caption{Số lần cấp phát bộ nhớ trong Go microbenchmark}
   \label{fig:ch4-microbench-allocs}
+  \end{minipage}
 \end{figure}
 
-Chi phí đối sánh tăng từ 131 $\mu$s lên 56 ms khi ma trận điểm giữa bài và hồ sơ mở rộng. Chi phí của hai bộ kiểm tra xung đột xác định tăng từ 14,9 $\mu$s lên 653 $\mu$s. Các giá trị này xác nhận chi phí mã thuật toán trong các quy mô đã thử, nhưng không đại diện cho độ trễ đầu cuối hoặc lớp đồ thị Neo4j.
+Chi phí đối sánh tăng từ 131 $\mu$s lên 56 ms khi ma trận điểm giữa bài và hồ sơ mở rộng. Chi phí của hai bộ kiểm tra xung đột xác định tăng từ 14,9 $\mu$s lên 653 $\mu$s.
 
 \subsection{Hành vi xếp hạng và phân công}
 
@@ -333,23 +339,26 @@ Phép thử leave-one-out giữ lại một bài từ mỗi hồ sơ tác giả 
 
 Hình~\ref{fig:ch4-ranking-hit} cho thấy Jaccard và phương pháp đếm số chủ đề chung đều vượt đường cơ sở ngẫu nhiên ở các mức Hit@k. Jaccard đạt MRR 0,392, cao gấp khoảng năm lần phương pháp ngẫu nhiên. Tuy nhiên, phương pháp đếm số chủ đề chung đạt Hit@10 và nDCG@10 cao hơn Jaccard. Kết quả trên 60 truy vấn chưa cho thấy một phương pháp chiếm ưu thế ổn định.
 
-\clearpage
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.75\textwidth]{fig02_ranking_hit_at_k.png}
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig02_ranking_hit_at_k.png}
   \caption{Tỷ lệ Hit@k theo phương pháp xếp hạng}
   \label{fig:ch4-ranking-hit}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig02_ranking_hit_at_k.png}
+  \caption{Tỷ lệ Hit@k theo phương pháp xếp hạng}
+  \label{fig:ch4-ranking-hit}
+  \end{minipage}
 \end{figure}
 
 Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhóm đã so sánh thuật toán Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. 
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{fig06_assignment_coverage_score.png}
-  \caption{Đánh đổi giữa độ phủ và điểm Jaccard trung bình của phân công}
-  \label{fig:ch4-assignment-tradeoff}
-\end{figure}
 
 \section{Đánh giá các luồng công việc AI hỗ trợ}
 \label{sec:chap4-ai-flows}
@@ -416,7 +425,7 @@ Chair Decision Copilot tổng hợp nhận xét phản biện, phản hồi củ
 
 Trên 1.063 bài có mệnh đề bám nguồn đủ điều kiện để đối chiếu với metareview, tỷ lệ mệnh đề trong cơ sở bằng chứng được metareview ghi nhận đạt 5,44\%, còn tỷ lệ không được ghi nhận đạt 94,56\%. Đối với bản tổng hợp bất đồng, tỷ lệ mệnh đề bám nguồn được metareview ghi nhận đạt 13,82\%. Tỷ lệ bài được gắn cờ rủi ro cao đạt 1,28\%, tương đương khoảng 14 bài trong tập hậu kiểm.
 
-Kết quả cho thấy Chair Decision Copilot có tiềm năng cung cấp một cơ sở rà soát có thể truy vết trước khi Chủ tọa đưa ra quyết định. Mức bám nguồn trên 87\% ở cả cơ sở bằng chứng và bản tổng hợp bất đồng cho thấy phần lớn nhận định được tạo có thể đối chiếu với nội dung phản biện. Đồng thời, 94,56\% mệnh đề bám nguồn trong cơ sở bằng chứng không được metareview ghi nhận cho thấy đầu ra có thể đưa thêm các nội dung từ bản phản biện vào phạm vi xem xét của Chủ tọa; tuy nhiên, tỷ lệ này không chứng minh các nội dung đó mới, hữu ích hoặc cần được đưa vào quyết định cuối cùng. Các trường hợp được gắn cờ rủi ro cao có thể được dùng để ưu tiên kiểm tra, không phải để suy ra rằng quyết định tương ứng có sai sót. Vì vậy, chức năng phù hợp với vai trò tổ chức bằng chứng và làm nổi bật các điểm cần cân nhắc, trong khi Chủ tọa vẫn phải xác minh nội dung và chịu trách nhiệm đối với quyết định học thuật. Thử nghiệm hiện tại chưa đo trực tiếp mức hữu ích, thời gian rà soát hoặc ảnh hưởng của chức năng đến quyết định của Chủ tọa.
+Kết quả cho thấy Chair Decision Copilot có tiềm năng cung cấp một cơ sở rà soát có thể truy vết trước khi Chủ tọa đưa ra quyết định. Mức bám nguồn trên 87\% ở cả cơ sở bằng chứng và bản tổng hợp bất đồng cho thấy phần lớn nhận định được tạo có thể đối chiếu với nội dung phản biện. Đồng thời, 94,56\% mệnh đề bám nguồn trong cơ sở bằng chứng không được metareview ghi nhận cho thấy đầu ra có thể đưa thêm các nội dung từ bản phản biện vào phạm vi xem xét của Chủ tọa; tuy nhiên, tỷ lệ này không chứng minh các nội dung đó mới, hữu ích hoặc cần được đưa vào quyết định cuối cùng. Các trường hợp được gắn cờ rủi ro cao có thể được dùng để ưu tiên kiểm tra, không phải để suy ra rằng quyết định tương ứng có sai sót.
 
 
 \subsection{Chatbot Agent}
@@ -424,28 +433,31 @@ Kết quả cho thấy Chair Decision Copilot có tiềm năng cung cấp một 
 
 Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu ConferenceSpace theo quyền của người dùng, không phải trợ lý phân tích nội dung học thuật hoặc hệ thống trò chuyện tự do. Bộ thử gồm tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt. Trợ lý hoàn tất luồng phản hồi trong cả 40 hội thoại; báo cáo rà soát thủ công hồi cứu phân loại 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt. Tỷ lệ gọi công cụ thành công đạt 97/128 lượt, tương ứng 75,78\%. Hình~\ref{fig:ch4-chatbot-outcomes} và Hình~\ref{fig:ch4-chatbot-tools} tách kết quả hội thoại khỏi khả năng gọi công cụ; tỷ lệ gọi công cụ không được diễn giải như tỷ lệ hoàn tất hội thoại.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\textwidth]{fig07_chatbot_manual_outcomes.png}
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig07_chatbot_manual_outcomes.png}
   \caption{Phân bố kết quả rà soát thủ công của Chatbot Agent}
   \label{fig:ch4-chatbot-outcomes}
-\end{figure}
-
-\begin{figure}[!htbp]
-  \centering
-  \includegraphics[width=0.94\textwidth]{fig06_chatbot_tool_success.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{fig06_chatbot_tool_success.png}
   \caption{Kết quả gọi công cụ của Chatbot Agent}
   \label{fig:ch4-chatbot-tools}
+  \end{minipage}
 \end{figure}
 
 Hình~\ref{fig:ch4-chatbot-response-stages} phân tách thời gian phản hồi của Chatbot Agent thành thời gian đến token đầu tiên, thời gian đến token đầu tiên của câu trả lời hoàn chỉnh, thời gian truyền nội dung và tổng thời lượng. Thời gian đến token đầu tiên đạt trung bình 2,36 giây, nhưng câu trả lời hoàn chỉnh chỉ bắt đầu sau trung bình 23,02 giây do luồng còn thực hiện các lượt gọi công cụ và tổng hợp dữ liệu. Tổng thời lượng trung bình đạt 26,53 giây; tỷ lệ gọi công cụ thành công đạt 75,78\%.
 
-Không ghi nhận rò rỉ dữ liệu trong các kịch bản quyền đã kiểm tra. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo nội dung không phù hợp, còn tư liệu chấm chưa ghi đầy đủ người chấm và ngày chấm; vì vậy, phân bố 25/12/3 chỉ được xem là bằng chứng mô tả.
+Không ghi nhận rò rỉ dữ liệu trong các kịch bản quyền đã kiểm tra. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo nội dung không phù hợp.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig14_chatbot_response_stages.png}
-  \caption{Các giai đoạn phản hồi và kết quả gọi công cụ của Chatbot Agent}
+  \includegraphics[width=0.65\textwidth]{fig14_chatbot_response_stages.png}
+  \caption{Các giai đoạn phản hồi và kết quả gọi công cụ của Chatbot}
   \label{fig:ch4-chatbot-response-stages}
 \end{figure}
 
@@ -455,26 +467,28 @@ Các luồng dùng đơn vị công việc khác nhau: theo bài, lượt kiểm
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig11_resource_latency.png}
+  \includegraphics[width=0.94\textwidth]{fig12_resource_tokens.png}
+  \caption{Token trung bình theo đơn vị công việc của các luồng công việc AI}
+  \label{fig:ch4-resource-tokens}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.80\textwidth]{fig11_resource_latency.png}
   \caption{Độ trễ theo luồng xử lý AI}
   \label{fig:ch4-resource-latency}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.94\textwidth]{fig12_resource_tokens.png}
-  \caption{Token trung bình theo đơn vị công việc của các luồng công việc AI}
-  \label{fig:ch4-resource-tokens}
+  \includegraphics[width=0.80\textwidth]{fig13_resource_ops_mode.png}
+  \caption{Khuyến nghị cách tổ chức vận hành theo luồng công việc AI}
+  \label{fig:ch4-resource-ops-mode}
 \end{figure}
 
 Độ trễ quan sát được gợi ý ba cách tổ chức vận hành. Nhánh kiểm tra luật của Submission Gating có thể chạy đồng bộ; nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot nên chạy nền hoặc chạy trước, còn Chatbot Agent cần trả phản hồi từng phần và hiển thị trạng thái tra cứu.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.94\textwidth]{fig13_resource_ops_mode.png}
-  \caption{Khuyến nghị cách tổ chức vận hành theo luồng công việc AI}
-  \label{fig:ch4-resource-ops-mode}
-\end{figure}
+
 
 Các kết quả dẫn đến ba yêu cầu vận hành: chuyển tác vụ dài sang hàng đợi nền; hiển thị tiến độ, lỗi và khả năng thử lại; giảm 31 lượt gọi công cụ thất bại của Chatbot Agent.
 

@@ -2,13 +2,13 @@
 \chapter{Kết luận}
 \label{Chapter5}
 
-Chương này tổng hợp giá trị và giới hạn của cách tiếp cận tích hợp theo vòng đời. Trong cách tiếp cận này, vòng đời cung cấp ngữ cảnh kiểm soát, mô hình ba lớp quy định cơ chế và thẩm quyền, còn từng luồng công việc (workflow) áp dụng các quy định đó tại điểm nghiệp vụ tương ứng. Nội dung đối chiếu mức độ hoàn thành mục tiêu với bằng chứng đã trình bày thay vì lặp lại chi tiết các phép thử ở chương trước. Trên cơ sở đó, chương xác định những hạn chế, bài học và hướng phát triển cần ưu tiên để ConferenceSpace tiến gần hơn đến điều kiện vận hành thực tế.
+Chương này tổng hợp giá trị và giới hạn của cách tiếp cận tích hợp theo vòng đời. Trong cách tiếp cận này, vòng đời cung cấp ngữ cảnh kiểm soát, mô hình ba lớp quy định cơ chế và thẩm quyền, còn từng luồng công việc (workflow) áp dụng các quy định đó tại điểm nghiệp vụ tương ứng. Nội dung đối chiếu mức độ hoàn thành mục tiêu với bằng chứng đã trình bày ở chương trước. Trên cơ sở đó, chương xác định những hạn chế, bài học và hướng phát triển cần ưu tiên để ConferenceSpace tiến gần hơn đến điều kiện vận hành thực tế.
 
 \section{Kết quả và mức độ hoàn thành}
 
 \subsection{Kết quả tổng quát}
 
-Đề tài đã xây dựng một nền tảng hỗ trợ các nghiệp vụ chính của quy trình xét duyệt bài báo, từ cấu hình hội nghị, tiếp nhận bài nộp và phân công phản biện đến phản biện, phản hồi của Tác giả, thảo luận và ra quyết định. Vòng đời này không chỉ tập hợp chức năng mà còn quản lý trạng thái, dữ liệu và quyền truy cập theo ba vai trò gồm Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa; nhờ đó, các cơ chế hỗ trợ được đặt vào một ngữ cảnh nghiệp vụ xác định.
+Đề tài đã xây dựng một nền tảng hỗ trợ các nghiệp vụ chính của quy trình xét duyệt bài báo, từ cấu hình hội nghị, tiếp nhận bài nộp và phân công đến phản biện, phản hồi của Tác giả, thảo luận và ra quyết định. Vòng đời này không chỉ tập hợp chức năng mà còn quản lý trạng thái, dữ liệu và quyền truy cập theo ba vai trò gồm Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa; nhờ đó, các cơ chế hỗ trợ được đặt vào một ngữ cảnh nghiệp vụ xác định.
 
 ConferenceSpace áp dụng mô hình ba lớp trách nhiệm tại các điểm nghiệp vụ trong vòng đời này. Lớp nghiệp vụ cốt lõi quản lý trạng thái, quyền hạn và dữ liệu chính thức; lớp thuật toán xử lý những tác vụ cần kết quả xác định, chẳng hạn đối sánh Phản biện viên và phát hiện xung đột lợi ích; lớp AI tạo bản nháp, cảnh báo hoặc báo cáo tổng hợp để người dùng xem xét. Các luồng công việc kết nối ba lớp theo đầu vào, đầu ra và thẩm quyền đã quy định, nên đầu ra hỗ trợ không trực tiếp thay đổi dữ liệu nghiệp vụ hoặc quyết định học thuật.
 
@@ -18,14 +18,14 @@ Các endpoint được chọn đáp ứng ngưỡng hiệu năng trong điều k
 
 Bảng~\ref{tab:ch5-objective-completion} đối chiếu các mục tiêu của đề tài với kết quả và giới hạn của bằng chứng hiện có.
 
-\begin{center}
-\captionsetup{hypcap=false}
-\captionof{table}{Mức độ hoàn thành các mục tiêu của đề tài}
-\label{tab:ch5-objective-completion}
-\end{center}
+
 \begin{PrismLongTable}
 \hbadness=10000
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.19\textwidth}|>{\raggedright\arraybackslash}p{0.29\textwidth}|>{\raggedright\arraybackslash}p{0.17\textwidth}|>{\raggedright\arraybackslash}p{0.31\textwidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.15\textwidth}|>{\raggedright\arraybackslash}p{0.42\textwidth}|>{\raggedright\arraybackslash}p{0.15\textwidth}|>{\raggedright\arraybackslash}p{0.25\textwidth}|}
+\captionsetup{hypcap=false}
+\caption{Mức độ hoàn thành các mục tiêu của đề tài}
+\label{tab:ch5-objective-completion}
+\LongTableCaptionSpace
 \hline
 \TableHeader{Mục tiêu} & \TableHeader{Kết quả và bằng chứng} & \TableHeader{Mức hoàn thành} & \TableHeader{Giới hạn quyết định} \\ \hline
 \endfirsthead
@@ -48,15 +48,15 @@ Các mục tiêu xây dựng vòng đời và tích hợp cơ chế hỗ trợ t
 
 \subsection{Giới hạn của bằng chứng đánh giá AI}
 
-Độ chính xác tổng thể của các luồng công việc AI chưa được xác nhận bằng đánh giá độc lập của chuyên gia. Đối với đầu ra văn bản mở, nhóm phân tách chất lượng thành mức độ bám nguồn (Truthfulness), mức độ bao phủ phần đối chứng (Coverage) và giá trị bổ sung (Additionality), gọi chung là TCA. Các chỉ số này cung cấp bằng chứng về từng thuộc tính; chúng không xác nhận rằng toàn bộ nội dung là đúng và hữu ích về mặt chuyên môn.
+Độ chính xác tổng thể của các luồng công việc AI chưa được xác nhận bằng đánh giá của chuyên gia. Đối với đầu ra văn bản mở, nhóm phân tách chất lượng thành mức độ bám nguồn (Truthfulness), mức độ bao phủ phần đối chứng (Coverage) và giá trị bổ sung (Additionality), gọi chung là TCA. Các chỉ số này cung cấp bằng chứng về từng thuộc tính, không xác nhận rằng toàn bộ nội dung là đúng và hữu ích về mặt chuyên môn.
 
-Quy trình TCA không giao cho mô hình ngôn ngữ tạo sinh nhiệm vụ nhận xét hoặc chấm điểm tổng thể. Quy trình tách đầu ra thành từng mệnh đề, sau đó dùng mô hình suy diễn ngôn ngữ tự nhiên (Natural Language Inference -- NLI) để phân loại quan hệ mệnh đề--bằng chứng. NLI không tạo nội dung đánh giá mới mà trả về điểm hoặc nhãn quan hệ. Hai mô hình Qwen kích thước nhỏ chỉ hỗ trợ chuẩn hóa hoặc phân loại mệnh đề trước bước NLI, không trực tiếp kết luận chất lượng tổng thể. Do đó, TCA là quy trình hậu kiểm mệnh đề--bằng chứng, không phải đánh giá chuyên gia.
+Quy trình TCA không giao cho mô hình ngôn ngữ tạo sinh nhiệm vụ nhận xét hoặc chấm điểm tổng thể. Quy trình tách đầu ra thành mệnh đề, sau đó dùng mô hình suy diễn ngôn ngữ tự nhiên (Natural Language Inference - NLI) để phân loại quan hệ mệnh đề--bằng chứng. NLI không tạo nội dung đánh giá mới mà trả về điểm quan hệ. Hai mô hình Qwen kích thước nhỏ chỉ hỗ trợ chuẩn hóa hoặc phân loại mệnh đề trước bước NLI, không trực tiếp kết luận chất lượng tổng thể. Do đó, TCA là quy trình hậu kiểm mệnh đề--bằng chứng, không phải đánh giá chuyên gia.
 
-Kết quả do nhà phát triển công bố đối với ModernCE-large-nli và Qwen chỉ cung cấp căn cứ lựa chọn công cụ, không chứng minh độ chính xác của quy trình TCA hoặc các chức năng ConferenceSpace. Chất lượng đầu ra còn phụ thuộc vào mô hình nền, phiên bản, cấu hình suy luận và nội dung chỉ dẫn. Đề tài chưa hiệu chỉnh bộ đánh giá bằng nhãn chuyên gia hoặc thực hiện thí nghiệm thay đổi có kiểm soát các thành phần này, nên chưa xác định được độ chính xác tổng thể, mức ổn định và cấu hình tối ưu của từng luồng.
+Đánh giá do nhà phát triển công bố đối với ModernCE-large-nli và Qwen chỉ cung cấp cơ sở lựa chọn, không chứng minh độ chính xác của quy trình TCA hoặc các chức năng ConferenceSpace. Chất lượng đầu ra còn phụ thuộc vào mô hình LLM, cấu hình suy luận và nội dung chỉ dẫn. Đề tài chưa hiệu chỉnh bộ đánh giá bằng nhãn chuyên gia hoặc thực hiện thử nghiệm có kiểm soát trên các thành phần này, nên chưa xác định được độ chính xác tổng thể, mức ổn định và cấu hình tối ưu của từng luồng.
 
 \subsection{Giới hạn của dữ liệu và khả năng khái quát}
 
-Các chức năng AI chủ yếu được đánh giá trên bài báo tiếng Anh từ OpenReview, còn phép thử đối sánh và xung đột lợi ích sử dụng dữ liệu tổng hợp. Kết quả chưa xác nhận khả năng hoạt động trên bài viết tiếng Việt, dữ liệu phân công thực tế, nhiều lĩnh vực hoặc các chính sách hội nghị khác nhau.
+Các chức năng AI chủ yếu được đánh giá trên bài báo tiếng Anh từ OpenReview, còn phép thử đối sánh và xung đột lợi ích sử dụng dữ liệu tổng hợp. Kết quả chưa xác nhận khả năng hoạt động trên bài viết tiếng Việt, dữ liệu phân công thực tế và các hội nghị khác nhau.
 
 Bộ kiểm thử gợi ý chuyên đề trong chức năng Tự động điền bài nộp gồm 48 trường hợp và xác nhận hệ thống không tạo chuyên đề ngoài danh sách hợp lệ. Do chưa có nhãn chuyên đề do chuyên gia hoặc Ban tổ chức xác nhận, kết quả không thể dùng để tính độ chính xác Top-1 hoặc mức chấp nhận Top-3.
 
@@ -88,7 +88,7 @@ Một người dùng có thể đảm nhiệm vai trò khác nhau giữa các h�
 
 Nhóm học được cách thiết kế quy trình tích hợp và triển khai liên tục để giảm thao tác thủ công. GitHub Actions xây dựng các ảnh cho frontend, backend và dịch vụ AI theo cùng mã phiên bản, đẩy ảnh lên kho lưu trữ, sau đó máy chủ lấy đúng phiên bản, thực hiện chuyển đổi cơ sở dữ liệu và cập nhật hệ thống. Cách tổ chức này giúp truy vết thay đổi và hạn chế tình trạng các dịch vụ chạy không đồng bộ phiên bản.
 
-\subsection{Phối hợp phát triển các chức năng có quan hệ phụ thuộc}
+\subsection{Phối hợp phát triển các chức năng có phụ thuộc}
 
 Khi nhiều chức năng cùng sử dụng trạng thái bài nộp, quyền vai trò và cấu trúc dữ liệu, nhóm cần thống nhất sớm đặc tả trao đổi dữ liệu, quy tắc chuyển trạng thái và ranh giới trách nhiệm. Công việc được chia theo các luồng công việc có đầu vào và đầu ra rõ ràng, đồng thời tích hợp sớm để phát hiện sai khác trước khi chúng lan sang nhiều thành phần.
 
@@ -96,7 +96,7 @@ Khi nhiều chức năng cùng sử dụng trạng thái bài nộp, quyền vai
 
 Modal giúp nhóm thực hiện các phép thử cần GPU mà không phải duy trì máy chủ chuyên dụng. Quá trình này cung cấp kinh nghiệm đóng gói môi trường chạy, tách bộ điều phối khỏi tiến trình xử lý, lưu trạng thái tác vụ và tiếp tục sau lỗi. Nhờ đó, các phép thử quy mô lớn có thể được tổ chức theo cách dễ lặp lại và truy vết cấu hình hơn.
 
-\subsection{Thiết kế ranh giới quyền hạn cho các chức năng AI}
+\subsection{Thiết kế ranh giới quyền hạn cho chức năng AI}
 
 Chatbot Agent chỉ truy cập dữ liệu qua backend; backend kiểm tra danh tính, vai trò và quyền trên từng tài nguyên trước khi trả dữ liệu hoặc thực hiện thao tác. Lớp AI không truy cập trực tiếp cơ sở dữ liệu. Tương tự, bản nháp, cảnh báo và báo cáo tổng hợp không được ghi thẳng vào dữ liệu chính thức hoặc tự thay đổi trạng thái nghiệp vụ. Người có thẩm quyền phải xem xét và xác nhận trước mọi thay đổi ảnh hưởng đến bài nộp, bản phản biện hoặc quyết định học thuật.
 
@@ -104,15 +104,15 @@ Chatbot Agent chỉ truy cập dữ liệu qua backend; backend kiểm tra danh 
 
 \subsection{Hoàn thiện bằng chứng đánh giá}
 
-Ưu tiên đầu tiên là xây dựng tập dữ liệu có nhãn chuyên gia cho chuyên đề phù hợp, cặp có và không có xung đột lợi ích, chất lượng đối sánh và mức hữu ích của các đầu ra hỗ trợ. Kết quả tự động cần được hiệu chỉnh với nhãn của nhiều chuyên gia độc lập. Các luồng công việc AI cũng cần được thử nghiệm bằng cách thay đổi có kiểm soát mô hình, phiên bản, cấu hình suy luận và nội dung chỉ dẫn để xác định độ ổn định cùng cấu hình phù hợp.
+Ưu tiên đầu tiên là xây dựng tập dữ liệu có nhãn chuyên gia cho Track phù hợp, cặp có và không có xung đột lợi ích, chất lượng đối sánh và mức hữu ích của các đầu ra hỗ trợ. Kết quả cần được hiệu chỉnh với nhãn của nhiều chuyên gia độc lập. Các luồng công việc AI cũng cần được thử nghiệm bằng cách thay đổi có kiểm soát mô hình LLM, cấu hình suy luận và nội dung chỉ dẫn để xác định độ ổn định cùng cấu hình phù hợp.
 
 \subsection{Hoàn thiện vận hành và trải nghiệm}
 
 Các tác vụ kéo dài cần chuyển sang cơ chế chạy nền có trạng thái tiến độ, giới hạn thời gian, số lần thử lại và khả năng tiếp tục sau lỗi. Nhật ký kiểm toán phải liên kết dữ liệu nguồn, đầu ra AI, công cụ được gọi và quyết định của người dùng. Các đợt UAT tiếp theo cần cân bằng mẫu giữa ba vai trò, chuẩn hóa nhiệm vụ, đo thời gian hoàn thành và kiểm tra giao diện ba không gian vai trò với người dùng đảm nhiệm nhiều vai trò.
 
-\subsection{Mở rộng dữ liệu và các chức năng AI có kiểm soát}
+\subsection{Mở rộng dữ liệu và các chức năng AI}
 
-Dữ liệu hồ sơ học thuật cần được bổ sung từ nhiều nguồn và kết hợp với thông tin do người dùng xác nhận; mỗi thuộc tính phải có nguồn gốc, thời điểm cập nhật và cơ chế xử lý mâu thuẫn. Chatbot Agent và các chức năng tổng hợp có thể được mở rộng bằng lớp truy hồi từ tài liệu đã phân quyền, nhưng mỗi công cụ phải có phạm vi, quyền truy cập và cách xử lý lỗi rõ ràng. Mọi đầu ra cần kèm nguồn để người dùng kiểm tra, và mọi thay đổi đối với dữ liệu chính thức vẫn phải do người có thẩm quyền xác nhận.
+Dữ liệu hồ sơ học thuật cần được bổ sung từ nhiều nguồn và kết hợp với thông tin do người dùng xác nhận; mỗi thuộc tính phải có nguồn gốc, thời điểm cập nhật và cơ chế xử lý mâu thuẫn. Chatbot Agent và các chức năng tổng hợp có thể được mở rộng bằng lớp truy hồi (RAG), nhưng mỗi công cụ phải có phạm vi, quyền truy cập và cách xử lý lỗi rõ ràng. Mọi đầu ra cần kèm nguồn để người dùng kiểm tra, và mọi thay đổi đối với dữ liệu chính thức vẫn phải do người có thẩm quyền xác nhận.
 
 \section{Kết luận chương}
 

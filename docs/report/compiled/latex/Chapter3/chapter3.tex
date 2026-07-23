@@ -22,37 +22,12 @@ Bảng~\ref{tab:ch3-demo-responsibility} tóm tắt tác vụ, kết quả và c
 \renewcommand{\arraystretch}{1.15}
 \begin{tabular}{|T{0.17\textwidth}|T{0.25\textwidth}|T{0.24\textwidth}|T{0.23\textwidth}|}
 \hline
-Lớp & Tác vụ chính & Kết quả & Chủ thể chịu trách nhiệm \\ \hline
+\TableHeader{Lớp} & \TableHeader{Tác vụ chính} & \TableHeader{Kết quả} & \TableHeader{Chủ thể chịu trách nhiệm} \\ \hline
 Nghiệp vụ cốt lõi & Kiểm tra quyền và quản lý trạng thái hội nghị, bài nộp, phân công, phản biện, phản hồi và quyết định & Dữ liệu nghiệp vụ chính thức và lịch sử thay đổi trạng thái & Người dùng được phân quyền thực hiện thao tác; backend kiểm tra điều kiện trước khi cập nhật \\ \hline
 Thuật toán xác định & Tính điểm phù hợp, xếp hạng ứng viên và phát hiện xung đột lợi ích theo quy tắc đã định nghĩa & Đề xuất phân công, điểm số, lý do và danh sách bài chưa đủ Phản biện viên & Chủ tọa kiểm tra căn cứ, điều chỉnh và xác nhận phương án \\ \hline
 AI hỗ trợ & Trích xuất thông tin, kiểm tra bản thảo, hỗ trợ đọc, rà soát bản nháp, tổng hợp bằng chứng và trả lời câu hỏi & Bản nháp, cảnh báo, bản phân tích hoặc bản tổng hợp có thể đối chiếu & Tác giả, Phản biện viên hoặc Chủ tọa kiểm tra; AI không tự quyết định \\ \hline
 \end{tabular}
 \end{table}
-
-Hình~\ref{fig:ch3-demo-responsibility} cho thấy kết quả hỗ trợ không tự cập nhật trạng thái hệ thống. Người dùng có thẩm quyền phải lựa chọn hành động tiếp theo; backend chỉ ghi dữ liệu sau khi kiểm tra quyền và điều kiện nghiệp vụ. Ranh giới này giữ trách nhiệm đối với quyết định học thuật ở người dùng được phân quyền.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth}
-\begin{tikzpicture}[>=Latex,
-  box/.style={draw=black!65, rounded corners=2pt, align=center, text width=3.4cm, minimum height=12mm, inner sep=3pt},
-  arr/.style={-{Latex}, thick}]
-  \node[box, fill=blue!7] (action) at (0,0) {Hành động của người dùng có thẩm quyền};
-  \node[box] (check) at (5.2,0) {Backend kiểm tra quyền, trạng thái và điều kiện nghiệp vụ};
-  \node[box, fill=green!8] (official) at (10.4,0) {Dữ liệu nghiệp vụ chính thức};
-  \node[box, fill=green!7] (det) at (0,-3.2) {Thuật toán xác định tạo điểm số và đề xuất};
-  \node[box, fill=orange!9] (review) at (5.2,-3.2) {Người dùng kiểm tra và lựa chọn};
-  \node[box, fill=orange!9] (ai) at (0,-6.4) {AI tạo bản nháp, cảnh báo hoặc bản tổng hợp};
-  \draw[arr] (action) -- (check);
-  \draw[arr] (check) -- (official);
-  \draw[arr] (det) -- (review);
-  \draw[arr,dashed] (review) -- (check);
-  \draw[arr] (ai) -- (review);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Đường chuyển kết quả hỗ trợ thành dữ liệu nghiệp vụ chính thức}
-\label{fig:ch3-demo-responsibility}
-\end{figure}
 
 \subsection{Các thành phần chính}
 
@@ -164,7 +139,7 @@ Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp v
 
 \begingroup
 \setlength{\tabcolsep}{2pt}
-\begin{longtable}{|N{0.09\textwidth}|T{0.28\textwidth}|T{0.20\textwidth}|T{0.31\textwidth}|}
+\begin{longtable}{|N{0.09\textwidth}|T{0.25\textwidth}|T{0.19\textwidth}|T{0.35\textwidth}|}
 \caption{Tổng quan các use case của ConferenceSpace}\label{tab:ch3-demo-usecase-overview}\\
 \hline
 \TableHeader{Mã} & \TableHeader{Mục tiêu} & \TableHeader{Tác nhân chính} & \TableHeader{Kết quả} \\ \hline
@@ -262,7 +237,7 @@ Trang chi tiết hội nghị tập trung thông tin tổng quan, lời mời n�
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_explore_conferences.png}
-\caption{Giao diện danh sách hội nghị mặc định}
+\caption{Giao diện danh sách hội nghị}
 \label{fig:ch3-demo-uc01-explore}
 \end{figure}
 
@@ -280,25 +255,9 @@ Trang chi tiết hội nghị tập trung thông tin tổng quan, lời mời n�
 \label{fig:ch3-demo-uc01-cfp}
 \end{figure}
 
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_dates.png}
-\caption{Trang chi tiết hội nghị: tab mốc thời gian quan trọng (Important Dates)}
-\label{fig:ch3-demo-uc01-dates}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_committee.png}
-\caption{Trang chi tiết hội nghị: tab hội đồng ban chương trình (Committee)}
-\label{fig:ch3-demo-uc01-committee}
-\end{figure}
-
 \subsubsection{UC-02. Hoàn tất và kiểm tra bài nộp}
 
 Tác giả tạo bản nháp, tải bản thảo và có thể dùng chức năng Tự động điền bài nộp (Submission Autofill) để trích xuất siêu dữ liệu cùng gợi ý chuyên đề trong danh sách hợp lệ. Tác giả kiểm tra, chỉnh sửa thông tin, khai báo đồng tác giả và xung đột lợi ích trước khi chức năng Kiểm tra trước khi nộp bài (Submission Gating) kiểm tra tệp, chính sách và điều kiện gửi bài. Trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục.
-
-Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản thảo (trái) cùng kết quả trích xuất thông tin mà chức năng Tự động điền bài nộp (Submission Autofill) trả về (phải) để Tác giả kiểm tra và chỉnh sửa.
 
 \begin{figure}[!htbp]
 \centering
@@ -512,7 +471,7 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 
 ConferenceSpace gồm giao diện web Next.js, backend được xây dựng bằng Go và Gin, dịch vụ AI sử dụng FastAPI, PostgreSQL, Redis, Neo4j và cổng Caddy. Backend nghiệp vụ là một ứng dụng nguyên khối có kiến trúc phân lớp. Nhóm không chia nhỏ nghiệp vụ thành các vi dịch vụ khi chưa có nhu cầu vận hành tương ứng. Dịch vụ AI và các kho dữ liệu được tách tại ranh giới triển khai vì có vòng đời, tải xử lý và yêu cầu truy cập khác với backend.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[>=Latex,
@@ -584,8 +543,7 @@ Kết quả AI và kiểm toán & Lượt chạy, kết quả, bản ghi theo gi
 \end{longtable}
 \endgroup
 
-Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) và Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Chức năng Kiểm tra trước khi nộp bài (Submission Gating) ghi mã nhận diện đầu vào cùng mã chính sách cho mỗi lần chạy, còn Kiểm tra chất lượng nhận xét (Review Quality Auditor) lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Chức năng Tự động điền bài nộp (Submission Autofill) trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa; Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
-
+ERD cùng quy tắc lưu trữ, xác định kết quả hết hiệu lực và truy vết của từng luồng công việc AI được trình bày chi tiết tại các Mục~\ref{sec:appendix-a-data} và~\ref{sec:appendix-a-ai} của Phụ lục.
 \section{Cơ chế nghiệp vụ và thuật toán xác định}
 \label{sec:ch3-demo-deterministic}
 
@@ -599,9 +557,12 @@ Với tập miền chuyên môn của bài nộp là \(S\) và của Phản bi�
 J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
 \]
 
-Nếu một trong hai tập miền chuyên môn rỗng, hệ thống gán điểm bằng \(0\) vì không có thông tin để xác định mức độ tương đồng. Nhóm chọn Jaccard vì điểm số có thể được giải thích trực tiếp từ số miền chuyên môn chung mà không cần dữ liệu huấn luyện. Thuật toán sắp xếp các cặp theo điểm giảm dần rồi gán lần lượt trong giới hạn tải, số Phản biện viên cần cho mỗi bài và ràng buộc xung đột lợi ích. Khi nhiều cặp có cùng điểm, triển khai hiện tại không áp dụng tiêu chí phân xử riêng; thứ tự giữa các cặp này không được xác định bởi một quy tắc nghiệp vụ. Phương pháp tham lam cũng không bảo đảm tối ưu tổng mức phù hợp của toàn bộ hội nghị.
+Nếu một trong hai tập miền chuyên môn rỗng, hệ thống gán điểm bằng \(0\) vì không có thông tin để xác định mức độ tương đồng. Nhóm chọn Jaccard vì điểm số có thể được giải thích trực tiếp từ số miền chuyên môn chung mà không cần dữ liệu huấn luyện.
 
-\begin{figure}[!htbp]
+Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) hoặc làm Phản biện viên vượt giới hạn tải phát sinh trong lượt chạy, nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng và chỉ bổ sung một Phản biện viên cho mỗi bài chưa đủ người. Thuật toán cũng không bảo đảm mọi bài có đủ số người yêu cầu. Đầu ra vì vậy gồm điểm, lý do và danh sách bài còn thiếu người để Chủ tọa kiểm tra. Phụ lục~\ref{sec:appendix-a-algorithms} trình bày thủ tục, ngoại lệ và ranh giới của thuật toán.
+
+
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=0.90\textwidth, max height=0.72\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -613,9 +574,9 @@ Nếu một trong hai tập miền chuyên môn rỗng, hệ thống gán điể
   \node[processNode] (sort) at (0,-4.4) {Sắp xếp điểm giảm dần};
   \node[pass] (pass1) at (0,-7.0) {Lượt 1: giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh và xung đột lợi ích};
   \node[decision] (missing) at (0,-11.2) {Bài nào vẫn chưa có Phản biện viên?};
-  \node[pass] (pass2) at (8.8,-13.4) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
-  \node[processNode] (result) at (0,-16.4) {Trả đề xuất và danh sách bài còn thiếu người};
-  \node[processNode,fill=orange!9] (confirm) at (0,-18.8) {Chủ tọa xem, điều chỉnh và xác nhận};
+  \node[pass] (pass2) at (8.8,-7) {Lượt 2: bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích, chỉ bổ sung một Phản biện viên};
+  \node[processNode] (result) at (8.8,-10) {Trả đề xuất và danh sách bài còn thiếu người};
+  \node[processNode,fill=orange!9] (confirm) at (8.8,-13) {Chủ tọa xem, điều chỉnh và xác nhận};
   \draw[-{Latex},thick] (matrix) -- (filter);
   \draw[-{Latex},thick] (filter) -- (sort);
   \draw[-{Latex},thick] (sort) -- (pass1);
@@ -626,11 +587,9 @@ Nếu một trong hai tập miền chuyên môn rỗng, hệ thống gán điể
   \draw[-{Latex},thick] (result) -- (confirm);
 \end{tikzpicture}
 \end{adjustbox}
-\caption{Hai lượt của thuật toán đối sánh GreedyMatcher}
+\caption{Hai lượt của thuật toán đối sánh}
 \label{fig:ch3-demo-matching}
 \end{figure}
-
-Lượt dự phòng có thể chọn cặp có điểm bằng \(0\) hoặc làm Phản biện viên vượt giới hạn tải phát sinh trong lượt chạy, nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng và chỉ bổ sung một Phản biện viên cho mỗi bài chưa đủ người. Thuật toán cũng không bảo đảm mọi bài có đủ số người yêu cầu. Đầu ra vì vậy gồm điểm, lý do và danh sách bài còn thiếu người để Chủ tọa kiểm tra. Phụ lục~\ref{sec:appendix-a-algorithms} trình bày thủ tục, ngoại lệ và ranh giới của thuật toán.
 
 \subsection{Phát hiện xung đột lợi ích}
 
@@ -699,13 +658,13 @@ GitHub Actions xây dựng song song image của giao diện, backend và dịch
 \begin{tikzpicture}[>=Latex,
   pipelineNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.2cm, minimum height=10mm, fill=blue!7}]
   \node[pipelineNode] (source) at (0,0) {Đẩy mã nguồn hoặc chạy thủ công};
-  \node[pipelineNode] (frontend) at (-5.0,-2.8) {Xây dựng frontend};
-  \node[pipelineNode] (backend) at (0,-2.8) {Xây dựng backend};
-  \node[pipelineNode] (ai) at (5.0,-2.8) {Xây dựng dịch vụ AI};
-  \node[pipelineNode] (ghcr) at (0,-5.6) {Đẩy image lên GitHub Container Registry};
-  \node[pipelineNode] (vps) at (0,-8.4) {VPS kéo image theo commit SHA};
-  \node[pipelineNode] (migration) at (0,-11.2) {Chạy cập nhật lược đồ};
-  \node[pipelineNode] (compose) at (0,-14.0) {Docker Compose cập nhật dịch vụ};
+  \node[pipelineNode] (frontend) at (-5.0,-1.8) {Xây dựng frontend};
+  \node[pipelineNode] (backend) at (0,-1.8) {Xây dựng backend};
+  \node[pipelineNode] (ai) at (5.0,-1.8) {Xây dựng dịch vụ AI};
+  \node[pipelineNode] (ghcr) at (0,-4.2) {Đẩy image lên GitHub Container Registry};
+  \node[pipelineNode] (vps) at (0,-6.4) {VPS kéo image theo commit SHA};
+  \node[pipelineNode] (migration) at (0,-8.4) {Chạy cập nhật lược đồ};
+  \node[pipelineNode] (compose) at (0,-10.4) {Docker Compose cập nhật dịch vụ};
   \draw[-{Latex},thick] (source) -- (frontend);
   \draw[-{Latex},thick] (source) -- (backend);
   \draw[-{Latex},thick] (source) -- (ai);

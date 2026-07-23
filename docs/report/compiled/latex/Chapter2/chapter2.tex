@@ -242,11 +242,11 @@ Tổng hợp trước quyết định & Cung cấp bảng điểm, thảo luận
 \end{longtable}
 \endgroup
 
-Khác biệt quan trọng không nằm ở việc một tác vụ có được tự động hóa hay không, mà ở vị trí của cơ chế hỗ trợ trong vòng đời, loại đầu ra được tạo và chủ thể có quyền áp dụng kết quả. ConferenceSpace dùng thuật toán xác định cho đối sánh và xung đột lợi ích; các tác vụ tạo nội dung chỉ cung cấp bản nháp, cảnh báo hoặc bản tổng hợp để người dùng kiểm tra. Đầu ra hỗ trợ không tự thay đổi trạng thái bài nộp, bản phản biện hoặc quyết định học thuật.
+Điểm phân biệt không nằm ở mức độ tự động hóa của tác vụ mà ở thời điểm cơ chế hỗ trợ tham gia vào vòng đời xử lý, dạng đầu ra mà cơ chế tạo ra và chủ thể có thẩm quyền áp dụng đầu ra đó. ConferenceSpace sử dụng thuật toán xác định để đối sánh và kiểm tra xung đột lợi ích. Với các tác vụ tạo nội dung, hệ thống chỉ tạo bản nháp, cảnh báo hoặc bản tổng hợp để người dùng xem xét. Các đầu ra này không tự thay đổi trạng thái của bài nộp, bản phản biện hay quyết định học thuật.
 
 \subsection{Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}
 
-Bằng chứng vận hành và chính sách học thuật bổ sung cho kết quả khảo sát ở các nhóm có quy mô nhỏ. Các trường hợp HotCRP và CMT/TPMS cho thấy điểm phù hợp, xung đột lợi ích, tải và bước xác nhận là những thành phần riêng của quy trình phân công \cite{ch2ref58,ch2ref61}. Đối với AI, chính sách giữa các hội nghị khác nhau về mức cho phép nhưng cùng yêu cầu bảo mật bản thảo và giữ trách nhiệm ở con người \cite{ch2ref15,ch2ref16,ch2ref40,ch2ref41}. Vì vậy, ConferenceSpace hiển thị căn cứ của đề xuất phân công và cấu hình chức năng AI theo chính sách của từng hội nghị.
+Trong bối cảnh các nhóm khảo sát có quy mô nhỏ, bằng chứng vận hành và chính sách học thuật cung cấp cơ sở đối chiếu bổ sung. HotCRP và CMT/TPMS cho thấy quy trình phân công vận hành qua các thành phần riêng biệt, gồm điểm phù hợp, kiểm tra xung đột lợi ích, cân bằng tải và bước xác nhận của người phụ trách \cite{ch2ref58,ch2ref61}. Đối với AI, tuy mức độ cho phép khác nhau giữa các hội nghị, các chính sách được khảo sát đều yêu cầu bảo mật bản thảo và duy trì trách nhiệm quyết định ở con người \cite{ch2ref15,ch2ref16,ch2ref40,ch2ref41}. Trên cơ sở đối chiếu này, ConferenceSpace làm rõ căn cứ của từng đề xuất phân công và cho phép cấu hình các chức năng AI theo chính sách của từng hội nghị.
 
 \section{Vấn đề thực tiễn và nguyên tắc giải pháp}
 \label{sec:ch2-design-issues}
@@ -264,10 +264,10 @@ Các nền tảng đã bao phủ phần lớn nghiệp vụ cốt lõi và tự 
     
     \item \textbf{Các luồng công việc gần bước ra quyết định} phải xác định rõ trách nhiệm học thuật. AI cung cấp tóm tắt, cảnh báo và bản tổng hợp để hỗ trợ xem xét; Phản biện viên chịu trách nhiệm viết, chấm điểm và gửi bản phản biện, còn Chủ tọa chịu trách nhiệm về quyết định chấp nhận hoặc từ chối \cite{ch2ref15,ch2ref16,ch2ref17,ch2ref18}.
     
-    \item \textbf{Trợ lý phục vụ nhiều vai trò} phải tuân thủ quyền truy cập. Lớp kiểm soát truy cập cấp cho Chatbot Agent đúng dữ liệu và công cụ tương ứng với vai trò, hội nghị và trạng thái của người dùng; mọi hành động của trợ lý được thực hiện trong phạm vi quyền đã xác lập.
+    \item \textbf{Trợ lý phục vụ nhiều vai trò} phải tuân thủ quyền truy cập. Lớp kiểm soát truy cập cấp cho Chatbot Agent đúng dữ liệu và công cụ tương ứng với vai trò và trạng thái của người dùng; mọi hành động của trợ lý được thực hiện trong phạm vi quyền đã xác lập.
 \end{enumerate}
 
-Năm vấn đề trên không dẫn đến năm nhóm tính năng độc lập. Chúng xác định các điểm cần can thiệp trong cùng vòng đời xét duyệt: nhập liệu và kiểm tra trước khi nộp, đối sánh và kiểm tra xung đột lợi ích, hỗ trợ đọc và rà soát bản phản biện, tổng hợp trước quyết định, cùng truy vấn theo vai trò. Tại mỗi điểm, trạng thái nghiệp vụ và quyền hạn hiện có xác định cơ chế nào được sử dụng, đầu ra nào được phép tạo và ai phải kiểm tra kết quả.
+Năm vấn đề trên xác định các điểm cần can thiệp trong cùng vòng đời xét duyệt: nhập liệu và kiểm tra trước khi nộp, đối sánh và kiểm tra xung đột lợi ích, hỗ trợ đọc và rà soát bản phản biện, tổng hợp trước quyết định, cùng chức năng hỗ trợ truy vấn theo vai trò. Tại mỗi điểm, trạng thái nghiệp vụ và quyền hạn hiện có xác định cơ chế nào được sử dụng, đầu ra nào được phép tạo và ai phải kiểm tra kết quả.
 
 \subsection{Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}
 
@@ -320,6 +320,7 @@ ConferenceSpace áp dụng ba nguyên tắc thiết kế. Thứ nhất, vòng đ
 
 Mục này chuyển các nhu cầu và vấn đề thiết kế thành yêu cầu làm cơ sở cho thiết kế ở Chương~\ref{Chapter3}.
 
+\pagebreak
 \subsection{Yêu cầu chức năng theo vai trò}
 
 \subsubsection{a) Yêu cầu cho Tác giả}
@@ -361,6 +362,7 @@ F-AUTHOR-06 & Tác giả có thể lưu, sửa hoặc rút bài, xem phản bi�
 \end{longtable}
 \endgroup
 
+\pagebreak
 \subsubsection{b) Yêu cầu cho Phản biện viên}
 
 \begingroup
@@ -400,6 +402,7 @@ F-REVIEWER-06 & Review Quality Auditor cảnh báo điểm thiếu căn cứ, qu
 \end{longtable}
 \endgroup
 
+\pagebreak
 \subsubsection{c) Yêu cầu cho Chủ tọa/Ban tổ chức}
 
 \begingroup
