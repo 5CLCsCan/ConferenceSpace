@@ -12,7 +12,9 @@ Phụ lục này mô tả điều kiện thực nghiệm, đầu vào, đầu ra
 Bảng~\ref{tab:appc-evidence-index} ánh xạ từng nhóm kết luận trong Chương~\ref{Chapter4} với điều kiện đánh giá và bằng chứng cần kiểm tra. Cột ``Chuỗi truy vết'' mô tả cách đi từ đầu vào đến kết quả; đây không phải là đường dẫn tệp mới được tạo trong phụ lục.
 
 \enlargethispage{5\baselineskip}
-\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.15\textwidth}|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|}
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.23\textwidth}|}
   \caption{Chỉ mục bằng chứng của Chương 4}\label{tab:appc-evidence-index}\\[0.5\baselineskip]
   \hline
   Nhóm đánh giá & Đầu vào và điều kiện & Tư liệu đầu ra & Chuỗi truy vết \\ \hline
@@ -31,6 +33,7 @@ Bảng~\ref{tab:appc-evidence-index} ánh xạ từng nhóm kết luận trong C
   Chatbot Agent & Một hội nghị giả lập, ba vai trò, tám nhóm kịch bản, 40 hội thoại & Bản ghi hội thoại, nhật ký gọi công cụ và tổng hợp hậu kiểm & Vai trò và câu hỏi $\rightarrow$ công cụ được gọi $\rightarrow$ câu trả lời và nhãn hậu kiểm \\ \hline
   UAT & 76 Tác giả, 7 Phản biện viên và 8 Chủ tọa theo báo cáo tổng hợp & Điểm số và phản hồi định tính theo vai trò & Phiếu trả lời $\rightarrow$ câu hỏi khảo sát $\rightarrow$ thống kê mô tả \\ \hline
 \end{longtable}
+\endgroup
 
 Chỉ mục này đặt ra một nguyên tắc diễn giải: phạm vi kết luận phải đi cùng phạm vi bằng chứng. Chẳng hạn, kết quả tải HTTP không được dùng để kết luận về chất lượng xếp hạng; kết quả TCA không được dùng để kết luận về độ chính xác của quyết định chấp nhận hoặc từ chối; UAT không thay thế được phép đo thời gian hoàn thành nhiệm vụ.
 
@@ -124,6 +127,8 @@ Bộ thực thi hoàn tất 1.097 trên 1.127 bài đầu vào. Ba mươi trư�
 
 Mỗi gói đầu vào gồm ba lớp dữ liệu: ngữ cảnh nguồn, đầu ra của luồng cần chấm và thông tin vận hành. Ngữ cảnh nguồn chứa bài nộp, bản phản biện, phản hồi của tác giả, thảo luận và thông tin hội nghị khi có. Đầu ra cần chấm chứa chú thích, điểm cần lưu ý, phát hiện kiểm tra hoặc nhận định hỗ trợ Chủ tọa. Thông tin vận hành ghi trạng thái từng giai đoạn, thời gian xử lý và lượng token. Bảng~\ref{tab:appc-tca-input-map} xác định nguồn nào được phép dùng ở từng nhánh.
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.12\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.27\textwidth}|>{\RaggedRight\arraybackslash}p{0.27\textwidth}|}
   \caption{Ánh xạ đầu vào và nguồn đối chiếu của các nhánh TCA}\label{tab:appc-tca-input-map}\\[0.5\baselineskip]
   \hline
@@ -139,6 +144,7 @@ Mỗi gói đầu vào gồm ba lớp dữ liệu: ngữ cảnh nguồn, đầu 
   B3 & Từng phát hiện của Review Quality Auditor & Bản phản biện, nội dung bài liên quan và mã tiêu chí kiểm tra & Loại phát hiện và phạm vi áp dụng của tiêu chí. \\ \hline
   B5 & Nhận định trong cơ sở bằng chứng và bản tổng hợp bất đồng & Bài nộp, bản phản biện, phản hồi của tác giả và thảo luận & Bản tổng hợp nhận xét của con người khi hiện vật có trường này. \\ \hline
 \end{longtable}
+\endgroup
 
 \subsection{Các giai đoạn xử lý và cấu hình}
 
@@ -160,6 +166,8 @@ Bộ chấm xử lý mỗi bài qua năm giai đoạn. Thứ nhất, bộ chấm
 
 \subsection{Đặc tả bốn nhánh đánh giá}
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.10\textwidth}|>{\RaggedRight\arraybackslash}p{0.22\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|}
   \caption{Cơ chế và đầu ra của các nhánh TCA}\label{tab:appc-tca-branches}\\[0.5\baselineskip]
   \hline
@@ -175,8 +183,8 @@ Bộ chấm xử lý mỗi bài qua năm giai đoạn. Thứ nhất, bộ chấm
   B3 & Phát hiện kiểm tra có đúng với nguồn và có thuộc loại vấn đề mà mã tiêu chí mô tả hay không? & Chấm từng phát hiện trong từng bản phản biện; lưu riêng tính bám nguồn, tính hợp lệ, trường hợp chưa thể kết luận và phần đồng thời bám nguồn--hợp lệ. & \CodeBreak{b3\_truthfulness\_rate}, \CodeBreak{b3\_validity\_rate}, \CodeBreak{b3\_inconclusive\_rate}, \CodeBreak{b3\_grounded\_valid\_rate}. \\ \hline
   B5 & Cơ sở bằng chứng và bản tổng hợp bất đồng có phản ánh đúng hồ sơ đánh giá hay không? & Chấm riêng các nhóm \CodeBreak{evidence\_basis}, \CodeBreak{agreement} và \CodeBreak{disagreement}; tách nhận định hành chính khỏi tỷ lệ kỹ thuật. & Các tỷ lệ Truthfulness, Coverage, Additionality của cơ sở bằng chứng; tỷ lệ của bản tổng hợp bất đồng; \CodeBreak{high\_risk}. \\ \hline
 \end{longtable}
+\endgroup
 
-\clearpage
 \subsection{Cấu trúc bản ghi JSONL và khả năng truy vết}
 
 Mỗi dòng trong tệp \CodeBreak{tca\_benchmark\_results (5).jsonl} là một đối tượng JSON ứng với một bài. Cấu trúc này cho phép truy từ số liệu tổng hợp về bài, bản phản biện, phát hiện hoặc mệnh đề cụ thể mà không cần tạo lại đầu ra của các luồng AI.
@@ -239,6 +247,8 @@ TCA là phép chấm tự động mang tính thăm dò, chưa được hiệu ch
 
 Bộ thử sử dụng một hội nghị giả lập với hai bài nộp, một Tác giả, một Phản biện viên và một Chủ tọa. Mỗi tài khoản được chạy trong đúng vai trò tương ứng. Tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt, tạo thành 40 hội thoại.
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|>{\centering\arraybackslash}p{0.08\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|}
   \caption{Ma trận kịch bản kiểm tra Chatbot Agent}\label{tab:appc-chatbot-scenarios}\\[0.5\baselineskip]
   \hline
@@ -258,6 +268,7 @@ Bộ thử sử dụng một hội nghị giả lập với hai bài nộp, mộ
   K7 & Tác giả yêu cầu phân tích hoặc báo cáo ngoài phạm vi nền tảng & Từ chối hoặc giữ phạm vi trợ lý nền tảng & Không mở rộng thành trợ lý phân tích nội dung ngoài nền tảng \\ \hline
   K8 & Chủ tọa yêu cầu báo cáo vận hành nhiều bước & Chuỗi nhiều truy vấn nội bộ & Phân biệt dữ liệu đã cấu hình với dữ liệu chưa có \\ \hline
 \end{longtable}
+\endgroup
 
 Mỗi kịch bản cần lưu vai trò, yêu cầu mẫu, dữ liệu khởi tạo, công cụ kỳ vọng, câu trả lời thực tế, nhật ký gọi công cụ, thời gian đến token đầu tiên, thời gian đến câu trả lời hoàn chỉnh đầu tiên, tổng thời lượng và tổng số token. Bước hậu kiểm đánh giá bốn tiêu chí: mức độ hoàn tất yêu cầu, mức độ bám dữ liệu nền tảng, khả năng tuân thủ quyền truy cập và khả năng kiểm soát phạm vi.
 

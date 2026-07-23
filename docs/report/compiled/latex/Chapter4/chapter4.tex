@@ -13,7 +13,7 @@ Bảng~\ref{tab:ch4-demo-questions} trình bày bốn câu hỏi đánh giá, ng
 \begingroup
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.27\textwidth}|>{\raggedright\arraybackslash}p{0.27\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.26\textwidth}|>{\raggedright\arraybackslash}p{0.26\textwidth}|>{\raggedright\arraybackslash}p{0.22\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|}
 \caption{Câu hỏi đánh giá và phạm vi bằng chứng}
 \label{tab:ch4-demo-questions} \\
 \hline
@@ -73,7 +73,7 @@ Chương 4 giữ phần thông tin cần thiết để người đọc hiểu m�
 
 Hình~\ref{fig:ch4-demo-dataset-distribution} trình bày phân bố 1.127 bài theo hội nghị hoặc chuyên đề. Bốn nguồn lớn nhất chiếm 70,72\% tập dữ liệu; do đó, kết quả cần được đọc như bằng chứng trên tập đã chọn, không phải phân bố đại diện cho mọi hội nghị.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.90\textwidth]{fig01b_runner_by_conference.png}
   \caption{Phân bố bài đầu vào theo hội nghị và chuyên đề}
@@ -151,10 +151,10 @@ Chatbot Agent & Vai trò, yêu cầu của người dùng và dữ liệu đư�
 Bảng~\ref{tab:ch4-demo-environments} liên kết từng nhóm đánh giá với môi trường thực hiện, quy mô chính và tư liệu đầu ra. Bảng chỉ cung cấp thông tin cần thiết để xác định nguồn của phép đo; cấu hình chi tiết, đơn vị đo và yêu cầu truy vết được trình bày trong Phụ lục~\ref{AppendixC}.
 
 \begingroup
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{1.3}
 
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.40\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.21\textwidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.17\textwidth}|>{\raggedright\arraybackslash}p{0.40\textwidth}|>{\raggedright\arraybackslash}p{0.18\textwidth}|>{\raggedright\arraybackslash}p{0.20\textwidth}|}
 \caption{Môi trường và tư liệu thực nghiệm}
 \label{tab:ch4-demo-environments} \\
 \hline
@@ -273,14 +273,14 @@ Kết quả TCA được dùng làm bằng chứng gián tiếp về mức bám 
 
 Hình~\ref{fig:ch4-k6-throughput} và Hình~\ref{fig:ch4-k6-latency} minh họa hai khía cạnh khác nhau của cùng phép đo: thông lượng cho biết số yêu cầu được xử lý trong một đơn vị thời gian, còn các phân vị độ trễ cho biết mức phản hồi trong từng kịch bản. Các hình không mở rộng phạm vi đo vượt quá ba đường xử lý HTTP đã mô tả.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.95\textwidth]{fig02_k6_throughput.png}
   \caption{Thông lượng HTTP theo kịch bản k6}
   \label{fig:ch4-k6-throughput}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.95\textwidth]{fig03_k6_latency_percentiles.png}
   \caption{Các phân vị độ trễ HTTP theo kịch bản k6}
@@ -289,6 +289,8 @@ Hình~\ref{fig:ch4-k6-throughput} và Hình~\ref{fig:ch4-k6-latency} minh họa 
 
 Ba kịch bản tải gồm truy vấn đọc dữ liệu, gợi ý phản biện viên và kiểm tra xung đột lợi ích. Mỗi kịch bản sử dụng 20 người dùng ảo trong 30 giây. Kịch bản được gọi là CRUD chỉ thực hiện ba thao tác đọc: liệt kê hội nghị, liệt kê bài nộp và tìm kiếm người dùng; kịch bản không tạo, cập nhật hoặc xóa bản ghi. Cấu hình đầy đủ được trình bày tại Mục~\ref{appc:backend-contract}.
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.19\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.16\textwidth}|>{\centering\arraybackslash}p{0.14\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|}
   \caption{Kết quả tải HTTP theo kịch bản k6}\label{tab:ch4-demo-http}\\[0.5\baselineskip]
   \hline
@@ -303,6 +305,7 @@ Ba kịch bản tải gồm truy vấn đọc dữ liệu, gợi ý phản biệ
   Đối sánh phản biện viên & 17.184 & 572 yêu cầu/giây & 9,7 ms & 71,8 ms & 0,00\% \\ \hline
   Xung đột lợi ích & 16.760 & 558 yêu cầu/giây & 9,5 ms & 79,3 ms & 0,00\% \\ \hline
 \end{longtable}
+\endgroup
 
 Bảng~\ref{tab:ch4-demo-http} cho thấy backend xử lý hàng trăm yêu cầu mỗi giây và giữ độ trễ p95 dưới 120 ms trong cả ba kịch bản. Kết quả chỉ phản ánh tải ngắn hạn trên các đường xử lý đã chọn; phép thử không thay thế kiểm thử đầy đủ vòng đời chức năng, kiểm thử chạy bền hoặc đánh giá tải phân tán.
 
@@ -310,14 +313,14 @@ Bảng~\ref{tab:ch4-demo-http} cho thấy backend xử lý hàng trăm yêu cầ
 
 Container API sử dụng trung bình 28\% công suất của một nhân CPU, cao nhất 43\%, và khoảng 30 MB RAM. PostgreSQL sử dụng trung bình khoảng 115\% công suất của một nhân CPU, cao nhất 163\%, với mức RAM từ 204 đến 222 MB. Neo4j dùng khoảng 508 MB RAM nhưng dưới 1\% CPU, còn Redis dùng khoảng 9 MB RAM. Hình~\ref{fig:ch4-resource-cpu} và Hình~\ref{fig:ch4-resource-ram} cho thấy cùng xu hướng theo thành phần. Vì CPU được báo cáo theo một nhân và phép đo chưa tách thời gian truy vấn theo thành phần, kết quả chỉ xác định PostgreSQL là thành phần cần ưu tiên kiểm tra khi tối ưu, không chứng minh đây là điểm nghẽn duy nhất ở cấu hình khác.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.94\textwidth]{fig09_resource_cpu.png}
   \caption{Mức sử dụng CPU theo giai đoạn và thành phần}
   \label{fig:ch4-resource-cpu}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.88\textwidth]{fig10_resource_ram.png}
   \caption{Mức sử dụng RAM theo thành phần}
@@ -331,14 +334,14 @@ Container API sử dụng trung bình 28\% công suất của một nhân CPU, c
 
 Hệ thống tính độ tương đồng Jaccard theo công thức $J(A,B)=|A\cap B|/|A\cup B|$~\cite{ch4ref7}, sau đó áp dụng thủ tục gán tham lam có xét giới hạn tải. Go microbenchmark đo trực tiếp mã thuật toán và không bao gồm HTTP, cơ sở dữ liệu hoặc mạng. Hình~\ref{fig:ch4-microbench-scale} trình bày thời gian xử lý theo quy mô đầu vào, còn Hình~\ref{fig:ch4-microbench-allocs} trình bày số lần cấp phát bộ nhớ. Hai hình thay thế cho bảng số liệu chi tiết để làm nổi bật xu hướng tăng chi phí khi quy mô đầu vào mở rộng.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.90\textwidth]{fig07_microbench_scale.png}
   \caption{Thời gian Go microbenchmark theo quy mô đầu vào}
   \label{fig:ch4-microbench-scale}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.90\textwidth]{fig08_microbench_allocs.png}
   \caption{Số lần cấp phát bộ nhớ trong Go microbenchmark}
@@ -351,7 +354,9 @@ Chi phí đối sánh tăng từ 131 $\mu$s lên 56 ms khi ma trận điểm gi�
 
 Phép thử leave-one-out giữ lại một bài từ mỗi hồ sơ tác giả làm truy vấn, sau đó xếp hạng 60 hồ sơ bằng Jaccard, số chủ đề chung và phương pháp ngẫu nhiên. Nhãn tác giả gốc chỉ kiểm tra khả năng truy hồi quan hệ chủ đề đã được mã hóa trong dữ liệu; nhãn này không đại diện cho phản biện viên phù hợp vì tác giả của bài còn là một xung đột lợi ích hiển nhiên trong vận hành thật.
 
-\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.22\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.14\textwidth}|}
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.21\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.15\textwidth}|}
   \caption{Kết quả xếp hạng hồ sơ tác giả}\label{tab:ch4-demo-ranking}\\[0.5\baselineskip]
   \hline
   Phương pháp & Hit@1 & Hit@5 & Hit@10 & MRR & nDCG@10 \\ \hline
@@ -365,10 +370,11 @@ Phép thử leave-one-out giữ lại một bài từ mỗi hồ sơ tác giả 
   Số chủ đề chung & 0,233 & 0,550 & 0,733 & 0,391 & 0,463 \\ \hline
   Ngẫu nhiên & 0,017 & 0,083 & 0,167 & 0,078 & 0,076 \\ \hline
 \end{longtable}
+\endgroup
 
 Hình~\ref{fig:ch4-ranking-hit} cho thấy Jaccard và phương pháp đếm số chủ đề chung đều vượt đường cơ sở ngẫu nhiên ở các mức Hit@k. Jaccard đạt MRR 0,392, cao gấp khoảng năm lần phương pháp ngẫu nhiên. Tuy nhiên, phương pháp đếm số chủ đề chung đạt Hit@10 và nDCG@10 cao hơn Jaccard. Kết quả trên 60 truy vấn chưa cho thấy một phương pháp chiếm ưu thế ổn định.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.82\textwidth]{fig02_ranking_hit_at_k.png}
   \caption{Tỷ lệ Hit@k theo phương pháp xếp hạng}
@@ -377,7 +383,7 @@ Hình~\ref{fig:ch4-ranking-hit} cho thấy Jaccard và phương pháp đếm s�
 
 Vì chưa có phương án phân công tối ưu do Chủ tọa xác nhận, nhóm đã so sánh thuật toán Greedy với gán tuần tự và ngẫu nhiên bằng các chỉ số nội tại. Greedy đạt điểm Jaccard trung bình 0,011, cao gấp 2,75 lần hai phương pháp cơ sở, nhưng độ phủ đủ hai phản biện viên chỉ đạt 65,9\%. Có 23,3\% số bài cần lượt dự phòng; lượt này bỏ ngưỡng điểm và giới hạn tải nhưng vẫn giữ xung đột lợi ích là ràng buộc cứng. Hình~\ref{fig:ch4-assignment-tradeoff} minh họa đánh đổi giữa độ phủ và điểm phù hợp trung bình. Kết quả chỉ hỗ trợ sử dụng Greedy để tạo danh sách ứng viên cho Chủ tọa kiểm tra, không hỗ trợ phân công tự động.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.84\textwidth]{fig06_assignment_coverage_score.png}
   \caption{Đánh đổi giữa độ phủ và điểm Jaccard trung bình của phân công}
@@ -397,7 +403,7 @@ Trên 1.127 bài, chức năng Tự động điền bài nộp (Submission Autof
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.86\textwidth]{fig08_autofill_quality.png}
+  \includegraphics[width=0.94\textwidth]{fig08_autofill_quality.png}
   \caption{Mức khớp của các trường siêu dữ liệu trong Submission Autofill}
   \label{fig:ch4-autofill-quality}
 \end{figure}
@@ -412,14 +418,14 @@ Thử nghiệm cung cấp bản thảo và siêu dữ liệu bài nộp cho Revi
 
 Chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis) tạo bản định hướng trước khi Phản biện viên viết nhận xét. Theo phép chấm TCA, tỷ lệ trích dẫn bám nguồn đạt 96,22\%, tỷ lệ nội dung bị phân loại là không bám nguồn đạt 3,78\%, còn Truthfulness của điểm cần lưu ý đạt 69,86\%. Hình~\ref{fig:ch4-reviewer-grounding} tách mức bám nguồn của trích dẫn khỏi các điểm cần lưu ý. Coverage đạt 4,49\% và Additionality đạt 92,23\%; hai chỉ số này không trực tiếp đo mức độ mới hoặc hữu ích của nội dung bổ sung.
 
+Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc trong phạm vi phép chấm, nhưng Phản biện viên vẫn phải kiểm tra từng nhận định trên bài gốc. Vì đầu ra có thể ảnh hưởng đến phán đoán chuyên môn, mức độ phù hợp với chính sách sử dụng AI phải được xem xét theo từng hội nghị.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.94\textwidth]{fig09a_reviewer_annotation_grounding.png}
   \caption{Mức bám nguồn của đầu ra Reviewer Initial Analysis theo phép chấm TCA}
   \label{fig:ch4-reviewer-grounding}
 \end{figure}
-
-Kết quả cho thấy luồng có thể hỗ trợ định hướng đọc trong phạm vi phép chấm, nhưng Phản biện viên vẫn phải kiểm tra từng nhận định trên bài gốc. Vì đầu ra có thể ảnh hưởng đến phán đoán chuyên môn, mức độ phù hợp với chính sách sử dụng AI phải được xem xét theo từng hội nghị.
 
 \subsection{Review Quality Auditor}
 
@@ -456,14 +462,14 @@ Các kết quả chỉ xác nhận mức bám nguồn của bản tổng hợp t
 
 Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu ConferenceSpace theo quyền của người dùng, không phải trợ lý phân tích nội dung học thuật hoặc hệ thống trò chuyện tự do. Bộ thử gồm tám nhóm kịch bản, mỗi nhóm có năm biến thể diễn đạt. Trợ lý hoàn tất luồng phản hồi trong cả 40 hội thoại; báo cáo rà soát thủ công hồi cứu phân loại 25 lượt đạt, 12 lượt đạt một phần và 3 lượt không đạt. Tỷ lệ gọi công cụ thành công đạt 97/128 lượt, tương ứng 75,78\%. Hình~\ref{fig:ch4-chatbot-outcomes} và Hình~\ref{fig:ch4-chatbot-tools} tách kết quả hội thoại khỏi khả năng gọi công cụ; tỷ lệ gọi công cụ không được diễn giải như tỷ lệ hoàn tất hội thoại.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.78\textwidth]{fig07_chatbot_manual_outcomes.png}
   \caption{Phân bố kết quả rà soát thủ công của Chatbot Agent}
   \label{fig:ch4-chatbot-outcomes}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.94\textwidth]{fig06_chatbot_tool_success.png}
   \caption{Kết quả gọi công cụ của Chatbot Agent}
@@ -472,6 +478,8 @@ Chatbot Agent được đánh giá như một trợ lý truy vấn dữ liệu C
 
 Hình~\ref{fig:ch4-chatbot-response-stages} phân tách thời gian phản hồi của Chatbot Agent thành thời gian đến token đầu tiên, thời gian đến token đầu tiên của câu trả lời hoàn chỉnh, thời gian truyền nội dung và tổng thời lượng. Thời gian đến token đầu tiên đạt trung bình 2,36 giây, nhưng câu trả lời hoàn chỉnh chỉ bắt đầu sau trung bình 23,02 giây do luồng còn thực hiện các lượt gọi công cụ và tổng hợp dữ liệu. Tổng thời lượng trung bình đạt 26,53 giây; tỷ lệ gọi công cụ thành công đạt 75,78\%.
 
+Thử nghiệm không ghi nhận rò rỉ dữ liệu riêng tư trong kịch bản quyền. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo báo cáo thị trường và một số câu trả lời trình bày lỗi truy vấn thay vì giải thích rõ ranh giới quyền. Các trường chấm theo từng lượt chưa được điền đầy đủ, đồng thời tư liệu chưa ghi người chấm và ngày chấm; vì vậy, phân bố 25/12/3 chỉ là bằng chứng mô tả. Ma trận kịch bản và yêu cầu truy vết được trình bày tại Mục~\ref{appc:chatbot}.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.94\textwidth]{fig14_chatbot_response_stages.png}
@@ -479,20 +487,18 @@ Hình~\ref{fig:ch4-chatbot-response-stages} phân tách thời gian phản hồi
   \label{fig:ch4-chatbot-response-stages}
 \end{figure}
 
-Thử nghiệm không ghi nhận rò rỉ dữ liệu riêng tư trong kịch bản quyền. Tuy nhiên, một biến thể ngoài phạm vi vẫn tạo báo cáo thị trường và một số câu trả lời trình bày lỗi truy vấn thay vì giải thích rõ ranh giới quyền. Các trường chấm theo từng lượt chưa được điền đầy đủ, đồng thời tư liệu chưa ghi người chấm và ngày chấm; vì vậy, phân bố 25/12/3 chỉ là bằng chứng mô tả. Ma trận kịch bản và yêu cầu truy vết được trình bày tại Mục~\ref{appc:chatbot}.
-
 \section{Tính khả thi vận hành}
 
 Các luồng xử lý được đo theo những đơn vị khác nhau: Submission Autofill, Reviewer Initial Analysis và Chair Decision Copilot được tính theo bài; Review Quality Auditor được tính theo lượt kiểm tra; Chatbot Agent được tính theo hội thoại. Hình~\ref{fig:ch4-resource-latency} trình bày độ trễ trung bình, trung vị và cao nhất theo từng luồng. Hình~\ref{fig:ch4-resource-tokens} trình bày token trung bình trên mỗi đơn vị công việc. Do mẫu số khác nhau, số token giữa các luồng không được dùng để xếp hạng chi phí.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.94\textwidth]{fig11_resource_latency.png}
   \caption{Độ trễ theo luồng xử lý AI}
   \label{fig:ch4-resource-latency}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.94\textwidth]{fig12_resource_tokens.png}
   \caption{Token trung bình theo đơn vị công việc của các luồng AI}
@@ -501,7 +507,7 @@ Các luồng xử lý được đo theo những đơn vị khác nhau: Submissio
 
 Hình~\ref{fig:ch4-resource-ops-mode} chuyển các mức độ trễ quan sát được thành khuyến nghị về cách tổ chức vận hành. Đây là khuyến nghị thiết kế dựa trên độ trễ và đặc điểm phản hồi của từng luồng, không phải kết quả so sánh giữa các phương án triển khai thực tế. Nhánh kiểm tra luật của chức năng Kiểm tra trước khi nộp bài (Submission Gating) có thể chạy đồng bộ. Nhánh LLM Gating phù hợp với xử lý song song không chặn thao tác. Reviewer Initial Analysis, Review Quality Auditor và Chair Decision Copilot có các trường hợp vượt 100 giây, nên phù hợp hơn với cơ chế chạy nền hoặc chạy trước. Chatbot Agent cần phản hồi từng phần và hiển thị trạng thái tra cứu vì thời gian đến token đầu tiên chỉ đạt 2,36 giây, trong khi câu trả lời hoàn chỉnh bắt đầu sau trung bình 23,02 giây.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.94\textwidth]{fig13_resource_ops_mode.png}
   \caption{Khuyến nghị cách tổ chức vận hành theo luồng AI}
@@ -517,6 +523,8 @@ Báo cáo tổng hợp ghi nhận 91 phản hồi dùng cho phân tích, gồm 7
 
 Bảng~\ref{tab:ch4-demo-uat} tổng hợp kết quả khảo sát theo ba vai trò.
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|>{\centering\arraybackslash}p{0.13\textwidth}|>{\centering\arraybackslash}p{0.22\textwidth}|>{\RaggedRight\arraybackslash}p{0.39\textwidth}|}
   \caption{Tổng hợp kết quả khảo sát theo vai trò}\label{tab:ch4-demo-uat}\\[0.5\baselineskip]
   \hline
@@ -531,6 +539,7 @@ Bảng~\ref{tab:ch4-demo-uat} tổng hợp kết quả khảo sát theo ba vai t
   Phản biện viên & 7 & 4,29/5 & 6/7 phản hồi tích cực với nhóm chức năng hỗ trợ đọc và phản biện \\ \hline
   Chủ tọa & 8 & 4,38/5; 7/8 tích cực & 8/8 phản hồi tích cực về theo dõi tiến độ; 7/8 phản hồi tích cực trong câu hỏi gộp về nhóm công cụ AI \\ \hline
 \end{longtable}
+\endgroup
 
 Ở nhóm Tác giả, chức năng Tự động điền bài nộp (Submission Autofill) nhận phản hồi tích cực nhất, phù hợp với kết quả đối sánh siêu dữ liệu. Tuy nhiên, khảo sát chỉ đo cảm nhận giảm thao tác hoặc tiết kiệm thời gian, không đo số phút thực tế. Ở nhóm Phản biện viên, câu hỏi gộp nhiều thành phần nên không thể quy kết quả riêng cho chức năng Phân tích và tóm tắt bài báo (Reviewer Initial Analysis). Ở nhóm Chủ tọa, mức độ sử dụng các tính năng không đồng đều và câu hỏi dùng mẫu số theo từng mục; kết quả vì vậy không đánh giá riêng chức năng Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) hoặc chất lượng quyết định.
 

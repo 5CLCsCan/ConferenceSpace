@@ -29,7 +29,7 @@ AI hỗ trợ & Trích xuất thông tin, kiểm tra bản thảo, hỗ trợ đ
 
 Hình~\ref{fig:ch3-demo-responsibility} cho thấy kết quả hỗ trợ không tự cập nhật trạng thái hệ thống. Người dùng có thẩm quyền phải lựa chọn hành động tiếp theo; backend chỉ ghi dữ liệu sau khi kiểm tra quyền và điều kiện nghiệp vụ. Ranh giới này giữ trách nhiệm đối với quyết định học thuật ở người dùng được phân quyền.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[>=Latex,
@@ -71,7 +71,7 @@ AI hỗ trợ từng vai trò tại các bước cụ thể nhưng không thay �
 
 Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò. UC-08 và UC-10 được dùng chung giữa nhiều vai trò nhưng vẫn áp dụng quyền riêng cho từng người dùng và tài nguyên.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \begin{adjustbox}{max width=\textwidth}
     \begin{tikzpicture}[
@@ -214,7 +214,7 @@ F-COMMON-02, F-COMMON-03 & Xuyên suốt & Phân quyền, thông báo và môi t
 
 Mười use case cùng tham gia một vòng đời từ khi Tác giả chuẩn bị bài đến khi Chủ tọa ra quyết định và Tác giả nộp bản thảo hoàn chỉnh. Hình~\ref{fig:ch3-demo-lifecycle} làm rõ các nhánh trạng thái chính và trách nhiệm của từng vai trò.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[
@@ -261,7 +261,7 @@ Các nhóm thông tin này giúp Tác giả đối chiếu phạm vi chuyên mô
 
 Hình~\ref{fig:ch3-demo-uc01-explore} minh họa giao diện danh sách hội nghị mặc định mà Tác giả nhìn thấy khi bắt đầu tìm kiếm.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_explore_conferences.png}
 \caption{Giao diện danh sách hội nghị mặc định}
@@ -270,7 +270,7 @@ Hình~\ref{fig:ch3-demo-uc01-explore} minh họa giao diện danh sách hội ng
 
 Sau khi chọn hội nghị, Hình~\ref{fig:ch3-demo-uc01-overview} thể hiện tab tổng quan trên trang chi tiết hội nghị mà Tác giả xem trước khi quyết định nộp bài hoặc lưu theo dõi.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_overview.png}
 \caption{Trang chi tiết hội nghị: tab tổng quan (Overview)}
@@ -279,7 +279,7 @@ Sau khi chọn hội nghị, Hình~\ref{fig:ch3-demo-uc01-overview} thể hiện
 
 Bên cạnh đó, Hình~\ref{fig:ch3-demo-uc01-cfp} thể hiện tab kêu gọi nộp bài trên trang chi tiết hội nghị.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_cfp.png}
 \caption{Trang chi tiết hội nghị: tab kêu gọi nộp bài (Call for Papers)}
@@ -288,7 +288,7 @@ Bên cạnh đó, Hình~\ref{fig:ch3-demo-uc01-cfp} thể hiện tab kêu gọi 
 
 Hình~\ref{fig:ch3-demo-uc01-dates} thể hiện tab mốc thời gian quan trọng trên trang chi tiết hội nghị.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_dates.png}
 \caption{Trang chi tiết hội nghị: tab mốc thời gian quan trọng (Important Dates)}
@@ -297,7 +297,7 @@ Hình~\ref{fig:ch3-demo-uc01-dates} thể hiện tab mốc thời gian quan tr�
 
 Cuối cùng, Hình~\ref{fig:ch3-demo-uc01-committee} thể hiện tab hội đồng ban chương trình trên trang chi tiết hội nghị.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc01_conference_detail_committee.png}
 \caption{Trang chi tiết hội nghị: tab hội đồng ban chương trình (Committee)}
@@ -310,7 +310,7 @@ Tác giả tạo bản nháp, tải bản thảo và có thể dùng chức năn
 
 Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản thảo (trái) cùng kết quả trích xuất thông tin mà chức năng Tự động điền bài nộp (Submission Autofill) trả về (phải) để Tác giả kiểm tra và chỉnh sửa.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{minipage}{0.48\textwidth}
 \centering
@@ -326,7 +326,7 @@ Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản 
 
 Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết quả kiểm tra tự động của Submission Gating theo các trạng thái \textit{pass}, \textit{warn} và \textit{block}.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc02_precheck_gating.png}
 \caption{Kết quả kiểm tra của Submission Gating}
@@ -335,7 +335,7 @@ Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết qu�
 
 Song song đó, Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện khai báo đồng tác giả và xung đột lợi ích mà Tác giả hoàn tất trước khi chức năng Kiểm tra trước khi nộp bài (Submission Gating) kiểm tra.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc02_authors_conflict.png}
 \caption{Giao diện khai báo đồng tác giả và xung đột lợi ích}
@@ -348,7 +348,7 @@ Tác giả theo dõi các bài đã tạo và thực hiện hành động phù h
 
 Hình~\ref{fig:ch3-demo-uc03-list} thể hiện danh sách bài nộp, giúp Tác giả nhận biết trạng thái hiện hành của nhiều bài cùng lúc.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_submissions_list.png}
 \caption{Danh sách bài nộp của Tác giả}
@@ -357,7 +357,7 @@ Hình~\ref{fig:ch3-demo-uc03-list} thể hiện danh sách bài nộp, giúp Tá
 
 Trong giai đoạn phản hồi, Hình~\ref{fig:ch3-demo-uc03-rebuttal} minh họa giao diện Tác giả soạn và gửi phản hồi (rebuttal).
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_rebuttal.png}
 \caption{Giao diện soạn thảo và gửi phản hồi của Tác giả (rebuttal)}
@@ -366,7 +366,7 @@ Trong giai đoạn phản hồi, Hình~\ref{fig:ch3-demo-uc03-rebuttal} minh h�
 
 Khi bài được chấp nhận, Hình~\ref{fig:ch3-demo-uc03-detail} thể hiện trang chi tiết bài nộp, nơi Tác giả xem nhận định chuyên môn và tải lên bản chỉnh sửa cuối cùng.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc03_submission_detail.png}
 \caption{Trang chi tiết bài nộp và bản chỉnh sửa cuối cùng (Camera-Ready)}
@@ -379,7 +379,7 @@ UC-04 gồm hai điểm phản hồi khác nhau. Trước hết, Chủ tọa g�
 
 Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện trong hệ thống (dưới).
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_1.png}\\[0.4cm]
 \includegraphics[width=0.8\textwidth]{images/chapter_3_uc04_reviewer_invitations_2.png}
@@ -389,7 +389,7 @@ Hình~\ref{fig:ch3-demo-uc04-invitations} minh họa giao diện tiếp nhận t
 
 Khi nhận đề nghị phân công một bài cụ thể, Phản biện viên xem thông tin tổng quan và điểm phù hợp trên giao diện ở Hình~\ref{fig:ch3-demo-uc04-accept-deny} trước khi phản hồi.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc04_accept_deny_assignment.png}
 \caption{Giao diện tổng quan của bài được đề nghị phân công để Phản biện viên phản hồi chấp nhận hoặc từ chối}
@@ -406,7 +406,7 @@ Trước khi gửi, chức năng Kiểm tra chất lượng nhận xét (Review 
 
 Hình~\ref{fig:ch3-demo-uc05-workspace1} thể hiện không gian đọc bài và soạn phản biện của Phản biện viên.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_workspace_1.png}
 \caption{Không gian đọc bài và soạn phản biện của Phản biện viên}
@@ -415,7 +415,7 @@ Hình~\ref{fig:ch3-demo-uc05-workspace1} thể hiện không gian đọc bài v�
 
 Hình~\ref{fig:ch3-demo-uc05-workspace2} trình bày một biến thể khác của không gian làm việc và biểu mẫu phản biện.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_workspace_2.png}
 \caption{Không gian làm việc và biểu mẫu phản biện (biến thể bố cục khác)}
@@ -424,7 +424,7 @@ Hình~\ref{fig:ch3-demo-uc05-workspace2} trình bày một biến thể khác c�
 
 Trước khi bắt đầu soạn phản biện, Hình~\ref{fig:ch3-demo-uc05-ria} thể hiện bản định hướng đọc do Reviewer Initial Analysis tạo ra để Phản biện viên tham khảo.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_initial_analysis.png}
 \caption{Bản định hướng đọc gồm đóng góp, điểm cần kiểm tra, giới hạn và chú thích theo phần}
@@ -433,7 +433,7 @@ Trước khi bắt đầu soạn phản biện, Hình~\ref{fig:ch3-demo-uc05-ria
 
 Trước khi gửi, Hình~\ref{fig:ch3-demo-uc05-rqa} trình bày bảng rà soát bản nháp do Review Quality Auditor tạo ra.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_quality_auditor.png}
 \caption{Bảng rà soát mức độ cụ thể, căn cứ và tính nhất quán của bản phản biện nháp}
@@ -446,7 +446,7 @@ Hệ thống tính điểm phù hợp cho các cặp bài nộp và Phản biệ
 
 Hình~\ref{fig:ch3-demo-uc06-dashboard} minh họa bảng điều khiển quản lý phân công phản biện của Chủ tọa.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_assignment_dashboard.png}
 \caption{Bảng điều khiển quản lý phân công phản biện của Chủ tọa}
@@ -455,7 +455,7 @@ Hình~\ref{fig:ch3-demo-uc06-dashboard} minh họa bảng điều khiển quản
 
 Với các cặp cần xác minh thêm, Hình~\ref{fig:ch3-demo-uc06-coi} minh họa giao diện kiểm tra xung đột lợi ích giữa Phản biện viên và bài nộp.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_coi_verification.png}
 \caption{Giao diện kiểm tra xung đột lợi ích giữa Phản biện viên và bài nộp}
@@ -464,7 +464,7 @@ Với các cặp cần xác minh thêm, Hình~\ref{fig:ch3-demo-uc06-coi} minh h
 
 Sau khi hệ thống hoàn tất đối sánh, Hình~\ref{fig:ch3-demo-uc06-suggestions} liệt kê các đề xuất đối sánh cùng điểm phù hợp để Chủ tọa xem xét trước khi xác nhận.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc06_assignment_suggestions.png}
 \caption{Danh sách đề xuất đối sánh và điểm phù hợp}
@@ -479,7 +479,7 @@ Bảng điều khiển tổng hợp số bài đã nhận, trạng thái phản 
 
 Hình~\ref{fig:ch3-demo-uc07-config} thể hiện giao diện thiết lập cấu hình thông tin và hạn chót hội nghị của Chủ tọa.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_conference_config.png}
 \caption{Giao diện thiết lập cấu hình thông tin và hạn chót hội nghị}
@@ -488,7 +488,7 @@ Hình~\ref{fig:ch3-demo-uc07-config} thể hiện giao diện thiết lập cấ
 
 Trong quá trình vận hành, Hình~\ref{fig:ch3-demo-uc07-dashboard} minh họa bảng điều khiển tiến độ hội nghị mà Chủ tọa theo dõi.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_chair_dashboard.png}
 \caption{Bảng điều khiển tiến độ hội nghị của Chủ tọa}
@@ -497,7 +497,7 @@ Trong quá trình vận hành, Hình~\ref{fig:ch3-demo-uc07-dashboard} minh họ
 
 Ngoài ra, Hình~\ref{fig:ch3-demo-uc07-committee} minh họa giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc07_committee_management.png}
 \caption{Giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên}
@@ -512,7 +512,7 @@ Việc gắn từng chuỗi thảo luận với một bài nộp giúp giữ ngu
 
 Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ đề thảo luận mới cho bài nộp.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc08_create_discussion.png}
 \caption{Giao diện khởi tạo chủ đề thảo luận mới cho bài nộp}
@@ -521,7 +521,7 @@ Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ �
 
 Sau khi chủ đề được tạo, Hình~\ref{fig:ch3-demo-uc08-chat} thể hiện giao diện danh sách và trao đổi nội dung thảo luận.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc08_discussion_chat.png}
 \caption{Giao diện danh sách và trao đổi nội dung thảo luận}
@@ -534,7 +534,7 @@ Backend tập hợp điểm số, bản phản biện, phản hồi của Tác g
 
 Hình~\ref{fig:ch3-demo-uc09} minh họa giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc09_decision_support.png}
 \caption{Giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa}
@@ -549,7 +549,7 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 
 Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc10_chatbot_interface.png}
 \caption{Giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent}
@@ -563,7 +563,7 @@ Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và hỗ tr�
 
 ConferenceSpace gồm giao diện web Next.js, backend Go và Gin, dịch vụ AI FastAPI, PostgreSQL, Redis, Neo4j và cổng Caddy. Backend nghiệp vụ là một ứng dụng nguyên khối có kiến trúc phân lớp. Nhóm không chia nhỏ nghiệp vụ thành các vi dịch vụ khi chưa có nhu cầu vận hành tương ứng. Dịch vụ AI và các kho dữ liệu được tách tại ranh giới triển khai vì có vòng đời, tải xử lý và yêu cầu truy cập khác với backend.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[>=Latex,
@@ -652,7 +652,7 @@ J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
 
 Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\) vì không có bằng chứng về mức độ phù hợp. Nhóm chọn Jaccard vì điểm số có thể giải thích trực tiếp từ số miền chuyên môn chung và không cần dữ liệu huấn luyện. Thuật toán tham lam sắp xếp ứng viên theo điểm giảm dần; khi các ứng viên bằng điểm, hệ thống ưu tiên người có ít bài đang được phân công hơn, sau đó dùng thứ tự cố định theo định danh nếu mức tải vẫn bằng nhau. Phương án này tạo thứ tự ổn định và đơn giản hóa việc kiểm tra, nhưng vẫn có thể bỏ lỡ phương án có tổng mức phù hợp cao hơn cho toàn bộ hội nghị.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.90\textwidth, max height=0.72\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -742,7 +742,7 @@ Môi trường triển khai chính thức đóng gói Caddy, giao diện web, ba
 
 GitHub Actions xây dựng song song image của giao diện, backend và dịch vụ AI, gắn thẻ theo commit SHA rồi đẩy lên GitHub Container Registry. Máy chủ kéo đúng image đã xây dựng, chạy migration và cập nhật các container bằng Docker Compose. Cấu hình thực thi cùng giá trị bí mật được lưu ngoài mã nguồn trong tệp môi trường trên máy chủ hoặc GitHub Secrets.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.88\textwidth}
 \begin{tikzpicture}[>=Latex,

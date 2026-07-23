@@ -66,6 +66,8 @@ poetry run uvicorn app.main:app --reload --port 8090
 
 \subsection{Điểm truy cập và tiêu chí kiểm tra}
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|T{0.18\textwidth}|T{0.27\textwidth}|T{0.20\textwidth}|T{0.25\textwidth}|}
 \caption{Điểm truy cập trong môi trường phát triển cục bộ}\label{tab:appendix-b-local-endpoints}\\
 \hline
@@ -84,6 +86,7 @@ Redis & localhost & 6379 & \textit{redis-cli ping} trong container trả kết q
 Neo4j Browser & \url{http://localhost:7474} & 7474 & Giao diện quản trị Neo4j được tải \\ \hline
 Neo4j Bolt & localhost & 7687 & Backend thiết lập được kết nối Bolt \\ \hline
 \end{longtable}
+\endgroup
 
 \subsection{Trình tự xác nhận môi trường cục bộ}
 
@@ -223,6 +226,8 @@ Môi trường chính thức được triển khai trên máy chủ riêng ảo 
 \label{fig:appendix-b-production-topology}
 \end{figure}
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|T{0.16\textwidth}|T{0.27\textwidth}|T{0.22\textwidth}|T{0.25\textwidth}|}
 \caption{Trách nhiệm của các dịch vụ trong môi trường chính thức}\label{tab:appendix-b-production-services}\\
 \hline
@@ -236,10 +241,11 @@ Frontend & Cung cấp giao diện Next.js, chuyển tiếp API và hội thoại
 Backend & Cung cấp API, xác thực, nghiệp vụ và tích hợp dịch vụ & Nội bộ qua frontend hoặc Caddy & Sử dụng volume cho tệp tải lên \\ \hline
 Backend migration & Áp dụng migration PostgreSQL trước khi cập nhật ứng dụng & Tác vụ nội bộ chạy một lần & Không duy trì filesystem riêng \\ \hline
 Dịch vụ AI & Thực thi sáu luồng AI, migration Alembic và truy vấn backend có kiểm soát & Nội bộ qua frontend và backend & Dùng PostgreSQL và Redis \\ \hline
-PostgreSQL & Lưu dữ liệu quan hệ của hệ thống & Chỉ trong mạng Docker & Volume PostgreSQL \\ \hline
+{\small PostgreSQL} & Lưu dữ liệu quan hệ của hệ thống & Chỉ trong mạng Docker & Volume PostgreSQL \\ \hline
 Redis & Lưu dữ liệu tạm thời và dữ liệu phục vụ thời gian thực & Chỉ trong mạng Docker & Volume Redis khi cấu hình yêu cầu \\ \hline
 Neo4j & Lưu đồ thị đồng tác giả và dữ liệu phục vụ phát hiện xung đột lợi ích & Chỉ trong mạng Docker & Volume dữ liệu và nhật ký Neo4j \\ \hline
 \end{longtable}
+\endgroup
 
 \section{Docker Compose chính}
 \label{sec:appendix-b-compose}
@@ -248,6 +254,8 @@ Neo4j & Lưu đồ thị đồng tác giả và dữ liệu phục vụ phát hi
 
 Tệp \path{deployment/docker-compose.prod.yml} mô tả các dịch vụ cần chạy trong môi trường chính thức. Frontend, backend và dịch vụ AI nhận image lần lượt từ \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE} và \CodeBreak{AI\_SERVICE\_IMAGE}; các dịch vụ dữ liệu dùng image nền tảng cố định theo phiên bản. Tác vụ \CodeBreak{backend-migrate} dùng image backend để áp dụng migration trước khi các container ứng dụng được cập nhật.
 
+\begingroup
+\setlength{\tabcolsep}{4pt}
 \begin{longtable}{|T{0.19\textwidth}|T{0.31\textwidth}|T{0.18\textwidth}|T{0.22\textwidth}|}
 \caption{Image và thành phần đóng gói của các dịch vụ}\label{tab:appendix-b-images}\\
 \hline
@@ -264,6 +272,7 @@ PostgreSQL & postgres & 15-alpine & Cơ sở dữ liệu quan hệ \\ \hline
 Redis & redis & 7-alpine & Bộ nhớ đệm và dữ liệu tạm thời \\ \hline
 Neo4j & neo4j & 5.15-community & Cơ sở dữ liệu đồ thị \\ \hline
 \end{longtable}
+\endgroup
 
 Ký hiệu \textit{[owner]} trong tên image được thay bằng chủ sở hữu kho mã khi pipeline phát hành chạy. Nhãn theo định danh commit là tham chiếu cố định dùng để truy vết phiên bản; nhãn \textit{latest} chỉ biểu thị bản phát hành mới nhất và không thay thế định danh commit trong hồ sơ triển khai.
 

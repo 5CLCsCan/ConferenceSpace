@@ -138,6 +138,8 @@ Kết quả đạt được & Trạng thái lời mời được cập nhật; b
 
 \subsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
+\begingroup
+\small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-05: Đọc, soạn và gửi phản biện}\label{tab:appendix-a-uc05}\\
 \hline
@@ -154,9 +156,12 @@ Luồng chính & Hệ thống tải bài, hạn chót và biểu mẫu; Phản b
 Luồng thay thế và lỗi & Nếu Reviewer Initial Analysis không khả dụng, Phản biện viên vẫn đọc và phản biện thủ công; khi lưu nháp hoặc gửi chính thức, phát hiện mức blocking chỉ được ưu tiên hiển thị để Phản biện viên xem xét và quyết định chỉnh sửa hoặc tiếp tục gửi; nếu bước rà soát không thể thực hiện, backend yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký \\ \hline
 Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản biện đã gửi; mọi cập nhật sau phản hồi được gắn với bài tương ứng \\ \hline
 \end{longtable}
+\endgroup
 
 \subsection{UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}
 
+\begingroup
+\small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-06: Phân công phản biện và kiểm tra xung đột lợi ích}\label{tab:appendix-a-uc06}\\
 \hline
@@ -173,9 +178,12 @@ Luồng chính & Hệ thống chuẩn bị tập bài và Phản biện viên; t
 Luồng thay thế và lỗi & Nếu Neo4j không khả dụng, hệ thống dùng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị; lượt dự phòng bỏ ngưỡng điểm và giới hạn tải nhưng giữ xung đột lợi ích; nếu vẫn thiếu người, hệ thống giữ bài trong danh sách cần xử lý; đề xuất thủ công trả cảnh báo xung đột nhưng hiện chưa ngăn lưu \\ \hline
 Kết quả đạt được & Hệ thống trả đề xuất để Chủ tọa xem hoặc lưu phân công sau khi Chủ tọa xác nhận \\ \hline
 \end{longtable}
+\endgroup
 
 \subsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
 
+\begingroup
+\small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-07: Quản lý hội nghị và theo dõi tiến độ}\label{tab:appendix-a-uc07}\\
 \hline
@@ -192,8 +200,8 @@ Luồng chính & Chủ tọa cấu hình thông tin, chuyên đề, hạn chót,
 Luồng thay thế và lỗi & Backend từ chối cấu hình thiếu trường bắt buộc hoặc có hạn chót không hợp lệ; bảng điều khiển giữ trạng thái cần xử lý khi thiếu Phản biện viên hoặc bản phản biện; hệ thống từ chối thao tác ghi của người dùng không có quyền \\ \hline
 Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật \\ \hline
 \end{longtable}
+\endgroup
 
-\pagebreak
 Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu diễn trạng thái hội nghị và mối quan hệ giữa lời mời tham gia hội đồng với phân công bài.
 
 \begin{figure}[H]
@@ -246,6 +254,8 @@ Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu di�
 
 \subsection{UC-08. Trao đổi theo bài nộp}
 
+\begingroup
+\small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-08: Trao đổi theo bài nộp}\label{tab:appendix-a-uc08}\\
 \hline
@@ -262,15 +272,16 @@ Luồng chính & Phản biện viên tạo chuỗi và tin nhắn đầu tiên; 
 Luồng thay thế và lỗi & Tác giả và Chủ tọa không được tạo chuỗi; Chủ tọa không gửi tin nhắn trong cách triển khai hiện tại; backend từ chối thao tác khi người dùng không liên quan đến bài hoặc chuỗi, khi giai đoạn không cho phép hoặc khi tệp đính kèm vượt giới hạn \\ \hline
 Kết quả đạt được & Chuỗi, tin nhắn và thông báo được lưu gắn với bài nộp trong phạm vi quyền của từng vai trò \\ \hline
 \end{longtable}
+\endgroup
 
 Trong phiên bản hiện tại, Chủ tọa/Đồng chủ tọa có quyền xem toàn bộ lịch sử thảo luận của bài nhưng không tạo chuỗi hoặc gửi tin nhắn trong chuỗi.
 
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
-  participant/.style={draw=black!65, rounded corners=2pt, align=center, text width=2.5cm, minimum height=9mm, fill=blue!7},
+  participant/.style={draw=black!65, rounded corners=2pt, align=center, text width=2.65cm, minimum height=9mm, fill=blue!7},
   message/.style={midway, above=2pt, fill=white, inner xsep=2pt, inner ysep=1pt, align=center},
   line/.style={dashed,draw=black!50}]
   \node[participant] (reviewer) at (0,0) {Phản biện viên};
@@ -303,8 +314,6 @@ Trong phiên bản hiện tại, Chủ tọa/Đồng chủ tọa có quyền xem
 \caption{Trình tự trao đổi giữa các vai trò trong UC-08}
 \label{fig:appendix-a-uc08-sequence}
 \end{figure}
-\pagebreak
-
 \subsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -323,8 +332,6 @@ Luồng chính & Backend thu thập bản phản biện, điểm, phản hồi v
 Luồng thay thế và lỗi & Nếu dữ liệu chưa đủ, hệ thống nêu phần bằng chứng còn thiếu; nếu dịch vụ AI gặp lỗi, Chủ tọa vẫn đọc dữ liệu gốc để tiếp tục; khi bằng chứng thay đổi, hệ thống đánh dấu bản tổng hợp cũ là không còn hiệu lực \\ \hline
 Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể kiểm tra lại; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
 \end{longtable}
-\pagebreak
-
 \subsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
@@ -544,6 +551,8 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 Hình~\ref{fig:appendix-a-ai-erd} tách riêng các bảng thuộc schema \textit{ai}. Các bảng này lưu phiên Chatbot Agent, nhật ký công cụ, lượt chạy của Submission Gating, Review Quality Auditor và Reviewer Initial Analysis. Chair Decision Copilot trong phần backend sử dụng dữ liệu nguồn và lớp lưu trữ riêng của hệ thống; phần phụ lục chỉ mô tả bảng đã xác nhận trong schema \textit{ai}.
 
+Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện cùng mã chính sách cho mỗi lần chạy. Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill không lưu kết quả theo cơ chế hết hiệu lực mà trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa. Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
+
 \begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
@@ -575,8 +584,6 @@ Hình~\ref{fig:appendix-a-ai-erd} tách riêng các bảng thuộc schema \texti
 \caption{ERD của các bảng lưu vết trong schema \textit{ai}}
 \label{fig:appendix-a-ai-erd}
 \end{figure}
-
-Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện cùng mã chính sách cho mỗi lần chạy. Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill không lưu kết quả theo cơ chế hết hiệu lực mà trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa. Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
 
 \subsection{Ma trận quyền trong chức năng thảo luận}
 
@@ -624,10 +631,9 @@ Nếu một trong hai tập rỗng, hệ thống gán điểm bằng \(0\). Jacc
 \item Hệ thống trả đề xuất, điểm số, số phân công phát sinh và danh sách bài còn thiếu người để Chủ tọa kiểm tra.
 \end{enumerate}
 
-\pagebreak
 Sơ đồ~\ref{fig:appendix-a-matching-coi-execution} biểu diễn luồng đối sánh và kiểm tra xung đột lợi ích từ dữ liệu đầu vào đến đề xuất để Chủ tọa xác nhận.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.96\textwidth, max height=0.74\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
@@ -727,7 +733,7 @@ Lỗi & Cảnh báo đọc tệp, thiếu thông tin hoặc thất bại khi t�
 
 \subsection{Submission Gating}
 
-Ở mức triển khai, Submission Gating gồm các bước: \textit{intake\_normalization}, \textit{binary\_integrity}, \textit{document\_extraction}, \textit{format\_compliance}, \textit{fact\_derivation}, \textit{content\_evaluation}, \textit{policy\_evaluation}, \textit{verdict\_mapping}, \textit{guidance\_rendering} và \textit{persistence\_audit}. Trong báo cáo, các bước này được nhóm thành các giai đoạn khái quát ở Bảng~\ref{tab:appendix-a-gating-stages}. Lỗi cấu trúc, định dạng không được hỗ trợ, tệp hỏng hoặc không thể trích xuất tạo lỗi chặn rõ ràng. Quy tắc về số trang, tài liệu tham khảo, phần bắt buộc, ẩn danh, cụm từ cấm, phông chữ, lề, khổ giấy và số cột có thể tạo trạng thái chặn. Nhận định định tính của AI chỉ tạo cảnh báo hoặc trạng thái đạt.
+Ở mức triển khai, Submission Gating gồm các bước: \CodeBreak{intake\_normalization}, \CodeBreak{binary\_integrity}, \CodeBreak{document\_extraction}, \CodeBreak{format\_compliance}, \CodeBreak{fact\_derivation}, \CodeBreak{content\_evaluation}, \CodeBreak{policy\_evaluation}, \CodeBreak{verdict\_mapping}, \CodeBreak{guidance\_rendering} và \CodeBreak{persistence\_audit}. Trong báo cáo, các bước này được nhóm thành các giai đoạn khái quát ở Bảng~\ref{tab:appendix-a-gating-stages}. Lỗi cấu trúc, định dạng không được hỗ trợ, tệp hỏng hoặc không thể trích xuất tạo lỗi chặn rõ ràng. Quy tắc về số trang, tài liệu tham khảo, phần bắt buộc, ẩn danh, cụm từ cấm, phông chữ, lề, khổ giấy và số cột có thể tạo trạng thái chặn. Nhận định định tính của AI chỉ tạo cảnh báo hoặc trạng thái đạt.
 
 \begin{longtable}{|N{0.08\textwidth}|T{0.25\textwidth}|T{0.31\textwidth}|T{0.25\textwidth}|}
 \caption{Các giai đoạn khái quát của Submission Gating}\label{tab:appendix-a-gating-stages}\\
@@ -746,10 +752,9 @@ Bước & Giai đoạn & Xử lý & Kết quả lỗi \\ \hline
 7 & Ánh xạ, hướng dẫn và lưu vết & Tổng hợp phát hiện, hướng dẫn, mã nhận diện và dữ liệu kiểm toán & Trả trạng thái đạt, cảnh báo, chặn hoặc lỗi \\ \hline
 \end{longtable}
 
-\pagebreak
 Sơ đồ~\ref{fig:appendix-a-submission-gating-execution} biểu diễn luồng thực thi nội bộ của Submission Gating và cách backend xử lý kết quả.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
@@ -840,10 +845,9 @@ Warn & Có vấn đề cần xem lại nhưng không ngăn thao tác & Giao di�
 Lỗi thực thi & Dịch vụ không thể hoàn tất bước rà soát & Backend thông báo lỗi, yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký; nhánh này tách biệt với mức ưu tiên của phát hiện chất lượng \\ \hline
 \end{longtable}
 
-\pagebreak
 Sơ đồ~\ref{fig:appendix-a-reviewer-support-lifecycle} biểu diễn vòng đời hỗ trợ Phản biện viên từ bản định hướng ban đầu đến bước rà soát chất lượng bản phản biện.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
@@ -912,10 +916,9 @@ Hiệu lực & Mã nhận diện toàn bộ bộ bằng chứng và từng thàn
 Kiểm soát & Chủ tọa đối chiếu trực tiếp với dữ liệu gốc & Nếu dịch vụ AI lỗi, Chủ tọa vẫn tiếp tục bằng bằng chứng gốc \\ \hline
 \end{longtable}
 
-\pagebreak
 Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn quá trình tạo bộ bằng chứng, kiểm tra hiệu lực và tạo bản tổng hợp cho Chủ tọa.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.97\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
@@ -1003,7 +1006,6 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 \label{fig:appendix-a-chatbot-flow}
 \end{figure}
 
-\pagebreak
 \subsection{Kiểm soát dùng chung}
 
 \begin{longtable}{|T{0.28\textwidth}|T{0.62\textwidth}|}
