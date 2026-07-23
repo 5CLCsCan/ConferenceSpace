@@ -3,7 +3,7 @@
 \chapter{Xây dựng hệ thống}
 \label{Chapter3}
 
-Chương 2 đã chuyển nhu cầu của người dùng thành các yêu cầu hệ thống và nguyên tắc thiết kế cho ConferenceSpace. Chương này trình bày cách nhóm xây dựng hệ thống theo các yêu cầu đó, bao gồm mô hình trách nhiệm, các use case, kiến trúc, dữ liệu, thuật toán xác định, sáu luồng AI và môi trường vận hành. Nội dung chính tập trung vào quyết định thiết kế, hành vi quan sát được và trách nhiệm của từng vai trò. Phụ lục~\ref{AppendixA} cung cấp đặc tả chi tiết để truy vết use case, dữ liệu, quyền, thuật toán và luồng AI; Phụ lục~\ref{AppendixB} cung cấp cấu hình môi trường và quy trình triển khai có thể đối chiếu.
+Chương~\ref{Chapter2} đã chuyển nhu cầu của người dùng thành các yêu cầu hệ thống và nguyên tắc thiết kế cho ConferenceSpace. Chương này trình bày cách nhóm xây dựng hệ thống theo các yêu cầu đó, bao gồm mô hình trách nhiệm, các use case, kiến trúc, dữ liệu, thuật toán xác định, sáu luồng AI và môi trường vận hành. Nội dung chính tập trung vào quyết định thiết kế, hành vi quan sát được và trách nhiệm của từng vai trò. Phụ lục~\ref{AppendixA} cung cấp đặc tả chi tiết để truy vết use case, dữ liệu, quyền, thuật toán và luồng AI; Phụ lục~\ref{AppendixB} cung cấp cấu hình môi trường và quy trình triển khai có thể đối chiếu.
 
 \section{Tổng quan hệ thống}
 \label{sec:ch3-demo-overview}
@@ -12,7 +12,9 @@ Chương 2 đã chuyển nhu cầu của người dùng thành các yêu cầu h
 
 ConferenceSpace phân chia tác vụ theo ba lớp trách nhiệm: nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ. Cách phân chia này dựa trên cơ chế tạo kết quả và thẩm quyền sử dụng kết quả, không dựa trên ranh giới triển khai. Vì vậy, một thành phần kỹ thuật có thể tham gia nhiều lớp; chẳng hạn, backend vừa kiểm tra quyền và cập nhật trạng thái nghiệp vụ, vừa thực hiện thuật toán đối sánh Phản biện viên.
 
-\begin{table}[H]
+Bảng~\ref{tab:ch3-demo-responsibility} tóm tắt tác vụ, kết quả và chủ thể chịu trách nhiệm trong từng lớp.
+
+\begin{table}[!htbp]
 \centering
 \caption{Trách nhiệm và thẩm quyền trong ba lớp của ConferenceSpace}
 \label{tab:ch3-demo-responsibility}
@@ -29,7 +31,7 @@ AI hỗ trợ & Trích xuất thông tin, kiểm tra bản thảo, hỗ trợ đ
 
 Hình~\ref{fig:ch3-demo-responsibility} cho thấy kết quả hỗ trợ không tự cập nhật trạng thái hệ thống. Người dùng có thẩm quyền phải lựa chọn hành động tiếp theo; backend chỉ ghi dữ liệu sau khi kiểm tra quyền và điều kiện nghiệp vụ. Ranh giới này giữ trách nhiệm đối với quyết định học thuật ở người dùng được phân quyền.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \begin{adjustbox}{max width=\textwidth}
 \begin{tikzpicture}[>=Latex,
@@ -69,7 +71,7 @@ AI hỗ trợ từng vai trò tại các bước cụ thể nhưng không thay �
 
 \subsection{Bản đồ use case}
 
-Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò. UC-08 và UC-10 được dùng chung giữa nhiều vai trò nhưng vẫn áp dụng quyền riêng cho từng người dùng và tài nguyên.
+Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp vụ thay vì theo từng endpoint. Hình~\ref{fig:ch3-demo-usecase-map} biểu diễn phạm vi chức năng theo ba vai trò; trong đó UC-08 và UC-10 được chia sẻ giữa nhiều vai trò nhưng vẫn áp dụng quyền truy cập riêng theo từng người dùng và tài nguyên. Bảng~\ref{tab:ch3-demo-usecase-overview} tóm tắt mục tiêu, tác nhân chính và kết quả đầu ra của từng use case, làm cơ sở cho phần đặc tả chi tiết ở các mục tiếp theo.
 
 \begin{figure}[!htbp]
   \centering
@@ -137,7 +139,7 @@ Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp v
         \draw[thin] (0, 0.75) -- (0.4, 0.35);
         \draw[thin] (0, 0.0) -- (-0.35, -0.5);
         \draw[thin] (0, 0.0) -- (0.35, -0.5);
-        \node[actorLabel, text width=10cm, align=center] at (0,-1.25) {Chủ tọa /\\Đồng chủ tọa};
+        \node[actorLabel, text width=10cm, align=center] at (0,-1.25) {Chủ tọa/\\Đồng chủ tọa};
         \coordinate (chairPt) at (0, 1.42);
       \end{scope}
       \draw[assoc] (authorPt) -- (-9.5, 3.35) |- (uc01.west);
@@ -167,10 +169,10 @@ Nhóm xác định mười use case theo mục tiêu và vòng đời nghiệp v
 \begin{longtable}{|N{0.09\textwidth}|T{0.28\textwidth}|T{0.20\textwidth}|T{0.31\textwidth}|}
 \caption{Tổng quan các use case của ConferenceSpace}\label{tab:ch3-demo-usecase-overview}\\
 \hline
-Mã & Mục tiêu & Tác nhân chính & Kết quả \\ \hline
+\TableHeader{Mã} & \TableHeader{Mục tiêu} & \TableHeader{Tác nhân chính} & \TableHeader{Kết quả} \\ \hline
 \endfirsthead
 \hline
-Mã & Mục tiêu & Tác nhân chính & Kết quả \\ \hline
+\TableHeader{Mã} & \TableHeader{Mục tiêu} & \TableHeader{Tác nhân chính} & \TableHeader{Kết quả} \\ \hline
 \endhead
 UC-01 & Khám phá và theo dõi hội nghị & Tác giả & Hội nghị phù hợp được chọn hoặc lưu theo dõi \\ \hline
 UC-02 & Hoàn tất và kiểm tra bài nộp & Tác giả & Bản nháp được lưu hoặc bài được gửi sau khi xác nhận \\ \hline
@@ -185,17 +187,17 @@ UC-10 & Truy vấn trạng thái và hướng dẫn & Ba vai trò & Câu trả l
 \end{longtable}
 \endgroup
 
-Bảng~\ref{tab:ch3-demo-requirement-trace} đối chiếu các nhóm yêu cầu chức năng ở Chương 2 với use case và phần thiết kế chịu trách nhiệm giải thích cơ chế. Phụ lục~\ref{sec:appendix-a-usecases} trình bày đặc tả đầy đủ của từng use case.
+Bảng~\ref{tab:ch3-demo-requirement-trace} đối chiếu các nhóm yêu cầu chức năng ở Chương~\ref{Chapter2} với use case và phần thiết kế chịu trách nhiệm giải thích cơ chế. Phụ lục~\ref{sec:appendix-a-usecases} trình bày đặc tả đầy đủ của từng use case.
 
 \begingroup
 \setlength{\tabcolsep}{2pt}
 \begin{longtable}{|T{0.29\textwidth}|T{0.20\textwidth}|T{0.39\textwidth}|}
 \caption{Truy vết yêu cầu đến use case và thành phần thiết kế}\label{tab:ch3-demo-requirement-trace}\\
 \hline
-Mã yêu cầu & Use case & Thành phần thiết kế chính \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Thành phần thiết kế chính} \\ \hline
 \endfirsthead
 \hline
-Mã yêu cầu & Use case & Thành phần thiết kế chính \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Thành phần thiết kế chính} \\ \hline
 \endhead
 F-AUTHOR-01 & UC-01 & Giao diện khám phá và dữ liệu hội nghị \\ \hline
 F-AUTHOR-02, F-AUTHOR-06 & UC-02, UC-03, UC-08 & Vòng đời bài nộp, phản hồi và thảo luận \\ \hline
@@ -324,7 +326,7 @@ Hình~\ref{fig:ch3-demo-uc02-autofill} trình bày giao diện tải lên bản 
 \label{fig:ch3-demo-uc02-autofill}
 \end{figure}
 
-Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết quả kiểm tra tự động của Submission Gating theo các trạng thái \textit{pass}, \textit{warn} và \textit{block}.
+Trước khi gửi bài, hệ thống thực hiện cơ chế \textit{Submission Gating}, tức là tự động kiểm tra bài nộp dựa trên các quy tắc và yêu cầu bắt buộc của hội nghị. Kết quả kiểm tra được phân loại thành ba trạng thái \textit{pass}, \textit{warn} và \textit{block}, như minh họa trong Hình~\ref{fig:ch3-demo-uc02-gating}.
 
 \begin{figure}[!htbp]
 \centering
@@ -333,7 +335,7 @@ Trước khi gửi, Hình~\ref{fig:ch3-demo-uc02-gating} thể hiện kết qu�
 \label{fig:ch3-demo-uc02-gating}
 \end{figure}
 
-Song song đó, Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện khai báo đồng tác giả và xung đột lợi ích mà Tác giả hoàn tất trước khi chức năng Kiểm tra trước khi nộp bài (Submission Gating) kiểm tra.
+Trước khi thực hiện bước kiểm tra này, Tác giả phải khai báo đầy đủ thông tin đồng tác giả và các xung đột lợi ích với Phản biện viên hoặc đơn vị liên quan. Hình~\ref{fig:ch3-demo-uc02-conflict} minh họa giao diện thực hiện bước khai báo.
 
 \begin{figure}[!htbp]
 \centering
@@ -418,7 +420,7 @@ Hình~\ref{fig:ch3-demo-uc05-workspace2} trình bày một biến thể khác c�
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/chapter_3_uc05_reviewer_workspace_2.png}
-\caption{Không gian làm việc và biểu mẫu phản biện (biến thể bố cục khác)}
+\caption{Không gian làm việc và biểu mẫu phản biện (biến thể khác)}
 \label{fig:ch3-demo-uc05-workspace2}
 \end{figure}
 
@@ -462,7 +464,7 @@ Với các cặp cần xác minh thêm, Hình~\ref{fig:ch3-demo-uc06-coi} minh h
 \label{fig:ch3-demo-uc06-coi}
 \end{figure}
 
-Sau khi hệ thống hoàn tất đối sánh, Hình~\ref{fig:ch3-demo-uc06-suggestions} liệt kê các đề xuất đối sánh cùng điểm phù hợp để Chủ tọa xem xét trước khi xác nhận.
+Sau khi hệ thống hoàn tất đối sánh, Hình~\ref{fig:ch3-demo-uc06-suggestions} liệt kê các đề xuất cùng điểm phù hợp để Chủ tọa xem xét trước khi xác nhận.
 
 \begin{figure}[!htbp]
 \centering
@@ -561,7 +563,7 @@ Hình~\ref{fig:ch3-demo-uc10} minh họa giao diện hội thoại và hỗ tr�
 
 \subsection{Kiến trúc tổng thể}
 
-ConferenceSpace gồm giao diện web Next.js, backend Go và Gin, dịch vụ AI FastAPI, PostgreSQL, Redis, Neo4j và cổng Caddy. Backend nghiệp vụ là một ứng dụng nguyên khối có kiến trúc phân lớp. Nhóm không chia nhỏ nghiệp vụ thành các vi dịch vụ khi chưa có nhu cầu vận hành tương ứng. Dịch vụ AI và các kho dữ liệu được tách tại ranh giới triển khai vì có vòng đời, tải xử lý và yêu cầu truy cập khác với backend.
+ConferenceSpace gồm giao diện web Next.js, backend được xây dựng bằng Go và Gin, dịch vụ AI sử dụng FastAPI, PostgreSQL, Redis, Neo4j và cổng Caddy. Backend nghiệp vụ là một ứng dụng nguyên khối có kiến trúc phân lớp. Nhóm không chia nhỏ nghiệp vụ thành các vi dịch vụ khi chưa có nhu cầu vận hành tương ứng. Dịch vụ AI và các kho dữ liệu được tách tại ranh giới triển khai vì có vòng đời, tải xử lý và yêu cầu truy cập khác với backend. Hình~\ref{fig:ch3-demo-architecture} trình bày quan hệ giao tiếp và ranh giới dữ liệu giữa các thành phần này.
 
 \begin{figure}[!htbp]
 \centering
@@ -650,7 +652,7 @@ Với tập miền chuyên môn của bài nộp là \(S\) và của Phản bi�
 J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
 \]
 
-Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\) vì không có bằng chứng về mức độ phù hợp. Nhóm chọn Jaccard vì điểm số có thể giải thích trực tiếp từ số miền chuyên môn chung và không cần dữ liệu huấn luyện. Thuật toán tham lam sắp xếp ứng viên theo điểm giảm dần; khi các ứng viên bằng điểm, hệ thống ưu tiên người có ít bài đang được phân công hơn, sau đó dùng thứ tự cố định theo định danh nếu mức tải vẫn bằng nhau. Phương án này tạo thứ tự ổn định và đơn giản hóa việc kiểm tra, nhưng vẫn có thể bỏ lỡ phương án có tổng mức phù hợp cao hơn cho toàn bộ hội nghị.
+Nếu cả hai tập rỗng, hệ thống gán điểm bằng \(0\) vì không có bằng chứng về mức độ phù hợp. Nhóm chọn Jaccard vì điểm số có thể giải thích trực tiếp từ số miền chuyên môn chung và không cần dữ liệu huấn luyện. Thuật toán tham lam sắp xếp ứng viên theo điểm giảm dần; khi các ứng viên bằng điểm, hệ thống ưu tiên người có ít bài đang được phân công hơn, sau đó dùng thứ tự cố định theo định danh nếu mức tải vẫn bằng nhau. Phương án này tạo thứ tự ổn định và đơn giản hóa việc kiểm tra, nhưng vẫn có thể bỏ lỡ phương án có tổng mức phù hợp cao hơn cho toàn bộ hội nghị. Hình~\ref{fig:ch3-demo-matching} khái quát hai lượt xử lý của thuật toán.
 
 \begin{figure}[!htbp]
 \centering
@@ -727,6 +729,8 @@ Chatbot Agent & Câu trả lời và kết quả công cụ trong phạm vi quy�
 \end{longtable}
 \endgroup
 
+\pagebreak
+
 Các luồng dùng chung việc kiểm tra cấu trúc đầu ra, mã nhận diện dữ liệu, mã chính sách khi cần, xử lý lỗi và nhật ký kiểm toán. Những cơ chế này hỗ trợ truy vết nhưng không chứng minh đầu ra luôn đúng. Riêng Review Quality Auditor phân loại phát hiện theo mức độ nghiêm trọng: mức \textit{blocking} được làm nổi bật hơn mức \textit{warning}, nhưng không mức nào ngăn thao tác gửi bản phản biện. Người dùng phải đối chiếu kết quả với dữ liệu gốc và chịu trách nhiệm về thao tác nghiệp vụ tiếp theo. Phụ lục~\ref{sec:appendix-a-ai} trình bày đầu vào, các giai đoạn xử lý, đầu ra, lỗi và điểm kiểm soát của từng luồng.
 
 \section{Môi trường triển khai và vận hành}
@@ -740,7 +744,7 @@ Môi trường phát triển cục bộ sử dụng Docker Compose để quản 
 
 Môi trường triển khai chính thức đóng gói Caddy, giao diện web, backend, tác vụ cập nhật lược đồ, dịch vụ AI, PostgreSQL, Redis và Neo4j thành các dịch vụ độc lập. Caddy tiếp nhận lưu lượng từ Internet, định tuyến đến giao diện web hoặc backend và cung cấp HTTPS. Các kho dữ liệu không mở cổng trực tiếp ra Internet; cấu hình tách mạng ứng dụng khỏi mạng dữ liệu nội bộ.
 
-GitHub Actions xây dựng song song image của giao diện, backend và dịch vụ AI, gắn thẻ theo commit SHA rồi đẩy lên GitHub Container Registry. Máy chủ kéo đúng image đã xây dựng, chạy migration và cập nhật các container bằng Docker Compose. Cấu hình thực thi cùng giá trị bí mật được lưu ngoài mã nguồn trong tệp môi trường trên máy chủ hoặc GitHub Secrets.
+GitHub Actions xây dựng song song image của giao diện, backend và dịch vụ AI, gắn thẻ theo commit SHA rồi đẩy lên GitHub Container Registry. Máy chủ kéo đúng image đã xây dựng, chạy migration và cập nhật các container bằng Docker Compose. Cấu hình thực thi cùng giá trị bí mật được lưu ngoài mã nguồn trong tệp môi trường trên máy chủ hoặc GitHub Secrets. Luồng xây dựng và triển khai tự động được trình bày trong Hình~\ref{fig:ch3-demo-cicd}.
 
 \begin{figure}[!htbp]
 \centering
@@ -748,12 +752,12 @@ GitHub Actions xây dựng song song image của giao diện, backend và dịch
 \begin{tikzpicture}[>=Latex,
   pipelineNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.2cm, minimum height=10mm, fill=blue!7}]
   \node[pipelineNode] (source) at (0,0) {Đẩy mã nguồn hoặc chạy thủ công};
-  \node[pipelineNode] (frontend) at (-5.0,-2.8) {Build frontend};
-  \node[pipelineNode] (backend) at (0,-2.8) {Build backend};
-  \node[pipelineNode] (ai) at (5.0,-2.8) {Build dịch vụ AI};
+  \node[pipelineNode] (frontend) at (-5.0,-2.8) {Xây dựng frontend};
+  \node[pipelineNode] (backend) at (0,-2.8) {Xây dựng backend};
+  \node[pipelineNode] (ai) at (5.0,-2.8) {Xây dựng dịch vụ AI};
   \node[pipelineNode] (ghcr) at (0,-5.6) {Đẩy image lên GitHub Container Registry};
   \node[pipelineNode] (vps) at (0,-8.4) {VPS kéo image theo commit SHA};
-  \node[pipelineNode] (migration) at (0,-11.2) {Chạy migration};
+  \node[pipelineNode] (migration) at (0,-11.2) {Chạy cập nhật lược đồ};
   \node[pipelineNode] (compose) at (0,-14.0) {Docker Compose cập nhật dịch vụ};
   \draw[-{Latex},thick] (source) -- (frontend);
   \draw[-{Latex},thick] (source) -- (backend);
@@ -775,8 +779,9 @@ Chương này chỉ giữ kiến trúc và quyết định vận hành cần thi
 \section{Tổng kết chương}
 \label{sec:ch3-demo-conclusion}
 
-Chương 3 đã trình bày cách ConferenceSpace phân bổ trách nhiệm giữa nghiệp vụ hội nghị, thuật toán xác định và AI hỗ trợ. Mười use case cùng các giao diện đại diện mô tả vòng đời chính của Tác giả, Phản biện viên và Chủ tọa. Kiến trúc kỹ thuật triển khai các vòng đời này bằng giao diện theo vai trò, backend có phân quyền, PostgreSQL, Neo4j, Redis, dịch vụ AI và cổng truy cập trong môi trường triển khai.
+Chương này đã trình bày cách ConferenceSpace phân bổ trách nhiệm giữa nghiệp vụ hội nghị, thuật toán xác định và AI hỗ trợ. Mười use case cùng các giao diện đại diện mô tả vòng đời chính của Tác giả, Phản biện viên và Chủ tọa. Kiến trúc kỹ thuật triển khai các vòng đời này bằng giao diện theo vai trò, backend có phân quyền, PostgreSQL, Neo4j, Redis, dịch vụ AI và cổng truy cập trong môi trường triển khai.
 
 Luận điểm thiết kế trung tâm là hệ thống phải tách các quyết định cần kết quả xác định khỏi luồng tạo nội dung bằng mô hình ngôn ngữ. Đối sánh Phản biện viên và phát hiện xung đột lợi ích có đầu vào, công thức, ràng buộc và cách xử lý riêng; AI chỉ hỗ trợ nhập liệu, đọc, rà soát, tổng hợp bằng chứng và truy vấn. Người dùng có thẩm quyền vẫn xác nhận dữ liệu nghiệp vụ và quyết định học thuật.
 
-Thiết kế cũng xác định các giới hạn và ranh giới cần được giữ nguyên khi đánh giá. Thuật toán đối sánh có tiêu chí phân xử khi các ứng viên bằng điểm nhưng chiến lược tham lam vẫn không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Kiểm tra chất lượng nhận xét (Review Quality Auditor) chỉ làm nổi bật phát hiện mức \textit{blocking} hơn mức \textit{warning}; các nhãn này không ngăn Phản biện viên gửi bản phản biện. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương 4 cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục A và Phụ lục B cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
+Thiết kế cũng xác định các giới hạn và ranh giới cần được giữ nguyên khi đánh giá. Thuật toán đối sánh chưa có tiêu chí phân xử riêng khi các cặp bằng điểm; chiến lược tham lam cũng không bảo đảm phương án tối ưu toàn cục hoặc phân bổ đủ người cho mọi bài. Luồng thêm đề xuất thủ công cảnh báo xung đột lợi ích nhưng chưa ngăn ghi dữ liệu. Kiểm tra chất lượng nhận xét (Review Quality Auditor) chỉ làm nổi bật phát hiện mức \textit{blocking} hơn mức \textit{warning}; các nhãn này không ngăn Phản biện viên gửi bản phản biện. Việc cấu hình môi trường và image theo commit SHA hỗ trợ truy vết bản phát hành nhưng chưa chứng minh khả năng vận hành dài hạn, rollback hoặc khôi phục sau sự cố. Chương~\ref{Chapter4} cần đánh giá từng luận điểm trong phạm vi bằng chứng tương ứng; Phụ lục~\ref{AppendixA} và Phụ lục~\ref{AppendixB} cung cấp chi tiết để người đọc đối chiếu các kết luận đó.
+

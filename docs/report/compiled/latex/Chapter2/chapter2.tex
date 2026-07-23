@@ -38,8 +38,6 @@ Nhóm thu thập dữ liệu bằng biểu mẫu trực tuyến, kết hợp câ
 
 \subsection{Kết quả khảo sát theo các vấn đề nổi bật}
 
-Năm khó khăn được lựa chọn nhiều nhất liên quan đến chỉ dẫn thao tác, nhập liệu, kiểm tra lỗi và theo dõi thông tin. Bảng \ref{tab:ch2-survey-top-issues} dưới đây trình bày số lượng, tỷ lệ và hàm ý tương ứng.
-
 \begin{table}[!htbp]
 \caption{Kết quả khảo sát các vấn đề nổi bật}
 \label{tab:ch2-survey-top-issues}
@@ -53,9 +51,12 @@ Không biết bước tiếp theo cần làm là gì & 35 & 49,3\% & Cần chỉ
 Biểu mẫu nhập liệu dài và lặp lại & 34 & 47,9\% & Cần giảm lượng thông tin người dùng phải nhập lại và cho phép kiểm tra trước khi gửi. \\ \hline
 Phải đọc nhiều hướng dẫn dài trước khi thao tác & 33 & 46,5\% & Cần tổ chức thao tác theo từng bước và cung cấp hướng dẫn theo ngữ cảnh. \\ \hline
 Không có kiểm tra lỗi sớm trước khi nộp chính thức & 30 & 42,3\% & Cần phát hiện lỗi hoặc thiếu sót trước khi bài đi vào quy trình phản biện. \\ \hline
-Thông báo và hạn chót bị phân tán, dễ bỏ sót & 28 & 39,4\% & Cần tập trung trạng thái, hạn chót và thông báo liên quan. \\ \hline
+Thông báo và hạn chót nộp bài bị phân tán, dễ bỏ sót & 28 & 39,4\% & Cần tập trung trạng thái, hạn chót nộp bài và thông báo liên quan. \\ \hline
 \end{tabular}
 \end{table}
+
+\pagebreak
+Năm khó khăn được lựa chọn nhiều nhất liên quan đến chỉ dẫn thao tác, nhập liệu, kiểm tra lỗi và theo dõi thông tin. Bảng \ref{tab:ch2-survey-top-issues} trình bày số lượng, tỷ lệ và hàm ý tương ứng.
 
 Các kết quả cho thấy người dùng không chỉ cần đủ chức năng nghiệp vụ mà còn cần một quy trình dễ theo dõi, hạn chế nhập lại và phát hiện thiếu sót trước các bước quan trọng.
 
@@ -76,12 +77,10 @@ Trong mẫu 7 Chủ tọa, cảnh báo xung đột lợi ích và bảng điều
 \hline
 \TableHeader{Tính năng} & \TableHeader{Kết quả ghi nhận} & \TableHeader{Diễn giải} \\ \hline
 Cảnh báo xung đột lợi ích & 5/7 Chủ tọa đánh giá cao & Cần cảnh báo sớm, nhưng người có thẩm quyền vẫn phải xác nhận kết quả. \\ \hline
-Bảng điều khiển tóm tắt tình trạng hội nghị & 4/7 Chủ tọa đánh giá cao & Cần tập trung tiến độ, hạn chót và công việc cần xử lý. \\ \hline
+Bảng điều khiển tóm tắt tình trạng hội nghị & 4/7 Chủ tọa đánh giá cao & Cần tập trung tiến độ, hạn chót nộp bài và công việc cần xử lý. \\ \hline
 Gợi ý Phản biện viên theo chuyên môn & 2/7 Chủ tọa đánh giá cao & Tính năng được ưu tiên thấp hơn trong mẫu; khảo sát chưa xác định nguyên nhân. \\ \hline
 \end{tabular}
 \end{table}
-
-Với quy mô nhóm hiện có, kết quả cung cấp thứ tự ưu tiên ban đầu cho thiết kế; nguyên nhân lựa chọn và mức độ khái quát cần được kiểm tra trên mẫu Chủ tọa lớn hơn.
 
 \subsubsection{b) Nhóm Tác giả}
 
@@ -104,8 +103,6 @@ Submission Gating & 40/50 người trả lời (80,0\%) đánh giá hữu ích h
 Hai chức năng từ Bảng~\ref{tab:ch2-author-preferences} đáp ứng các nhu cầu bổ trợ: Submission Autofill tạo dữ liệu nháp để Tác giả chỉnh sửa và xác nhận, còn Submission Gating phát hiện lỗi hoặc cảnh báo trước thời điểm gửi. Tác giả tiếp tục kiểm soát nội dung bài nộp và quyết định hoàn tất thao tác.
 
 \subsubsection{c) Nhóm Phản biện viên}
-
-Hình~\ref{fig:ch2-reviewer-ai-acceptance} thể hiện mức độ ủng hộ AI của Phản biện viên theo từng tác vụ.
 
 \begin{figure}[H]
     \centering
@@ -203,6 +200,8 @@ Bản hoàn thiện sau chấp nhận & Có ở một số nền tảng & Có t�
 \endgroup
 
 So sánh cho thấy ConferenceSpace đặt các luồng hỗ trợ trong một vòng đời xét duyệt thống nhất, nơi trạng thái và quyền hạn được duy trì từ nộp bài đến quyết định và nộp bản hoàn thiện. Kết quả này xác nhận tính liền mạch của phạm vi thiết kế và tạo cơ sở xác định các luồng cần kiểm chứng trong Chương~\ref{Chapter4}.
+
+\pagebreak
 
 \subsection{So sánh chiến lược AI và quy ước trách nhiệm}
 
@@ -460,6 +459,7 @@ F-CHAIR-06 & Chair Decision Copilot tổng hợp bằng chứng, đồng thuận
 \end{longtable}
 \endgroup
 
+\pagebreak
 \subsubsection{d) Yêu cầu chung}
 
 Bảng~\ref{tab:ch2-common-requirements} trình bày các yêu cầu chức năng chung của hệ thống.
@@ -542,6 +542,7 @@ Khả năng đánh giá & Luồng quan trọng lưu đầu vào, đầu ra, tr�
 
 ConferenceSpace áp dụng ba nguyên tắc chung. Thứ nhất, quyền hạn được gắn với trách nhiệm: Tác giả xác nhận và gửi bài, Phản biện viên viết và gửi bản phản biện, Chủ tọa xác nhận phân công và quyết định kết quả. Thứ hai, hệ thống phân biệt nguồn dữ liệu, cung cấp căn cứ và cho phép người dùng sửa, bỏ qua hoặc ghi đè đầu ra hỗ trợ. Thứ ba, phạm vi sử dụng AI được cấu hình theo chính sách hội nghị và thỏa thuận xử lý dữ liệu; các biện pháp kiểm soát cụ thể được trình bày trong Bảng~\ref{tab:ch2-responsibility-conventions} \cite{ch2ref19}.
 
+\pagebreak
 \subsection{Quy ước trách nhiệm của các chức năng hỗ trợ}
 
 \begingroup

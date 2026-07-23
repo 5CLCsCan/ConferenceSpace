@@ -202,14 +202,14 @@ Môi trường chính thức được triển khai trên máy chủ riêng ảo 
   data/.style={draw=black!65, cylinder, shape border rotate=90, aspect=0.25, align=center, text width=2.8cm, minimum height=13mm, fill=orange!9},
   flow/.style={-{Latex[length=2.4mm]}, thick, draw=black!75},
   edge label/.style={fill=white, inner sep=1pt, font=\footnotesize}]
-  \node[public] (client) at (0,0) {Trình duyệt người dùng};
+  \node[public] (client) at (0,0.5) {Trình duyệt người dùng};
   \node[public] (caddy) at (0,-1.9) {Caddy\\TLS và reverse proxy};
-  \node[app] (frontend) at (-3.0,-4.3) {Frontend\\Next.js};
+  \node[app] (frontend) at (-4.0,-4.3) {Frontend\\Next.js};
   \node[app] (backend) at (3.0,-4.3) {Backend\\Go và Gin};
-  \node[app] (ai) at (0,-6.7) {Dịch vụ AI\\FastAPI};
+  \node[app] (ai) at (0,-6) {Dịch vụ AI\\FastAPI};
   \node[data] (neo4j) at (5.4,-6.7) {Neo4j};
-  \node[data] (redis) at (-2.7,-9.1) {Redis};
-  \node[data] (postgres) at (2.7,-9.1) {PostgreSQL};
+  \node[data] (redis) at (-2.7,-8.5) {Redis};
+  \node[data] (postgres) at (2.7,-8.5) {PostgreSQL};
   \draw[flow] (client) -- node[midway, right=1.5mm, font=\footnotesize] {HTTPS} (caddy);
   \draw[flow] (caddy) -- node[edge label, above left] {giao diện} (frontend);
   \draw[flow] (caddy) -- node[edge label, above right] {WebSocket} (backend);
@@ -375,12 +375,13 @@ Yêu cầu HTTPS & Caddy & Nén bằng zstd hoặc gzip và tự động thiết
 \end{tabularx}
 \end{table}
 
+\pagebreak
 Cấu hình Caddy hiện tại dùng tên miền \path{conference-space.com} và \path{www.conference-space.com}, với các quy tắc định tuyến sau.
 
 \begin{lstlisting}[language={}, caption={Định tuyến Caddy trong môi trường chính thức}, label={lst:appendix-b-caddyfile}]
 conference-space.com, www.conference-space.com {
     encode zstd gzip
-    reverse_proxy ws/* backend:8080
+    reverse_proxy /ws/* backend:8080
     reverse_proxy web:3000
 }
 \end{lstlisting}

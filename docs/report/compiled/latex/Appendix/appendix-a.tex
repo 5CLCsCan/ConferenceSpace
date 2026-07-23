@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\chapter{Đặc tả chi tiết use case, dữ liệu, thuật toán và các luồng AI}
+\chapter{Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng AI}
 \label{AppendixA}
 
 Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
@@ -19,17 +19,19 @@ Phụ lục này trình bày chi tiết các đặc tả dùng để đối chi�
 \section{Đặc tả các use case}
 \label{sec:appendix-a-usecases}
 
-Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế hoặc lỗi và Kết quả đạt được.
+Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế hoặc lỗi và kết quả đạt được.
 
 \subsection{UC-01. Khám phá và theo dõi hội nghị}
+
+Bảng~\ref{tab:appendix-a-uc01} trình bày đặc tả chi tiết của UC-01.
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-01: Khám phá và theo dõi hội nghị}\label{tab:appendix-a-uc01}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Giúp Tác giả xác định hội nghị phù hợp, nắm chuyên đề và hạn chót trước khi bắt đầu nộp bài \\ \hline
 Tác nhân & Tác giả \\ \hline
@@ -42,13 +44,15 @@ Kết quả đạt được & Tác giả chọn được hội nghị để nộ
 
 \subsection{UC-02. Hoàn tất và kiểm tra bài nộp}
 
+Bảng~\ref{tab:appendix-a-uc02} trình bày đặc tả chi tiết của UC-02.
+
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-02: Hoàn tất và kiểm tra bài nộp}\label{tab:appendix-a-uc02}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Giúp Tác giả hoàn thiện bài nộp, giảm thao tác nhập liệu trùng lặp và phát hiện lỗi trước khi gửi chính thức \\ \hline
 Tác nhân & Tác giả là tác nhân chính; dịch vụ AI hỗ trợ Submission Autofill và Submission Gating \\ \hline
@@ -59,7 +63,9 @@ Luồng thay thế và lỗi & Nếu Submission Autofill không đọc được 
 Kết quả đạt được & Hệ thống lưu bài ở trạng thái bản nháp hoặc chuyển sang trạng thái đã gửi sau khi Tác giả xác nhận \\ \hline
 \end{longtable}
 
-\begin{figure}[H]
+Hình~\ref{fig:appendix-a-uc02-flow} khái quát luồng chính và các nhánh xử lý của UC-02.
+
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.9\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex,
@@ -73,10 +79,10 @@ Kết quả đạt được & Hệ thống lưu bài ở trạng thái bản nh�
   \node[processNode] (coi) at (0,-10.8) {Khai báo xung đột lợi ích};
   \node[processNode] (gate) at (0,-13.2) {Submission Gating};
   \node[processNode] (backend) at (0,-15.6) {Backend kiểm tra trạng thái trước khi gửi};
-  \node[decision] (status) at (0,-18.4) {Gating verdict};
-  \node[processNode] (send) at (-5.4,-21.4) {Pass: cho phép xác nhận gửi};
-  \node[processNode] (warn) at (0,-21.4) {Warn: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
-  \node[processNode] (block) at (5.4,-21.4) {Block/Error: yêu cầu sửa lỗi};
+  \node[decision] (status) at (0,-18.4) {Kết quả kiểm tra};
+  \node[processNode] (send) at (-5.4,-21.4) {\textit{Pass}: cho phép xác nhận gửi};
+  \node[processNode] (warn) at (0,-21.4) {\textit{Warn}: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
+  \node[processNode] (block) at (5.4,-21.4) {\textit{Block/Error}: yêu cầu sửa lỗi};
   \draw[-{Latex},thick] (draft) -- (autofill);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Có} (auto);
   \draw[-{Latex},thick] (autofill) -- node[fill=white] {Không} (manual);
@@ -100,13 +106,15 @@ Kết quả đạt được & Hệ thống lưu bài ở trạng thái bản nh�
 
 \subsection{UC-03. Quản lý vòng đời bài nộp}
 
+Bảng~\ref{tab:appendix-a-uc03} trình bày đặc tả chi tiết của UC-03.
+
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-03: Quản lý vòng đời bài nộp}\label{tab:appendix-a-uc03}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Cho phép Tác giả theo dõi và thực hiện các thao tác hợp lệ từ bản nháp đến kết quả cuối \\ \hline
 Tác nhân & Tác giả là tác nhân chính; Chủ tọa công bố quyết định và mở giai đoạn phản hồi \\ \hline
@@ -119,13 +127,15 @@ Kết quả đạt được & Hệ thống cập nhật trạng thái hoặc gi�
 
 \subsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
 
+Bảng~\ref{tab:appendix-a-uc04} trình bày đặc tả chi tiết của UC-04.
+
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-04: Tiếp nhận lời mời và xem bài được phân công}\label{tab:appendix-a-uc04}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Tạo luồng chuyển tiếp rõ ràng từ lời mời của Chủ tọa đến không gian làm việc của Phản biện viên \\ \hline
 Tác nhân & Phản biện viên là tác nhân chính; Chủ tọa và hệ thống thư điện tử phối hợp \\ \hline
@@ -138,15 +148,17 @@ Kết quả đạt được & Trạng thái lời mời được cập nhật; b
 
 \subsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
 
+Bảng~\ref{tab:appendix-a-uc05} trình bày đặc tả chi tiết của UC-05.
+
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-05: Đọc, soạn và gửi phản biện}\label{tab:appendix-a-uc05}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Hỗ trợ Phản biện viên quản lý quá trình đọc và hoàn thiện phản biện trong khi giữ trách nhiệm chuyên môn ở Phản biện viên \\ \hline
 Tác nhân & Phản biện viên là tác nhân chính; dịch vụ AI hỗ trợ Reviewer Initial Analysis và Review Quality Auditor \\ \hline
@@ -160,15 +172,17 @@ Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản 
 
 \subsection{UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}
 
+Bảng~\ref{tab:appendix-a-uc06} trình bày đặc tả chi tiết của UC-06.
+
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-06: Phân công phản biện và kiểm tra xung đột lợi ích}\label{tab:appendix-a-uc06}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Cung cấp cho Chủ tọa đề xuất phân công có điểm phù hợp, trạng thái xung đột và bằng chứng để kiểm tra \\ \hline
 Tác nhân & Chủ tọa hoặc Đồng chủ tọa \\ \hline
@@ -182,15 +196,17 @@ Kết quả đạt được & Hệ thống trả đề xuất để Chủ tọa 
 
 \subsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
 
+Bảng~\ref{tab:appendix-a-uc07} trình bày đặc tả chi tiết của UC-07.
+
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-07: Quản lý hội nghị và theo dõi tiến độ}\label{tab:appendix-a-uc07}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Cung cấp cho Chủ tọa một luồng quản trị từ cấu hình hội nghị đến theo dõi các điểm nghẽn trước khi ra quyết định \\ \hline
 Tác nhân & Chủ tọa hoặc Đồng chủ tọa \\ \hline
@@ -204,7 +220,7 @@ Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng t
 
 Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu diễn trạng thái hội nghị và mối quan hệ giữa lời mời tham gia hội đồng với phân công bài.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=0.96\textwidth, max height=0.78\textheight, keepaspectratio}
 \begin{tikzpicture}[>=Latex]
@@ -254,15 +270,17 @@ Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu di�
 
 \subsection{UC-08. Trao đổi theo bài nộp}
 
+Bảng~\ref{tab:appendix-a-uc08} trình bày đặc tả chi tiết của UC-08.
+
 \begingroup
 \small
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-08: Trao đổi theo bài nộp}\label{tab:appendix-a-uc08}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Cho phép Tác giả và Phản biện viên trao đổi có cấu trúc về bài nộp, đồng thời cung cấp lịch sử để Chủ tọa giám sát \\ \hline
 Tác nhân & Phản biện viên được phân công và Tác giả trao đổi; Chủ tọa hoặc Đồng chủ tọa giám sát \\ \hline
@@ -274,8 +292,7 @@ Kết quả đạt được & Chuỗi, tin nhắn và thông báo được lưu 
 \end{longtable}
 \endgroup
 
-Trong phiên bản hiện tại, Chủ tọa/Đồng chủ tọa có quyền xem toàn bộ lịch sử thảo luận của bài nhưng không tạo chuỗi hoặc gửi tin nhắn trong chuỗi.
-
+Trong phiên bản hiện tại, Chủ tọa và Đồng chủ tọa có quyền xem toàn bộ lịch sử thảo luận của bài nhưng không tạo chuỗi hoặc gửi tin nhắn trong chuỗi. Hình~\ref{fig:appendix-a-uc08-sequence} biểu diễn trình tự trao đổi và các bước kiểm tra quyền giữa những thành phần tham gia UC-08.
 
 \begin{figure}[!htbp]
 \centering
@@ -295,34 +312,37 @@ Trong phiên bản hiện tại, Chủ tọa/Đồng chủ tọa có quyền xem
   \draw[-{Latex},thick] (0,-1.4) -- node[message] {Tạo chuỗi} (3.8,-1.4);
   \draw[-{Latex},thick] (3.8,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra giai đoạn reviewing} (3.8,-4.0);
   \draw[-{Latex},thick] (3.8,-5.2) -- node[message] {Kiểm tra phân công} (7.6,-5.2);
-  \draw[-{Latex},thick] (3.8,-6.6) -- node[message] {Lưu thread + message đầu} (7.6,-6.6);
+  \draw[-{Latex},thick] (3.8,-6.6) -- node[message] {Lưu chuỗi và tin nhắn đầu tiên} (7.6,-6.6);
   \draw[-{Latex},thick] (3.8,-8.0) -- node[message] {Phát thông báo} (11.4,-8.0);
   \draw[-{Latex},thick,dashed] (11.4,-9.4) -- node[message] {Có thảo luận mới} (15.2,-9.4);
 
   \draw[-{Latex},thick] (15.2,-10.8) -- node[message] {Gửi phản hồi} (3.8,-10.8);
   \draw[-{Latex},thick] (3.8,-12.2) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra người tham gia chuỗi} (3.8,-13.4);
-  \draw[-{Latex},thick] (3.8,-14.6) -- node[message] {Lưu message} (7.6,-14.6);
+  \draw[-{Latex},thick] (3.8,-14.6) -- node[message] {Lưu tin nhắn} (7.6,-14.6);
   \draw[-{Latex},thick] (3.8,-16.0) -- node[message] {Thông báo phản hồi} (11.4,-16.0);
   \draw[-{Latex},thick,dashed] (11.4,-17.4) -- node[message] {Có phản hồi mới} (0,-17.4);
 
   \draw[-{Latex},thick] (19.0,-18.8) -- node[message] {Yêu cầu lịch sử} (3.8,-18.8);
   \draw[-{Latex},thick] (3.8,-20.2) -- ++(1.3,0) |- node[pos=0.25, right, fill=white, inner sep=1pt] {Kiểm tra quyền Chủ tọa} (3.8,-21.4);
-  \draw[-{Latex},thick] (3.8,-22.8) -- node[message] {Đọc thread/messages} (7.6,-22.8);
-  \draw[-{Latex},thick,dashed] (3.8,-24.2) -- node[message] {Trả lịch sử read-only} (19.0,-24.2);
+  \draw[-{Latex},thick] (3.8,-22.8) -- node[message] {Đọc chuỗi và tin nhắn} (7.6,-22.8);
+  \draw[-{Latex},thick,dashed] (3.8,-24.2) -- node[message] {Trả lịch sử ở chế độ chỉ đọc} (19.0,-24.2);
 \end{tikzpicture}
 \end{adjustbox}
 \caption{Trình tự trao đổi giữa các vai trò trong UC-08}
 \label{fig:appendix-a-uc08-sequence}
 \end{figure}
+
 \subsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
+
+Bảng~\ref{tab:appendix-a-uc09} trình bày đặc tả chi tiết của UC-09.
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-09: Tổng hợp bằng chứng hỗ trợ quyết định}\label{tab:appendix-a-uc09}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Giúp Chủ tọa đối chiếu nhiều nguồn bằng chứng mà không chuyển trách nhiệm quyết định sang AI \\ \hline
 Tác nhân & Chủ tọa hoặc Đồng chủ tọa là tác nhân chính; dịch vụ AI tổng hợp bằng chứng theo yêu cầu \\ \hline
@@ -332,15 +352,18 @@ Luồng chính & Backend thu thập bản phản biện, điểm, phản hồi v
 Luồng thay thế và lỗi & Nếu dữ liệu chưa đủ, hệ thống nêu phần bằng chứng còn thiếu; nếu dịch vụ AI gặp lỗi, Chủ tọa vẫn đọc dữ liệu gốc để tiếp tục; khi bằng chứng thay đổi, hệ thống đánh dấu bản tổng hợp cũ là không còn hiệu lực \\ \hline
 Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể kiểm tra lại; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
 \end{longtable}
+
 \subsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
+
+Bảng~\ref{tab:appendix-a-uc10} trình bày đặc tả chi tiết của UC-10.
 
 \begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
 \caption{Đặc tả UC-10: Truy vấn trạng thái và hướng dẫn}\label{tab:appendix-a-uc10}\\
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endfirsthead
 \hline
-Thuộc tính & Đặc tả \\ \hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
 \endhead
 Mục tiêu & Giúp Tác giả, Phản biện viên và Chủ tọa tra cứu trạng thái, dữ liệu hoặc hướng dẫn trong phạm vi quyền \\ \hline
 Tác nhân & Tác giả, Phản biện viên và Chủ tọa; dịch vụ AI cùng bộ máy truy vấn của backend xử lý yêu cầu \\ \hline
@@ -356,13 +379,15 @@ Kết quả đạt được & Người dùng nhận câu trả lời dựa trên
 
 \subsection{Truy vết yêu cầu}
 
+Bảng~\ref{tab:appendix-a-traceability} đối chiếu từng nhóm yêu cầu với use case và bằng chứng thiết kế tương ứng.
+
 \begin{longtable}{|T{0.26\textwidth}|N{0.16\textwidth}|T{0.46\textwidth}|}
 \caption{Ma trận truy vết yêu cầu và đặc tả chi tiết}\label{tab:appendix-a-traceability}\\
 \hline
-Mã yêu cầu & Use case & Bằng chứng thiết kế trong phụ lục \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng thiết kế trong phụ lục} \\ \hline
 \endfirsthead
 \hline
-Mã yêu cầu & Use case & Bằng chứng thiết kế trong phụ lục \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng thiết kế trong phụ lục} \\ \hline
 \endhead
 F-AUTHOR-01 & UC-01 & Bảng~\ref{tab:appendix-a-uc01}; dữ liệu hội nghị và quyền công khai \\ \hline
 F-AUTHOR-02 đến F-AUTHOR-06 & UC-02, UC-03, UC-08 & Bảng~\ref{tab:appendix-a-uc02}, \ref{tab:appendix-a-uc03}, \ref{tab:appendix-a-uc08}; Submission Autofill và Submission Gating \\ \hline
@@ -377,7 +402,7 @@ F-COMMON-02, F-COMMON-03 & Xuyên suốt & Ma trận quyền, mã xác thực li
 
 \subsection{Nhóm dữ liệu chính}
 
-ConferenceSpace không lưu mọi loại dữ liệu trong cùng một hệ quản trị cơ sở dữ liệu. PostgreSQL lưu dữ liệu nghiệp vụ và kết quả cần giao dịch nhất quán; Neo4j lưu quan hệ học thuật dạng đồ thị; Redis lưu dữ liệu tạm thời và trạng thái ngắn hạn.
+ConferenceSpace không lưu mọi loại dữ liệu trong cùng một hệ quản trị cơ sở dữ liệu. PostgreSQL lưu dữ liệu nghiệp vụ và kết quả cần giao dịch nhất quán; Neo4j lưu quan hệ học thuật dạng đồ thị; Redis lưu dữ liệu tạm thời và trạng thái ngắn hạn. Bảng~\ref{tab:appendix-a-data-groups} tóm tắt các nhóm dữ liệu và vai trò của từng nhóm.
 
 \begingroup
 \setlength{\tabcolsep}{3.5pt}
@@ -385,10 +410,10 @@ ConferenceSpace không lưu mọi loại dữ liệu trong cùng một hệ qu�
 \begin{longtable}{|T{0.20\textwidth}|T{0.42\textwidth}|T{0.28\textwidth}|}
 \caption{Nhóm dữ liệu chính và vai trò trong hệ thống}\label{tab:appendix-a-data-groups}\\
 \hline
-Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò \\ \hline
+\TableHeader{Nhóm dữ liệu} & \TableHeader{Thực thể tiêu biểu} & \TableHeader{Vai trò} \\ \hline
 \endfirsthead
 \hline
-Nhóm dữ liệu & Thực thể tiêu biểu & Vai trò \\ \hline
+\TableHeader{Nhóm dữ liệu} & \TableHeader{Thực thể tiêu biểu} & \TableHeader{Vai trò} \\ \hline
 \endhead
 Nghiệp vụ hội nghị & \textit{conferences}, \textit{conference\_submissions}, \textit{conference\_reviewers}, \textit{paper\_assignments}, \textit{rebuttal\_points} & Bảo toàn vòng đời nộp bài, phản biện, phản hồi và quyết định \\ \hline
 Phân quyền và phối hợp & \textit{users}, \textit{conference\_user\_roles}, \textit{discussion\_threads}, \textit{discussion\_messages}, \textit{notifications} & Giới hạn thao tác theo vai trò, tài nguyên và trạng thái \\ \hline
@@ -401,8 +426,8 @@ Trạng thái ngắn hạn & Phiên, kết quả công cụ đang chờ và bộ
 
 Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và \ref{fig:appendix-a-core-erd-c} trình bày ERD logic của dữ liệu nghiệp vụ chính. Đường liền biểu diễn quan hệ có khóa ngoại trong migration; đường đứt biểu diễn liên kết nghiệp vụ hoặc liên kết được kiểm soát ở tầng ứng dụng nhưng không nhất thiết được ràng buộc bằng khóa ngoại vật lý.
 
-% ===================== Figure A.3a — Conference & review core =====================
-\begin{figure}[H]
+% ===================== Figure A.3a - Conference & review core =====================
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -455,13 +480,13 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD — Hội nghị và luồng phản biện.}
+\caption{ERD cho dữ liệu hội nghị và luồng phản biện}
 \label{fig:appendix-a-core-erd-a}
 \end{figure}
 
 
-% ===================== Figure A.3b — Discussion, COI & notifications =====================
-\begin{figure}[H]
+% ===================== Figure A.3b - Discussion, COI & notifications =====================
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -517,13 +542,13 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD — Thảo luận, xung đột lợi ích và thông báo.}
+\caption{ERD cho dữ liệu thảo luận, xung đột lợi ích và thông báo}
 \label{fig:appendix-a-core-erd-b}
 \end{figure}
 
 
-% ===================== Figure A.3c — Scholar data =====================
-\begin{figure}[H]
+% ===================== Figure A.3c - Scholar data =====================
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.82\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -545,15 +570,15 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD — Hồ sơ học giả và bài báo.}
+\caption{ERD cho dữ liệu hồ sơ học giả và bài báo}
 \label{fig:appendix-a-core-erd-c}
 \end{figure}
 
-Hình~\ref{fig:appendix-a-ai-erd} tách riêng các bảng thuộc schema \textit{ai}. Các bảng này lưu phiên Chatbot Agent, nhật ký công cụ, lượt chạy của Submission Gating, Review Quality Auditor và Reviewer Initial Analysis. Chair Decision Copilot trong phần backend sử dụng dữ liệu nguồn và lớp lưu trữ riêng của hệ thống; phần phụ lục chỉ mô tả bảng đã xác nhận trong schema \textit{ai}.
+Hình~\ref{fig:appendix-a-ai-erd} tách riêng các bảng thuộc lược đồ \textit{ai}. Các bảng này lưu phiên Chatbot Agent, nhật ký công cụ, lượt chạy của Submission Gating, Review Quality Auditor và Reviewer Initial Analysis. Chair Decision Copilot trong phần backend sử dụng dữ liệu nguồn và lớp lưu trữ riêng của hệ thống; phần phụ lục chỉ mô tả các bảng đã xác nhận trong lược đồ \textit{ai}.
 
 Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đầu vào để phát hiện kết quả không còn hiệu lực khi dữ liệu nguồn thay đổi. Submission Gating ghi mã nhận diện cùng mã chính sách cho mỗi lần chạy. Review Quality Auditor lưu yêu cầu, phản hồi, trạng thái và mã nhận diện của điều kiện phát hiện. Submission Autofill không lưu kết quả theo cơ chế hết hiệu lực mà trả dữ liệu để Tác giả áp dụng vào biểu mẫu có thể chỉnh sửa. Chatbot Agent lưu phiên và lịch sử hội thoại để phục vụ truy vết.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight, keepaspectratio}
 \begin{tikzpicture}[
@@ -581,13 +606,15 @@ Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đ�
   \draw[fk] (riaRuns)    -- node[note,pos=0.55] {1--N} (riaStages);
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD của các bảng lưu vết trong schema \textit{ai}}
+\caption{ERD của các bảng lưu vết trong lược đồ \textit{ai}}
 \label{fig:appendix-a-ai-erd}
 \end{figure}
 
 \subsection{Ma trận quyền trong chức năng thảo luận}
 
-\begin{table}[H]
+Bảng~\ref{tab:appendix-a-discussion-permission} trình bày quyền tạo chuỗi, xem nội dung và gửi tin nhắn của từng vai trò.
+
+\begin{table}[!htbp]
 \centering
 \caption{Quyền hiện hành trong chức năng thảo luận theo bài nộp}
 \label{tab:appendix-a-discussion-permission}
@@ -595,23 +622,23 @@ Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đ�
 \renewcommand{\arraystretch}{1.15}
 \begin{tabular}{|T{0.23\textwidth}|N{0.14\textwidth}|T{0.28\textwidth}|T{0.24\textwidth}|}
 \hline
-Vai trò & Tạo chuỗi & Phạm vi xem & Quyền gửi tin nhắn \\ \hline
+\TableHeader{Vai trò} & \TableHeader{Tạo chuỗi} & \TableHeader{Phạm vi xem} & \TableHeader{Quyền gửi tin nhắn} \\ \hline
 Phản biện viên được phân công & Có & Các chuỗi do mình tạo trong bài được phân công & Có, trong chuỗi do mình tạo \\ \hline
 Tác giả của bài nộp & Không & Các chuỗi gắn với bài của mình & Có, trong chuỗi liên quan \\ \hline
 Chủ tọa hoặc Đồng chủ tọa & Không & Toàn bộ chuỗi và tin nhắn của bài & Không \\ \hline
 \end{tabular}
 \end{table}
 
-Các quyền trong Bảng~\ref{tab:appendix-a-discussion-permission} chỉ được thực thi khi hội nghị ở giai đoạn reviewing. Ngoài mã xác thực dành cho người dùng cuối, hệ thống dùng mã riêng cho tác vụ quản trị nội bộ và giao tiếp giữa dịch vụ AI với endpoint truy vấn của backend. Mã liên dịch vụ không thay thế kiểm tra quyền. Backend vẫn giới hạn tài nguyên, trường dữ liệu và thao tác theo người dùng hiện tại.
+Các quyền nêu trên chỉ được thực thi khi hội nghị ở giai đoạn \textit{reviewing}. Ngoài mã xác thực dành cho người dùng cuối, hệ thống dùng mã riêng cho tác vụ quản trị nội bộ và giao tiếp giữa dịch vụ AI với endpoint truy vấn của backend. Mã liên dịch vụ không thay thế kiểm tra quyền. Backend vẫn giới hạn tài nguyên, trường dữ liệu và thao tác theo người dùng hiện tại.
 
 \section{Thuật toán đối sánh và xung đột lợi ích}
 \label{sec:appendix-a-algorithms}
 
 \subsection{Đầu vào và điểm phù hợp}
 
-Đầu vào gồm miền chuyên môn của bài nộp, miền chuyên môn của Phản biện viên, số người cần cho mỗi bài, ngưỡng điểm, giới hạn tải phát sinh trong lượt chạy và bản đồ xung đột lợi ích. Matcher sử dụng số bài đang được phân công làm tiêu chí phụ khi sắp xếp và theo dõi số phân công phát sinh trong lượt chạy hiện tại. Bộ đếm trong lượt chạy không thay thế cho việc đánh giá đầy đủ tải lịch sử của Phản biện viên.
+Đầu vào gồm miền chuyên môn của bài nộp, miền chuyên môn của Phản biện viên, số người cần cho mỗi bài, ngưỡng điểm, giới hạn tải phát sinh trong lượt chạy và bản đồ xung đột lợi ích. Bộ đối sánh theo dõi số phân công phát sinh trong lượt chạy hiện tại để áp dụng giới hạn tải. Bộ đếm này không phản ánh tải lịch sử của Phản biện viên và không được dùng làm tiêu chí phân xử khi nhiều cặp bằng điểm.
 
-Với tập miền chuyên môn của bài nộp là \(S\) và của Phản biện viên là \(R\), điểm Jaccard được tính như sau:
+Với tập miền chuyên môn của bài nộp là \(S\) và của Phản biện viên là \(R\), điểm Jaccard được tính theo Công thức~\ref{eq:appendix-a-jaccard}.
 
 \begin{equation}
 J(S,R)=\frac{|S\cap R|}{|S\cup R|}.
@@ -625,9 +652,9 @@ Nếu một trong hai tập rỗng, hệ thống gán điểm bằng \(0\). Jacc
 \begin{enumerate}
 \item Hệ thống tạo ma trận điểm cho tất cả cặp bài nộp và Phản biện viên hợp lệ.
 \item Hệ thống loại các cặp có xung đột lợi ích trước khi xếp hạng.
-\item Hệ thống sắp xếp các cặp theo điểm giảm dần. Khi nhiều cặp bằng điểm, hệ thống ưu tiên Phản biện viên có ít bài đang được phân công hơn; nếu mức tải vẫn bằng nhau, hệ thống dùng thứ tự cố định theo định danh.
+\item Hệ thống sắp xếp các cặp theo điểm giảm dần. Cách triển khai hiện tại chưa quy định tiêu chí phân xử riêng khi nhiều cặp bằng điểm; thứ tự giữa các cặp này phụ thuộc vào thứ tự đầu vào của lượt chạy.
 \item Lượt đầu giữ ngưỡng điểm, số người cần cho mỗi bài, giới hạn tải phát sinh trong lượt chạy và xung đột lợi ích.
-\item Đối với bài chưa có Phản biện viên sau lượt đầu, lượt dự phòng bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích và bổ sung ứng viên còn thiếu theo cấu hình hiện hành.
+\item Đối với bài chưa có Phản biện viên sau lượt đầu, lượt dự phòng bỏ ngưỡng điểm và giới hạn tải, vẫn giữ xung đột lợi ích và chỉ bổ sung một Phản biện viên.
 \item Hệ thống trả đề xuất, điểm số, số phân công phát sinh và danh sách bài còn thiếu người để Chủ tọa kiểm tra.
 \end{enumerate}
 
@@ -664,13 +691,15 @@ Sơ đồ~\ref{fig:appendix-a-matching-coi-execution} biểu diễn luồng đ�
 \label{fig:appendix-a-matching-coi-execution}
 \end{figure}
 
+Bảng~\ref{tab:appendix-a-matching-exceptions} tổng hợp các tình huống ngoại lệ và cách hệ thống xử lý.
+
 \begin{longtable}{|T{0.43\textwidth}|T{0.47\textwidth}|}
 \caption{Tình huống ngoại lệ trong đối sánh Phản biện viên}\label{tab:appendix-a-matching-exceptions}\\
 \hline
-Tình huống & Cách xử lý \\ \hline
+\TableHeader{Tình huống} & \TableHeader{Cách xử lý} \\ \hline
 \endfirsthead
 \hline
-Tình huống & Cách xử lý \\ \hline
+\TableHeader{Tình huống} & \TableHeader{Cách xử lý} \\ \hline
 \endhead
 Bài không có đủ ứng viên không xung đột & Đánh dấu thiếu Phản biện viên để Chủ tọa mời thêm hoặc phân công thủ công \\ \hline
 Hồ sơ thiếu miền chuyên môn & Giữ ứng viên với điểm thấp nếu không có xung đột, nhưng không ưu tiên \\ \hline
@@ -681,9 +710,9 @@ Nhiều cặp bằng điểm & Ưu tiên Phản biện viên có ít bài đang 
 
 \subsection{Ba nguồn phát hiện xung đột lợi ích}
 
-Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biện viên. Nguồn thứ nhất xác định Phản biện viên có phải tác giả hoặc đồng tác giả của bài hay không. Nguồn thứ hai kiểm tra xung đột do người dùng khai báo. Nguồn thứ ba truy vấn quan hệ đồng tác giả nhiều bậc trong Neo4j.
+Hệ thống kiểm tra ba nguồn trên mỗi cặp bài nộp và Phản biện viên. Nguồn thứ nhất xác định Phản biện viên có phải tác giả hoặc đồng tác giả của bài hay không. Nguồn thứ hai kiểm tra xung đột do người dùng khai báo. Nguồn thứ ba truy vấn quan hệ đồng tác giả nhiều bậc trong Neo4j. Hình~\ref{fig:appendix-a-coi-flow} cho thấy cách kết quả phát hiện xung đột lợi ích được sử dụng trong các luồng liên quan.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{images/appendix_a_coi.png}
 \caption{Ba luồng sử dụng kết quả phát hiện xung đột lợi ích}
@@ -962,6 +991,7 @@ Sơ đồ~\ref{fig:appendix-a-decision-copilot-evidence-lifecycle} biểu diễn
 \label{fig:appendix-a-decision-copilot-evidence-lifecycle}
 \end{figure}
 
+\pagebreak
 \subsection{Chatbot Agent}
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang. Nếu cần dữ liệu hệ thống, công cụ gửi yêu cầu gồm tài nguyên, trường cần lấy, điều kiện lọc, phép tổng hợp, thứ tự và giới hạn số dòng đến backend. Backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên, quyền trên từng trường và điều kiện lọc.
@@ -1006,6 +1036,7 @@ Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh tran
 \label{fig:appendix-a-chatbot-flow}
 \end{figure}
 
+\pagebreak
 \subsection{Kiểm soát dùng chung}
 
 \begin{longtable}{|T{0.28\textwidth}|T{0.62\textwidth}|}

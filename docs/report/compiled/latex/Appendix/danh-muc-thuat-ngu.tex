@@ -128,14 +128,14 @@ Danh mục này giải thích các thuật ngữ chuyên môn và từ viết t�
   Đường cơ sở     &     baseline     &     Phương pháp hoặc kết quả nền dùng để so sánh, ví dụ xếp hạng ngẫu nhiên trong đánh giá đối sánh phản biện \\ \hline
   Snapshot      &      snapshot dữ liệu cố định      &      Bản dữ liệu Semantic Scholar hoặc tập dữ liệu cố định dùng khi đánh giá, không gọi API lúc chạy thử nghiệm \\ \hline
   Dữ liệu tham chiếu     &     nhãn tham chiếu / ground truth     &     Dữ liệu hoặc nhãn được xem là chuẩn đối chiếu trong một thực nghiệm \\ \hline
-  Proxy      &      chỉ số gián tiếp (proxy)      &      Chỉ số gián tiếp dùng khi không thể đo trực tiếp chất lượng cần quan tâm, ví dụ dùng TCA để đánh giá mức bám chứng cứ của đầu ra AI. Không dùng \textit{chỉ báo thay thế} hay \textit{bằng chứng thay thế} \\ \hline
-  TCA     &     Textual Claim-based Assessment     &     Khung đánh giá đầu ra AI theo mệnh đề--chứng cứ, gồm độ trung thực (Truthfulness), độ phủ (Coverage) và Additionality. Không diễn giải sai tên viết tắt thành một cụm ghép từ ba chỉ số tiếng Anh \\ \hline
+  Proxy      &      chỉ số gián tiếp (proxy)      &      Chỉ số gián tiếp dùng khi không thể đo trực tiếp chất lượng cần quan tâm, ví dụ dùng tỷ lệ mệnh đề bám nguồn để mô tả quan hệ giữa đầu ra AI và dữ liệu nguồn. Không dùng \textit{chỉ báo thay thế} hay \textit{bằng chứng thay thế} \\ \hline
+  TCA     &     Truthfulness--Coverage--Additionality     &     Tên viết tắt của ba nhóm chỉ số dùng trong đặc tả benchmark; không phải tên mô hình chấm và không tạo một điểm tổng hợp duy nhất \\ \hline
   NLI      &      Natural Language Inference / suy luận ngôn ngữ tự nhiên      &      Kỹ thuật kiểm tra quan hệ suy luận giữa mệnh đề và chứng cứ, dùng để đánh giá một số đầu ra AI \\ \hline
-  Truthfulness     &     độ trung thực / mức bám nguồn     &     Tỷ lệ hoặc mức độ các mệnh đề được nguồn dữ liệu hỗ trợ \\ \hline
+  Truthfulness     &     mức bám nguồn     &     Tỷ lệ hoặc mức độ các mệnh đề được nguồn dữ liệu hỗ trợ \\ \hline
   Groundedness      &      mức độ bám chứng cứ (groundedness)      &      Mức độ một nhận định có thể truy vết về chứng cứ cụ thể trong dữ liệu đầu vào \\ \hline
-  Coverage (TCA)     &     độ phủ (Coverage)     &     Trong đánh giá AI: mức độ đầu ra bao phủ các điểm có trong nguồn tham chiếu hoặc trong nội dung do con người tạo ra \\ \hline
+  Coverage (TCA)     &     tỷ lệ mệnh đề bám nguồn được văn bản tham chiếu ghi nhận     &     Tỷ lệ trên các mệnh đề đã bám nguồn và có văn bản tham chiếu phù hợp; không đo mức độ bao phủ toàn bộ nội dung bài báo \\ \hline
   Độ phủ phân công      &      assignment coverage      &      Trong đối sánh phản biện: tỷ lệ bài được phân công đủ phản biện viên theo yêu cầu thử nghiệm \\ \hline
-  Additionality      &      tỷ lệ nội dung có căn cứ nằm ngoài tham chiếu      &      Phần nội dung đúng và có chứng cứ nhưng không trùng trực tiếp với tham chiếu của con người \\ \hline
+  Additionality      &      tỷ lệ mệnh đề bám nguồn không được văn bản tham chiếu ghi nhận      &      Tỷ lệ trên các mệnh đề đã bám nguồn và có văn bản tham chiếu phù hợp; không trực tiếp đo tính mới hoặc mức hữu ích \\ \hline
   Tỷ lệ vừa bám nguồn vừa hợp lệ     &     grounded-and-valid rate     &     Chỉ số kết hợp giữa việc cảnh báo hoặc phát hiện có căn cứ và việc phù hợp với tiêu chí kiểm tra. Thay cho nhãn \textit{Grounded-valid rate} \\ \hline
   Validity     &     tỷ lệ hợp lệ (Validity)     &     Tỷ lệ phát hiện hoặc cảnh báo được đánh giá là phù hợp với tiêu chí kiểm tra, chưa nhất thiết đảm bảo nội dung đó bám nguồn đầy đủ \\ \hline
   Mức độ nghiêm trọng     &     severity     &     Nhãn thể hiện mức độ nghiêm trọng của cảnh báo nội dung hoặc phát hiện, ví dụ warn/block hoặc minor/moderate/major \\ \hline

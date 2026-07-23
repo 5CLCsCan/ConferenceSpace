@@ -21,6 +21,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.patches import FancyBboxPatch, Polygon
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -574,14 +575,30 @@ def load_tca() -> tuple[pd.DataFrame, dict[str, Any]]:
             b1_fab_rates.append(fab_rate or 0.0)
         for src, dst in [
             (b2.get("t_rate"), b2_t),
-            (b2.get("c_rate"), b2_c),
-            (b2.get("a_rate"), b2_a),
             (b5.get("evidence_basis_t_rate"), b5_t),
-            (b5.get("evidence_basis_c_rate"), b5_c),
-            (b5.get("evidence_basis_a_rate"), b5_a),
         ]:
             if src is not None:
                 dst.append(float(src))
+
+        b2_c_value = b2.get("c_rate")
+        b2_a_value = b2.get("a_rate")
+        if (
+            b2_c_value is not None
+            and b2_a_value is not None
+            and float(b2_c_value) + float(b2_a_value) > 0
+        ):
+            b2_c.append(float(b2_c_value))
+            b2_a.append(float(b2_a_value))
+
+        b5_c_value = b5.get("evidence_basis_c_rate")
+        b5_a_value = b5.get("evidence_basis_a_rate")
+        if (
+            b5_c_value is not None
+            and b5_a_value is not None
+            and float(b5_c_value) + float(b5_a_value) > 0
+        ):
+            b5_c.append(float(b5_c_value))
+            b5_a.append(float(b5_a_value))
 
         aps = b2.get("attention_points") or []
         if isinstance(aps, list):
@@ -603,20 +620,20 @@ def load_tca() -> tuple[pd.DataFrame, dict[str, Any]]:
             review_total += 1
             finding_total += rev.get("total_findings") or len(rev.get("findings") or [])
             if rev.get("b3_truthfulness_rate") is not None:
-                review_t.append(float(rev["b3_truthfulness_rate"]))
+                value = float(rev["b3_truthfulness_rate"])
+                review_t.append(value)
+                b3_t.append(value)
             if rev.get("b3_validity_rate") is not None:
-                review_v.append(float(rev["b3_validity_rate"]))
+                value = float(rev["b3_validity_rate"])
+                review_v.append(value)
+                b3_v.append(value)
             if rev.get("b3_grounded_valid_rate") is not None:
-                review_gv.append(float(rev["b3_grounded_valid_rate"]))
+                value = float(rev["b3_grounded_valid_rate"])
+                review_gv.append(value)
+                b3_gv.append(value)
         paper_b3_t = mean(review_t) if review_t else None
         paper_b3_v = mean(review_v) if review_v else None
         paper_b3_gv = mean(review_gv) if review_gv else None
-        if paper_b3_t is not None:
-            b3_t.append(paper_b3_t)
-        if paper_b3_v is not None:
-            b3_v.append(paper_b3_v)
-        if paper_b3_gv is not None:
-            b3_gv.append(paper_b3_gv)
 
         claims = b5.get("claims") or []
         eb_n = 0
@@ -697,26 +714,28 @@ def load_tca() -> tuple[pd.DataFrame, dict[str, Any]]:
         "b2_a_rate_mean": a_mean,
         "b2_attention_point_total": ap_total,
         "b2_paper_count": papers_with_ap,
+        "b2_reference_eligible_paper_count": len(b2_c),
         "b2_t_count_est": est(t_mean, ap_total),
-        "b2_c_count_est": est(c_mean, ap_total),
-        "b2_a_count_est": est(a_mean, ap_total),
+        "b2_c_count_est": None,
+        "b2_a_count_est": None,
         "b3_truthfulness_mean": b3_t_mean,
         "b3_validity_mean": b3_v_mean,
         "b3_grounded_valid_mean": b3_gv_mean,
         "b3_review_total": review_total,
         "b3_finding_total": finding_total,
         "b3_paper_count": papers_with_b3,
-        "b3_t_count_est": est(b3_t_mean, finding_total),
-        "b3_v_count_est": est(b3_v_mean, finding_total),
-        "b3_gv_count_est": est(b3_gv_mean, finding_total),
+        "b3_t_count_est": None,
+        "b3_v_count_est": None,
+        "b3_gv_count_est": None,
         "b5_evidence_basis_t_rate_mean": b5_t_mean,
         "b5_evidence_basis_c_rate_mean": b5_c_mean,
         "b5_evidence_basis_a_rate_mean": b5_a_mean,
         "b5_claim_total": claim_eb_total,
         "b5_paper_count": papers_with_b5,
+        "b5_reference_eligible_paper_count": len(b5_c),
         "b5_t_count_est": est(b5_t_mean, claim_eb_total),
-        "b5_c_count_est": est(b5_c_mean, claim_eb_total),
-        "b5_a_count_est": est(b5_a_mean, claim_eb_total),
+        "b5_c_count_est": None,
+        "b5_a_count_est": None,
         "high_risk_papers": high_risk,
         "clean_view_eligible_papers": clean,
         "processing_time_sec_mean": safe_mean(times),
@@ -1171,18 +1190,30 @@ def _draw_workflow_panel(
     bar_rects = ax.bar(list(x), values, color=colors, edgecolor="white", linewidth=0.6, width=0.62)
 
     ax.set_xticks(list(x))
-    ax.set_xticklabels(labels, fontsize=12)
+    ax.set_xticklabels(labels, fontsize=10.5)
     ax.set_ylabel("Tỷ lệ (%)", fontsize=12)
     ax.set_ylim(0, 120)
     ax.tick_params(axis="y", labelsize=11)
-    ax.set_title(title, fontsize=15, fontweight="bold", color=PALETTE["ink"], pad=10, loc="left")
+    display_title = title.replace(" — ", "\n", 1)
+    fig.text(
+        0.14,
+        0.94,
+        display_title,
+        fontsize=13.5,
+        fontweight="bold",
+        color=PALETTE["ink"],
+        ha="left",
+        va="top",
+        linespacing=1.05,
+    )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.grid(axis="y", linestyle="--", alpha=0.35)
 
     for rect, pct_val, cnt in zip(bar_rects, values, counts):
-        count_txt = _fmt_int(cnt)
-        label = f"{pct_val:.1f}%\n({count_txt})"
+        label = f"{pct_val:.2f}%"
+        if cnt is not None:
+            label += f"\n({_fmt_int(cnt)})"
         ax.text(
             rect.get_x() + rect.get_width() / 2,
             rect.get_height() + 1.8,
@@ -1272,10 +1303,160 @@ def _draw_workflow_panel(
     return save_fig(fig, filename, apply_tight_layout=False)
 
 
+def chart_claim_source_reference_flow() -> Path:
+    """Render the claim-to-source/reference decision flow as a report asset."""
+    _setup_vietnamese_font()
+    fig = plt.figure(figsize=REPORT_FIGSIZE)
+    ax = fig.add_axes([0.02, 0.03, 0.96, 0.94])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    def box(
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        text: str,
+        *,
+        facecolor: str = "#F7F5F2",
+        edgecolor: str = "#355566",
+    ) -> None:
+        patch = FancyBboxPatch(
+            (x - width / 2, y - height / 2),
+            width,
+            height,
+            boxstyle="round,pad=0.012,rounding_size=0.018",
+            linewidth=1.5,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(patch)
+        ax.text(
+            x,
+            y,
+            text,
+            ha="center",
+            va="center",
+            fontsize=10.5,
+            color=PALETTE["ink"],
+            fontweight="bold",
+            linespacing=1.15,
+        )
+
+    def diamond(x: float, y: float, width: float, height: float, text: str) -> None:
+        patch = Polygon(
+            [
+                (x, y + height / 2),
+                (x + width / 2, y),
+                (x, y - height / 2),
+                (x - width / 2, y),
+            ],
+            closed=True,
+            linewidth=1.5,
+            edgecolor="#355566",
+            facecolor="#EEF3F4",
+        )
+        ax.add_patch(patch)
+        ax.text(
+            x,
+            y,
+            text,
+            ha="center",
+            va="center",
+            fontsize=9.8,
+            color=PALETTE["ink"],
+            fontweight="bold",
+            linespacing=1.1,
+        )
+
+    def arrow(start: tuple[float, float], end: tuple[float, float]) -> None:
+        ax.annotate(
+            "",
+            xy=end,
+            xytext=start,
+            arrowprops={
+                "arrowstyle": "-|>",
+                "color": "#355566",
+                "linewidth": 1.5,
+                "shrinkA": 0,
+                "shrinkB": 0,
+            },
+        )
+
+    box(0.11, 0.86, 0.18, 0.11, "Mệnh đề\nđầu ra")
+    box(0.37, 0.86, 0.22, 0.11, "Đối chiếu với\nnguồn dữ liệu")
+    diamond(0.66, 0.86, 0.22, 0.16, "Nguồn dữ liệu\ncó hỗ trợ?")
+    box(
+        0.89,
+        0.86,
+        0.18,
+        0.11,
+        "Không vượt bước\nbám nguồn",
+        facecolor="#FBECE8",
+        edgecolor=PALETTE["coral"],
+    )
+
+    box(0.66, 0.68, 0.20, 0.11, "Mệnh đề\nbám nguồn", facecolor="#EAF5F3", edgecolor=PALETTE["teal"])
+    diamond(0.66, 0.49, 0.24, 0.17, "Có văn bản tham chiếu\nphù hợp?")
+    box(
+        0.89,
+        0.49,
+        0.18,
+        0.11,
+        "Chỉ báo cáo\nmức bám nguồn",
+        facecolor="#F4F1E8",
+        edgecolor=PALETTE["amber"],
+    )
+
+    box(0.66, 0.29, 0.24, 0.11, "Đối chiếu với\nvăn bản tham chiếu")
+    box(
+        0.49,
+        0.10,
+        0.24,
+        0.11,
+        "Được văn bản tham chiếu\nghi nhận",
+        facecolor="#EAF5F3",
+        edgecolor=PALETTE["teal"],
+    )
+    box(
+        0.82,
+        0.10,
+        0.25,
+        0.11,
+        "Không được văn bản tham chiếu\nghi nhận",
+        facecolor="#FBECE8",
+        edgecolor=PALETTE["coral"],
+    )
+
+    arrow((0.20, 0.86), (0.26, 0.86))
+    arrow((0.48, 0.86), (0.55, 0.86))
+    arrow((0.77, 0.86), (0.80, 0.86))
+    ax.text(0.785, 0.89, "Không", fontsize=9.5, color=PALETTE["slate"], ha="center")
+    arrow((0.66, 0.78), (0.66, 0.735))
+    ax.text(0.68, 0.755, "Có", fontsize=9.5, color=PALETTE["slate"], va="center")
+    arrow((0.66, 0.625), (0.66, 0.575))
+    arrow((0.78, 0.49), (0.80, 0.49))
+    ax.text(0.79, 0.52, "Không", fontsize=9.5, color=PALETTE["slate"], ha="center")
+    arrow((0.66, 0.405), (0.66, 0.345))
+    ax.text(0.68, 0.375, "Có", fontsize=9.5, color=PALETTE["slate"], va="center")
+    arrow((0.61, 0.235), (0.52, 0.155))
+    arrow((0.71, 0.235), (0.79, 0.155))
+
+    return save_fig(
+        fig,
+        "fig09_claim_source_reference_flow.png",
+        apply_tight_layout=False,
+    )
+
+
 def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, str, str]]:
     """One figure per workflow aspect; returns (path, content, placement) for index."""
     s = tca_summary
-    outputs: list[tuple[Path, str, str]] = []
+    flow = chart_claim_source_reference_flow()
+    outputs: list[tuple[Path, str, str]] = [
+        (flow, "Hậu kiểm mệnh đề--nguồn", "Thiết lập benchmark")
+    ]
 
     # 1) Phân tích ban đầu cho phản biện — annotation
     p = _draw_workflow_panel(
@@ -1308,28 +1489,36 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
         filename="fig09b_reviewer_attention_points.png",
         title="Reviewer Initial Analysis — Điểm cần chú ý khi đọc bài",
         sample_line=(
-            f"Cỡ mẫu: {_fmt_int(s.get('b2_paper_count'))} bài  ·  "
-            f"Tổng số điểm chú ý: {_fmt_int(s.get('b2_attention_point_total'))}"
+            f"Mức bám nguồn: {_fmt_int(s.get('b2_paper_count'))} bài  ·  "
+            f"Đối chiếu bản phản biện: {_fmt_int(s.get('b2_reference_eligible_paper_count'))} bài"
         ),
         bars=[
-            ("Bám nội dung\nbài", s.get("b2_t_rate_mean"), s.get("b2_t_count_est"), "navy"),
+            ("Bám nguồn\nbản thảo", s.get("b2_t_rate_mean"), s.get("b2_t_count_est"), "navy"),
             (
-                "Trùng với\nphản biện viên",
+                "Được ghi nhận\ntrong phản biện",
                 s.get("b2_c_rate_mean"),
                 s.get("b2_c_count_est"),
                 "teal",
             ),
             (
-                "Bổ sung\ngóc nhìn",
+                "Không được ghi nhận\ntrong phản biện",
                 s.get("b2_a_rate_mean"),
                 s.get("b2_a_count_est"),
                 "coral",
             ),
         ],
         legend_items=[
-            ("Bám nội dung bài", "Điểm chú ý có cơ sở trong bài", "navy"),
-            ("Trùng với phản biện viên", "Trùng điểm phản biện viên cũng nêu", "teal"),
-            ("Bổ sung góc nhìn", "Bổ sung ngoài phần phản biện viên đã nêu", "coral"),
+            ("Bám nguồn bản thảo", "Điểm cần lưu ý được nội dung bản thảo hỗ trợ", "navy"),
+            (
+                "Được ghi nhận",
+                "Mệnh đề bám nguồn cũng xuất hiện trong các bản phản biện",
+                "teal",
+            ),
+            (
+                "Không được ghi nhận",
+                "Mệnh đề bám nguồn không xuất hiện trong các bản phản biện",
+                "coral",
+            ),
         ],
     )
     outputs.append((p, "Điểm cần chú ý khi đọc bài", "Reviewer Initial Analysis"))
@@ -1337,47 +1526,59 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
     # 3) Kiểm tra chất lượng phản biện
     p = _draw_workflow_panel(
         filename="fig09c_review_quality_auditor.png",
-        title="Review Quality Auditor — Cảnh báo trên bản phản biện",
+        title="Review Quality Auditor — Phát hiện trên bản phản biện",
         sample_line=(
             f"Cỡ mẫu: {_fmt_int(s.get('b3_paper_count'))} bài  ·  "
             f"{_fmt_int(s.get('b3_review_total'))} bản phản biện  ·  "
-            f"{_fmt_int(s.get('b3_finding_total'))} cảnh báo"
+            f"{_fmt_int(s.get('b3_finding_total'))} phát hiện"
         ),
         bars=[
             (
-                "Bám nguồn\nnhận xét",
+                "Bám nguồn\nbản phản biện",
                 s.get("b3_truthfulness_mean"),
                 s.get("b3_t_count_est"),
                 "navy",
             ),
             (
-                "Hợp lệ tiêu chí\nkiểm tra",
+                "Mã vấn đề\nhợp lệ",
                 s.get("b3_validity_mean"),
                 s.get("b3_v_count_est"),
                 "teal",
             ),
             (
-                "Hợp lệ và\ncó chứng cứ",
+                "Đồng thời đạt\ncả hai",
                 s.get("b3_grounded_valid_mean"),
                 s.get("b3_gv_count_est"),
                 "coral",
             ),
         ],
         legend_items=[
-            ("Bám nguồn nhận xét", "Cảnh báo bám đúng nội dung nhận xét hoặc bài", "navy"),
-            ("Hợp lệ tiêu chí kiểm tra", "Cảnh báo thuộc loại vấn đề kiểm tra hợp lệ", "teal"),
-            ("Hợp lệ và có chứng cứ", "Vừa hợp lệ vừa có bằng chứng rõ", "coral"),
+            (
+                "Bám nguồn bản phản biện",
+                "Phần giải thích bám vào bản phản biện đang được kiểm tra",
+                "navy",
+            ),
+            (
+                "Mã vấn đề hợp lệ",
+                "Mã được gán phù hợp với đặc điểm quan sát được",
+                "teal",
+            ),
+            (
+                "Đồng thời đạt cả hai",
+                "Phát hiện đạt cả mức bám nguồn và tính hợp lệ của mã",
+                "coral",
+            ),
         ],
     )
-    outputs.append((p, "Cảnh báo trên bản phản biện", "Review Quality Auditor"))
+    outputs.append((p, "Phát hiện trên bản phản biện", "Review Quality Auditor"))
 
     # 4) Hỗ trợ quyết định chủ tịch
     p = _draw_workflow_panel(
         filename="fig09d_chair_evidence_basis.png",
         title="Chair Decision Copilot — Cơ sở bằng chứng",
         sample_line=(
-            f"Cỡ mẫu: {_fmt_int(s.get('b5_paper_count'))} bài  ·  "
-            f"Tổng số nhận định: {_fmt_int(s.get('b5_claim_total'))}"
+            f"Mức bám nguồn: {_fmt_int(s.get('b5_paper_count'))} bài  ·  "
+            f"Đối chiếu metareview: {_fmt_int(s.get('b5_reference_eligible_paper_count'))} bài"
         ),
         bars=[
             (
@@ -1387,13 +1588,13 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
                 "navy",
             ),
             (
-                "Trùng điểm\ncon người",
+                "Được ghi nhận\ntrong metareview",
                 s.get("b5_evidence_basis_c_rate_mean"),
                 s.get("b5_c_count_est"),
                 "teal",
             ),
             (
-                "Bổ sung\ngóc nhìn",
+                "Không được ghi nhận\ntrong metareview",
                 s.get("b5_evidence_basis_a_rate_mean"),
                 s.get("b5_a_count_est"),
                 "coral",
@@ -1401,8 +1602,16 @@ def chart_tca_workflow_panels(tca_summary: dict[str, Any]) -> list[tuple[Path, s
         ],
         legend_items=[
             ("Bám nguồn dữ liệu", "Nhận định bám dữ liệu nguồn có sẵn", "navy"),
-            ("Trùng điểm con người", "Trùng với điểm con người nhấn mạnh", "teal"),
-            ("Bổ sung góc nhìn", "Bổ sung ngoài phần con người đã nêu", "coral"),
+            (
+                "Được ghi nhận",
+                "Mệnh đề bám nguồn cũng xuất hiện trong metareview",
+                "teal",
+            ),
+            (
+                "Không được ghi nhận",
+                "Mệnh đề bám nguồn không xuất hiện trong metareview",
+                "coral",
+            ),
         ],
     )
     outputs.append((p, "Cơ sở bằng chứng", "Chair Decision Copilot"))
