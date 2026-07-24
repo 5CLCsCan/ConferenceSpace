@@ -1,0 +1,3 @@
+artifacts/*.json
+!artifacts/uploads/
+__pycache__/

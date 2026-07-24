@@ -1,0 +1,84 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Phân bố đối tượng tham gia khảo sát}}{7}{figure.caption.22}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Mức độ ủng hộ AI của Phản biện viên theo từng tác vụ}}{10}{figure.caption.29}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Use case tổng quát theo vai trò}}{32}{figure.caption.59}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Vòng đời nghiệp vụ từ bài nháp đến quyết định và bản thảo hoàn chỉnh}}{35}{figure.caption.61}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Giao diện danh sách hội nghị}}{36}{figure.caption.63}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Trang chi tiết hội nghị: tab tổng quan (Overview)}}{37}{figure.caption.64}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Trang chi tiết hội nghị: tab kêu gọi nộp bài (Call for Papers)}}{37}{figure.caption.65}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Giao diện tải lên bản thảo (trái) và kết quả trích xuất thông tin tự động (phải)}}{38}{figure.caption.66}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Kết quả kiểm tra của Submission Gating}}{38}{figure.caption.67}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Giao diện khai báo đồng tác giả và xung đột lợi ích}}{39}{figure.caption.68}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Danh sách bài nộp của Tác giả}}{40}{figure.caption.69}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Giao diện soạn thảo và gửi phản hồi của Tác giả (rebuttal)}}{40}{figure.caption.70}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Trang chi tiết bài nộp và bản chỉnh sửa cuối cùng (Camera-Ready)}}{41}{figure.caption.71}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Thông báo lời mời qua email (trên) và danh sách lời mời tham gia phản biện (dưới)}}{41}{figure.caption.72}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Giao diện tổng quan của bài được đề nghị phân công để Phản biện viên phản hồi chấp nhận hoặc từ chối}}{42}{figure.caption.73}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Không gian đọc bài và soạn phản biện của Phản biện viên}}{43}{figure.caption.74}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Bản định hướng đọc gồm đóng góp, điểm cần kiểm tra, giới hạn và chú thích theo phần}}{43}{figure.caption.75}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Bảng rà soát mức độ cụ thể, căn cứ và tính nhất quán của bản phản biện nháp}}{44}{figure.caption.76}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Bảng điều khiển quản lý phân công phản biện của Chủ tọa}}{45}{figure.caption.77}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Giao diện kiểm tra xung đột lợi ích giữa Phản biện viên và bài nộp}}{45}{figure.caption.78}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces Danh sách đề xuất đối sánh và điểm phù hợp}}{46}{figure.caption.79}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Giao diện thiết lập cấu hình thông tin và hạn chót hội nghị}}{46}{figure.caption.80}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces Bảng điều khiển tiến độ hội nghị của Chủ tọa}}{47}{figure.caption.81}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces Giao diện quản lý ban chương trình và trạng thái lời mời Phản biện viên}}{47}{figure.caption.82}%
+\contentsline {figure}{\numberline {3.23}{\ignorespaces Giao diện khởi tạo chủ đề thảo luận mới cho bài nộp}}{48}{figure.caption.83}%
+\contentsline {figure}{\numberline {3.24}{\ignorespaces Giao diện danh sách và trao đổi nội dung thảo luận}}{49}{figure.caption.84}%
+\contentsline {figure}{\numberline {3.25}{\ignorespaces Giao diện tổng hợp bằng chứng và ghi nhận quyết định của Chủ tọa}}{49}{figure.caption.85}%
+\contentsline {figure}{\numberline {3.26}{\ignorespaces Giao diện hội thoại và hỗ trợ tra cứu thông tin của Chatbot Agent}}{50}{figure.caption.86}%
+\contentsline {figure}{\numberline {3.27}{\ignorespaces Kiến trúc dịch vụ và ranh giới dữ liệu của ConferenceSpace}}{51}{figure.caption.89}%
+\contentsline {figure}{\numberline {3.28}{\ignorespaces Hai lượt của thuật toán đối sánh}}{55}{figure.caption.94}%
+\contentsline {figure}{\numberline {3.29}{\ignorespaces Luồng xây dựng image và triển khai tự động}}{59}{figure.caption.100}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Chuỗi thực nghiệm từ đầu vào đến kết luận}}{62}{figure.caption.105}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Phân bố bài đầu vào theo hội nghị và chuyên đề}}{63}{figure.caption.108}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Các nhánh đánh giá đầu ra của luồng xử lý AI}}{66}{figure.caption.110}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Quan hệ giữa kiểm tra mức bám nguồn và đối chiếu với văn bản tham chiếu}}{69}{figure.caption.114}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Thông lượng HTTP theo kịch bản k6}}{70}{figure.caption.117}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Các phân vị độ trễ HTTP theo kịch bản k6}}{70}{figure.caption.117}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Mức sử dụng CPU theo giai đoạn và thành phần}}{71}{figure.caption.119}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Mức sử dụng RAM theo thành phần}}{72}{figure.caption.120}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Thời gian Go microbenchmark theo quy mô đầu vào}}{73}{figure.caption.123}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Số lần cấp phát bộ nhớ trong Go microbenchmark}}{73}{figure.caption.123}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Tỷ lệ Hit@k theo phương pháp xếp hạng}}{74}{figure.caption.125}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Đánh đổi giữa độ phủ và điểm Jaccard trung bình của phân công}}{74}{figure.caption.125}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Mức khớp của các trường siêu dữ liệu trong Submission Autofill}}{75}{figure.caption.128}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Mức bám nguồn của đầu ra Reviewer Initial Analysis}}{77}{figure.caption.130}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Các chỉ số bám nguồn và tính hợp lệ của Review Quality Auditor}}{78}{figure.caption.132}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Mức bám nguồn và quan hệ với metareview của cơ sở bằng chứng}}{79}{figure.caption.134}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces Phân bố kết quả rà soát thủ công của Chatbot Agent}}{80}{figure.caption.136}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Kết quả gọi công cụ của Chatbot Agent}}{80}{figure.caption.136}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces Các giai đoạn phản hồi và kết quả gọi công cụ của Chatbot}}{81}{figure.caption.137}%
+\contentsline {figure}{\numberline {4.20}{\ignorespaces Token trung bình theo đơn vị công việc của các luồng công việc AI}}{82}{figure.caption.139}%
+\contentsline {figure}{\numberline {4.21}{\ignorespaces Độ trễ theo luồng xử lý AI}}{82}{figure.caption.140}%
+\contentsline {figure}{\numberline {4.22}{\ignorespaces Khuyến nghị cách tổ chức vận hành theo luồng công việc AI}}{83}{figure.caption.141}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Trình tự khám phá và theo dõi hội nghị trong UC-01}}{120}{figure.caption.172}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Luồng hoàn tất và kiểm tra bài nộp}}{122}{figure.caption.174}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces Trình tự hoàn tất và kiểm tra bài nộp trong UC-02}}{123}{figure.caption.175}%
+\contentsline {figure}{\numberline {A.4}{\ignorespaces Trình tự quản lý vòng đời bài nộp trong UC-03}}{125}{figure.caption.177}%
+\contentsline {figure}{\numberline {A.5}{\ignorespaces Trình tự tiếp nhận lời mời và phản hồi phân công trong UC-04}}{127}{figure.caption.179}%
+\contentsline {figure}{\numberline {A.6}{\ignorespaces Trình tự đọc, soạn và gửi phản biện trong UC-05}}{130}{figure.caption.181}%
+\contentsline {figure}{\numberline {A.7}{\ignorespaces Trình tự tạo và xác nhận đề xuất phân công trong UC-06}}{132}{figure.caption.183}%
+\contentsline {figure}{\numberline {A.8}{\ignorespaces Trạng thái hội nghị, lời mời và phân công bài}}{134}{figure.caption.185}%
+\contentsline {figure}{\numberline {A.9}{\ignorespaces Trình tự quản lý hội nghị và theo dõi tiến độ trong UC-07}}{135}{figure.caption.186}%
+\contentsline {figure}{\numberline {A.10}{\ignorespaces Trình tự trao đổi giữa các vai trò trong UC-08}}{137}{figure.caption.188}%
+\contentsline {figure}{\numberline {A.11}{\ignorespaces Trình tự tổng hợp bằng chứng hỗ trợ quyết định trong UC-09}}{139}{figure.caption.190}%
+\contentsline {figure}{\numberline {A.12}{\ignorespaces Trình tự truy vấn trạng thái và hướng dẫn trong UC-10}}{141}{figure.caption.192}%
+\contentsline {figure}{\numberline {A.13}{\ignorespaces ERD cho dữ liệu hội nghị và luồng phản biện}}{144}{figure.caption.196}%
+\contentsline {figure}{\numberline {A.14}{\ignorespaces ERD cho dữ liệu thảo luận, xung đột lợi ích và thông báo}}{145}{figure.caption.197}%
+\contentsline {figure}{\numberline {A.15}{\ignorespaces ERD cho dữ liệu hồ sơ học giả và bài báo}}{146}{figure.caption.198}%
+\contentsline {figure}{\numberline {A.16}{\ignorespaces ERD của các bảng lưu vết trong lược đồ \textit {ai}}}{147}{figure.caption.199}%
+\contentsline {figure}{\numberline {A.17}{\ignorespaces Luồng thực thi đối sánh và kiểm tra xung đột lợi ích}}{150}{figure.caption.212}%
+\contentsline {figure}{\numberline {A.18}{\ignorespaces Ba luồng sử dụng kết quả phát hiện xung đột lợi ích}}{151}{figure.caption.214}%
+\contentsline {figure}{\numberline {A.19}{\ignorespaces Luồng thực thi nội bộ của Submission Gating}}{155}{figure.caption.219}%
+\contentsline {figure}{\numberline {A.20}{\ignorespaces Vòng đời hỗ trợ Phản biện viên}}{158}{figure.caption.222}%
+\contentsline {figure}{\numberline {A.21}{\ignorespaces Vòng đời bộ bằng chứng của Chair Decision Copilot}}{160}{figure.caption.224}%
+\contentsline {figure}{\numberline {A.22}{\ignorespaces Luồng Chatbot Agent truy vấn dữ liệu theo quyền}}{161}{figure.caption.226}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {B.1}{\ignorespaces Quan hệ giữa các thành phần trong môi trường triển khai chính thức}}{172}{figure.caption.258}%
+\addvspace {10\p@ }

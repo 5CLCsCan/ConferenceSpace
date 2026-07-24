@@ -1,0 +1,1759 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{ch1ref1}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=b59530b30d5f5f729445dfca457f0ebb}{%
+           family={Azad},
+           familyi={A\bibinitperiod},
+           given={Ariful},
+           giveni={A\bibinitperiod}}}%
+        {{hash=7ec7b093248cc56ed3b01d225ade7f19}{%
+           family={Banu},
+           familyi={B\bibinitperiod},
+           given={Afeefa},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{fullhash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{fullhashraw}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{bibnamehash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{authorbibnamehash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{authornamehash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{authorfullhash}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \strng{authorfullhashraw}{f0fd0aae7a94d6cdbcf49da0d3e054c6}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.DL}
+      \field{eprinttype}{arXiv}
+      \field{title}{Publication Trends in Artificial Intelligence Conferences: The Rise of Super Prolific Authors}
+      \field{year}{2024}
+      \verb{eprint}
+      \verb 2412.07793
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2412.07793
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2412.07793
+      \endverb
+    \endentry
+    \entry{ch1ref2}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=ba26c6b8fd33fd92c8a11350755d1f51}{%
+           family={{Neural Information Processing Systems Foundation}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{fullhash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{fullhashraw}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{bibnamehash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{authorbibnamehash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{authornamehash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{authorfullhash}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \strng{authorfullhashraw}{ba26c6b8fd33fd92c8a11350755d1f51}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{NeurIPS 2025 Fact Sheet}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://media.neurips.cc/Conferences/NeurIPS2025/press/NeurIPS2025-Fact_Sheet.pdf
+      \endverb
+      \verb{url}
+      \verb https://media.neurips.cc/Conferences/NeurIPS2025/press/NeurIPS2025-Fact_Sheet.pdf
+      \endverb
+    \endentry
+    \entry{ch1ref10}{misc}{}{}
+      \name{author}{4}{}{%
+        {{hash=a7e1c39199b88cc9d174e7b3bf60c5d5}{%
+           family={Stelmakh},
+           familyi={S\bibinitperiod},
+           given={Ivan},
+           giveni={I\bibinitperiod}}}%
+        {{hash=0b2090d16d06e4bd3ff800dd3b8b197a}{%
+           family={Shah},
+           familyi={S\bibinitperiod},
+           given={Nihar\bibnamedelima B.},
+           giveni={N\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=d77c73a14b0f048484c1d34aba3071d4}{%
+           family={Singh},
+           familyi={S\bibinitperiod},
+           given={Aarti},
+           giveni={A\bibinitperiod}}}%
+        {{hash=dc2acfe4e5f2a754b253876202e1d78e}{%
+           family={Daumé},
+           familyi={D\bibinitperiod},
+           given={Hal},
+           giveni={H\bibinitperiod},
+           suffix={III},
+           suffixi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{2d81e9b20f78f2acfbdb5cdc60a7d7ea}
+      \strng{fullhash}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \strng{fullhashraw}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \strng{bibnamehash}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \strng{authorbibnamehash}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \strng{authornamehash}{2d81e9b20f78f2acfbdb5cdc60a7d7ea}
+      \strng{authorfullhash}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \strng{authorfullhashraw}{994ba59f60c17f2cdafdfb173cbc63ee}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.HC}
+      \field{eprinttype}{arXiv}
+      \field{title}{A Novice-Reviewer Experiment to Address Scarcity of Qualified Reviewers in Large Conferences}
+      \field{year}{2020}
+      \verb{eprint}
+      \verb 2011.15050
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2011.15050
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2011.15050
+      \endverb
+    \endentry
+    \entry{ch1ref11}{misc}{}{}
+      \name{author}{3}{}{%
+        {{hash=05256499e056fde9e927ab0444eaf3e8}{%
+           family={Kim},
+           familyi={K\bibinitperiod},
+           given={Jaeho},
+           giveni={J\bibinitperiod}}}%
+        {{hash=1174dd8caa562923b93633ec78d44639}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Yunseok},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=1a0c40865bae77e01d9909db282c567e}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={Seulki},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{9cb9b653eb42a58953afec3a896eec64}
+      \strng{fullhash}{3cacfbab09d6eb3541c77659db176298}
+      \strng{fullhashraw}{3cacfbab09d6eb3541c77659db176298}
+      \strng{bibnamehash}{3cacfbab09d6eb3541c77659db176298}
+      \strng{authorbibnamehash}{3cacfbab09d6eb3541c77659db176298}
+      \strng{authornamehash}{9cb9b653eb42a58953afec3a896eec64}
+      \strng{authorfullhash}{3cacfbab09d6eb3541c77659db176298}
+      \strng{authorfullhashraw}{3cacfbab09d6eb3541c77659db176298}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.AI}
+      \field{eprinttype}{arXiv}
+      \field{title}{Position: The {AI} Conference Peer Review Crisis Demands Author Feedback and Reviewer Rewards}
+      \field{year}{2025}
+      \verb{eprint}
+      \verb 2505.04966
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2505.04966
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2505.04966
+      \endverb
+    \endentry
+    \entry{ch2ref41}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=b477c283700363e4b26e0051fa341ee7}{%
+           family={{Nature Portfolio}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{fullhash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{fullhashraw}{b477c283700363e4b26e0051fa341ee7}
+      \strng{bibnamehash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{authorbibnamehash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{authornamehash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{authorfullhash}{b477c283700363e4b26e0051fa341ee7}
+      \strng{authorfullhashraw}{b477c283700363e4b26e0051fa341ee7}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Artificial Intelligence Editorial Policies}
+      \field{urlday}{13}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.nature.com/nature-portfolio/editorial-policies/ai
+      \endverb
+      \verb{url}
+      \verb https://www.nature.com/nature-portfolio/editorial-policies/ai
+      \endverb
+    \endentry
+    \entry{ch2ref45}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=21abe5a91c2949aba6ef77033a5f98f3}{%
+           family={{Elsevier}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{fullhash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{fullhashraw}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{bibnamehash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{authorbibnamehash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{authornamehash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{authorfullhash}{21abe5a91c2949aba6ef77033a5f98f3}
+      \strng{authorfullhashraw}{21abe5a91c2949aba6ef77033a5f98f3}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Generative {AI} Policies for Journals}
+      \field{urlday}{13}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals
+      \endverb
+      \verb{url}
+      \verb https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals
+      \endverb
+    \endentry
+    \entry{ch2ref15}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=005c58b3b4367b2bbb6354d6329c31cf}{%
+           family={{ICLR Program Chairs}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{fullhash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{fullhashraw}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{bibnamehash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{authorbibnamehash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{authornamehash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{authorfullhash}{005c58b3b4367b2bbb6354d6329c31cf}
+      \strng{authorfullhashraw}{005c58b3b4367b2bbb6354d6329c31cf}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Policies on Large Language Model Usage at {ICLR} 2026}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://blog.iclr.cc/2025/08/26/policies-on-large-language-model-usage-at-iclr-2026/
+      \endverb
+      \verb{url}
+      \verb https://blog.iclr.cc/2025/08/26/policies-on-large-language-model-usage-at-iclr-2026/
+      \endverb
+    \endentry
+    \entry{ch2ref44}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=e2900e5289a445341534978b627711fe}{%
+           family={{COPE}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{e2900e5289a445341534978b627711fe}
+      \strng{fullhash}{e2900e5289a445341534978b627711fe}
+      \strng{fullhashraw}{e2900e5289a445341534978b627711fe}
+      \strng{bibnamehash}{e2900e5289a445341534978b627711fe}
+      \strng{authorbibnamehash}{e2900e5289a445341534978b627711fe}
+      \strng{authornamehash}{e2900e5289a445341534978b627711fe}
+      \strng{authorfullhash}{e2900e5289a445341534978b627711fe}
+      \strng{authorfullhashraw}{e2900e5289a445341534978b627711fe}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Authorship and {AI} Tools}
+      \field{urlday}{13}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://publicationethics.org/guidance/cope-position/authorship-and-ai-tools
+      \endverb
+      \verb{url}
+      \verb https://publicationethics.org/guidance/cope-position/authorship-and-ai-tools
+      \endverb
+    \endentry
+    \entry{ch2ref16}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=51a9a7c540942772b7c0dc3545a913bf}{%
+           family={{ICML}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{fullhash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{fullhashraw}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{bibnamehash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{authorbibnamehash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{authornamehash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{authorfullhash}{51a9a7c540942772b7c0dc3545a913bf}
+      \strng{authorfullhashraw}{51a9a7c540942772b7c0dc3545a913bf}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Reviewer Instructions 2025}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://icml.cc/Conferences/2025/ReviewerInstructions
+      \endverb
+      \verb{url}
+      \verb https://icml.cc/Conferences/2025/ReviewerInstructions
+      \endverb
+    \endentry
+    \entry{ch1ref14}{misc}{}{}
+      \name{author}{5}{}{%
+        {{hash=76ce2830814836582949c603c0d7d84f}{%
+           family={Latona},
+           familyi={L\bibinitperiod},
+           given={Giuseppe\bibnamedelima Russo},
+           giveni={G\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=641cc5da1bcebb991839a628fcd3350a}{%
+           family={Horta\bibnamedelima Ribeiro},
+           familyi={H\bibinitperiod\bibinitdelim R\bibinitperiod},
+           given={Manoel},
+           giveni={M\bibinitperiod}}}%
+        {{hash=165e0d6c9adb44f2432dfefc685b6ad6}{%
+           family={Davidson},
+           familyi={D\bibinitperiod},
+           given={Tim\bibnamedelima R.},
+           giveni={T\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=a8fe54fd1484052ef5eb5e05669b0860}{%
+           family={Veselovsky},
+           familyi={V\bibinitperiod},
+           given={Veniamin},
+           giveni={V\bibinitperiod}}}%
+        {{hash=9d2787872d7eadcedce1aeb8e7af9eb0}{%
+           family={West},
+           familyi={W\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{6006ac9eaebc55fdb02a4b8031d3cade}
+      \strng{fullhash}{3547b40a0947b7c58b067646945bf1a8}
+      \strng{fullhashraw}{3547b40a0947b7c58b067646945bf1a8}
+      \strng{bibnamehash}{3547b40a0947b7c58b067646945bf1a8}
+      \strng{authorbibnamehash}{3547b40a0947b7c58b067646945bf1a8}
+      \strng{authornamehash}{6006ac9eaebc55fdb02a4b8031d3cade}
+      \strng{authorfullhash}{3547b40a0947b7c58b067646945bf1a8}
+      \strng{authorfullhashraw}{3547b40a0947b7c58b067646945bf1a8}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CL}
+      \field{eprinttype}{arXiv}
+      \field{title}{The {AI} Review Lottery: Widespread {AI}-Assisted Peer Reviews Boost Paper Scores and Acceptance Rates}
+      \field{year}{2024}
+      \verb{eprint}
+      \verb 2405.02150
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2405.02150
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2405.02150
+      \endverb
+    \endentry
+    \entry{ch1ref3}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
+        {{hash=1f07db23220a28441af1a64f10cab5bb}{%
+           family={Thakkar},
+           familyi={T\bibinitperiod},
+           given={Nitya},
+           giveni={N\bibinitperiod}}}%
+        {{hash=fce301bcc279f3a5b856deb48042c29e}{%
+           family={Yuksekgonul},
+           familyi={Y\bibinitperiod},
+           given={Mert},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f713f36dfac02430e7e189736c6c4778}{%
+           family={Silberg},
+           familyi={S\bibinitperiod},
+           given={Jake},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{595144f4f123f5daa33e54ea998fa1c7}
+      \strng{fullhash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{fullhashraw}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{bibnamehash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authorbibnamehash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authornamehash}{595144f4f123f5daa33e54ea998fa1c7}
+      \strng{authorfullhash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authorfullhashraw}{1a28fd8adedad159ef173d870285a6fc}
+      \field{extraname}{1}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature Machine Intelligence}
+      \field{title}{A Large-Scale Randomized Study of Large Language Model Feedback in Peer Review}
+      \field{volume}{8}
+      \field{year}{2026}
+      \field{pages}{326\bibrangedash 336}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1038/s42256-026-01188-x
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1038/s42256-026-01188-x
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1038/s42256-026-01188-x
+      \endverb
+    \endentry
+    \entry{ch2ref18}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7c976ee21487d741db7c2927c446a0cb}{%
+           family={{ICLR Blog}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{fullhash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{fullhashraw}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{bibnamehash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{authorbibnamehash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{authornamehash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{authorfullhash}{7c976ee21487d741db7c2927c446a0cb}
+      \strng{authorfullhashraw}{7c976ee21487d741db7c2927c446a0cb}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Leveraging {LLM} Feedback to Enhance Review Quality}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://blog.iclr.cc/2025/04/15/leveraging-llm-feedback-to-enhance-review-quality/
+      \endverb
+      \verb{url}
+      \verb https://blog.iclr.cc/2025/04/15/leveraging-llm-feedback-to-enhance-review-quality/
+      \endverb
+    \endentry
+    \entry{ch1ref5}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=199b760862ca4de0cdb8be8879e62e55}{%
+           family={{EasyChair}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{bibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorbibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authornamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \field{extraname}{1}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{EasyChair Conference Management}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://easychair.org/
+      \endverb
+      \verb{url}
+      \verb https://easychair.org/
+      \endverb
+    \endentry
+    \entry{ch1ref6}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=614331965dad445edf21f09fe2a50e69}{%
+           family={{HotCRP}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \strng{bibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorbibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authornamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \field{extraname}{1}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{HotCRP Conference Review Software}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://hotcrp.com/
+      \endverb
+      \verb{url}
+      \verb https://hotcrp.com/
+      \endverb
+    \endentry
+    \entry{ch1ref7}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=c3ab3cd17af0c6ba62a4f996e42cb981}{%
+           family={{Microsoft Research}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{fullhash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{fullhashraw}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{bibnamehash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{authorbibnamehash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{authornamehash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{authorfullhash}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \strng{authorfullhashraw}{c3ab3cd17af0c6ba62a4f996e42cb981}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Microsoft Conference Management Toolkit}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://cmt3.research.microsoft.com/
+      \endverb
+      \verb{url}
+      \verb https://cmt3.research.microsoft.com/
+      \endverb
+    \endentry
+    \entry{ch1ref8}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=c8288ebae98f90a91e62e9629040c4d4}{%
+           family={{OpenReview}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{fullhash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{fullhashraw}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{bibnamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorbibnamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authornamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorfullhash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorfullhashraw}{c8288ebae98f90a91e62e9629040c4d4}
+      \field{extraname}{1}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{OpenReview: Venues}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://openreview.net/
+      \endverb
+      \verb{url}
+      \verb https://openreview.net/
+      \endverb
+    \endentry
+    \entry{ch2ref1}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=199b760862ca4de0cdb8be8879e62e55}{%
+           family={{EasyChair}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{bibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorbibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authornamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \field{extraname}{2}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Our Services}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://easychair.org/overview
+      \endverb
+      \verb{url}
+      \verb https://easychair.org/overview
+      \endverb
+    \endentry
+    \entry{ch2ref48}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=4edca1b306992f732ca2da3b183f16d8}{%
+           family={{PeerSubmit}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{fullhash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{fullhashraw}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{bibnamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorbibnamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authornamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorfullhash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorfullhashraw}{4edca1b306992f732ca2da3b183f16d8}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{AI} Reviewer Matching, Peer Review and Abstract Management}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.peersubmit.com/
+      \endverb
+      \verb{url}
+      \verb https://www.peersubmit.com/
+      \endverb
+    \endentry
+    \entry{ch2ref52}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=4edca1b306992f732ca2da3b183f16d8}{%
+           family={{PeerSubmit}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{fullhash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{fullhashraw}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{bibnamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorbibnamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authornamehash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorfullhash}{4edca1b306992f732ca2da3b183f16d8}
+      \strng{authorfullhashraw}{4edca1b306992f732ca2da3b183f16d8}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Conference Management and Peer Review Software Pricing}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.peersubmit.com/pricing
+      \endverb
+      \verb{url}
+      \verb https://www.peersubmit.com/pricing
+      \endverb
+    \endentry
+    \entry{ch2ref2}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=199b760862ca4de0cdb8be8879e62e55}{%
+           family={{EasyChair}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{fullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{bibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorbibnamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authornamehash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhash}{199b760862ca4de0cdb8be8879e62e55}
+      \strng{authorfullhashraw}{199b760862ca4de0cdb8be8879e62e55}
+      \field{extraname}{3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Conference Management}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://easychair.org/conference_management
+      \endverb
+      \verb{url}
+      \verb https://easychair.org/conference_management
+      \endverb
+    \endentry
+    \entry{ch2ref57}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=08fc056885a87f2b2bdd427d4f935002}{%
+           family={{ITiCSE 2025 Program Committee}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{fullhash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{fullhashraw}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{bibnamehash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{authorbibnamehash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{authornamehash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{authorfullhash}{08fc056885a87f2b2bdd427d4f935002}
+      \strng{authorfullhashraw}{08fc056885a87f2b2bdd427d4f935002}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Paper Review Process}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://iticse.acm.org/2025/paper-review-process/
+      \endverb
+      \verb{url}
+      \verb https://iticse.acm.org/2025/paper-review-process/
+      \endverb
+    \endentry
+    \entry{ch2ref3}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=614331965dad445edf21f09fe2a50e69}{%
+           family={{HotCRP}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \strng{bibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorbibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authornamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{HotCRP REST API Documentation}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://hotcrp.com/devel/api/
+      \endverb
+      \verb{url}
+      \verb https://hotcrp.com/devel/api/
+      \endverb
+    \endentry
+    \entry{ch2ref4}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=614331965dad445edf21f09fe2a50e69}{%
+           family={{HotCRP}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{fullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \strng{bibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorbibnamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authornamehash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhash}{614331965dad445edf21f09fe2a50e69}
+      \strng{authorfullhashraw}{614331965dad445edf21f09fe2a50e69}
+      \field{extraname}{3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Chair's Guide}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://help.hotcrp.com/help/chair
+      \endverb
+      \verb{url}
+      \verb https://help.hotcrp.com/help/chair
+      \endverb
+    \endentry
+    \entry{ch2ref58}{online}{}{}
+      \name{author}{2}{}{%
+        {{hash=96f01ec92f8e3085cda5f57652319086}{%
+           family={Gavrilovska},
+           familyi={G\bibinitperiod},
+           given={Ada},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6c79b4d2fa53538347e4a5f171a1cd36}{%
+           family={Zadok},
+           familyi={Z\bibinitperiod},
+           given={Erez},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{fullhash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{fullhashraw}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{bibnamehash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{authorbibnamehash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{authornamehash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{authorfullhash}{f2fc0cdfcc535aee741e1ce82841df21}
+      \strng{authorfullhashraw}{f2fc0cdfcc535aee741e1ce82841df21}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{USENIX ATC 2020}
+      \field{title}{Message from the {USENIX ATC '20} Program Co-Chairs}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2020}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.usenix.org/sites/default/files/atc20_message.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.usenix.org/sites/default/files/atc20_message.pdf
+      \endverb
+    \endentry
+    \entry{ch2ref5}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=c8288ebae98f90a91e62e9629040c4d4}{%
+           family={{OpenReview}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{fullhash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{fullhashraw}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{bibnamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorbibnamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authornamehash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorfullhash}{c8288ebae98f90a91e62e9629040c4d4}
+      \strng{authorfullhashraw}{c8288ebae98f90a91e62e9629040c4d4}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{About {OpenReview}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://openreview.net/about
+      \endverb
+      \verb{url}
+      \verb https://openreview.net/about
+      \endverb
+    \endentry
+    \entry{ch2ref59}{online}{}{}
+      \name{author}{4}{}{%
+        {{hash=c8729ce1a5dd9cb59f67b9958da9bc47}{%
+           family={Beygelzimer},
+           familyi={B\bibinitperiod},
+           given={Alina},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0bf1646a7a00f3a39fb857f25326c32c}{%
+           family={Dauphin},
+           familyi={D\bibinitperiod},
+           given={Yann},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=86c032bbc45c3b616f0a1170befc0e82}{%
+           family={Liang},
+           familyi={L\bibinitperiod},
+           given={Percy},
+           giveni={P\bibinitperiod}}}%
+        {{hash=bbf18ba84dac890ff76b935f2de7a6a1}{%
+           family={Vaughan},
+           familyi={V\bibinitperiod},
+           given={Jennifer\bibnamedelima Wortman},
+           giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \strng{namehash}{bab5902608397fa2eaeb051d559b78ab}
+      \strng{fullhash}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \strng{fullhashraw}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \strng{bibnamehash}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \strng{authorbibnamehash}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \strng{authornamehash}{bab5902608397fa2eaeb051d559b78ab}
+      \strng{authorfullhash}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \strng{authorfullhashraw}{b65ef2ca569b2a78ed8c80b8f23302bf}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{9}
+      \field{month}{4}
+      \field{note}{NeurIPS 2021 Program Chairs}
+      \field{title}{{NeurIPS 2021}: Changes to the Review Process}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://blog.neurips.cc/2021/04/09/neurips-2021-changes-to-the-review-process/
+      \endverb
+      \verb{url}
+      \verb https://blog.neurips.cc/2021/04/09/neurips-2021-changes-to-the-review-process/
+      \endverb
+    \endentry
+    \entry{ch2ref60}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=5bbfba20872ee4629721f86ac1011335}{%
+           family={{ACT 2023 Program Chairs}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{fullhash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{fullhashraw}{5bbfba20872ee4629721f86ac1011335}
+      \strng{bibnamehash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{authorbibnamehash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{authornamehash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{authorfullhash}{5bbfba20872ee4629721f86ac1011335}
+      \strng{authorfullhashraw}{5bbfba20872ee4629721f86ac1011335}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Notes on Using {OpenReview}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://act2023.github.io/openreview.html
+      \endverb
+      \verb{url}
+      \verb https://act2023.github.io/openreview.html
+      \endverb
+    \endentry
+    \entry{ch2ref6}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=e92eca764ee16bf11db6e2a06b601cc0}{%
+           family={{Microsoft CMT}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{bibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorbibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authornamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Microsoft Conference Management Toolkit}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://cmt3.research.microsoft.com/About
+      \endverb
+      \verb{url}
+      \verb https://cmt3.research.microsoft.com/About
+      \endverb
+    \endentry
+    \entry{ch2ref7}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=e92eca764ee16bf11db6e2a06b601cc0}{%
+           family={{Microsoft CMT}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{bibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorbibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authornamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Chair How-To: Manage Conflicts}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://cmt3.research.microsoft.com/docs/help/chair/conflicts.html
+      \endverb
+      \verb{url}
+      \verb https://cmt3.research.microsoft.com/docs/help/chair/conflicts.html
+      \endverb
+    \endentry
+    \entry{ch2ref8}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=e92eca764ee16bf11db6e2a06b601cc0}{%
+           family={{Microsoft CMT}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{fullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{bibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorbibnamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authornamehash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhash}{e92eca764ee16bf11db6e2a06b601cc0}
+      \strng{authorfullhashraw}{e92eca764ee16bf11db6e2a06b601cc0}
+      \field{extraname}{3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Chair How-To: {TPMS}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://cmt3.research.microsoft.com/docs/help/chair/tpms.html
+      \endverb
+      \verb{url}
+      \verb https://cmt3.research.microsoft.com/docs/help/chair/tpms.html
+      \endverb
+    \endentry
+    \entry{ch2ref61}{online}{}{}
+      \name{author}{6}{}{%
+        {{hash=8a72602701f559ddc015a16a746c9877}{%
+           family={Medioni},
+           familyi={M\bibinitperiod},
+           given={Gérard},
+           giveni={G\bibinitperiod}}}%
+        {{hash=8f6083f506ec8ce96ff44e09f6cb4337}{%
+           family={Zabih},
+           familyi={Z\bibinitperiod},
+           given={Ramin},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c4c76fca369ecb436d9729820e745123}{%
+           family={Hebert},
+           familyi={H\bibinitperiod},
+           given={Martial},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3cfd34e389ca31c6581913f35af138c8}{%
+           family={Freeman},
+           familyi={F\bibinitperiod},
+           given={William\bibnamedelima T.},
+           giveni={W\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=8143c093f5cb992b8a77c3b692b5b22d}{%
+           family={Hager},
+           familyi={H\bibinitperiod},
+           given={Gregory\bibnamedelima D.},
+           giveni={G\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=f2e556c93256e7d70895d67702e14f1a}{%
+           family={Szeliski},
+           familyi={S\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{28d11e532621870eda4b658e5fa2c01c}
+      \strng{fullhash}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \strng{fullhashraw}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \strng{bibnamehash}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \strng{authorbibnamehash}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \strng{authornamehash}{28d11e532621870eda4b658e5fa2c01c}
+      \strng{authorfullhash}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \strng{authorfullhashraw}{ee362f212a1d2cb03f01d8f5edd0d0ff}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{CVPR 2013 pocket guide}
+      \field{title}{Message from the General and Program Chairs}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2013}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://cvpr2013.thecvf.com/files/CVPR_2013_Pocket_Guide_Final.pdf
+      \endverb
+      \verb{url}
+      \verb https://cvpr2013.thecvf.com/files/CVPR_2013_Pocket_Guide_Final.pdf
+      \endverb
+    \endentry
+    \entry{ch2ref47}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=f23cf6b6a0b93da0e017628e188e90c3}{%
+           family={{Morressier}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{fullhash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{fullhashraw}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{bibnamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorbibnamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authornamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorfullhash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorfullhashraw}{f23cf6b6a0b93da0e017628e188e90c3}
+      \field{extraname}{1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Research Integrity Manager for Efficient Peer Review}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.morressier.com/products/research-integrity-manager
+      \endverb
+      \verb{url}
+      \verb https://www.morressier.com/products/research-integrity-manager
+      \endverb
+    \endentry
+    \entry{ch2ref55}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=f23cf6b6a0b93da0e017628e188e90c3}{%
+           family={{Morressier}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{fullhash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{fullhashraw}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{bibnamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorbibnamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authornamehash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorfullhash}{f23cf6b6a0b93da0e017628e188e90c3}
+      \strng{authorfullhashraw}{f23cf6b6a0b93da0e017628e188e90c3}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Auto-Assigning Reviewers to Papers}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://support.morressier.com/knowledge/auto-assigning-reviewers-to-papers
+      \endverb
+      \verb{url}
+      \verb https://support.morressier.com/knowledge/auto-assigning-reviewers-to-papers
+      \endverb
+    \endentry
+    \entry{ch2ref40}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=849731f4f6c962ebf3a016a8b55f644f}{%
+           family={{Association for Computing Machinery}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{fullhash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{fullhashraw}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{bibnamehash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{authorbibnamehash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{authornamehash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{authorfullhash}{849731f4f6c962ebf3a016a8b55f644f}
+      \strng{authorfullhashraw}{849731f4f6c962ebf3a016a8b55f644f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{ACM} Peer Review Policy Frequently Asked Questions}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.acm.org/publications/policies/peer-review-faq
+      \endverb
+      \verb{url}
+      \verb https://www.acm.org/publications/policies/peer-review-faq
+      \endverb
+    \endentry
+    \entry{ch2ref17}{misc}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
+        {{hash=1f07db23220a28441af1a64f10cab5bb}{%
+           family={Thakkar},
+           familyi={T\bibinitperiod},
+           given={Nitya},
+           giveni={N\bibinitperiod}}}%
+        {{hash=fce301bcc279f3a5b856deb48042c29e}{%
+           family={Yuksekgonul},
+           familyi={Y\bibinitperiod},
+           given={Mert},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f713f36dfac02430e7e189736c6c4778}{%
+           family={Silberg},
+           familyi={S\bibinitperiod},
+           given={Jake},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{595144f4f123f5daa33e54ea998fa1c7}
+      \strng{fullhash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{fullhashraw}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{bibnamehash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authorbibnamehash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authornamehash}{595144f4f123f5daa33e54ea998fa1c7}
+      \strng{authorfullhash}{1a28fd8adedad159ef173d870285a6fc}
+      \strng{authorfullhashraw}{1a28fd8adedad159ef173d870285a6fc}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.AI}
+      \field{eprinttype}{arXiv}
+      \field{title}{Can {LLM} Feedback Enhance Review Quality? {A} Randomized Study of {20K} Reviews at {ICLR} 2025}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.2504.09737
+      \endverb
+      \verb{eprint}
+      \verb 2504.09737
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2504.09737
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2504.09737
+      \endverb
+    \endentry
+    \entry{ch2ref11}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=c7eef11554aa52b34dd63f93b402f01c}{%
+           family={Charlin},
+           familyi={C\bibinitperiod},
+           given={Laurent},
+           giveni={L\bibinitperiod}}}%
+        {{hash=936deb796814f7b18da88b71fa5ae940}{%
+           family={Zemel},
+           familyi={Z\bibinitperiod},
+           given={Richard\bibnamedelima S.},
+           giveni={R\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{fullhash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{fullhashraw}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{bibnamehash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{authorbibnamehash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{authornamehash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{authorfullhash}{2f1daa1d5567cbeba822f77aef48c155}
+      \strng{authorfullhashraw}{2f1daa1d5567cbeba822f77aef48c155}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the ICML Workshop on Peer Reviewing and Publishing Models}
+      \field{title}{The Toronto Paper Matching System: An Automated Paper-Reviewer Assignment System}
+      \field{year}{2013}
+      \verb{urlraw}
+      \verb https://www.cs.toronto.edu/~lcharlin/papers/tpms.pdf
+      \endverb
+      \verb{url}
+      \verb https://www.cs.toronto.edu/~lcharlin/papers/tpms.pdf
+      \endverb
+    \endentry
+    \entry{ch2ref12}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=0d8f980802951b40c8fa9e3d5de6d587}{%
+           family={{ACM}},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{fullhash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{fullhashraw}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{bibnamehash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{authorbibnamehash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{authornamehash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{authorfullhash}{0d8f980802951b40c8fa9e3d5de6d587}
+      \strng{authorfullhashraw}{0d8f980802951b40c8fa9e3d5de6d587}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Conflict of Interest Policy for {ACM} Publications}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.acm.org/publications/policies/conflict-of-interest
+      \endverb
+      \verb{url}
+      \verb https://www.acm.org/publications/policies/conflict-of-interest
+      \endverb
+    \endentry
+    \entry{ch2ref13}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=ec72339203829dd4b8393ba542a8200d}{%
+           family={{Semantic Scholar}},
+           familyi={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{fullhash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{fullhashraw}{ec72339203829dd4b8393ba542a8200d}
+      \strng{bibnamehash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{authorbibnamehash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{authornamehash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{authorfullhash}{ec72339203829dd4b8393ba542a8200d}
+      \strng{authorfullhashraw}{ec72339203829dd4b8393ba542a8200d}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Semantic Scholar Academic Graph API}}
+      \field{urlday}{19}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.semanticscholar.org/product/api
+      \endverb
+      \verb{url}
+      \verb https://www.semanticscholar.org/product/api
+      \endverb
+    \endentry
+    \entry{ch2ref19}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=194fe82cd5464dc8f72110242f86cffe}{%
+           family={{NeurIPS 2026 Experiment Chairs}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{fullhash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{fullhashraw}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{bibnamehash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{authorbibnamehash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{authornamehash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{authorfullhash}{194fe82cd5464dc8f72110242f86cffe}
+      \strng{authorfullhashraw}{194fe82cd5464dc8f72110242f86cffe}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{NeurIPS 2026 AI-Assisted Reviewing Experiment}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://neurips.cc/Conferences/2026/ai-reviewing-experiment
+      \endverb
+      \verb{url}
+      \verb https://neurips.cc/Conferences/2026/ai-reviewing-experiment
+      \endverb
+    \endentry
+    \entry{ch4ref1}{misc}{}{}
+      \name{author}{7}{}{%
+        {{hash=e40a832055adca32243381a9167916f3}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Daoze},
+           giveni={D\bibinitperiod}}}%
+        {{hash=7b582777f5e57ae4414359cde72999b6}{%
+           family={Bao},
+           familyi={B\bibinitperiod},
+           given={Zhijian},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=32cd5d466fecb523e488cdf9246241c4}{%
+           family={Du},
+           familyi={D\bibinitperiod},
+           given={Sihang},
+           giveni={S\bibinitperiod}}}%
+        {{hash=65a92ae6a9e19b29f9b6e383076bba53}{%
+           family={Zhao},
+           familyi={Z\bibinitperiod},
+           given={Zhiyi},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=97bd867fdf2f80c071b74b55f8823357}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Kuangling},
+           giveni={K\bibinitperiod}}}%
+        {{hash=932812ee3adaf1dc7498627c5276fb20}{%
+           family={Bao},
+           familyi={B\bibinitperiod},
+           given={Dezheng},
+           giveni={D\bibinitperiod}}}%
+        {{hash=d9da4a23ca804cbf6aff5760349ec643}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Yang},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{a1766883058f5d644b8fa3e1bd814c97}
+      \strng{fullhash}{e90c37ee4a0c16db310d28863542b0f5}
+      \strng{fullhashraw}{e90c37ee4a0c16db310d28863542b0f5}
+      \strng{bibnamehash}{a1766883058f5d644b8fa3e1bd814c97}
+      \strng{authorbibnamehash}{a1766883058f5d644b8fa3e1bd814c97}
+      \strng{authornamehash}{a1766883058f5d644b8fa3e1bd814c97}
+      \strng{authorfullhash}{e90c37ee4a0c16db310d28863542b0f5}
+      \strng{authorfullhashraw}{e90c37ee4a0c16db310d28863542b0f5}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{title}{{Re2: A Consistency-ensured Dataset for Full-stage Peer Review and Multi-turn Rebuttal Discussions}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 2505.07920
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2505.07920
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2505.07920
+      \endverb
+    \endentry
+    \entry{ch4ref8}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=2214edb8305f7ccd7cdc310b3a8ae1b4}{%
+           family={Manning},
+           familyi={M\bibinitperiod},
+           given={Christopher\bibnamedelima D.},
+           giveni={C\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=68f523934985e2f967ab2b15f4ded07c}{%
+           family={Raghavan},
+           familyi={R\bibinitperiod},
+           given={Prabhakar},
+           giveni={P\bibinitperiod}}}%
+        {{hash=9a80de0e5ec6df57363aaf321a5d05be}{%
+           family={Schütze},
+           familyi={S\bibinitperiod},
+           given={Hinrich},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{74f8a4742e6176570536838efea19700}
+      \strng{fullhash}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \strng{fullhashraw}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \strng{bibnamehash}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \strng{authorbibnamehash}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \strng{authornamehash}{74f8a4742e6176570536838efea19700}
+      \strng{authorfullhash}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \strng{authorfullhashraw}{56b44e50eec2e98e36ad6aa3a5e7af9b}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-0-521-86571-5}
+      \field{title}{Introduction to Information Retrieval}
+      \field{year}{2008}
+      \verb{urlraw}
+      \verb https://nlp.stanford.edu/IR-book/
+      \endverb
+      \verb{url}
+      \verb https://nlp.stanford.edu/IR-book/
+      \endverb
+    \endentry
+    \entry{ch4ref2}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=4d7ebb5abee94548c07f5eaceae6e53d}{%
+           family={Miller},
+           familyi={M\bibinitperiod},
+           given={D.\bibnamedelimi Lee},
+           giveni={D\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Hugging Face Hub}%
+      }
+      \strng{namehash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{fullhash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{fullhashraw}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{bibnamehash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{authorbibnamehash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{authornamehash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{authorfullhash}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \strng{authorfullhashraw}{4d7ebb5abee94548c07f5eaceae6e53d}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{ModernCE-large-nli: NLI Cross-Encoder Model}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://huggingface.co/dleemiller/ModernCE-large-nli
+      \endverb
+      \verb{url}
+      \verb https://huggingface.co/dleemiller/ModernCE-large-nli
+      \endverb
+    \endentry
+    \entry{ch4ref3}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=4622c4bb7444dadba22813c2addff5e7}{%
+           family={{Qwen Team}},
+           familyi={Q\bibinitperiod}}}%
+      }
+      \strng{namehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{fullhash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{fullhashraw}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{bibnamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorbibnamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authornamehash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorfullhash}{4622c4bb7444dadba22813c2addff5e7}
+      \strng{authorfullhashraw}{4622c4bb7444dadba22813c2addff5e7}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Qwen3.5: Towards Native Multimodal Agents}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://qwen.ai/blog?id=qwen3.5
+      \endverb
+      \verb{url}
+      \verb https://qwen.ai/blog?id=qwen3.5
+      \endverb
+    \endentry
+    \entry{ch4ref4}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=92d1002bbeda9145e9369766ab6d96a9}{%
+           family={{Grafana Labs}},
+           familyi={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{fullhash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{fullhashraw}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{bibnamehash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{authorbibnamehash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{authornamehash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{authorfullhash}{92d1002bbeda9145e9369766ab6d96a9}
+      \strng{authorfullhashraw}{92d1002bbeda9145e9369766ab6d96a9}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Built-in Metrics in k6}}
+      \field{urlday}{20}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://grafana.com/docs/k6/latest/using-k6/metrics/reference/
+      \endverb
+      \verb{url}
+      \verb https://grafana.com/docs/k6/latest/using-k6/metrics/reference/
+      \endverb
+    \endentry
+    \entry{ch4ref5}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=fd8d286ba5df2d959dd78d365c991289}{%
+           family={{The Go Authors}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{fullhash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{fullhashraw}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{bibnamehash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{authorbibnamehash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{authornamehash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{authorfullhash}{fd8d286ba5df2d959dd78d365c991289}
+      \strng{authorfullhashraw}{fd8d286ba5df2d959dd78d365c991289}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Package testing: Benchmarks}}
+      \field{urlday}{20}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://pkg.go.dev/testing#hdr-Benchmarks
+      \endverb
+      \verb{url}
+      \verb https://pkg.go.dev/testing#hdr-Benchmarks
+      \endverb
+    \endentry
+    \entry{ch4ref9}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{hash=bc6dfe0750848d77d639c1de6b9934e4}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Chin-Yew},
+           giveni={C\bibinithyphendelim Y\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Barcelona, Spain}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computational Linguistics}%
+      }
+      \strng{namehash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{fullhash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{fullhashraw}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{bibnamehash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{authorbibnamehash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{authornamehash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{authorfullhash}{bc6dfe0750848d77d639c1de6b9934e4}
+      \strng{authorfullhashraw}{bc6dfe0750848d77d639c1de6b9934e4}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Text Summarization Branches Out}
+      \field{title}{{ROUGE}: A Package for Automatic Evaluation of Summaries}
+      \field{year}{2004}
+      \field{pages}{74\bibrangedash 81}
+      \range{pages}{8}
+      \verb{urlraw}
+      \verb https://aclanthology.org/W04-1013/
+      \endverb
+      \verb{url}
+      \verb https://aclanthology.org/W04-1013/
+      \endverb
+    \endentry
+    \entry{ch4ref7}{article}{}{}
+      \name{author}{7}{}{%
+        {{hash=2d567621f8ad3cf7fa913ea5ccc68352}{%
+           family={Hamers},
+           familyi={H\bibinitperiod},
+           given={Lieve},
+           giveni={L\bibinitperiod}}}%
+        {{hash=24a201ac494bb5ddc9e7c447f61353bd}{%
+           family={Hemeryck},
+           familyi={H\bibinitperiod},
+           given={Yves},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=c5750302e31535313186056fce444c99}{%
+           family={Herweyers},
+           familyi={H\bibinitperiod},
+           given={Guido},
+           giveni={G\bibinitperiod}}}%
+        {{hash=7bdb10692c6fc718ee18ae020efcc6d2}{%
+           family={Janssen},
+           familyi={J\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=88b3dc1f0bcd8ef5aee87a2e92e27c46}{%
+           family={Keters},
+           familyi={K\bibinitperiod},
+           given={Hans},
+           giveni={H\bibinitperiod}}}%
+        {{hash=a9b1c5fbd9f512a021fa033e9c5b6398}{%
+           family={Rousseau},
+           familyi={R\bibinitperiod},
+           given={Ronald},
+           giveni={R\bibinitperiod}}}%
+        {{hash=aaaf21b5e91600ac672d6b5403bc4b3f}{%
+           family={Vanhoutte},
+           familyi={V\bibinitperiod},
+           given={André},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{032ccb093577b4620c6f7381ac036dbd}
+      \strng{fullhash}{f5b0f0243b8ce540bcf8bb8eb6b6e1f6}
+      \strng{fullhashraw}{f5b0f0243b8ce540bcf8bb8eb6b6e1f6}
+      \strng{bibnamehash}{032ccb093577b4620c6f7381ac036dbd}
+      \strng{authorbibnamehash}{032ccb093577b4620c6f7381ac036dbd}
+      \strng{authornamehash}{032ccb093577b4620c6f7381ac036dbd}
+      \strng{authorfullhash}{f5b0f0243b8ce540bcf8bb8eb6b6e1f6}
+      \strng{authorfullhashraw}{f5b0f0243b8ce540bcf8bb8eb6b6e1f6}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Information Processing \& Management}
+      \field{number}{3}
+      \field{title}{Similarity Measures in Scientometric Research: The {Jaccard} Index versus {Salton}'s Cosine Formula}
+      \field{volume}{25}
+      \field{year}{1989}
+      \field{pages}{315\bibrangedash 318}
+      \range{pages}{4}
+      \verb{doi}
+      \verb 10.1016/0306-4573(89)90048-4
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1016/0306-4573(89)90048-4
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1016/0306-4573(89)90048-4
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
