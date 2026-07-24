@@ -12,9 +12,7 @@ Both use **Jaccard set similarity** on keyword/domain overlap (`|A∩B| / |A∪B
 purely lexical — no embeddings, no ML. This benchmark quantifies how good those
 matches are, imports the real production code, and is fully offline + deterministic.
 
-> Speed benchmarks live separately in `benchmarks/micro`. Design docs:
-> `docs/superpowers/specs/2026-07-05-matching-quality-benchmark-design.md` and
-> `docs/superpowers/plans/2026-07-05-matching-quality-benchmark.md`.
+> Speed benchmarks live separately in `benchmarks/micro`.
 
 ---
 

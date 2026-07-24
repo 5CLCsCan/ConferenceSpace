@@ -1,7 +1,6 @@
 # Backend Benchmarks
 
-Environment-agnostic performance suite. See
-`docs/superpowers/specs/2026-05-31-backend-benchmarking-design.md` for design.
+Environment-agnostic performance suite.
 
 ## Prereqs
 
