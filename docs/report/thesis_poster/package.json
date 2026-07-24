@@ -1,0 +1,12 @@
+{
+  "name": "thesis_poster",
+  "version": "1.0.0",
+  "description": "Script xuất PDF chất lượng cao nhất cho Poster ConferenceSpace",
+  "main": "export_pdf.js",
+  "scripts": {
+    "export": "node export_pdf.js"
+  },
+  "dependencies": {
+    "playwright": "^1.51.0"
+  }
+}

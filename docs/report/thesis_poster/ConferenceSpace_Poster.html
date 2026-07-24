@@ -10,14 +10,26 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
       rel="stylesheet"
     />
-    <script>
-      window.__resources = {
-        "https://unpkg.com/react@18.3.1/umd/react.production.min.js":
-          "assets/react.production.min.js",
-        "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js":
-          "assets/react-dom.production.min.js",
-      };
-    </script>
+    <style>
+      @page {
+        size: 2000px 1414px;
+        margin: 0;
+      }
+      @media print {
+        html,
+        body {
+          width: 2000px !important;
+          height: 1414px !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      }
+    </style>
+    <script src="assets/react.production.min.js"></script>
+    <script src="assets/react-dom.production.min.js"></script>
     <script src="assets/dc-runtime.js"></script>
   </head>
   <body>
@@ -113,6 +125,22 @@
             >
               Khoa Công nghệ Thông tin
             </div>
+            <div
+              style="
+                display: inline-block;
+                font-size: 13.5px;
+                font-weight: 800;
+                letter-spacing: 0.045em;
+                color: #0f2a38;
+                background: #9fd8df;
+                border-radius: 4px;
+                padding: 2px 8px;
+                margin-top: 4px;
+                white-space: nowrap;
+              "
+            >
+              Mã đề tài · T826_DA_HTTT05
+            </div>
           </div>
         </div>
         <div
@@ -149,36 +177,23 @@
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
-                font-size: 15px;
+                font-size: 18px;
                 font-weight: 700;
                 line-height: 1.25;
+                color: #fff;
               "
             >
               <span>
                 GVHD: ThS. Hồ Thị Hoàng Vy · PGS.TS. Lê Nguyễn Hoài Nam
-              </span>
-              <span
-                style="
-                  display: inline-block;
-                  font-size: 12.5px;
-                  font-weight: 800;
-                  letter-spacing: 0.045em;
-                  color: #0f2a38;
-                  background: #9fd8df;
-                  border-radius: 4px;
-                  padding: 2px 8px;
-                "
-              >
-                Mã đề tài · T826_DA_HTTT05
               </span>
             </div>
             <div
               style="
                 display: flex;
                 justify-content: center;
-                gap: 10px;
-                margin-top: 5px;
-                font-size: 14px;
+                gap: 12px;
+                margin-top: 6px;
+                font-size: 16.5px;
                 font-weight: 600;
                 line-height: 1.25;
                 color: #fff;
@@ -258,7 +273,7 @@
         <!-- ===== TOP TIER ===== -->
         <div
           style="
-            flex: 0.84;
+            flex: 0.68;
             display: grid;
             grid-template-columns: 1fr 2.28fr;
             gap: 14px;
@@ -275,7 +290,7 @@
               flex-direction: column;
               min-height: 0;
               overflow: hidden;
-              padding: 18px 22px;
+              padding: 8px 12px;
             "
           >
             <div
@@ -419,7 +434,7 @@
                 min-height: 0;
                 display: flex;
                 flex-direction: column;
-                margin-top: 10px;
+                margin-top: 5px;
               "
             >
               <div
@@ -429,7 +444,7 @@
                   letter-spacing: 0.075em;
                   text-transform: uppercase;
                   color: #3c7a90;
-                  margin-bottom: 6px;
+                  margin-bottom: 4px;
                 "
               >
                 Hai hướng khảo sát
@@ -447,7 +462,7 @@
                   style="
                     border: 1px solid #d7e1e5;
                     border-radius: 8px;
-                    padding: 8px 9px;
+                    padding: 6px 8px;
                     display: flex;
                     flex-direction: column;
                     min-height: 0;
@@ -459,7 +474,7 @@
                       align-items: baseline;
                       justify-content: space-between;
                       gap: 6px;
-                      margin-bottom: 7px;
+                      margin-bottom: 5px;
                     "
                   >
                     <div
@@ -482,7 +497,7 @@
                       display: flex;
                       flex-direction: column;
                       justify-content: space-around;
-                      gap: 12px;
+                      gap: 6px;
                       flex: 1;
                       min-height: 0;
                     "
@@ -728,7 +743,7 @@
               flex-direction: column;
               min-height: 0;
               overflow: hidden;
-              padding: 18px 12px;
+              padding: 8px 12px;
             "
           >
             <div
@@ -809,7 +824,7 @@
                   min-height: 0;
                   display: grid;
                   grid-template-columns: 80px 1.3fr 1.2fr 1fr 1fr 1.3fr 36px;
-                  grid-template-rows: 40px 1fr 1.5fr 1fr;
+                  grid-template-rows: 32px 0.84fr 1.5fr 0.84fr;
                   gap: 5px;
                 }
                 #workflow-rebuild .header-row,
@@ -886,7 +901,7 @@
                   gap: 5px;
                   border: 1px solid #d5dfe3;
                   border-radius: 8px;
-                  padding: 30px 5px 5px;
+                  padding: 24px 5px 4px;
                   background: #fafcfd;
                   overflow: hidden;
                 }
@@ -1205,9 +1220,9 @@
                       <span class="support-label">Liên vai trò</span
                       ><span class="support-code">UC-10</span
                       ><span class="support-name">Chatbot Agent</span
-                      ><!-- <span class="support-detail"
-                        >Truy vấn trạng thái - hướng dẫn thao tác</span
-                      > -->
+                      ><div class="chips" style="margin-top: 0">
+                        <span class="chip ai">AI</span>
+                      </div>
                     </div>
 
                     <div class="cross-role-uc uc08">
@@ -1415,7 +1430,7 @@
                       TT · Thuật toán xác định
                     </div>
                     <div class="layer-desc">
-                      Tính điểm và kiểm tra theo quy tắc có thể tái lập và giải
+                      Hoạt động theo quy tắc có thể tái lập và giải
                       thích.
                     </div>
                   </div>
@@ -1456,7 +1471,7 @@
           style="
             flex: 1;
             display: grid;
-            grid-template-columns: 1.35fr 1.1fr 0.93fr;
+            grid-template-columns: 1.35fr 1.02fr 1.01fr;
             gap: 14px;
             min-height: 0;
           "
@@ -1471,27 +1486,27 @@
               flex-direction: column;
               min-height: 0;
               overflow: hidden;
-              padding: 16px 20px;
+              padding: 8px 10px;
             "
           >
             <div
               style="
                 display: flex;
                 align-items: baseline;
-                gap: 16px;
+                gap: 12px;
                 border-bottom: 1px solid #e6ecef;
-                padding-bottom: 9px;
-                margin-bottom: 8px;
+                padding-bottom: 4px;
+                margin-bottom: 4px;
               "
             >
-              <div style="display: flex; align-items: center; gap: 12px">
+              <div style="display: flex; align-items: center; gap: 10px">
                 <sc-if
                   value="{{ accentBar }}"
                   hint-placeholder-val="{{ false }}"
                   ><span
                     style="
                       width: 5px;
-                      height: 26px;
+                      height: 24px;
                       background: #3c7a90;
                       border-radius: 2px;
                       flex: none;
@@ -1501,7 +1516,7 @@
                 <h2
                   style="
                     margin: 0;
-                    font-size: 28px;
+                    font-size: 26px;
                     font-weight: 800;
                     color: #16384a;
                     line-height: 1;
@@ -1514,26 +1529,13 @@
 
             <div
               style="
-                flex: none;
-                margin-bottom: 8px;
-                font-size: 15px;
-                line-height: 1.34;
-                color: #223038;
-              "
-            >
-              <!-- <b style="color: #16384a">Tổng quan:</b> Toàn bộ hệ thống được
-              quản lý và triển khai bằng Docker Compose; các service được chia
-              theo nhiệm vụ để dễ mở rộng trong tương lai. -->
-            </div>
-
-            <div
-              style="
                 flex: 1;
                 min-height: 0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 0;
+                margin: 2px 0;
               "
             >
               <img
@@ -1552,7 +1554,7 @@
               style="
                 box-sizing: border-box;
                 flex: none;
-                height: 126px;
+                height: 138px;
                 margin-top: 6px;
                 display: flex;
                 flex-direction: column;
@@ -1561,7 +1563,7 @@
             >
               <div
                 style="
-                  font-size: 11.5px;
+                  font-size: 13px;
                   font-weight: 800;
                   letter-spacing: 0.07em;
                   text-transform: uppercase;
@@ -1573,10 +1575,10 @@
                 CI/CD · Triển khai tự động
               </div>
               <svg
-                viewBox="0 0 700 88"
+                viewBox="0 0 880 108"
                 width="100%"
-                height="88"
-                style="display: block; overflow: hidden"
+                height="116"
+                style="display: block; width: 100%; height: 116px; overflow: hidden"
                 font-family="Manrope, sans-serif"
                 role="img"
                 aria-label="Luồng CI/CD và triển khai tự động ConferenceSpace"
@@ -1587,8 +1589,8 @@
                     viewBox="0 0 10 10"
                     refX="8"
                     refY="5"
-                    markerWidth="5"
-                    markerHeight="5"
+                    markerWidth="6"
+                    markerHeight="6"
                     orient="auto"
                   >
                     <path d="M0 0L10 5L0 10Z" fill="#78909b"></path>
@@ -1612,169 +1614,183 @@
                 <g
                   fill="none"
                   stroke="#78909b"
-                  stroke-width="1.4"
+                  stroke-width="1.8"
                   marker-end="url(#cicd-deployment-arrow)"
                 >
-                  <path d="M122 44H128"></path>
-                  <path d="M278 44H284"></path>
-                  <path d="M434 44H440"></path>
-                  <path d="M558 44H564"></path>
+                  <path d="M154 54H168"></path>
+                  <path d="M365 54H379"></path>
+                  <path d="M531 54H545"></path>
+                  <path d="M692 54H706"></path>
                 </g>
+
+                <!-- Node 1: GitHub -->
                 <g>
                   <rect
-                    x="2"
-                    y="14"
-                    width="118"
-                    height="60"
-                    rx="7"
+                    x="4"
+                    y="16"
+                    width="150"
+                    height="76"
+                    rx="8"
                     fill="#fff"
                     stroke="#6E93A8"
+                    stroke-width="1.5"
                   ></rect>
                   <use
                     href="#logo-github"
-                    x="12"
-                    y="24"
-                    width="28"
-                    height="28"
+                    x="14"
+                    y="26"
+                    width="33"
+                    height="33"
                     fill="#181616"
                   ></use>
                   <text
-                    x="47"
-                    y="37"
-                    font-size="13"
+                    x="60"
+                    y="45"
+                    font-size="18"
                     font-weight="800"
                     fill="#16384A"
                   >
                     GitHub
                   </text>
-                  <text x="47" y="52" font-size="10" fill="#52666f">
+                  <text x="60" y="69" font-size="16" font-weight="600" fill="#52666f">
                     Mã nguồn
                   </text>
                 </g>
+
+                <!-- Node 2: GitHub Actions -->
                 <g>
                   <rect
-                    x="130"
-                    y="14"
-                    width="146"
-                    height="60"
-                    rx="7"
+                    x="170"
+                    y="16"
+                    width="195"
+                    height="76"
+                    rx="8"
                     fill="#eaf4ff"
                     stroke="#2088ff"
+                    stroke-width="1.5"
                   ></rect>
                   <use
                     href="#logo-github-actions"
-                    x="140"
-                    y="23"
-                    width="31"
-                    height="31"
+                    x="180"
+                    y="26"
+                    width="33"
+                    height="33"
                     fill="#2088ff"
                   ></use>
                   <text
-                    x="177"
-                    y="37"
-                    font-size="12.5"
+                    x="226"
+                    y="45"
+                    font-size="18"
                     font-weight="800"
                     fill="#16384A"
                   >
                     GitHub Actions
                   </text>
-                  <text x="177" y="52" font-size="10" fill="#52666f">
+                  <text x="226" y="69" font-size="16" font-weight="600" fill="#52666f">
                     Build Image
                   </text>
                 </g>
+
+                <!-- Node 3: GHCR -->
                 <g>
                   <rect
-                    x="286"
-                    y="14"
-                    width="146"
-                    height="60"
-                    rx="7"
+                    x="381"
+                    y="16"
+                    width="150"
+                    height="76"
+                    rx="8"
                     fill="#fff"
                     stroke="#6E93A8"
+                    stroke-width="1.5"
                   ></rect>
                   <use
                     href="#logo-github"
-                    x="296"
-                    y="23"
-                    width="30"
-                    height="30"
+                    x="391"
+                    y="26"
+                    width="33"
+                    height="33"
                     fill="#181616"
                   ></use>
                   <text
-                    x="333"
-                    y="37"
-                    font-size="13"
+                    x="437"
+                    y="45"
+                    font-size="18"
                     font-weight="800"
                     fill="#16384A"
                   >
                     GHCR
                   </text>
-                  <text x="333" y="52" font-size="10" fill="#52666f">
+                  <text x="437" y="69" font-size="16" font-weight="600" fill="#52666f">
                     Lưu Image
                   </text>
                 </g>
+
+                <!-- Node 4: VPS -->
                 <g>
                   <rect
-                    x="442"
-                    y="14"
-                    width="114"
-                    height="60"
-                    rx="7"
+                    x="547"
+                    y="16"
+                    width="145"
+                    height="76"
+                    rx="8"
                     fill="#16384A"
                   ></rect>
-                  <g fill="none" stroke="#9fd8df" stroke-width="1.7">
-                    <rect x="451" y="24" width="27" height="29" rx="3"></rect>
-                    <line x1="456" y1="31" x2="473" y2="31"></line>
-                    <line x1="456" y1="38" x2="473" y2="38"></line>
+                  <g fill="none" stroke="#9fd8df" stroke-width="2">
+                    <rect x="557" y="27" width="32" height="36" rx="4"></rect>
+                    <line x1="563" y1="36" x2="583" y2="36"></line>
+                    <line x1="563" y1="45" x2="583" y2="45"></line>
                     <circle
-                      cx="471"
-                      cy="47"
-                      r="1.2"
+                      cx="580"
+                      cy="56"
+                      r="1.5"
                       fill="#9fd8df"
                       stroke="none"
                     ></circle>
                   </g>
                   <text
-                    x="485"
-                    y="37"
-                    font-size="13"
+                    x="598"
+                    y="45"
+                    font-size="18"
                     font-weight="800"
                     fill="#fff"
                   >
                     VPS
                   </text>
-                  <text x="485" y="52" font-size="9.5" fill="#cfe3e8">
+                  <text x="598" y="69" font-size="16" font-weight="600" fill="#cfe3e8">
                     Pull Image
                   </text>
                 </g>
+
+                <!-- Node 5: Docker Compose -->
                 <g>
                   <rect
-                    x="566"
-                    y="14"
-                    width="132"
-                    height="60"
-                    rx="7"
+                    x="708"
+                    y="16"
+                    width="168"
+                    height="76"
+                    rx="8"
                     fill="#e8f7fb"
                     stroke="#00AADA"
+                    stroke-width="1.5"
                   ></rect>
                   <use
                     href="#logo-docker"
-                    x="576"
-                    y="23"
-                    width="27"
-                    height="27"
+                    x="718"
+                    y="27"
+                    width="33"
+                    height="33"
                     fill="#00AADA"
                   ></use>
                   <text
-                    x="610"
-                    y="37"
-                    font-size="10"
+                    x="760"
+                    y="45"
+                    font-size="18"
                     font-weight="800"
                     fill="#16384A"
                   >
-                    Docker Compose
+                    Docker
                   </text>
-                  <text x="610" y="52" font-size="9" fill="#52666f">
+                  <text x="760" y="69" font-size="16" font-weight="600" fill="#52666f">
                     Cập nhật
                   </text>
                 </g>
@@ -1794,7 +1810,7 @@
               flex-direction: column;
               min-height: 0;
               overflow: hidden;
-              padding: 14px 14px 12px;
+              padding: 8px 12px 10px;
             "
           >
             <style>
@@ -1978,7 +1994,7 @@
               <div style="padding-right: 7px; border-right: 1px solid #d9e4e8">
                 <!-- <div class="ev-kicker" style="margin-bottom: 2px">Đầu vào</div> -->
                 <div class="ev-input">
-                  300 hội nghị · 15.000 bài báo <br />60 hồ sơ · 2.565 bài báo
+                  300 hội nghị · 15.000 bài <br />60 hồ sơ · 2.565 bài báo
                 </div>
               </div>
               <div>
@@ -1995,7 +2011,7 @@
             <div class="ev-main" data-evaluation-layout="one-third-two-thirds">
               <div class="ev-platform">
                 <div class="ev-kicker" style="margin-bottom: 4px; flex: none">
-                  01 · Nền tảng vận hành
+                 Lớp vận hành
                 </div>
                 <div class="ev-platform-block">
                   <div class="ev-kicker"></div>
@@ -2011,7 +2027,7 @@
                     </div>
                   </div>
                   <div class="ev-copy">
-                    Đáp ứng ổn định các thao tác nghiệp vụ cốt lõi trong môi
+                    Đáp ứng ổn định các thao tác nghiệp vụ trong môi
                     trường thử nghiệm.
                   </div>
                 </div>
@@ -2046,7 +2062,7 @@
 
               <div class="ev-ai">
                 <div class="ev-kicker" style="margin-bottom: 4px; flex: none">
-                  02 · AI hỗ trợ
+                  Lớp AI hỗ trợ
                 </div>
                 <div class="ev-ai-grid">
                   <div class="ev-ai-card">
@@ -2055,7 +2071,7 @@
                       <b>98,20%</b><span>F1 tiêu đề</span>
                     </div>
                     <div class="ev-ai-conclusion">
-                      Tạo bản nháp để Tác giả kiểm tra và hoàn thiện.
+                     Trích xuất được các thông tin từ bài nộp để Tác giả kiểm tra.
                     </div>
                   </div>
 
@@ -2070,7 +2086,7 @@
                   </div>
 
                   <div class="ev-ai-card">
-                    <div class="ev-ai-name" style="font-size: 14px">
+                    <div class="ev-ai-name">
                       HỖ TRỢ ĐỌC & PHẢN BIỆN
                     </div>
                     <div class="ev-ai-result">
@@ -2083,25 +2099,25 @@
                       >
                     </div>
                     <div class="ev-ai-conclusion">
-                      Cung cấp trích dẫn và điểm cần lưu ý để định hướng quá
-                      trình đọc bài.
+                      Cung cấp được trích dẫn và điểm cần lưu ý để định hướng quá
+                      trình đọc.
                     </div>
                   </div>
 
                   <div class="ev-ai-card caution">
-                    <div class="ev-ai-name" style="font-size: 14px">
+                    <div class="ev-ai-name">
                       KIỂM TRA CHẤT LƯỢNG PHẢN BIỆN
                     </div>
                     <div class="ev-ai-result">
                       <b>46,99%</b><span>hợp lệ</span>
                     </div>
                     <div class="ev-ai-conclusion">
-                      Đánh giá chất lượng phản biện và nhận xét trước khi gửi
+                      Cung cấp được đánh giá chất lượng phản biện và nhận xét của Phản biện viên trước khi gửi
                     </div>
                   </div>
 
                   <div class="ev-ai-card">
-                    <div class="ev-ai-name" style="font-size: 14px">
+                    <div class="ev-ai-name">
                       HỖ TRỢ CHỦ TỌA
                     </div>
                     <div class="ev-ai-result">
@@ -2123,9 +2139,11 @@
                     <div class="ev-ai-name">CHATBOT AGENT</div>
                     <div class="ev-ai-result" style="gap: 7px">
                       <span
-                        ><b style="font-size: 18px">37</b>/40 hoàn thành</span
+                        ><b style="font-size: 18px">37</b>/40<br />   hoàn
+                        thành</span
                       ><span
-                        ><b style="font-size: 18px">3</b>/40 không đạt</span
+                        ><b style="font-size: 18px">3</b>/40<br />không
+                        đạt</span
                       >
                     </div>
                     <div class="ev-ai-conclusion">
@@ -2269,74 +2287,74 @@
             </div> -->
           </section>
 
-          <!-- ========== SECTION 5: KẾT LUẬN ========== -->
-          <!-- ========== SECTION 6: HƯỚNG PHÁT TRIỂN ========== -->
-          <div
+          <!-- ========== SECTION 5: KẾT QUẢ, QUÁ TRÌNH & HƯỚNG PHÁT TRIỂN ========== -->
+          <section
             style="
+              background: #fff;
+              border: 1.5px solid #cfdbe1;
+              border-radius: 12px;
               display: flex;
               flex-direction: column;
-              gap: 10px;
               min-height: 0;
+              overflow: hidden;
+              padding: 8px 12px;
             "
           >
-            <section
+            <div
               style="
-                background: #fff;
-                border: 1.5px solid #cfdbe1;
-                border-radius: 12px;
                 display: flex;
-                flex-direction: column;
-                min-height: 0;
-                overflow: hidden;
-                padding: 14px 18px;
-                flex: 1.72;
+                align-items: center;
+                gap: 12px;
+                border-bottom: 1px solid #dce5e9;
+                padding-bottom: 5px;
+                margin-bottom: 6px;
+                flex: none;
               "
             >
-              <div
+              <sc-if
+                value="{{ accentBar }}"
+                hint-placeholder-val="{{ false }}"
+                ><span
+                  style="
+                    width: 5px;
+                    height: 24px;
+                    background: #3c7a90;
+                    border-radius: 2px;
+                    flex: none;
+                  "
+                ></span
+              ></sc-if>
+              <h2
                 style="
-                  display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  border-bottom: 1px solid #dce5e9;
-                  padding-bottom: 6px;
-                  margin-bottom: 7px;
-                  flex: none;
+                  margin: 0;
+                  font-size: 26px;
+                  font-weight: 800;
+                  color: #16384a;
+                  line-height: 1;
+                  white-space: nowrap;
                 "
               >
-                <sc-if
-                  value="{{ accentBar }}"
-                  hint-placeholder-val="{{ false }}"
-                  ><span
-                    style="
-                      width: 5px;
-                      height: 26px;
-                      background: #3c7a90;
-                      border-radius: 2px;
-                      flex: none;
-                    "
-                  ></span
-                ></sc-if>
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 27px;
-                    font-weight: 800;
-                    color: #16384a;
-                    line-height: 1;
-                    white-space: nowrap;
-                  "
-                >
-                  <span style="color: #16384a">5.</span> Kết quả, hạn chế &amp;
-                  bài học
-                </h2>
-              </div>
+                <span style="color: #16384a">5.</span> Kết quả &amp;
+                hướng phát triển
+              </h2>
+            </div>
 
+            <div
+              style="
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <!-- 4 TỰ ĐÁNH GIÁ CARDS (2x2 GRID) -->
               <div
                 style="
                   display: grid;
                   grid-template-columns: 1fr 1fr;
-                  gap: 7px;
-                  flex: 1;
+                  gap: 5px;
+                  flex: 1.2;
                   min-height: 0;
                 "
               >
@@ -2345,19 +2363,19 @@
                     border: 1px solid #d5e1e5;
                     border-top: 4px solid #2f7968;
                     border-radius: 7px;
-                    padding: 8px 10px;
+                    padding: 5px 7px;
                     background: #f7fbfa;
                     min-height: 0;
                   "
                 >
                   <div
                     style="
-                      font-size: 16px;
+                      font-size: 14px;
                       font-weight: 800;
                       color: #1f6657;
                       text-transform: uppercase;
-                      letter-spacing: 0.06em;
-                      margin-bottom: 5px;
+                      letter-spacing: 0.05em;
+                      margin-bottom: 2px;
                     "
                   >
                     ✓ Kết quả thực hiện
@@ -2366,27 +2384,20 @@
                     style="
                       display: flex;
                       flex-direction: column;
-                      gap: 5px;
-                      font-size: 16px;
-                      line-height: 1.35;
+                      gap: 2px;
+                      font-size: 14px;
+                      line-height: 1.2;
                       color: #223038;
                     "
                   >
                     <div>
-                      <b style="color: #16384a">Vòng đời xét duyệt:</b> kết nối
-                      tác giả, phản biện viên và chủ tọa.
+                      • Xây dựng vòng đời xét duyệt đa vai trò (Tác giả, Phản biện, Chủ tọa).
                     </div>
                     <div>
-                      <b style="color: #16384a">Ba lớp trách nhiệm:</b> nghiệp
-                      vụ, thuật toán xác định và AI hỗ trợ.
+                      • Triển khai và tích hợp vào vòng đời xét duyệt 3 lớp trách nhiệm: Nghiệp vụ, Thuật toán và AI.
                     </div>
                     <div>
-                      <b style="color: #16384a">Phân công có căn cứ:</b> kết hợp
-                      điểm phù hợp, COI và ràng buộc.
-                    </div>
-                    <div>
-                      <b style="color: #16384a">Đánh giá phân lớp:</b> nghiệp
-                      vụ, thuật toán, AI và UAT được đo riêng.
+                      • Đánh giá qua các góc nhìn: Hiệu năng, nghiệp vụ, thuật toán, AI và UAT.
                     </div>
                   </div>
                 </div>
@@ -2396,19 +2407,19 @@
                     border: 1px solid #ead7cb;
                     border-top: 4px solid #b7653f;
                     border-radius: 7px;
-                    padding: 8px 10px;
+                    padding: 5px 7px;
                     background: #fdf9f6;
                     min-height: 0;
                   "
                 >
                   <div
                     style="
-                      font-size: 16px;
+                      font-size: 14px;
                       font-weight: 800;
                       color: #9a4d2b;
                       text-transform: uppercase;
-                      letter-spacing: 0.06em;
-                      margin-bottom: 6px;
+                      letter-spacing: 0.05em;
+                      margin-bottom: 2px;
                     "
                   >
                     ! Hạn chế
@@ -2417,23 +2428,20 @@
                     style="
                       display: flex;
                       flex-direction: column;
-                      gap: 5px;
-                      font-size: 16px;
-                      line-height: 1.35;
+                      gap: 2px;
+                      font-size: 14px;
+                      line-height: 1.2;
                       color: #223038;
                     "
                   >
                     <div>
-                      <b style="color: #7f442a">Nhãn chuyên gia:</b> chưa đủ để
-                      kết luận chất lượng tổng thể của đầu ra AI mở.
+                      • Thiếu nhãn chuyên gia đánh giá toàn diện đầu ra của AI.
                     </div>
                     <div>
-                      <b style="color: #7f442a">Dữ liệu thực:</b> đối sánh và
-                      COI chủ yếu được kiểm tra trên dữ liệu tổng hợp.
+                      • Thử nghiệm đối sánh và kiểm tra COI chủ yếu trên dữ liệu tổng hợp.
                     </div>
                     <div>
-                      <b style="color: #7f442a">Mức đại diện:</b> vận hành và
-                      mẫu UAT chưa đại diện cho hội nghị thực tế.
+                      • Mẫu khảo sát UAT chưa đủ lớn để rút ra kết luận có ý nghĩa thống kê trên các vai trò phản biện và chủ tọa.
                     </div>
                   </div>
                 </div>
@@ -2443,19 +2451,19 @@
                     border: 1px solid #e7ddc5;
                     border-top: 4px solid #bd8a28;
                     border-radius: 7px;
-                    padding: 8px 10px;
+                    padding: 5px 7px;
                     background: #fdfaf2;
                     min-height: 0;
                   "
                 >
                   <div
                     style="
-                      font-size: 16px;
+                      font-size: 14px;
                       font-weight: 800;
                       color: #7b5a18;
                       text-transform: uppercase;
-                      letter-spacing: 0.06em;
-                      margin-bottom: 6px;
+                      letter-spacing: 0.05em;
+                      margin-bottom: 2px;
                     "
                   >
                     ◇ Khó khăn thực hiện
@@ -2464,23 +2472,20 @@
                     style="
                       display: flex;
                       flex-direction: column;
-                      gap: 5px;
-                      font-size: 16px;
-                      line-height: 1.35;
+                      gap: 2px;
+                      font-size: 14px;
+                      line-height: 1.2;
                       color: #223038;
                     "
                   >
                     <div>
-                      <b style="color: #72550c">Đầu ra AI mở:</b> không có một
-                      đáp án chuẩn duy nhất để đối chiếu.
+                      • Các luồng AI mở không có đáp án chuẩn duy nhất để đối chiếu, đánh giá.
                     </div>
                     <div>
-                      <b style="color: #72550c">Dữ liệu học thuật:</b> hồ sơ
-                      chuyên môn và quan hệ COI thiếu đồng nhất.
+                      • Dữ liệu hồ sơ chuyên môn và quan hệ COI học thuật thiếu đồng nhất.
                     </div>
                     <div>
-                      <b style="color: #72550c">Giao diện đa vai trò:</b> phải
-                      giữ đúng ngữ cảnh và quyền hạn ở từng bước.
+                      • Đảm bảo phân quyền và ngữ cảnh nhất quán trên giao diện đa vai trò.
                     </div>
                   </div>
                 </div>
@@ -2490,19 +2495,19 @@
                     border: 1px solid #d6e0e5;
                     border-top: 4px solid #3c7a90;
                     border-radius: 7px;
-                    padding: 8px 10px;
+                    padding: 5px 7px;
                     background: #f6fafb;
                     min-height: 0;
                   "
                 >
                   <div
                     style="
-                      font-size: 16px;
+                      font-size: 14px;
                       font-weight: 800;
                       color: #2e687d;
                       text-transform: uppercase;
-                      letter-spacing: 0.06em;
-                      margin-bottom: 6px;
+                      letter-spacing: 0.05em;
+                      margin-bottom: 2px;
                     "
                   >
                     → Bài học kinh nghiệm
@@ -2511,302 +2516,160 @@
                     style="
                       display: flex;
                       flex-direction: column;
-                      gap: 5px;
-                      font-size: 16px;
-                      line-height: 1.35;
+                      gap: 2px;
+                      font-size: 14px;
+                      line-height: 1.2;
                       color: #223038;
                     "
                   >
                     <div>
-                      <b style="color: #16384a">CI/CD theo phiên bản:</b> phát
-                      hành frontend, backend và AI service theo cùng commit.
+                      • Xây dựng luồng triển khai tự động sử dụng Github và Docker.
                     </div>
                     <div>
-                      <b style="color: #16384a">GPU serverless:</b> Modal giúp
-                      tái lập benchmark AI và tiếp tục sau lỗi mà không duy trì
-                      GPU.
+                      • Sử dụng GPU serverless (Modal) tối ưu chi phí và thời gian đánh giá.
                     </div>
                     <div>
-                      <b style="color: #16384a">Ranh giới AI:</b> backend kiểm
-                      soát dữ liệu và quyền xác nhận của từng vai trò.
+                      • Đảm bảo phân quyền và ngữ cảnh nhất quán trên giao diện đa vai trò.
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div
-                style="
-                  flex: none;
-                  margin-top: 7px;
-                  background: #16384a;
-                  color: #fff;
-                  border-radius: 8px;
-                  padding: 9px 11px;
-                "
-              >
-                <div
-                  style="
-                    font-size: 16px;
-                    font-weight: 800;
-                    letter-spacing: 0.08em;
-                    text-transform: uppercase;
-                    color: #9fd8df;
-                    margin-bottom: 3px;
-                  "
-                >
-                  Kết luận
-                </div>
-                <div
-                  style="font-size: 16px; font-weight: 700; line-height: 1.35"
-                >
-                  ConferenceSpace tích hợp các cơ chế hỗ trợ vào đúng bước của
-                  vòng đời xét duyệt, đồng thời giữ quyền kiểm tra và quyết định
-                  học thuật ở người có thẩm quyền.
-                </div>
-              </div>
-            </section>
-
-            <section
-              style="
-                background: #fff;
-                border: 1.5px solid #cfdbe1;
-                border-radius: 12px;
-                display: flex;
-                flex-direction: column;
-                min-height: 0;
-                overflow: hidden;
-                padding: 15px 18px;
-                flex: 1;
-              "
-            >
+              <!-- HƯỚNG PHÁT TRIỂN CARDS (SUB-SECTION STYLED LIKE ABOVE) -->
               <div
                 style="
                   display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  border-bottom: 1px solid #e6ecef;
-                  padding-bottom: 6px;
-                  margin-bottom: 8px;
-                "
-              >
-                <sc-if
-                  value="{{ accentBar }}"
-                  hint-placeholder-val="{{ false }}"
-                  ><span
-                    style="
-                      width: 5px;
-                      height: 26px;
-                      background: #3c7a90;
-                      border-radius: 2px;
-                      flex: none;
-                    "
-                  ></span
-                ></sc-if>
-                <h2
-                  style="
-                    margin: 0;
-                    font-size: 28px;
-                    font-weight: 800;
-                    color: #16384a;
-                    line-height: 1;
-                    white-space: nowrap;
-                  "
-                >
-                  <span style="color: #16384a">6.</span> Hướng phát triển
-                </h2>
-              </div>
-              <div
-                style="
+                  flex-direction: column;
+                  gap: 4px;
                   flex: 1;
                   min-height: 0;
-                  display: grid;
-                  grid-template-rows: repeat(3, 1fr);
-                  gap: 7px;
+                  border-top: 1px solid #e1e9ec;
+                  padding-top: 5px;
                 "
               >
                 <div
                   style="
-                    display: grid;
-                    grid-template-columns: 180px 24px 1fr;
-                    align-items: center;
-                    border: 1px solid #dbe5e8;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    background: #f8fbfc;
+                    font-size: 13.5px;
+                    font-weight: 800;
+                    color: #3c7a90;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
                   "
                 >
-                  <div
-                    style="
-                      align-self: stretch;
-                      padding: 8px 9px;
-                      background: #edf3f6;
-                      display: flex;
-                      align-items: center;
-                      font-size: 16px;
-                      font-weight: 700;
-                      line-height: 1.3;
-                      color: #52666f;
-                    "
-                  >
-                    AI chưa đủ căn cứ
-                  </div>
-                  <div
-                    style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      color: #3c7a90;
-                      text-align: center;
-                    "
-                  >
-                    →
-                  </div>
-                  <div style="padding: 8px 8px 8px 2px">
-                    <div
-                      style="
-                        font-size: 17px;
-                        font-weight: 800;
-                        color: #16384a;
-                        letter-spacing: 0.03em;
-                      "
-                    >
-                      Nâng Cấp lớp AI Thành Lớp agent
-                    </div>
-                    <div
-                      style="
-                        font-size: 16px;
-                        line-height: 1.35;
-                        color: #52666f;
-                        margin-top: 3px;
-                      "
-                    >
-                      Mở rộng bằng RAG/Agentic RAG; kết quả kèm nguồn, đúng
-                      quyền và được hiệu chỉnh bằng nhãn chuyên gia.
-                    </div>
-                  </div>
+                  HƯỚNG PHÁT TRIỂN
                 </div>
                 <div
                   style="
-                    display: grid;
-                    grid-template-columns: 180px 24px 1fr;
-                    align-items: center;
-                    border: 1px solid #dbe5e8;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    background: #f8fbfc;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    flex: 1;
+                    min-height: 0;
+                    justify-content: space-between;
                   "
                 >
                   <div
                     style="
-                      align-self: stretch;
-                      padding: 8px 9px;
-                      background: #edf3f6;
-                      display: flex;
-                      align-items: center;
-                      font-size: 16px;
-                      font-weight: 700;
-                      line-height: 1.3;
-                      color: #52666f;
+                      border: 1px solid #d5e1e5;
+                      border-top: 3px solid #3c7a90;
+                      border-radius: 7px;
+                      padding: 5px 8px;
+                      background: #f6fafb;
                     "
                   >
-                    Luồng AI còn lỗi và trễ
-                  </div>
-                  <div
-                    style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      color: #3c7a90;
-                      text-align: center;
-                    "
-                  >
-                    →
-                  </div>
-                  <div style="padding: 8px 8px 8px 2px">
                     <div
                       style="
-                        font-size: 17px;
+                        font-size: 14px;
                         font-weight: 800;
                         color: #16384a;
-                        letter-spacing: 0.03em;
+                        margin-bottom: 2px;
                       "
                     >
-                      02 · AGENTOPS &amp; VẬN HÀNH
+                      01 · CỦNG CỐ BẰNG CHỨNG &amp; HIỆU CHỈNH CÓ THAM KHẢO CHUYÊN GIA
                     </div>
-                    <div
-                      style="
-                        font-size: 16px;
-                        line-height: 1.35;
-                        color: #52666f;
-                        margin-top: 3px;
-                      "
-                    >
-                      Bổ sung xử lý nền, tiến độ, thử lại, theo dõi chuỗi công
-                      cụ và nhật ký kiểm toán.
+                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                      • Xây dựng bộ dữ liệu nhãn chuyên gia độc lập; thử nghiệm có kiểm soát các mô hình LLM, chỉ dẫn và cấu hình suy luận.
                     </div>
                   </div>
-                </div>
-                <div
-                  style="
-                    display: grid;
-                    grid-template-columns: 180px 24px 1fr;
-                    align-items: center;
-                    border: 1px solid #dbe5e8;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    background: #f8fbfc;
-                  "
-                >
+
                   <div
                     style="
-                      align-self: stretch;
-                      padding: 8px 9px;
-                      background: #edf3f6;
-                      display: flex;
-                      align-items: center;
-                      font-size: 16px;
-                      font-weight: 700;
-                      line-height: 1.3;
-                      color: #52666f;
+                      border: 1px solid #d5e1e5;
+                      border-top: 3px solid #3c7a90;
+                      border-radius: 7px;
+                      padding: 5px 8px;
+                      background: #f6fafb;
                     "
                   >
-                    Ngữ cảnh học thuật còn thiếu
-                  </div>
-                  <div
-                    style="
-                      font-size: 20px;
-                      font-weight: 800;
-                      color: #3c7a90;
-                      text-align: center;
-                    "
-                  >
-                    →
-                  </div>
-                  <div style="padding: 8px 8px 8px 2px">
                     <div
                       style="
-                        font-size: 17px;
+                        font-size: 14px;
                         font-weight: 800;
                         color: #16384a;
-                        letter-spacing: 0.03em;
+                        margin-bottom: 2px;
                       "
                     >
-                      03 · DỮ LIỆU HỌC THUẬT ĐA NGUỒN
+                      02 · NÂNG CAO ĐỘ TIN CẬY VẬN HÀNH &amp; KIỂM TOÁN
                     </div>
+                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                      • Chuyển tác vụ AI sang xử lý nền có tiến độ, tự khôi phục sau lỗi và nhật ký kiểm toán liên kết nguồn dữ liệu với quyết định.
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      border: 1px solid #d5e1e5;
+                      border-top: 3px solid #3c7a90;
+                      border-radius: 7px;
+                      padding: 5px 8px;
+                      background: #f6fafb;
+                    "
+                  >
                     <div
                       style="
-                        font-size: 16px;
-                        line-height: 1.35;
-                        color: #52666f;
-                        margin-top: 3px;
+                        font-size: 14px;
+                        font-weight: 800;
+                        color: #16384a;
+                        margin-bottom: 2px;
                       "
                     >
-                      Bổ sung hồ sơ, đồng tác giả và COI có nguồn gốc cho đối
-                      sánh và AI Agent.
+                      03 · MỞ RỘNG DỮ LIỆU HỌC THUẬT &amp; LỚP AI AGENT
+                    </div>
+                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                      • Tích hợp dữ liệu học thuật đa nguồn có xác minh; mở rộng RAG/Agentic RAG kèm trích dẫn nguồn kiểm chứng rõ ràng.
                     </div>
                   </div>
                 </div>
               </div>
-            </section>
-          </div>
+
+              <!-- Bottom Conclusion Banner -->
+              <div
+                style="
+                  flex: none;
+                  background: #16384a;
+                  color: #fff;
+                  border-radius: 7px;
+                  padding: 6px 9px;
+                "
+              >
+                <!-- <div
+                  style="
+                    font-size: 13.5px;
+                    font-weight: 800;
+                    letter-spacing: 0.07em;
+                    text-transform: uppercase;
+                    color: #9fd8df;
+                    margin-bottom: 1px;
+                  "
+                >
+                  Kết luận
+                </div> -->
+                <div style="font-size: 16px; font-weight: 500; line-height: 1.22">
+                  ConferenceSpace xây dựng mô hình tích hợp AI và thuật toán vào vòng đời xét duyệt của hội nghị; hệ thống giữ vững ranh giới thẩm quyền, đảm bảo quyền kiểm tra và quyết định học thuật thuộc về con người.
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>

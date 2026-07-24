@@ -1,0 +1,676 @@
+- generic [active] [ref=e1]:
+  - img [ref=e3]:
+    - generic [ref=e5]: ConferenceSpace
+  - generic [ref=e12]: "Error unpacking: Unterminated string in JSON at position 452 (line 2 column 452)"
+  - text: \n\n\n\n
+  - generic [ref=e13]:
+    - text: \n
+    - generic [ref=e14]: \n \n \n
+    - text: \n
+    - generic [ref=e15]:
+      - text: \n\n \n
+      - banner [ref=e16]:
+        - text: \n
+        - generic [ref=e17]:
+          - text: \n
+          - img "\\\"\\\"" [ref=e18]
+          - text: \n
+        - text: \n
+        - generic [ref=e19]:
+          - text: \n
+          - img "\\\"Logo" [ref=e20]
+          - text: \n
+          - generic [ref=e21]:
+            - text: \n
+            - generic [ref=e22]: TR\u01af\u1edcNG \u0110\u1ea0I H\u1eccC KHOA H\u1eccC T\u1ef0 NHI\u00caN \u00b7 \u0110HQG-HCM
+            - text: \n
+            - generic [ref=e23]: Khoa C\u00f4ng ngh\u1ec7 Th\u00f4ng tin
+            - text: \n
+          - text: \n
+        - text: \n
+        - generic [ref=e24]:
+          - text: \n
+          - heading "ConferenceSpace \\u2014 H\\u1ec7 th\\u1ed1ng h\\u1ed7 tr\\u1ee3 x\\u00e9t duy\\u1ec7t b\\u00e0i b\\u00e1o khoa h\\u1ecdc" [level=1] [ref=e25]
+          - text: \n
+          - generic [ref=e26]: "GVHD: ThS. H\\u1ed3 Th\\u1ecb Ho\\u00e0ng Vy \\u00b7 PGS.TS. L\\u00ea Nguy\\u1ec5n Ho\\u00e0i Nam"
+          - text: \n
+        - text: \n
+        - generic [ref=e27]:
+          - text: \n
+          - generic [ref=e28]: M\u00e3 \u0111\u1ec1 t\u00e0i \u00b7 T826_DA_HTTT05
+          - text: \n
+          - generic [ref=e29]: Cao H\u1eefu Kh\u01b0\u01a1ng Duy \u00b7 22127083
+          - text: \n
+          - generic [ref=e30]: Nh\u00e2m \u0110\u1ee9c Huy \u00b7 22127158
+          - text: \n
+          - generic [ref=e31]: V\u00f5 Minh Kh\u00f4i \u00b7 22127213
+          - text: \n
+          - generic [ref=e32]: T\u1eeb Ch\u00ed Ti\u1ebfn \u00b7 22127414
+          - text: \n
+          - generic [ref=e33]: Nguy\u1ec5n Ng\u1ecdc Anh T\u00fa \u00b7 22127433
+          - text: \n
+        - text: \n
+      - text: \n\n \n
+      - main [ref=e34]:
+        - text: \n\n \n
+        - generic [ref=e35]:
+          - text: \n\n \n
+          - generic [ref=e36]:
+            - text: \n
+            - generic [ref=e37]:
+              - text: \n \n
+              - heading "1. Gi\\u1edbi thi\\u1ec7u" [level=2] [ref=e38]
+              - text: \n
+            - text: \n\n
+            - generic [ref=e39]:
+              - text: \n
+              - generic [ref=e40]: Quy m\u00f4 x\u00e9t duy\u1ec7t l\u1edbn l\u00e0m gia t\u0103ng \u00e1p l\u1ef1c \u0111i\u1ec1u ph\u1ed1i th\u00f4ng tin, tr\u1ea1ng th\u00e1i v\u00e0 tr\u00e1ch nhi\u1ec7m gi\u1eefa nhi\u1ec1u vai tr\u00f2.
+              - text: \n
+              - generic [ref=e41]:
+                - text: \n
+                - generic [ref=e42]: NEURIPS2025
+                - text: \n
+                - generic [ref=e43]:
+                  - generic [ref=e44]: "21.575"
+                  - generic [ref=e45]: b\u00e0i n\u1ed9p
+                - text: \n
+                - generic [ref=e46]:
+                  - generic [ref=e47]: "21.921"
+                  - generic [ref=e48]: ph\u1ea3n bi\u1ec7n vi\u00ean k\u1ef9 thu\u1eadt
+                - text: \n
+              - text: \n
+            - text: \n\n
+            - generic [ref=e49]:
+              - text: \n
+              - generic [ref=e50]: \u0110i\u1ec3m g\u00e2y m\u1ec7t m\u1ecfi nh\u1ea5t \u1edf c\u00e1c n\u1ec1n t\u1ea3ng hi\u1ec7n t\u1ea1i
+              - text: \n
+              - generic [ref=e51]:
+                - text: \n
+                - generic [ref=e52]:
+                  - text: \n
+                  - generic [ref=e53]: Form nh\u1eadp li\u1ec7u d\u00e0i v\u00e0 l\u1eb7p l\u1ea1i
+                  - text: \n
+                  - generic [ref=e54]: 47/93
+                  - text: \n
+                - text: \n
+                - generic [ref=e56]:
+                  - text: \n
+                  - generic [ref=e57]: Ph\u1ea3i \u0111\u1ecdc nhi\u1ec1u h\u01b0\u1edbng d\u1eabn d\u00e0i
+                  - text: \n
+                  - generic [ref=e58]: 41/93
+                  - text: \n
+                - text: \n
+                - generic [ref=e60]:
+                  - text: \n
+                  - generic [ref=e61]: Kh\u00f4ng ki\u1ec3m tra l\u1ed7i s\u1edbm tr\u01b0\u1edbc khi n\u1ed9p
+                  - text: \n
+                  - generic [ref=e62]: 39/93
+                  - text: \n
+                - text: \n
+                - generic [ref=e64]:
+                  - text: \n
+                  - generic [ref=e65]: Kh\u00f4ng bi\u1ebft b\u01b0\u1edbc ti\u1ebfp theo c\u1ea7n l\u00e0m
+                  - text: \n
+                  - generic [ref=e66]: 37/93
+                  - text: \n
+                - text: \n
+                - generic [ref=e68]:
+                  - text: \n
+                  - generic [ref=e69]: Th\u00f4ng b\u00e1o / deadline r\u1eddi r\u1ea1c, d\u1ec5 b\u1ecf s\u00f3t
+                  - text: \n
+                  - generic [ref=e70]: 31/93
+                  - text: \n
+                - text: \n
+              - text: \n
+              - generic [ref=e72]: S\u1ed1 ng\u01b0\u1eddi ch\u1ecdn (kh\u1ea3o s\u00e1t nhu c\u1ea7u \u00b7 n = 93)
+              - text: \n
+            - text: \n
+            - generic [ref=e73]: \n Gi\u1ea3i ph\u00e1p c\u1ee7a ConferenceSpace\n \u2192\n AI h\u1ed7 tr\u1ee3 c\u00f3 ki\u1ec3m so\u00e1t, lu\u1ed3ng l\u00e0m vi\u1ec7c \u0111\u01a1n gi\u1ea3n h\u01a1n\n
+            - text: \n
+          - text: \n\n \n
+          - generic [ref=e74]:
+            - text: \n
+            - generic [ref=e75]:
+              - text: \n
+              - heading "2. T\\u00ednh n\\u0103ng & Lu\\u1ed3ng ng\\u01b0\\u1eddi d\\u00f9ng" [level=2] [ref=e77]
+              - text: \n
+              - generic [ref=e78]: M\u1ed9t v\u00f2ng \u0111\u1eddi \u2014 ba vai tr\u00f2 \u2014 ba l\u1edbp tr\u00e1ch nhi\u1ec7m.
+              - text: \n
+            - text: \n\n
+            - generic [ref=e79]:
+              - text: \n \n\n
+              - generic [ref=e80]:
+                - text: \n
+                - generic [ref=e81]: B\u1ea3n \u0111\u1ed3 v\u00f2ng \u0111\u1eddi v\u00e0 tr\u00e1ch nhi\u1ec7m
+                - text: \n
+                - generic [ref=e82]: \n NV \u00b7 Nghi\u1ec7p v\u1ee5 c\u1ed1t l\u00f5i\n TT \u00b7 Thu\u1eadt to\u00e1n x\u00e1c \u0111\u1ecbnh\n AI \u00b7 H\u1ed7 tr\u1ee3\n
+                - text: \n
+              - text: \n\n
+              - generic [ref=e83]:
+                - text: \n
+                - generic [ref=e84]: VAI TR\u00d2 / GIAI \u0110O\u1ea0N
+                - text: \n
+                - generic [ref=e85]: 1 \u00b7 Chu\u1ea9n b\u1ecb & n\u1ed9p b\u00e0i
+                - text: \n
+                - generic [ref=e86]: 2 \u00b7 Ph\u00e2n c\u00f4ng
+                - text: \n
+                - generic [ref=e87]: 3 \u00b7 Ph\u1ea3n bi\u1ec7n
+                - text: \n
+                - generic [ref=e88]: 4 \u00b7 Ph\u1ea3n h\u1ed3i & th\u1ea3o lu\u1eadn
+                - text: \n
+                - generic [ref=e89]: 5 \u00b7 T\u1ed5ng h\u1ee3p & quy\u1ebft \u0111\u1ecbnh
+                - text: \n
+              - text: \n\n
+              - generic [ref=e90]:
+                - text: \n
+                - generic [ref=e91]: Ch\u1ee7 t\u1ecda
+                - text: \n
+                - generic [ref=e92]: \n UC-07 \u00b7 Qu\u1ea3n l\u00fd h\u1ed9i ngh\u1ecb & ti\u1ebfn \u0111\u1ed9NV\n
+                - text: \n \n
+                - generic [ref=e94]:
+                  - generic [ref=e95]: UC-06 \u00b7 Ph\u00e2n c\u00f4ng & COI
+                  - generic [ref=e96]: Reviewer Matching \u00b7 ki\u1ec3m tra xung \u0111\u1ed9t l\u1ee3i \u00edch
+                  - generic [ref=e97]: NVTT
+                - text: \n \n \n
+                - generic [ref=e99]:
+                  - generic [ref=e100]: UC-09 \u00b7 H\u1ed7 tr\u1ee3 quy\u1ebft \u0111\u1ecbnh
+                  - generic [ref=e101]: Chair Decision Copilot \u00b7 t\u1ed5ng h\u1ee3p c\u0103n c\u1ee9
+                  - generic [ref=e102]: NVAI
+                - text: \n
+              - text: \n\n
+              - generic [ref=e103]:
+                - text: \n
+                - generic [ref=e104]: T\u00e1c gi\u1ea3
+                - text: \n
+                - generic [ref=e105]: \n UC-03 \u00b7 V\u00f2ng \u0111\u1eddi b\u00e0i n\u1ed9pNV\n
+                - text: \n
+                - generic [ref=e106]:
+                  - generic [ref=e107]:
+                    - generic [ref=e108]: UC-01 \u00b7 Kh\u00e1m ph\u00e1 h\u1ed9i ngh\u1ecb
+                    - generic [ref=e109]: NV
+                  - generic [ref=e110]:
+                    - generic [ref=e111]: UC-02 \u00b7 Ho\u00e0n t\u1ea5t b\u00e0i n\u1ed9p
+                    - generic [ref=e112]: Autofill \u00b7 Gating
+                    - generic [ref=e113]: NVTTAI
+                - text: \n \n \n
+                - generic [ref=e115]:
+                  - generic [ref=e116]: UC-08 \u00b7 Trao \u0111\u1ed5i theo b\u00e0i
+                  - generic [ref=e117]: T\u00e1c gi\u1ea3 \u2194 Ph\u1ea3n bi\u1ec7n vi\u00ean
+                  - generic [ref=e118]: NV
+                - text: \n \n
+              - text: \n\n
+              - generic [ref=e119]:
+                - text: \n
+                - generic [ref=e120]: Ph\u1ea3n bi\u1ec7n vi\u00ean
+                - text: \n \n
+                - generic [ref=e122]:
+                  - generic [ref=e123]: UC-04 \u00b7 L\u1eddi m\u1eddi & ph\u00e2n c\u00f4ng
+                  - generic [ref=e124]: NV
+                - text: \n
+                - generic [ref=e126]:
+                  - generic [ref=e127]: UC-05 \u00b7 \u0110\u1ecdc & g\u1eedi ph\u1ea3n bi\u1ec7n
+                  - generic [ref=e128]: Initial Analysis \u00b7 Quality Auditor
+                  - generic [ref=e129]: NVAI
+                - text: \n
+                - generic [ref=e130]: Tham gia UC-08
+                - text: \n \n
+              - text: \n\n
+              - generic [ref=e131]:
+                - text: \n
+                - generic [ref=e132]: H\u1ed7 tr\u1ee3 xuy\u00ean su\u1ed1t
+                - text: \n
+                - generic [ref=e133]:
+                  - text: \n
+                  - generic [ref=e134]: UC-10 \u00b7 Chatbot Agent theo vai tr\u00f2Truy v\u1ea5n tr\u1ea1ng th\u00e1i \u00b7 h\u01b0\u1edbng d\u1eabn thao t\u00e1c \u00b7 backend gi\u1edbi h\u1ea1n quy\u1ec1n
+                  - text: \n
+                  - generic [ref=e135]: NVAI
+                  - text: \n
+                - text: \n
+              - text: \n\n
+              - generic [ref=e136]: \u0110\u1ea7u ra h\u1ed7 tr\u1ee3 kh\u00f4ng t\u1ef1 tr\u1edf th\u00e0nh d\u1eef li\u1ec7u nghi\u1ec7p v\u1ee5 ho\u1eb7c quy\u1ebft \u0111\u1ecbnh h\u1ecdc thu\u1eadt.
+              - text: \n
+            - text: \n\n
+            - generic [ref=e137]:
+              - text: \n
+              - generic [ref=e138]:
+                - text: \n
+                - generic [ref=e139]:
+                  - text: \n
+                  - generic [ref=e140]: Lu\u1ed3ng ng\u01b0\u1eddi d\u00f9ng end-to-end
+                  - text: \n
+                  - generic [ref=e141]:
+                    - text: \n\n
+                    - generic [ref=e142]:
+                      - text: \n \n
+                      - generic [ref=e143]:
+                        - generic [ref=e144]: "1"
+                        - generic [ref=e145]: T\u1ea1o & c\u1ea5u h\u00ecnh h\u1ed9i ngh\u1ecb
+                        - text: \u2192
+                      - text: \n
+                      - generic [ref=e146]:
+                        - generic [ref=e147]: "2"
+                        - generic [ref=e148]: Kh\u00e1m ph\u00e1 & n\u1ed9p b\u00e0i
+                        - text: \u2192
+                      - text: \n
+                      - generic [ref=e149]:
+                        - generic [ref=e150]: "3"
+                        - generic [ref=e151]: Ph\u00e2n c\u00f4ng ph\u1ea3n bi\u1ec7n & COI
+                        - text: \u2192
+                      - text: \n
+                      - generic [ref=e152]:
+                        - generic [ref=e153]: "4"
+                        - generic [ref=e154]: \u0110\u1ecdc & g\u1eedi ph\u1ea3n bi\u1ec7n
+                        - text: \u2192
+                      - text: \n
+                      - generic [ref=e155]:
+                        - generic [ref=e156]: "5"
+                        - generic [ref=e157]: Trao \u0111\u1ed5i & ph\u1ea3n h\u1ed3i
+                        - text: \u2192
+                      - text: \n
+                      - generic [ref=e158]:
+                        - generic [ref=e159]: "6"
+                        - generic [ref=e160]: T\u1ed5ng h\u1ee3p \u00fd ki\u1ebfn & quy\u1ebft \u0111\u1ecbnh
+                      - text: \n
+                    - text: \n\n
+                    - generic [ref=e161]:
+                      - text: \n
+                      - generic [ref=e162]: T\u00e1c gi\u1ea3
+                      - text: \n
+                      - generic [ref=e163]:
+                        - text: \n \n
+                        - generic [ref=e164]:
+                          - generic [ref=e165]: Nghi\u1ec7p v\u1ee5AI
+                          - text: \n
+                          - generic [ref=e166]: T\u00ecm ki\u1ebfm & ch\u1ecdn h\u1ed9i ngh\u1ecb ph\u00f9 h\u1ee3p
+                          - text: \n
+                          - list [ref=e167]:
+                            - listitem [ref=e168]: T\u00ecm ki\u1ebfm, xem y\u00eau c\u1ea7u
+                            - listitem [ref=e169]: Chu\u1ea9n b\u1ecb & n\u1ed9p b\u00e0i
+                          - text: \n
+                          - generic [ref=e170]: AI \u00b7 T\u1ef1 \u0111\u1ed9ng \u0111i\u1ec1n h\u1ed3 s\u01a1
+                        - text: \n \n
+                        - generic [ref=e172]:
+                          - generic [ref=e173]: Nghi\u1ec7p v\u1ee5AI
+                          - text: \n
+                          - generic [ref=e174]: Trao \u0111\u1ed5i, ph\u1ea3n h\u1ed3i ph\u1ea3n bi\u1ec7n
+                          - text: \n
+                          - list [ref=e175]:
+                            - listitem [ref=e176]: \u0110\u1eb7t c\u00e2u h\u1ecfi
+                            - listitem [ref=e177]: Tr\u1ea3 l\u1eddi, c\u1eadp nh\u1eadt b\u00e0i
+                          - text: \n
+                          - generic [ref=e178]: AI \u00b7 Tr\u1ee3 l\u00fd h\u1ecfi-\u0111\u00e1p theo ng\u1eef c\u1ea3nh
+                        - text: \n \n
+                      - text: \n
+                    - text: \n\n
+                    - generic [ref=e180]:
+                      - text: \n
+                      - generic [ref=e181]: Ch\u1ee7 t\u1ecda
+                      - text: \n
+                      - generic [ref=e182]:
+                        - text: \n
+                        - generic [ref=e183]:
+                          - generic [ref=e184]: Nghi\u1ec7p v\u1ee5AI
+                          - text: \n
+                          - generic [ref=e185]: T\u1ea1o & c\u1ea5u h\u00ecnh h\u1ed9i ngh\u1ecb
+                          - text: \n
+                          - list [ref=e186]:
+                            - listitem [ref=e187]: Thi\u1ebft l\u1eadp th\u00f4ng tin
+                            - listitem [ref=e188]: C\u1ea5u h\u00ecnh quy tr\u00ecnh
+                          - text: \n
+                          - generic [ref=e189]: AI \u00b7 Tr\u1ee3 l\u00fd h\u1ecfi-\u0111\u00e1p thi\u1ebft l\u1eadp
+                        - text: \n \n
+                        - generic [ref=e191]:
+                          - generic [ref=e192]: Nghi\u1ec7p v\u1ee5Thu\u1eadt to\u00e1nAI
+                          - text: \n
+                          - generic [ref=e193]: Ph\u00e2n c\u00f4ng ph\u1ea3n bi\u1ec7n & ki\u1ec3m tra COI
+                          - text: \n
+                          - list [ref=e194]:
+                            - listitem [ref=e195]: T\u00ecm & m\u1eddi ph\u1ea3n bi\u1ec7n
+                            - listitem [ref=e196]: Ki\u1ec3m tra xung \u0111\u1ed9t l\u1ee3i \u00edch
+                          - text: \n
+                          - generic [ref=e197]: AI \u00b7 G\u1ee3i \u00fd ph\u1ea3n bi\u1ec7n ph\u00f9 h\u1ee3p
+                        - text: \n \n
+                        - generic [ref=e199]:
+                          - generic [ref=e200]: Nghi\u1ec7p v\u1ee5AI
+                          - text: \n
+                          - generic [ref=e201]: T\u1ed5ng h\u1ee3p \u00fd ki\u1ebfn v\u00e0 \u0111\u01b0a ra quy\u1ebft \u0111\u1ecbnh
+                          - text: \n
+                          - list [ref=e202]:
+                            - listitem [ref=e203]: T\u1ed5ng h\u1ee3p ph\u1ea3n bi\u1ec7n
+                            - listitem [ref=e204]: \u0110\u01b0a ra quy\u1ebft \u0111\u1ecbnh
+                          - text: \n
+                          - generic [ref=e205]: AI \u00b7 T\u1ed5ng h\u1ee3p b\u1eb1ng ch\u1ee9ng & \u0111\u1ec1 xu\u1ea5t
+                        - text: \n
+                      - text: \n
+                    - text: \n\n
+                    - generic [ref=e207]:
+                      - text: \n
+                      - generic [ref=e208]: Ph\u1ea3n bi\u1ec7n vi\u00ean
+                      - text: \n
+                      - generic [ref=e209]:
+                        - text: \n \n
+                        - generic [ref=e210]:
+                          - generic [ref=e211]: Nghi\u1ec7p v\u1ee5AI
+                          - text: \n
+                          - generic [ref=e212]: \u0110\u1ecdc & \u0111\u00e1nh gi\u00e1 b\u00e0i
+                          - text: \n
+                          - list [ref=e213]:
+                            - listitem [ref=e214]: \u0110\u1ecdc b\u00e0i, t\u00e0i li\u1ec7u
+                            - listitem [ref=e215]: Vi\u1ebft & g\u1eedi ph\u1ea3n bi\u1ec7n
+                          - text: \n
+                          - generic [ref=e216]: AI \u00b7 Reviewer Initial Analysis
+                        - text: \n \n
+                      - text: \n
+                    - text: \n\n
+                    - generic [ref=e218]: \n AI h\u1ed7 tr\u1ee3 xuy\u00ean su\u1ed1t quy tr\u00ecnh, kh\u00f4ng thay th\u1ebf quy\u1ebft \u0111\u1ecbnh c\u1ee7a con ng\u01b0\u1eddi.\n
+                    - text: \n
+                  - text: \n
+                - text: \n
+                - generic [ref=e219]:
+                  - text: \n
+                  - generic [ref=e220]: S\u01a1 \u0111\u1ed3 t\u00ednh n\u0103ng theo vai tr\u00f2
+                  - text: \n
+                  - img [ref=e222]:
+                    - generic [ref=e223]: ConferenceSpace
+                    - generic [ref=e224]: UC-01
+                    - generic [ref=e225]: Kh\u00e1m ph\u00e1 h\u1ed9i ngh\u1ecb
+                    - generic [ref=e226]: UC-02
+                    - generic [ref=e227]: Ho\u00e0n t\u1ea5t b\u00e0i n\u1ed9p
+                    - generic [ref=e228]: UC-03
+                    - generic [ref=e229]: V\u00f2ng \u0111\u1eddi b\u00e0i n\u1ed9p
+                    - generic [ref=e230]: UC-04
+                    - generic [ref=e231]: L\u1eddi m\u1eddi & ph\u00e2n c\u00f4ng
+                    - generic [ref=e232]: UC-05
+                    - generic [ref=e233]: So\u1ea1n & g\u1eedi ph\u1ea3n bi\u1ec7n
+                    - generic [ref=e234]: UC-06
+                    - generic [ref=e235]: Ph\u00e2n c\u00f4ng & COI
+                    - generic [ref=e236]: UC-07
+                    - generic [ref=e237]: Qu\u1ea3n l\u00fd h\u1ed9i ngh\u1ecb
+                    - generic [ref=e238]: UC-08
+                    - generic [ref=e239]: Trao \u0111\u1ed5i theo b\u00e0i
+                    - generic [ref=e240]: UC-09
+                    - generic [ref=e241]: H\u1ed7 tr\u1ee3 quy\u1ebft \u0111\u1ecbnh
+                    - generic [ref=e242]: UC-10
+                    - generic [ref=e243]: Chatbot Agent
+                    - generic [ref=e244]: T\u00e1c gi\u1ea3
+                    - generic [ref=e245]: Ch\u1ee7 t\u1ecda
+                    - generic [ref=e246]: Ph\u1ea3n bi\u1ec7n vi\u00ean
+                  - text: \n
+                - text: \n
+              - text: \n
+            - text: \n
+          - text: \n
+        - text: \n\n \n
+        - generic [ref=e247]:
+          - text: \n\n \n
+          - generic [ref=e248]:
+            - text: \n
+            - generic [ref=e249]:
+              - text: \n
+              - heading "3. Ki\\u1ebfn tr\\u00fac h\\u1ec7 th\\u1ed1ng" [level=2] [ref=e251]
+              - text: \n
+            - text: \n\n
+            - generic [ref=e252]: "\\n T\\u1ed5ng quan: To\\u00e0n b\\u1ed9 h\\u1ec7 th\\u1ed1ng \\u0111\\u01b0\\u1ee3c qu\\u1ea3n l\\u00fd v\\u00e0 tri\\u1ec3n khai b\\u1eb1ng Docker Compose; c\\u00e1c service \\u0111\\u01b0\\u1ee3c chia theo nhi\\u1ec7m v\\u1ee5 \\u0111\\u1ec3 d\\u1ec5 m\\u1edf r\\u1ed9ng trong t\\u01b0\\u01a1ng lai.\\n"
+            - text: \n\n
+            - generic [ref=e253]:
+              - text: \n
+              - img "\\\"Ki\\u1ebfn" [ref=e254]
+              - text: \n
+            - text: \n\n
+            - generic [ref=e255]:
+              - text: \n
+              - generic [ref=e256]: S\u01a1 \u0111\u1ed3 tri\u1ec3n khai \u00b7 Docker Compose
+              - text: \n
+              - img "\\\"S\\u01a1" [ref=e257]:
+                - text: \n \n \n
+                - generic [ref=e258]: Ng\u01b0\u1eddi d\u00f9ng
+                - generic [ref=e259]: Tr\u00ecnh duy\u1ec7t
+                - text: \n
+                - generic [ref=e260]: Web Frontend
+                - generic [ref=e261]: Next.js \u00b7 Container
+                - text: \n
+                - generic [ref=e262]: API Backend
+                - generic [ref=e263]: Go \u00b7 Container
+                - text: \n
+                - generic [ref=e264]: PostgreSQL
+                - text: \n
+                - generic [ref=e265]: Neo4j
+                - text: \n
+              - text: \n
+            - text: \n
+          - text: \n\n \n
+          - generic [ref=e266]:
+            - text: \n
+            - generic [ref=e267]:
+              - text: \n \n
+              - heading "4. Ph\\u01b0\\u01a1ng ph\\u00e1p \\u0111\\u00e1nh gi\\u00e1" [level=2] [ref=e268]
+              - text: \n
+            - text: \n
+            - generic [ref=e269]: \u0110\u00e1nh gi\u00e1 d\u1ef1a tr\u00ean nhi\u1ec1u ngu\u1ed3n b\u1eb1ng ch\u1ee9ng, bao qu\u00e1t hi\u1ec7u n\u0103ng, \u0111\u1ed9 ch\u00ednh x\u00e1c thu\u1eadt to\u00e1n, ch\u1ea5t l\u01b0\u1ee3ng AI v\u00e0 tr\u1ea3i nghi\u1ec7m ng\u01b0\u1eddi d\u00f9ng.
+            - text: \n
+            - generic [ref=e270]:
+              - text: \n
+              - generic [ref=e271]:
+                - text: \n
+                - generic [ref=e272]:
+                  - text: \n
+                  - generic [ref=e273]: \n H\u1ea1ng m\u1ee5c\n C\u00e1ch \u0111o\n
+                  - text: \n
+                - text: \n
+                - generic [ref=e274]:
+                  - text: \n
+                  - generic [ref=e275]: Hi\u1ec7u n\u0103ng m\u00e1y ch\u1ee7Ki\u1ec3m th\u1eed ch\u1ecbu t\u1ea3i b\u1eb1ng k6 \u00b7 3 k\u1ecbch b\u1ea3n API (CRUD, \u0111\u1ed1i s\u00e1nh, COI)
+                  - text: \n
+                  - generic [ref=e276]: \u0110\u1ed1i s\u00e1nh ph\u1ea3n bi\u1ec7n vi\u00eanLeave-one-out* \u00b7 Hit@k*, MRR*
+                  - text: \n
+                  - generic [ref=e277]: T\u1ef1 \u0111\u1ed9ng \u0111i\u1ec1n b\u00e0i n\u1ed9pF1 theo token \u00b7 n = 1.127 m\u1eabu
+                  - text: \n
+                  - generic [ref=e278]: Reviewer Initial AnalysisH\u1eadu ki\u1ec3m theo m\u1ec7nh \u0111\u1ec1*
+                  - text: \n
+                  - generic [ref=e279]: Chair Decision CopilotH\u1eadu ki\u1ec3m theo m\u1ec7nh \u0111\u1ec1*
+                  - text: \n
+                  - generic [ref=e280]: Chatbot Agent40 phi\u00ean h\u1ed9i tho\u1ea1i
+                  - text: \n
+                  - generic [ref=e281]: UAT (User Acceptance Testing)n = 91 ph\u1ea3n h\u1ed3i \u00b7 3 vai tr\u00f2
+                  - text: \n
+                - text: \n
+              - text: \n
+              - generic [ref=e282]:
+                - text: \n
+                - generic [ref=e283]: "* H\\u1eadu ki\\u1ec3m theo m\\u1ec7nh \\u0111\\u1ec1: \\u0111\\u00e1nh gi\\u00e1 t\\u1eebng m\\u1ec7nh \\u0111\\u1ec1 d\\u1ef1a tr\\u00ean ngu\\u1ed3n d\\u1eef li\\u1ec7u c\\u1ee7a lu\\u1ed3ng AI; b\\u1ed9 ch\\u1ec9 s\\u1ed1 g\\u1ed3m Truthfulness (b\\u00e1m ngu\\u1ed3n), Coverage (bao ph\\u1ee7) v\\u00e0 Additionality (gi\\u00e1 tr\\u1ecb b\\u1ed5 sung)."
+                - text: \n
+                - generic [ref=e284]: "* Leave-one-out: gi\\u1eef 1 m\\u1eabu \\u0111\\u1ec3 ki\\u1ec3m tra, \\u0111\\u1ed1i s\\u00e1nh tr\\u00ean ph\\u1ea7n c\\u00f2n l\\u1ea1i. Hit@k: t\\u1ec9 l\\u1ec7 c\\u00f3 \\u0111\\u00e1p \\u00e1n \\u0111\\u00fang trong top-k. MRR (Mean Reciprocal Rank): \\u0111i\\u1ec3m theo h\\u1ea1ng c\\u1ee7a \\u0111\\u00e1p \\u00e1n \\u0111\\u00fang."
+                - text: \n
+                - generic [ref=e285]: n = c\u1ee1 m\u1eabu (s\u1ed1 quan s\u00e1t / ph\u1ea3n h\u1ed3i).
+                - text: \n
+              - text: \n
+            - text: \n
+            - generic [ref=e286]:
+              - text: \n
+              - generic [ref=e287]: K\u1ebft qu\u1ea3 ki\u1ec3m th\u1eed ti\u00eau bi\u1ec3u
+              - text: \n
+              - generic [ref=e288]:
+                - text: \n
+                - generic [ref=e289]:
+                  - generic [ref=e290]: p95 < 120 ms
+                  - generic [ref=e291]: Hi\u1ec7u n\u0103ng m\u00e1y ch\u1ee7
+                - text: \n
+                - generic [ref=e292]:
+                  - generic [ref=e293]: Hit@10 65%
+                  - generic [ref=e294]: \u0110\u1ed1i s\u00e1nh ph\u1ea3n bi\u1ec7n
+                - text: \n
+                - generic [ref=e295]:
+                  - generic [ref=e296]: F1 98,2%
+                  - generic [ref=e297]: T\u1ef1 \u0111\u1ed9ng \u0111i\u1ec1n ti\u00eau \u0111\u1ec1
+                - text: \n
+                - generic [ref=e298]:
+                  - generic [ref=e299]: 96,2%
+                  - generic [ref=e300]: Tr\u00edch d\u1eabn b\u00e1m ngu\u1ed3n
+                - text: \n
+                - generic [ref=e301]:
+                  - generic [ref=e302]: 75,8%
+                  - generic [ref=e303]: Ch\u1ecdn \u0111\u00fang c\u00f4ng c\u1ee5
+                - text: \n
+                - generic [ref=e304]:
+                  - generic [ref=e305]: 0 s\u1ef1 c\u1ed1
+                  - generic [ref=e306]: R\u00f2 r\u1ec9 d\u1eef li\u1ec7u
+                - text: \n
+              - text: \n
+            - text: \n
+            - generic [ref=e307]:
+              - text: \n
+              - generic [ref=e308]: UAT (User Acceptance Testing) \u2014 h\u00e0i l\u00f2ng theo vai tr\u00f2 \u00b7 n = 91 ph\u1ea3n h\u1ed3i
+              - text: \n
+              - generic [ref=e309]:
+                - text: \n
+                - generic [ref=e310]: \u0110i\u1ec3m h\u00e0i l\u00f2ng (/5)
+                - text: \n
+                - generic [ref=e311]: "543210"
+                - text: \n
+                - generic [ref=e312]:
+                  - text: \n
+                  - generic [ref=e313]:
+                    - text: \n
+                    - generic [ref=e314]:
+                      - text: \n
+                      - generic [ref=e315]: 3,86/5
+                      - text: \n \n
+                    - text: \n
+                    - generic [ref=e316]:
+                      - text: \n
+                      - generic [ref=e317]: 4,00/5
+                      - text: \n \n
+                    - text: \n
+                    - generic [ref=e318]:
+                      - text: \n
+                      - generic [ref=e319]: 4,20/5
+                      - text: \n \n
+                    - text: \n
+                  - text: \n
+                  - generic [ref=e320]:
+                    - text: \n
+                    - generic [ref=e321]: T\u00e1c gi\u1ea3n=66
+                    - text: \n
+                    - generic [ref=e322]: Ph\u1ea3n bi\u1ec7nn=15
+                    - text: \n
+                    - generic [ref=e323]: Ch\u1ee7 t\u1ecdan=10
+                    - text: \n
+                  - text: \n
+                - text: \n
+              - text: \n
+            - text: \n
+            - generic [ref=e324]: M\u1ed7i ph\u00e9p \u0111o ph\u1ea3n \u00e1nh m\u1ed9t kh\u00eda c\u1ea1nh ri\u00eang; c\u1ea7n k\u1ebft h\u1ee3p c\u00e1c k\u1ebft qu\u1ea3 \u0111\u1ec3 \u0111\u00e1nh gi\u00e1 to\u00e0n di\u1ec7n ch\u1ea5t l\u01b0\u1ee3ng h\u1ec7 th\u1ed1ng.
+            - text: \n
+          - text: \n\n \n
+          - generic [ref=e325]:
+            - text: \n\n
+            - generic [ref=e326]:
+              - text: \n
+              - generic [ref=e327]:
+                - text: \n \n
+                - heading "5. K\\u1ebft lu\\u1eadn" [level=2] [ref=e328]
+                - text: \n
+              - text: \n\n
+              - generic [ref=e329]:
+                - text: \n
+                - generic [ref=e330]:
+                  - text: \n \n
+                  - generic [ref=e333]:
+                    - text: \n
+                    - generic [ref=e334]: H\u1ec7 th\u1ed1ng qu\u1ea3n l\u00fd h\u1ed9i ngh\u1ecb
+                    - text: \n
+                    - generic [ref=e335]: \u0110\u00e3 ho\u00e0n thi\u1ec7n
+                    - text: \n
+                    - generic [ref=e336]: V\u00f2ng \u0111\u1eddi x\u00e9t duy\u1ec7t \u00b7 3 vai tr\u00f2 \u00b7 AI h\u1ed7 tr\u1ee3 c\u00f3 ki\u1ec3m so\u00e1t
+                    - text: \n
+                  - text: \n
+                - text: \n
+                - generic [ref=e337]:
+                  - text: \n
+                  - generic [ref=e338]: 81%
+                  - text: \n
+                  - generic [ref=e339]: UAT74/91 s\u1eb5n s\u00e0ng gi\u1edbi thi\u1ec7u
+                  - text: \n
+                - text: \n
+              - text: \n\n
+              - generic [ref=e340]:
+                - text: \n
+                - generic [ref=e341]:
+                  - text: \n
+                  - generic [ref=e342]: Ch\u1ee9c n\u0103ng ch\u00ednh
+                  - text: \n
+                  - generic [ref=e343]:
+                    - text: \n
+                    - generic [ref=e344]: V\u00f2ng \u0111\u1eddi x\u00e9t duy\u1ec7t 3 vai tr\u00f2
+                    - generic [ref=e348]: \u0110\u1ed1i s\u00e1nh ph\u1ea3n bi\u1ec7n + ki\u1ec3m tra COI
+                    - generic [ref=e352]: 6 lu\u1ed3ng AI h\u1ed7 tr\u1ee3 (kh\u00f4ng t\u1ef1 quy\u1ebft \u0111\u1ecbnh)
+                    - generic [ref=e356]: Chatbot Agent theo vai tr\u00f2
+                    - text: \n
+                  - text: \n
+                - text: \n\n
+                - generic [ref=e360]:
+                  - text: \n
+                  - generic [ref=e361]:
+                    - text: \n
+                    - generic [ref=e362]: Kh\u00f3 kh\u0103n
+                    - text: \n
+                    - generic [ref=e363]:
+                      - text: \n
+                      - generic [ref=e364]: "\\u0110\\u00e1nh gi\\u00e1 AI: thi\\u1ebfu nh\\u00e3n v\\u00e0 \\u0111\\u00e1p \\u00e1n chu\\u1ea9n n\\u00ean nh\\u00f3m x\\u00e2y TCA \\u0111\\u1ec3 \\u0111\\u00e1nh gi\\u00e1 gi\\u00e1n ti\\u1ebfp."
+                      - generic [ref=e369]: "D\\u1eef li\\u1ec7u: h\\u1ed3 s\\u01a1 h\\u1ecdc thu\\u1eadt v\\u00e0 COI t\\u1eeb ngu\\u1ed3n m\\u1edf c\\u00f2n thi\\u1ebfu, ch\\u01b0a \\u0111\\u1ee7 cho v\\u1eadn h\\u00e0nh th\\u1ef1c t\\u1ebf."
+                      - generic [ref=e374]: "UI nhi\\u1ec1u vai tr\\u00f2: b\\u1ecf chuy\\u1ec3n vai tr\\u00f2 b\\u1eb1ng dropdown, chuy\\u1ec3n sang ba kh\\u00f4ng gian vai tr\\u00f2."
+                      - text: \n
+                    - text: \n
+                  - text: \n
+                  - generic [ref=e379]:
+                    - text: \n
+                    - generic [ref=e380]: B\u00e0i h\u1ecdc r\u00fat ra
+                    - text: \n
+                    - generic [ref=e381]:
+                      - text: \n
+                      - generic [ref=e382]: "CI/CD: tri\\u1ec3n khai \\u0111\\u1ed3ng b\\u1ed9 theo phi\\u00ean b\\u1ea3n."
+                      - generic [ref=e387]: "Ph\\u1ed1i h\\u1ee3p: th\\u1ed1ng nh\\u1ea5t s\\u1edbm \\u0111\\u1eb7c t\\u1ea3 khi ch\\u1ee9c n\\u0103ng ph\\u1ee5 thu\\u1ed9c."
+                      - generic [ref=e392]: "Ph\\u00e9p th\\u1eed AI: GPU serverless (Modal) \\u0111\\u1ec3 ch\\u1ea1y l\\u1eb7p l\\u1ea1i."
+                      - generic [ref=e397]: "Ranh gi\\u1edbi AI: ch\\u1ec9 h\\u1ed7 tr\\u1ee3; ng\\u01b0\\u1eddi d\\u00f9ng x\\u00e1c nh\\u1eadn quy\\u1ebft \\u0111\\u1ecbnh."
+                      - text: \n
+                    - text: \n
+                  - text: \n
+                - text: \n
+              - text: \n
+            - text: \n\n
+            - generic [ref=e402]:
+              - text: \n
+              - generic [ref=e403]:
+                - text: \n \n
+                - heading "6. H\\u01b0\\u1edbng ph\\u00e1t tri\\u1ec3n" [level=2] [ref=e404]
+                - text: \n
+              - text: \n
+              - generic [ref=e405]:
+                - text: \n
+                - generic [ref=e406]:
+                  - text: \n \n
+                  - generic [ref=e409]: "Ho\\u00e0n thi\\u1ec7n d\\u1eef li\\u1ec7u \\u0111\\u00e1nh gi\\u00e1: X\\u00e2y d\\u1ef1ng t\\u1eadp \\u0111\\u00e1nh gi\\u00e1 s\\u00e1t b\\u1ed1i c\\u1ea3nh v\\u1eadn h\\u00e0nh, c\\u00f3 nh\\u00e3n chuy\\u00ean gia; b\\u1ed5 sung d\\u1eef li\\u1ec7u xung \\u0111\\u1ed9t l\\u1ee3i \\u00edch c\\u00f3 nh\\u00e3n \\u0111\\u1ec3 \\u0111o precision v\\u00e0 recall theo t\\u1eebng ngu\\u1ed3n."
+                  - text: \n
+                - text: \n
+                - generic [ref=e410]:
+                  - text: \n \n
+                  - generic [ref=e413]: "N\\u00e2ng cao v\\u1eadn h\\u00e0nh v\\u00e0 tr\\u1ea3i nghi\\u1ec7m: Chuy\\u1ec3n c\\u00e1c t\\u00e1c v\\u1ee5 AI d\\u00e0i sang h\\u00e0ng \\u0111\\u1ee3i b\\u1ea5t \\u0111\\u1ed3ng b\\u1ed9; hi\\u1ec3n th\\u1ecb ti\\u1ebfn \\u0111\\u1ed9, l\\u1ed7i v\\u00e0 t\\u00f9y ch\\u1ecdn th\\u1eed l\\u1ea1i; b\\u1ed5 sung nh\\u1eadt k\\u00fd ki\\u1ec3m to\\u00e1n li\\u00ean k\\u1ebft ngu\\u1ed3n, k\\u1ebft qu\\u1ea3 v\\u00e0 quy\\u1ebft \\u0111\\u1ecbnh."
+                  - text: \n
+                - text: \n
+                - generic [ref=e414]:
+                  - text: \n \n
+                  - generic [ref=e417]: "Tri\\u1ec3n khai RAG c\\u00f3 ki\\u1ec3m so\\u00e1t: M\\u1ed7i g\\u1ee3i \\u00fd \\u0111i k\\u00e8m ngu\\u1ed3n tham chi\\u1ebfu \\u0111\\u1ec3 ng\\u01b0\\u1eddi d\\u00f9ng ki\\u1ec3m ch\\u1ee9ng, qua \\u0111\\u00f3 tr\\u1ef1c ti\\u1ebfp thu h\\u1eb9p kho\\u1ea3ng tr\\u1ed1ng 47% \\u1edf nh\\u00f3m T\\u00e1c gi\\u1ea3."
+                  - text: \n
+                - text: \n
+                - generic [ref=e418]:
+                  - text: \n \n
+                  - generic [ref=e421]: "T\\u0103ng c\\u01b0\\u1eddng qu\\u1ea3n tr\\u1ecb v\\u00e0 m\\u1edf r\\u1ed9ng d\\u1eef li\\u1ec7u: \\u0110\\u00e1nh gi\\u00e1 nh\\u00e0 cung c\\u1ea5p AI theo ch\\u00ednh s\\u00e1ch x\\u1eed l\\u00fd d\\u1eef li\\u1ec7u; m\\u1edf r\\u1ed9ng ngu\\u1ed3n d\\u1eef li\\u1ec7u chuy\\u00ean m\\u00f4n v\\u00e0 \\u0111\\u1ed3ng t\\u00e1c gi\\u1ea3 t\\u1eeb DBLP, Semantic Scholar."
+                  - text: \n
+                - text: \n
+              - text: \n
+            - text: \n
+          - text: \n
+        - text: \n
+      - text: \n
+    - text: \n
+  - text: \n \n\n"
