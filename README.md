@@ -62,7 +62,3 @@ ConferenceSpace/
 - Frontend: `pnpm test:run` (from `/frontend`)
 - AI service: `poetry run pytest` (from `/ai-service`)
 - End-to-end: see [.tests/test-plan.md](.tests/test-plan.md)
-
-## Further Reading
-
-See [CLAUDE.md](CLAUDE.md) for architecture details, coding conventions, and common development commands.
