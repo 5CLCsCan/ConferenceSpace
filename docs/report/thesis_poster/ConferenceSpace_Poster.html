@@ -485,6 +485,7 @@
                     <div
                       style="
                         font-size: 14px;
+                        font-weight: 500;
                         color: #73858d;
                         white-space: nowrap;
                       "
@@ -512,7 +513,7 @@
                           line-height: 1.2;
                         "
                       >
-                        <span style="color: #42545d"
+                        <span style="color: #42545d; font-weight: 500"
                           >Không biết bước tiếp theo</span
                         ><b style="color: #16384a">49,3%</b>
                       </div>
@@ -545,7 +546,7 @@
                           line-height: 1.2;
                         "
                       >
-                        <span style="color: #42545d"
+                        <span style="color: #42545d; font-weight: 500"
                           >Biểu mẫu dài và lặp lại</span
                         ><b style="color: #16384a">47,9%</b>
                       </div>
@@ -578,7 +579,7 @@
                           line-height: 1.2;
                         "
                       >
-                        <span style="color: #42545d"
+                        <span style="color: #42545d; font-weight: 500"
                           >Phải đọc nhiều hướng dẫn</span
                         ><b style="color: #16384a">46,5%</b>
                       </div>
@@ -640,6 +641,7 @@
                     <div
                       style="
                         font-size: 14px;
+                        font-weight: 500;
                         line-height: 1.45;
                         color: #334851;
                         margin-top: 3px;
@@ -663,6 +665,7 @@
                     <div
                       style="
                         font-size: 14px;
+                        font-weight: 500;
                         line-height: 1.45;
                         color: #334851;
                         margin-top: 3px;
@@ -1178,116 +1181,6 @@
                   margin-top: 3px;
                   overflow-wrap: anywhere;
                 }
-
-                /* UC Inspect Feature Styling */
-                .uc-inspectable {
-                  cursor: pointer !important;
-                  position: relative !important;
-                  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                }
-                .uc-inspectable:hover {
-                  transform: translateY(-1px) scale(1.02);
-                  box-shadow: 0 6px 16px rgba(22, 56, 74, 0.22) !important;
-                  border-color: #16384a !important;
-                  z-index: 10 !important;
-                }
-                .uc-inspectable::after {
-                  content: "🔍 Inspect";
-                  position: absolute;
-                  top: 2px;
-                  right: 4px;
-                  font-size: 10px;
-                  font-weight: 800;
-                  background: rgba(22, 56, 74, 0.9);
-                  color: #9fd8df;
-                  padding: 1px 5px;
-                  border-radius: 4px;
-                  opacity: 0;
-                  pointer-events: none;
-                  transition: opacity 0.2s ease, transform 0.2s ease;
-                  transform: translateY(-2px);
-                  white-space: nowrap;
-                  letter-spacing: 0.03em;
-                  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                }
-                .uc-inspectable:hover::after {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-
-                #uc-inspect-popover {
-                  position: fixed;
-                  z-index: 9999;
-                  width: 320px;
-                  background: rgba(15, 39, 53, 0.96);
-                  backdrop-filter: blur(12px);
-                  -webkit-backdrop-filter: blur(12px);
-                  border: 1.5px solid #3c7a90;
-                  border-radius: 10px;
-                  padding: 12px 14px;
-                  color: #fff;
-                  box-shadow: 0 16px 40px rgba(10, 25, 35, 0.5);
-                  pointer-events: none;
-                  opacity: 0;
-                  transform: scale(0.95);
-                  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-                  font-family: inherit;
-                }
-                #uc-inspect-popover.visible {
-                  opacity: 1;
-                  transform: scale(1);
-                }
-                #uc-inspect-popover .pop-header {
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-                  padding-bottom: 8px;
-                  margin-bottom: 8px;
-                }
-                #uc-inspect-popover .pop-title {
-                  font-size: 14.5px;
-                  font-weight: 800;
-                  color: #e2f3f8;
-                  line-height: 1.2;
-                }
-                #uc-inspect-popover .pop-chips {
-                  display: flex;
-                  gap: 4px;
-                }
-                #uc-inspect-popover .pop-section-label {
-                  font-size: 10px;
-                  font-weight: 800;
-                  letter-spacing: 0.06em;
-                  text-transform: uppercase;
-                  color: #8bbacf;
-                  margin-bottom: 6px;
-                }
-                #uc-inspect-popover .pop-item {
-                  background: rgba(255, 255, 255, 0.07);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  border-radius: 6px;
-                  padding: 7px 9px;
-                  margin-bottom: 6px;
-                }
-                #uc-inspect-popover .pop-item:last-child {
-                  margin-bottom: 0;
-                }
-                #uc-inspect-popover .pop-item-title {
-                  font-size: 12.5px;
-                  font-weight: 800;
-                  color: #fff;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  line-height: 1.2;
-                }
-                #uc-inspect-popover .pop-item-desc {
-                  font-size: 11.5px;
-                  color: #b0c6d2;
-                  line-height: 1.35;
-                  margin-top: 4px;
-                }
               </style>
               <div class="body">
                 <div class="flow">
@@ -1326,7 +1219,7 @@
                       </div>
                     </div>
 
-                    <div class="support uc-inspectable" data-uc="UC-10">
+                    <div class="support">
                       <span class="support-label">Liên vai trò</span
                       ><span class="support-code">UC-10</span
                       ><span class="support-name">Chatbot Agent</span
@@ -1339,7 +1232,7 @@
                       <span class="cross-role-node chair"></span>
                       <span class="cross-role-node author"></span>
                       <span class="cross-role-node reviewer"></span>
-                      <div class="cross-role-card uc-inspectable" data-uc="UC-08">
+                      <div class="cross-role-card">
                         <div class="cross-role-label">Liên vai trò</div>
                         <div class="uc-title">UC-08 · Trao đổi theo bài</div>
                         <!-- <div class="uc-detail">Hỏi đáp · làm rõ phản biện</div> -->
@@ -1356,9 +1249,8 @@
                       </div>
                       <div class="lane">
                         <div
-                          class="lane-band uc-inspectable"
+                          class="lane-band"
                           data-span="UC-07"
-                          data-uc="UC-07"
                           style="
                             background: #e7f4f0;
                             color: #1f6b5a;
@@ -1370,7 +1262,7 @@
                         </div>
                         <div class="cell"></div>
                         <div class="cell has-card">
-                          <div class="uc uc-inspectable" data-uc="UC-06" style="border-color: #bdd9d1">
+                          <div class="uc" style="border-color: #bdd9d1">
                             <div class="uc-title">
                               UC-06 · Phân công &amp; COI
                             </div>
@@ -1386,7 +1278,7 @@
                         <div class="cell"></div>
                         <div class="cell"></div>
                         <div class="cell has-card">
-                          <div class="uc uc-inspectable" data-uc="UC-09" style="border-color: #bdd9d1">
+                          <div class="uc" style="border-color: #bdd9d1">
                             <div class="uc-title">
                               UC-09 · Hỗ trợ quyết định
                             </div>
@@ -1411,9 +1303,8 @@
                       </div>
                       <div class="lane">
                         <div
-                          class="lane-band uc-inspectable"
+                          class="lane-band"
                           data-span="UC-03"
-                          data-uc="UC-03"
                           style="
                             background: #eaf2fb;
                             color: #1d4f91;
@@ -1433,7 +1324,7 @@
                             padding: 4px;
                           "
                         >
-                          <div class="uc uc-inspectable" data-uc="UC-01">
+                          <div class="uc">
                             <div class="uc-title">
                               UC-01 · Khám phá hội nghị
                             </div>
@@ -1441,7 +1332,7 @@
                               <span class="chip nv">NV</span>
                             </div>
                           </div>
-                          <div class="uc uc-inspectable" data-uc="UC-02">
+                          <div class="uc">
                             <div class="uc-title">UC-02 · Hoàn tất bài nộp</div>
                             <!-- <div class="uc-detail">Autofill · Gating</div> -->
                             <div class="chips">
@@ -1480,7 +1371,7 @@
                         </div> -->
                         <div class="cell"></div>
                         <div class="cell has-card">
-                          <div class="uc uc-inspectable" data-uc="UC-04" style="border-color: #d5c9e4">
+                          <div class="uc" style="border-color: #d5c9e4">
                             <div class="uc-title">
                               UC-04 · Lời mời &amp; phân công
                             </div>
@@ -1490,7 +1381,7 @@
                           </div>
                         </div>
                         <div class="cell has-card">
-                          <div class="uc uc-inspectable" data-uc="UC-05" style="border-color: #d5c9e4">
+                          <div class="uc" style="border-color: #d5c9e4">
                             <div class="uc-title">
                               UC-05 · Đọc &amp; gửi phản biện
                             </div>
@@ -1947,6 +1838,7 @@
               }
               #evaluation-approved .ev-input {
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.32;
                 color: #334851;
               }
@@ -1999,11 +1891,13 @@
               }
               #evaluation-approved .ev-label {
                 font-size: 14px;
+                font-weight: 500;
                 color: #60737b;
                 margin-top: 3px;
               }
               #evaluation-approved .ev-copy {
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.34;
                 color: #2f424a;
               }
@@ -2011,6 +1905,7 @@
                 margin-top: 5px;
                 padding-top: 3px;
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.3;
                 color: #6a7b82;
               }
@@ -2053,6 +1948,7 @@
                 margin: 4px 0;
                 color: #60737b;
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.22;
               }
               #evaluation-approved .ev-ai-result b {
@@ -2062,6 +1958,7 @@
               }
               #evaluation-approved .ev-ai-note {
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.28;
                 color: #50636b;
                 margin-bottom: 2px;
@@ -2069,6 +1966,7 @@
               #evaluation-approved .ev-ai-conclusion {
                 margin-top: 4px;
                 font-size: 14px;
+                font-weight: 500;
                 line-height: 1.32;
                 color: #33474f;
               }
@@ -2158,11 +2056,11 @@
                       margin-bottom: 7px;
                     "
                   >
-                    <span style="color: #50636b">Phù hợp</span
+                    <span style="color: #50636b; font-weight: 500">Phù hợp</span
                     ><b style="font-size: 15px; color: #16384a"
                       >2,75× baseline</b
                     >
-                    <span style="color: #50636b">Đủ 2 PBV</span
+                    <span style="color: #50636b; font-weight: 500">Đủ 2 PBV</span
                     ><b style="font-size: 15px; color: #16384a">65,9%</b>
                   </div>
                   <div class="ev-copy">
@@ -2320,7 +2218,7 @@
                 >
                   3,89/5
                 </div>
-                <div style="font-size: 14px; line-height: 1.2; color: #435860">
+                <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #435860">
                   69/76 cảm nhận AI giúp giảm thao tác hoặc thời gian.
                 </div>
               </div>
@@ -2339,7 +2237,7 @@
                 >
                   4,29/5
                 </div>
-                <div style="font-size: 14px; line-height: 1.2; color: #435860">
+                <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #435860">
                   6/7 tích cực với nhóm chức năng hỗ trợ phản biện.
                 </div>
               </div>
@@ -2358,7 +2256,7 @@
                 >
                   4,38/5
                 </div>
-                <div style="font-size: 14px; line-height: 1.2; color: #435860">
+                <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #435860">
                   7/8 phản hồi tích cực với các luồng hỗ trợ có tích hợp AI.
                 </div>
               </div>
@@ -2699,7 +2597,7 @@
                     >
                       01 · CỦNG CỐ BẰNG CHỨNG &amp; HIỆU CHỈNH CÓ THAM KHẢO CHUYÊN GIA
                     </div>
-                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                    <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #334851;">
                       • Xây dựng bộ dữ liệu nhãn chuyên gia độc lập; thử nghiệm có kiểm soát các mô hình LLM, chỉ dẫn và cấu hình suy luận.
                     </div>
                   </div>
@@ -2723,7 +2621,7 @@
                     >
                       02 · NÂNG CAO ĐỘ TIN CẬY VẬN HÀNH &amp; KIỂM TOÁN
                     </div>
-                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                    <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #334851;">
                       • Chuyển tác vụ AI sang xử lý nền có tiến độ, tự khôi phục sau lỗi và nhật ký kiểm toán liên kết nguồn dữ liệu với quyết định.
                     </div>
                   </div>
@@ -2747,7 +2645,7 @@
                     >
                       03 · MỞ RỘNG DỮ LIỆU HỌC THUẬT &amp; LỚP AI AGENT
                     </div>
-                    <div style="font-size: 14px; line-height: 1.2; color: #334851;">
+                    <div style="font-size: 14px; font-weight: 500; line-height: 1.2; color: #334851;">
                       • Tích hợp dữ liệu học thuật đa nguồn có xác minh; mở rộng RAG/Agentic RAG kèm trích dẫn nguồn kiểm chứng rõ ràng.
                     </div>
                   </div>
@@ -2798,165 +2696,6 @@
           };
         }
       }
-    </script>
-    <div id="uc-inspect-popover"></div>
-    <script>
-      (function () {
-        const ucData = {
-          "UC-01": {
-            title: "UC-01 · Khám phá hội nghị",
-            chips: ['<span class="chip nv">NV</span>'],
-            items: [
-              { title: "🔍 Lọc danh sách hội nghị", desc: "Tìm kiếm & lọc hội nghị theo chủ đề, cấp độ và thời gian nộp.", layer: "NV" },
-              { title: "📅 Xem Call for Papers & Timeline", desc: "Xem chi tiết thể lệ, mốc thời gian và hướng dẫn định dạng bài nộp.", layer: "NV" }
-            ]
-          },
-          "UC-02": {
-            title: "UC-02 · Hoàn tất bài nộp",
-            chips: ['<span class="chip nv">NV</span>', '<span class="chip tt">TT</span>', '<span class="chip ai">AI</span>'],
-            items: [
-              { title: "✨ Submission Autofill", desc: "AI tự động trích xuất Tiêu đề, Abstract và Từ khóa từ tệp PDF nộp.", layer: "AI" },
-              { title: "⚙️ Gating Check", desc: "Thuật toán xác định kiểm tra số trang, định dạng tệp và thông tin bắt buộc.", layer: "TT" },
-              { title: "👥 Quản lý đồng tác giả", desc: "Khai báo thứ tự tác giả, đơn vị công tác và Tác giả liên hệ.", layer: "NV" }
-            ]
-          },
-          "UC-03": {
-            title: "UC-03 · Vòng đời bài nộp",
-            chips: ['<span class="chip nv">NV</span>'],
-            items: [
-              { title: "📊 Lịch sử & Trạng thái bài nộp", desc: "Theo dõi tiến độ thẩm định qua từng giai đoạn và nhận kết quả.", layer: "NV" },
-              { title: "📤 Camera-Ready Submission", desc: "Tải lên bản hoàn thiện cuối cùng sau khi phản biện hoàn tất.", layer: "NV" }
-            ]
-          },
-          "UC-04": {
-            title: "UC-04 · Lời mời & phân công",
-            chips: ['<span class="chip nv">NV</span>'],
-            items: [
-              { title: "📩 Phản hồi lời mời phản biện", desc: "Đọc tóm tắt bài nộp và xác nhận hoặc từ chối phản biện.", layer: "NV" },
-              { title: "📋 Danh sách bài nộp được giao", desc: "Quản lý danh mục bài nộp cần đánh giá cùng mốc hoàn thành.", layer: "NV" }
-            ]
-          },
-          "UC-05": {
-            title: "UC-05 · Đọc & gửi phản biện",
-            chips: ['<span class="chip nv">NV</span>', '<span class="chip ai">AI</span>'],
-            items: [
-              { title: "🧠 Initial Analysis Copilot", desc: "AI tóm tắt bài nộp và gợi ý các điểm cần tập trung đánh giá.", layer: "AI" },
-              { title: "🛡️ Quality Auditor", desc: "AI đánh giá tính xây dựng & độ đầy đủ của phiếu phản biện trước khi gửi.", layer: "AI" },
-              { title: "📝 Nhập biểu mẫu phản biện", desc: "Điền nhận xét, chấm điểm tiêu chí và gửi phiếu phản biện chính thức.", layer: "NV" }
-            ]
-          },
-          "UC-06": {
-            title: "UC-06 · Phân công & COI",
-            chips: ['<span class="chip nv">NV</span>', '<span class="chip tt">TT</span>'],
-            items: [
-              { title: "⚡ Reviewer Matching", desc: "Thuật toán đối sánh phản biện tự động theo từ khóa & khối lượng làm việc.", layer: "TT" },
-              { title: "🛡️ COI Detection", desc: "Tự động quét & cảnh báo xung đột lợi ích (đồng cơ quan, đồng tác giả).", layer: "TT" },
-              { title: "📨 Giao bài & Gửi lời mời", desc: "Phân công phản biện thủ công hoặc tự động và phát hành lời mời.", layer: "NV" }
-            ]
-          },
-          "UC-07": {
-            title: "UC-07 · Quản lý hội nghị & tiến độ",
-            chips: ['<span class="chip nv">NV</span>'],
-            items: [
-              { title: "⚙️ Cấu hình Timeline & Track", desc: "Khởi tạo thông tin hội nghị, mốc thời gian và phân quyền quản trị.", layer: "NV" },
-              { title: "📈 Giám sát tổng thể tiến độ", desc: "Báo cáo số lượng bài nộp, tỷ lệ hoàn thành phản biện theo mốc.", layer: "NV" }
-            ]
-          },
-          "UC-08": {
-            title: "UC-08 · Trao đổi theo bài",
-            chips: ['<span class="chip nv">NV</span>'],
-            items: [
-              { title: "💬 Rebuttal & Discussion", desc: "Thảo luận hai chiều ẩn danh giữa Tác giả và Phản biện viên.", layer: "NV" },
-              { title: "🔄 Cập nhật phản hồi", desc: "Cho phép Phản biện viên làm rõ thắc mắc và điều chỉnh điểm số.", layer: "NV" }
-            ]
-          },
-          "UC-09": {
-            title: "UC-09 · Hỗ trợ quyết định",
-            chips: ['<span class="chip nv">NV</span>', '<span class="chip ai">AI</span>'],
-            items: [
-              { title: "🤖 Chair Decision Copilot", desc: "AI tổng hợp căn cứ, trọng số điểm số và mức độ đồng thuận.", layer: "AI" },
-              { title: "⚠️ Phát hiện bất đồng & Đề xuất", desc: "Nhận diện bài nộp có tranh cãi và gợi ý quyết định Chấp nhận/Từ chối.", layer: "AI" }
-            ]
-          },
-          "UC-10": {
-            title: "UC-10 · Chatbot Agent",
-            chips: ['<span class="chip ai">AI</span>'],
-            items: [
-              { title: "💬 Context-Aware Chatbot", desc: "Trợ lý thông minh giải đáp thắc mắc theo vai trò & quyền hạn truy cập.", layer: "AI" },
-              { title: "🧭 Tra cứu trạng thái & Hướng dẫn", desc: "Hướng dẫn quy trình thao tác và kiểm tra trạng thái bài nộp 24/7.", layer: "AI" }
-            ]
-          }
-        };
-
-        const popover = document.getElementById("uc-inspect-popover");
-        if (!popover) return;
-
-        document.querySelectorAll(".uc-inspectable").forEach((el) => {
-          el.addEventListener("mouseenter", (e) => {
-            const ucId = el.getAttribute("data-uc");
-            const data = ucData[ucId];
-            if (!data) return;
-
-            let html = `
-              <div class="pop-header">
-                <div class="pop-title">${data.title}</div>
-                <div class="pop-chips">${data.chips.join("")}</div>
-              </div>
-              <div class="pop-section-label">Workflows & Tính năng nổi bật</div>
-            `;
-
-            data.items.forEach((item) => {
-              html += `
-                <div class="pop-item">
-                  <div class="pop-item-title">
-                    <span>${item.title}</span>
-                    <span class="chip ${item.layer.toLowerCase()}">${item.layer}</span>
-                  </div>
-                  <div class="pop-item-desc">${item.desc}</div>
-                </div>
-              `;
-            });
-
-            popover.innerHTML = html;
-            popover.classList.add("visible");
-            updatePosition(el, e);
-          });
-
-          el.addEventListener("mouseleave", () => {
-            popover.classList.remove("visible");
-          });
-
-          el.addEventListener("mousemove", (e) => {
-            updatePosition(el, e);
-          });
-        });
-
-        function updatePosition(targetEl, mouseEvt) {
-          const rect = targetEl.getBoundingClientRect();
-          const popRect = popover.getBoundingClientRect();
-          const margin = 14;
-
-          let left = rect.right + margin;
-          let top = rect.top;
-
-          if (left + popRect.width > window.innerWidth - margin) {
-            left = rect.left - popRect.width - margin;
-          }
-
-          if (left < margin && mouseEvt) {
-            left = mouseEvt.clientX + margin;
-            top = mouseEvt.clientY + margin;
-          }
-
-          if (top + popRect.height > window.innerHeight - margin) {
-            top = window.innerHeight - popRect.height - margin;
-          }
-          if (top < margin) top = margin;
-
-          popover.style.left = Math.max(margin, left) + "px";
-          popover.style.top = Math.max(margin, top) + "px";
-        }
-      })();
     </script>
   </body>
 </html
