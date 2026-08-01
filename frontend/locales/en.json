@@ -3342,6 +3342,8 @@
           "text_audit_workflow_failed_override_logged": "The review audit workflow failed to complete. You can still submit, but this override will be logged.",
           "text_submit_anyway": "Submit anyway",
           "text_submit_without_completed_audit": "Submit without completed audit?",
+          "prop_title_submission_blocked": "Review audit found blocking issues",
+          "prop_description_resolve_the_active_blocking_audit_findings": "The audit found issues that may affect review quality. Resolve them or confirm that you want to submit anyway.",
           "text_view_full_reviewer_guide_rarr": "View full reviewer guide"
         },
         "invitation-dialog": {

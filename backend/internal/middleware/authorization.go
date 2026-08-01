@@ -107,7 +107,7 @@ func RequireSubmissionAccess(
 }
 
 func canReviewerAccessSubmission(status string) bool {
-	return status == "pending" || status == "accepted" || status == "completed"
+	return status == "accepted" || status == "completed"
 }
 
 // RequireThreadParticipant checks that the authenticated user is a participant
