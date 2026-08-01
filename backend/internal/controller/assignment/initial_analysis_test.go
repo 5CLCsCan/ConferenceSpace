@@ -86,3 +86,17 @@ func TestCanAccessReviewerPreAcceptArtifact_AllowsPendingOnly(t *testing.T) {
 		}
 	}
 }
+
+func TestCanAccessReviewerInitialAnalysis_RequiresAcceptedAssignment(t *testing.T) {
+	for _, status := range []string{"accepted", "completed"} {
+		if !canAccessReviewerInitialAnalysis(status) {
+			t.Fatalf("expected status %q to access reviewer initial analysis", status)
+		}
+	}
+
+	for _, status := range []string{"pending", "declined", "suggested", ""} {
+		if canAccessReviewerInitialAnalysis(status) {
+			t.Fatalf("expected status %q to be blocked from reviewer initial analysis", status)
+		}
+	}
+}

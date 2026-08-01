@@ -114,9 +114,10 @@ export function ReviewHeaderBar({ submission }: ReviewHeaderBarProps) {
 interface PaperHeaderProps {
   submission: SubmissionDetails
   actions?: ReactNode
+  showDownloadPdf?: boolean
 }
 
-export function PaperHeader({ submission, actions }: PaperHeaderProps) {
+export function PaperHeader({ submission, actions, showDownloadPdf = true }: PaperHeaderProps) {
   const { t } = useTranslation()
   const [downloading, setDownloading] = useState(false)
 
@@ -197,36 +198,38 @@ export function PaperHeader({ submission, actions }: PaperHeaderProps) {
         </div>
         <div className="flex-shrink-0 flex flex-wrap justify-end gap-3">
           {actions}
-          <button
-            onClick={handleDownloadPdf}
-            disabled={downloading}
-            className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm disabled:opacity-50"
-          >
-            <span
-              className="material-symbols-outlined text-red-500"
-              style={{
-                fontSize: "16px",
-                width: "16px",
-                height: "16px",
-                maxWidth: "16px",
-                maxHeight: "16px",
-                minWidth: "16px",
-                minHeight: "16px",
-                lineHeight: "1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                transform: "none",
-                boxSizing: "border-box",
-              }}
+          {showDownloadPdf && (
+            <button
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+              className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-md text-[11px] font-bold tracking-wider hover:bg-slate-50 transition-all duration-200 shadow-sm disabled:opacity-50"
             >
-              picture_as_pdf
-            </span>
-            {t(
-              "runtime.components.reviewer.submission-review.review-header.text_download_pdf",
-            )}{" "}
-          </button>
+              <span
+                className="material-symbols-outlined text-red-500"
+                style={{
+                  fontSize: "16px",
+                  width: "16px",
+                  height: "16px",
+                  maxWidth: "16px",
+                  maxHeight: "16px",
+                  minWidth: "16px",
+                  minHeight: "16px",
+                  lineHeight: "1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  transform: "none",
+                  boxSizing: "border-box",
+                }}
+              >
+                picture_as_pdf
+              </span>
+              {t(
+                "runtime.components.reviewer.submission-review.review-header.text_download_pdf",
+              )}{" "}
+            </button>
+          )}
         </div>
       </div>
     </section>

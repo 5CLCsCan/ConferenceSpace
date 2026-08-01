@@ -113,6 +113,7 @@ export function InvitationSubmissionPreview({
       <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-8 md:px-8 xl:px-12">
         <PaperHeader
           submission={submission}
+          showDownloadPdf={false}
           actions={
             <div className="flex items-center gap-2">
               <Button

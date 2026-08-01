@@ -145,7 +145,7 @@ func (c *Controller) prepareReviewerInitialAnalysisRequest(
 }
 
 func canAccessReviewerInitialAnalysis(status string) bool {
-	return status == "pending" || status == "accepted" || status == "completed"
+	return status == "accepted" || status == "completed"
 }
 
 func canAccessReviewerPreAcceptArtifact(status string) bool {
