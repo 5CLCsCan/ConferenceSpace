@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -6,6 +7,26 @@ import { SubmissionReviewScreen } from "../../submission-review"
 const mockToast = vi.fn()
 const mockSaveReview = vi.fn()
 const mockRunAudit = vi.fn()
+const mockReplaceAudit = vi.fn()
+
+const blockingAuditResult = {
+  success: true,
+  data: {
+    status: "block",
+    active_findings: [
+      {
+        code: "quality.review_too_generic_to_submit",
+        severity: "blocking",
+        field: "review",
+        rationale: "Missing paper-specific evidence.",
+        message: "The review is too generic to submit.",
+        suggestion: "Engage the paper concretely.",
+        condition_fingerprint: "sha256:block",
+      },
+    ],
+    dismissed_findings: [],
+  },
+}
 
 vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: mockToast }),
@@ -48,16 +69,22 @@ vi.mock("@/hooks/use-assignment-review", () => ({
 }))
 
 vi.mock("@/hooks/use-review-audit", () => ({
-  default: () => ({
-    audit: null,
-    auditing: false,
-    updatingDismissal: false,
-    error: null,
-    runAudit: mockRunAudit,
-    dismissFinding: vi.fn(),
-    undismissFinding: vi.fn(),
-    replaceAudit: vi.fn(),
-  }),
+  default: () => {
+    const [audit, setAudit] = useState(null)
+    return {
+      audit,
+      auditing: false,
+      updatingDismissal: false,
+      error: null,
+      runAudit: mockRunAudit,
+      dismissFinding: vi.fn(),
+      undismissFinding: vi.fn(),
+      replaceAudit: (value: any) => {
+        mockReplaceAudit(value)
+        setAudit(value)
+      },
+    }
+  },
 }))
 
 vi.mock("../../submission-review/review-header", () => ({
@@ -77,7 +104,17 @@ vi.mock("../../submission-review/scoring-criteria", () => ({
 }))
 
 vi.mock("../../submission-review/detailed-feedback", () => ({
-  DetailedFeedbackSection: () => <div>feedback</div>,
+  DetailedFeedbackSection: ({ onSummaryChange }: any) => (
+    <div>
+      feedback
+      <button type="button" onClick={() => onSummaryChange("A changed summary.")}>
+        Change summary
+      </button>
+      <button type="button" onClick={() => onSummaryChange("A substantive summary.")}>
+        Restore summary
+      </button>
+    </div>
+  ),
 }))
 
 vi.mock("../../submission-review/recommendation-selector", () => ({
@@ -93,7 +130,19 @@ vi.mock("../../submission-review/rebuttal-tab", () => ({
 }))
 
 vi.mock("../../submission-review/review-audit-panel", () => ({
-  ReviewAuditPanel: () => <div>audit-panel</div>,
+  ReviewAuditPanel: ({ audit, canSubmitAnyway, onSubmitAnyway }: any) => (
+    <div>
+      audit-panel
+      {audit?.active_findings?.map((finding: any) => (
+        <p key={finding.code}>{finding.message}</p>
+      ))}
+      {canSubmitAnyway && (
+        <button aria-label="Submit anyway after reviewing findings" onClick={onSubmitAnyway}>
+          Submit anyway
+        </button>
+      )}
+    </div>
+  ),
 }))
 
 vi.mock("@/components/ui/tooltip", () => ({
@@ -122,28 +171,11 @@ vi.mock("@/components/ui/alert-dialog", () => ({
 describe("SubmissionReviewScreen", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockRunAudit.mockResolvedValue({
-      success: true,
-      data: {
-        status: "block",
-        active_findings: [
-          {
-            code: "quality.review_too_generic_to_submit",
-            severity: "blocking",
-            field: "review",
-            rationale: "Missing paper-specific evidence.",
-            message: "The review is too generic to submit.",
-            suggestion: "Engage the paper concretely.",
-            condition_fingerprint: "sha256:block",
-          },
-        ],
-        dismissed_findings: [],
-      },
-    })
+    mockRunAudit.mockResolvedValue(blockingAuditResult)
     mockSaveReview.mockResolvedValue({ success: true })
   })
 
-  it("still submits when audit preflight returns block status", async () => {
+  it("shows blocking findings before allowing the reviewer to submit anyway", async () => {
     render(
       <SubmissionReviewScreen
         conferenceId="62"
@@ -159,15 +191,92 @@ describe("SubmissionReviewScreen", () => {
       expect(mockRunAudit).toHaveBeenCalledWith(
         expect.objectContaining({ mode: "submit_preflight" }),
       )
+      expect(mockReplaceAudit).toHaveBeenCalled()
+    })
+    expect(mockSaveReview).not.toHaveBeenCalled()
+    expect(screen.getByText("The review is too generic to submit.")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
+    expect(mockRunAudit).toHaveBeenCalledTimes(1)
+    expect(mockSaveReview).not.toHaveBeenCalled()
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Submit anyway after reviewing findings" }),
+    )
+
+    await waitFor(() => {
+      expect(mockSaveReview).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: "submitted",
+          audit_failure_override_confirmed: true,
+        }),
+      )
+    })
+  })
+
+  it("runs a fresh audit when the review changed after a blocking result", async () => {
+    mockRunAudit
+      .mockResolvedValueOnce(blockingAuditResult)
+      .mockResolvedValueOnce({
+        success: true,
+        data: { status: "pass", active_findings: [], dismissed_findings: [] },
+      })
+
+    render(
+      <SubmissionReviewScreen
+        conferenceId="62"
+        assignmentId="13"
+        submissionId="43"
+        submission={null}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
+    await screen.findByRole("button", { name: "Submit anyway after reviewing findings" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Change summary" }))
+    expect(
+      screen.queryByRole("button", { name: "Submit anyway after reviewing findings" }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
+
+    await waitFor(() => {
+      expect(mockRunAudit).toHaveBeenCalledTimes(2)
       expect(mockSaveReview).toHaveBeenCalledWith(
         expect.objectContaining({ status: "submitted" }),
       )
     })
-
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: expect.stringMatching(/submitted/i),
-      }),
+    expect(mockSaveReview.mock.calls[0][0]).not.toHaveProperty(
+      "audit_failure_override_confirmed",
     )
+  })
+
+  it("restores the existing override when edits are reverted to the audited content", async () => {
+    render(
+      <SubmissionReviewScreen
+        conferenceId="62"
+        assignmentId="13"
+        submissionId="43"
+        submission={null}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
+    await screen.findByRole("button", { name: "Submit anyway after reviewing findings" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Change summary" }))
+    expect(
+      screen.queryByRole("button", { name: "Submit anyway after reviewing findings" }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Restore summary" }))
+    expect(
+      screen.getByRole("button", { name: "Submit anyway after reviewing findings" }),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /submit review/i }))
+    expect(mockRunAudit).toHaveBeenCalledTimes(1)
+    expect(mockSaveReview).not.toHaveBeenCalled()
   })
 })

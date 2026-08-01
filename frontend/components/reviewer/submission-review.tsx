@@ -32,7 +32,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import useAssignmentReview from "@/hooks/use-assignment-review"
 import useReviewAudit from "@/hooks/use-review-audit"
 import type { Paper } from "@/lib/types"
-import type { ReviewAuditFinding } from "@/lib/api/review-audit"
+import type { ReviewAuditFinding, ReviewAuditResponse } from "@/lib/api/review-audit"
 import type { ReviewData } from "@/lib/api/reviews"
 import { useTranslation } from "@/lib/i18n/translation-context"
 import { trackUsageEvent } from "@/lib/usage-events"
@@ -50,6 +50,15 @@ interface SubmissionReviewScreenProps {
   onBack?: () => void
 }
 
+type AuditOverridePrompt = {
+  kind: "audit_failed"
+  message: string
+}
+
+function reviewAuditPayloadKey(reviewScore: number, reviewData: ReviewData) {
+  return JSON.stringify({ review_score: reviewScore, review_data: reviewData })
+}
+
 export function SubmissionReviewScreen({
   conferenceId,
   assignmentId,
@@ -62,7 +71,9 @@ export function SubmissionReviewScreen({
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [formData, setFormData] = useState<ReviewFormData>(INITIAL_FORM_DATA)
   const [discussionCount, setDiscussionCount] = useState(0)
-  const [auditOverridePrompt, setAuditOverridePrompt] = useState<string | null>(null)
+  const [auditOverridePrompt, setAuditOverridePrompt] = useState<AuditOverridePrompt | null>(null)
+  const [blockingAuditPayloadKey, setBlockingAuditPayloadKey] = useState<string | null>(null)
+  const auditPanelRef = useRef<HTMLDivElement>(null)
   const { review, saving, saveReview } = useAssignmentReview(conferenceId, assignmentId)
   const {
     audit,
@@ -70,6 +81,7 @@ export function SubmissionReviewScreen({
     updatingDismissal,
     error: auditError,
     runAudit,
+    replaceAudit,
     dismissFinding,
     undismissFinding,
   } = useReviewAudit(conferenceId, assignmentId)
@@ -150,6 +162,12 @@ export function SubmissionReviewScreen({
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const focusAuditPanel = () => {
+    requestAnimationFrame(() => {
+      auditPanelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "center" })
+    })
+  }
+
   const reviewScore =
     (formData.originality +
       formData.technicalQuality +
@@ -180,6 +198,9 @@ export function SubmissionReviewScreen({
     }
   }
 
+  const currentAuditPayloadKey = reviewAuditPayloadKey(reviewScore, toReviewPayload())
+  const canOverrideBlockingAudit = blockingAuditPayloadKey === currentAuditPayloadKey
+
   const parseReviewErrorDetail = (errorData: unknown) => {
     return (
       (
@@ -188,6 +209,7 @@ export function SubmissionReviewScreen({
             code?: string
             message?: string
             override_allowed?: boolean
+            audit?: ReviewAuditResponse
           }
         }
       )?.data ?? null
@@ -263,13 +285,27 @@ export function SubmissionReviewScreen({
     }
 
     const payload = toReviewPayload()
+    const payloadKey = reviewAuditPayloadKey(reviewScore, payload)
+    if (audit?.status === "block" && blockingAuditPayloadKey === payloadKey) {
+      focusAuditPanel()
+      return
+    }
     // Preflight still runs so critical findings populate the audit panel.
     // status "block" is advisory highlight only — it must not stop submit.
-    await runAudit({
+    const preflight = await runAudit({
       mode: "submit_preflight",
       review_score: reviewScore,
       review_data: payload,
     })
+    if (preflight.success && preflight.data?.status === "block") {
+      replaceAudit(preflight.data)
+      setBlockingAuditPayloadKey(payloadKey)
+      focusAuditPanel()
+      return
+    }
+    if (preflight.success) {
+      setBlockingAuditPayloadKey(null)
+    }
 
     const { success, error, errorData } = await saveReview({
       review_score: reviewScore,
@@ -292,8 +328,17 @@ export function SubmissionReviewScreen({
       })
     } else {
       const detail = parseReviewErrorDetail(errorData)
+      if (detail?.code === "review_audit_blocked" && detail.audit) {
+        replaceAudit(detail.audit)
+        setBlockingAuditPayloadKey(payloadKey)
+        focusAuditPanel()
+        return
+      }
       if (detail?.code === "review_audit_failed" && detail.override_allowed) {
-        setAuditOverridePrompt(detail.message || "Review audit could not be completed.")
+        setAuditOverridePrompt({
+          kind: "audit_failed",
+          message: detail.message || "Review audit could not be completed.",
+        })
         return
       }
       toast({
@@ -317,6 +362,7 @@ export function SubmissionReviewScreen({
 
     if (result.success) {
       setAuditOverridePrompt(null)
+      setBlockingAuditPayloadKey(null)
       trackUsageEvent("review_submitted", {
         role: "reviewer",
         entityType: "assignment",
@@ -592,14 +638,19 @@ export function SubmissionReviewScreen({
               }
             />
 
-            <ReviewAuditPanel
-              audit={audit}
-              auditing={auditing}
-              updatingDismissal={updatingDismissal}
-              error={auditError}
-              onDismiss={(finding) => handleDismissFinding("dismiss", finding)}
-              onUndismiss={(finding) => handleDismissFinding("undismiss", finding)}
-            />
+            <div ref={auditPanelRef}>
+              <ReviewAuditPanel
+                audit={audit}
+                auditing={auditing}
+                updatingDismissal={updatingDismissal}
+                error={auditError}
+                canSubmitAnyway={canOverrideBlockingAudit}
+                submittingOverride={saving}
+                onSubmitAnyway={handleConfirmAuditOverride}
+                onDismiss={(finding) => handleDismissFinding("dismiss", finding)}
+                onUndismiss={(finding) => handleDismissFinding("undismiss", finding)}
+              />
+            </div>
 
             {/* Sticky Action Bar */}
             <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm mt-8">
@@ -708,7 +759,7 @@ export function SubmissionReviewScreen({
               )}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {auditOverridePrompt ||
+              {auditOverridePrompt?.message ||
                 t(
                   "runtime.components.reviewer.submission-review.text_audit_workflow_failed_override_logged",
                 )}

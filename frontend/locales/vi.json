@@ -3342,6 +3342,8 @@
           "text_audit_workflow_failed_override_logged": "Quy trình kiểm tra chất lượng không hoàn tất. Bạn vẫn có thể gửi, nhưng thao tác bỏ qua sẽ được ghi nhận.",
           "text_submit_anyway": "Vẫn gửi",
           "text_submit_without_completed_audit": "Gửi khi chưa hoàn tất kiểm tra?",
+          "prop_title_submission_blocked": "Kiểm tra chất lượng phát hiện vấn đề cần lưu ý",
+          "prop_description_resolve_the_active_blocking_audit_findings": "Kiểm tra phát hiện các vấn đề có thể ảnh hưởng đến chất lượng phản biện. Hãy khắc phục hoặc xác nhận rằng bạn vẫn muốn gửi.",
           "text_view_full_reviewer_guide_rarr": "Xem hướng dẫn phản biện đầy đủ &rarr;"
         },
         "invitation-dialog": {

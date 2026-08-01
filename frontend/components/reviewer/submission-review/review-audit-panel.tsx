@@ -10,6 +10,9 @@ type ReviewAuditPanelProps = {
   auditing: boolean
   updatingDismissal: boolean
   error: string | null
+  canSubmitAnyway?: boolean
+  submittingOverride?: boolean
+  onSubmitAnyway?: () => void | Promise<void>
   onDismiss: (finding: ReviewAuditFinding) => void | Promise<void>
   onUndismiss: (finding: ReviewAuditFinding) => void | Promise<void>
 }
@@ -19,6 +22,9 @@ export function ReviewAuditPanel({
   auditing,
   updatingDismissal,
   error,
+  canSubmitAnyway = false,
+  submittingOverride = false,
+  onSubmitAnyway,
   onDismiss,
   onUndismiss,
 }: ReviewAuditPanelProps) {
@@ -113,6 +119,18 @@ export function ReviewAuditPanel({
                       "runtime.components.reviewer.submission-review.review-audit-panel.text_critical_attention_body",
                     )}
                   </p>
+                  {canSubmitAnyway && onSubmitAnyway && (
+                    <Button
+                      type="button"
+                      className="mt-3 h-8 bg-rose-700 px-3 text-[11px] font-bold text-white hover:bg-rose-800"
+                      disabled={submittingOverride}
+                      onClick={onSubmitAnyway}
+                    >
+                      {submittingOverride
+                        ? t("runtime.components.reviewer.submission-review.text_submitting")
+                        : t("runtime.components.reviewer.submission-review.text_submit_anyway")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
