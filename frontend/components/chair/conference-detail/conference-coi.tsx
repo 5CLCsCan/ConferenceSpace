@@ -423,11 +423,6 @@ export function ConferenceCOI({ conferenceId, className }: ConferenceCOIProps) {
             </div>
           </div>
 
-          <div className="rounded-md border-x-0 border-t-0 border-b border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            {t(
-              "runtime.components.chair.conference-detail.conference-coi.text_confirm_dismiss_and_reviewer_reassignment_coi",
-            )}
-          </div>
 
           {loading ? (
             <div className="p-6 text-xs text-slate-500">
