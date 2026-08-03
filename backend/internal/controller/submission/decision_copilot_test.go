@@ -243,6 +243,10 @@ func (m *decisionCopilotAssignmentStorageMock) RespondToAssignment(_ context.Con
 	panic("unexpected call")
 }
 
+func (m *decisionCopilotAssignmentStorageMock) ReinviteAssignment(_ context.Context, _ int64) (*dto.Assignment, error) {
+	panic("unexpected call")
+}
+
 type decisionCopilotConferenceStorageMock struct {
 	conference     *dto.ConferenceResponse
 	rebuttalConfig *dto.ConferenceRebuttalConfig

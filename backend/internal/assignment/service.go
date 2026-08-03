@@ -8,6 +8,7 @@ import (
 
 	"github.com/dcao/conferencespace/internal/assignment/coi"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
+	"github.com/dcao/conferencespace/internal/assignment/coi/reciprocal"
 	"github.com/dcao/conferencespace/internal/assignment/matching"
 	"github.com/dcao/conferencespace/internal/assignment/scoring"
 	"github.com/dcao/conferencespace/internal/clients"
@@ -190,6 +191,25 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		return nil, fmt.Errorf("COI detection failed: %w", err)
 	}
 
+	allSubmissions, _, err := s.submissionStorage.List(ctx, &submission.QueryParams{
+		ConferenceID: conferenceID,
+		Limit:        1000,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to load conference submissions for reciprocal COI: %w", err)
+	}
+
+	existingAssignments, err := s.listActiveAssignmentEdges(ctx, conferenceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load existing assignments for reciprocal COI: %w", err)
+	}
+
+	reciprocalTracker := reciprocal.NewTracker(allSubmissions, reviewers, existingAssignments)
+	conflictChecker := &coi.CombinedChecker{
+		Static:     conflicts,
+		Reciprocal: reciprocalTracker,
+	}
+
 	// 4. Convert to scoring types and compute similarity matrix
 	scoringSubmissions := make([]scoring.Submission, len(submissions))
 	for i, sub := range submissions {
@@ -234,7 +254,7 @@ func (s *Service) AutoAssign(ctx context.Context, conferenceID int64, config Aut
 		Submissions: matchingSubmissions,
 		Reviewers:   matchingReviewers,
 		Scores:      scoreMatrix,
-		Conflicts:   conflicts,
+		Conflicts:   conflictChecker,
 		Config: matching.MatchConfig{
 			MinReviewersPerPaper: config.MinReviewersPerPaper,
 			MaxReviewersPerPaper: config.MaxReviewersPerPaper,
@@ -348,4 +368,27 @@ func (s *Service) HasConfirmedAssignments(ctx context.Context, conferenceID int6
 // GetCOIService returns the COI service for external COI checks
 func (s *Service) GetCOIService() *coi.Service {
 	return s.coiService
+}
+
+func (s *Service) listActiveAssignmentEdges(ctx context.Context, conferenceID int64) ([]reciprocal.AssignmentEdge, error) {
+	assignments, _, err := s.assignmentStorage.List(ctx, conferenceID, &assignment.ListParams{Limit: 10000})
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]reciprocal.AssignmentEdge, 0, len(assignments))
+	for _, item := range assignments {
+		if item == nil {
+			continue
+		}
+		switch item.Status {
+		case model.AssignmentStatusSuggested, model.AssignmentStatusDeclined:
+			continue
+		}
+		edges = append(edges, reciprocal.AssignmentEdge{
+			SubmissionID: item.SubmissionID,
+			ReviewerID:   item.ReviewerID,
+		})
+	}
+	return edges, nil
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"math"
 	"sort"
+
+	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
 )
 
 // GreedyMatcher implements a greedy assignment algorithm
@@ -74,6 +76,7 @@ func (m *GreedyMatcher) Match(ctx context.Context, input MatchInput) (*MatchResu
 		reviewerLoad[entry.ReviewerID]++
 		submissionCount[entry.SubmissionID]++
 		totalScore += entry.Score
+		recordAssignment(input.Conflicts, entry.SubmissionID, entry.ReviewerID)
 	}
 
 	// Pass 2: Fallback for papers with ZERO reviewers
@@ -121,6 +124,7 @@ func (m *GreedyMatcher) Match(ctx context.Context, input MatchInput) (*MatchResu
 				reviewerLoad[entry.ReviewerID]++
 				submissionCount[entry.SubmissionID]++
 				totalScore += entry.Score
+				recordAssignment(input.Conflicts, entry.SubmissionID, entry.ReviewerID)
 				fallbackAssignments = append(fallbackAssignments, subID)
 				assigned = true
 				break // Only need 1 reviewer in fallback pass
@@ -159,6 +163,15 @@ func (m *GreedyMatcher) Match(ctx context.Context, input MatchInput) (*MatchResu
 }
 
 // calculateMaxLoad computes the maximum number of papers per reviewer
+func recordAssignment(conflicts commons.ConflictChecker, submissionID, reviewerID int64) {
+	if conflicts == nil {
+		return
+	}
+	if recorder, ok := conflicts.(commons.AssignmentRecorder); ok {
+		recorder.RecordAssignment(submissionID, reviewerID)
+	}
+}
+
 func (m *GreedyMatcher) calculateMaxLoad(input MatchInput) int {
 	// If explicitly configured, use it
 	if input.Config.MaxPapersPerReviewer != nil {

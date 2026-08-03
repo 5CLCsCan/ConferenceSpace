@@ -208,6 +208,14 @@ func (c *Controller) SaveReview(ginCtx *gin.Context, req *dto.ReviewSaveRequest)
 		return nil, handler.NewErrorResponse(http.StatusInternalServerError, "failed to get reviewer info")
 	}
 
+	submission, err := c.submissionStorage.GetByID(ctx, assignment.SubmissionID)
+	if err != nil || submission == nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+	if reviewerIsSubmissionAuthor(submission, reviewer.Email) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "authors cannot review their own submissions")
+	}
+
 	// Block access if assignment is pending (must accept invitation first)
 	if assignment.Status == model.AssignmentStatusPending {
 		return nil, handler.NewDetailedErrorResponse(
@@ -622,6 +630,21 @@ func (c *Controller) ConfirmSuggestions(ginCtx *gin.Context, req *dto.ConfirmSug
 		return nil, fmt.Errorf("failed to get suggestions: %w", err)
 	}
 
+	blocked, err := c.validateSuggestionsForConfirm(ctx, conferenceID, suggestions, req.AssignmentIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate COI for suggestions: %w", err)
+	}
+	if len(blocked) > 0 {
+		return nil, handler.NewDetailedErrorResponse(
+			http.StatusConflict,
+			"cannot confirm assignments with COI conflicts",
+			map[string]interface{}{
+				"code":    "coi_conflict",
+				"blocked": blocked,
+			},
+		)
+	}
+
 	// Confirm suggestions
 	count, err := c.assignmentStorage.ConfirmSuggestions(ctx, conferenceID, req.AssignmentIDs)
 	if err != nil {
@@ -755,61 +778,28 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 		return nil, fmt.Errorf("invalid conference_id")
 	}
 
-	// Check for COI - directly check for self-author conflict
-	var coiWarning *dto.COIWarning
-	var coiReasons []string
-
-	// Get submission to check author
 	submission, err := c.submissionStorage.GetByID(ctx, req.SubmissionID)
-	if err == nil && submission != nil {
-		// Get reviewer to check email
-		reviewer, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID)
-		if err == nil && reviewer != nil {
-			// Check for self-author COI (reviewer is the paper's author)
-			if reviewer.Email == submission.Author {
-				coiReasons = append(coiReasons, "Self-author conflict: reviewer is the paper's author")
-			}
-
-			// Check for co-author COI
-			if submission.Information != nil {
-				for _, coAuthor := range submission.Information.CoAuthors {
-					if reviewer.Email == coAuthor {
-						coiReasons = append(coiReasons, "Co-author conflict: reviewer is a co-author of the paper")
-						break
-					}
-				}
-
-				// Check for declared conflicts
-				for _, declared := range submission.Information.DeclaredConflicts {
-					if reviewer.Email == declared.Email {
-						reason := "Declared conflict"
-						if declared.Reason != "" {
-							reason += ": " + declared.Reason
-						}
-						coiReasons = append(coiReasons, reason)
-						break
-					}
-				}
-			}
-		}
+	if err != nil || submission == nil || submission.ConferenceID != conferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "submission not found")
+	}
+	if _, err := c.reviewerStorage.GetByID(ctx, req.ReviewerID); err != nil {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "reviewer not found")
 	}
 
-	// Also check assignment service's COI cache if available
-	if c.assignmentService != nil {
-		coiSvc := c.assignmentService.GetCOIService()
-		if coiSvc != nil {
-			hasConflict := coiSvc.HasConflict(conferenceID, req.SubmissionID, req.ReviewerID)
-			if hasConflict && len(coiReasons) == 0 {
-				coiReasons = append(coiReasons, "Conflict of interest detected")
-			}
-		}
+	coiReasons, err := c.evaluateAssignmentCOI(ctx, conferenceID, req.SubmissionID, req.ReviewerID, nil)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(coiReasons) > 0 {
-		coiWarning = &dto.COIWarning{
-			HasConflict: true,
-			Reasons:     coiReasons,
-		}
+		return nil, handler.NewDetailedErrorResponse(
+			http.StatusConflict,
+			"cannot assign reviewer due to COI conflict",
+			map[string]interface{}{
+				"code":    "coi_conflict",
+				"reasons": coiReasons,
+			},
+		)
 	}
 
 	// Build metadata for manual suggestion
@@ -817,16 +807,7 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 		"self_author":        "passed",
 		"declared_conflicts": "passed",
 		"relationship":       "passed",
-	}
-
-	// If any COI was detected, mark the relevant checks
-	for _, reason := range coiReasons {
-		if strings.Contains(reason, "Self-author") {
-			coiCheckResults["self_author"] = "conflict_detected"
-		}
-		if strings.Contains(reason, "Co-author") || strings.Contains(reason, "Declared") {
-			coiCheckResults["declared_conflicts"] = "conflict_detected"
-		}
+		"reciprocal":         "passed",
 	}
 
 	// Check if relationship detector is available
@@ -870,7 +851,85 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 
 	return &dto.AddSuggestionResponse{
 		Assignment: created,
-		COIWarning: coiWarning,
+	}, nil
+}
+
+// ReinviteAssignment resets a declined assignment back to pending so the reviewer can be invited again.
+func (c *Controller) ReinviteAssignment(ginCtx *gin.Context) (*dto.ReinviteAssignmentResponse, error) {
+	ctx := ginCtx.Request.Context()
+
+	conferenceIDStr := ginCtx.Param("conference_id")
+	conferenceID, err := strconv.ParseInt(conferenceIDStr, 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid conference_id")
+	}
+
+	assignmentIDStr := ginCtx.Param("assignment_id")
+	assignmentID, err := strconv.ParseInt(assignmentIDStr, 10, 64)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "invalid assignment_id")
+	}
+
+	userEmail, exists := utils.GetEmail(ginCtx)
+	if !exists {
+		return nil, handler.NewErrorResponse(http.StatusUnauthorized, "user not authenticated")
+	}
+	if !utils.IsUserChairOrCoChair(ctx, c.roleStorage, conferenceID, userEmail) {
+		return nil, handler.NewErrorResponse(http.StatusForbidden, "only chair can reinvite reviewers")
+	}
+
+	assignment, err := c.assignmentStorage.GetByID(ctx, assignmentID)
+	if err != nil || assignment == nil || assignment.ConferenceID != conferenceID {
+		return nil, handler.NewErrorResponse(http.StatusNotFound, "assignment not found")
+	}
+	if assignment.Status != model.AssignmentStatusDeclined {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, "only declined assignments can be reinvited")
+	}
+
+	reasons, err := c.evaluateAssignmentCOI(ctx, conferenceID, assignment.SubmissionID, assignment.ReviewerID, nil)
+	if err != nil {
+		return nil, err
+	}
+	if len(reasons) > 0 {
+		return nil, handler.NewDetailedErrorResponse(
+			http.StatusConflict,
+			"cannot reinvite reviewer due to COI conflict",
+			map[string]interface{}{
+				"code":    "coi_conflict",
+				"reasons": reasons,
+			},
+		)
+	}
+
+	updated, err := c.assignmentStorage.ReinviteAssignment(ctx, assignmentID)
+	if err != nil {
+		return nil, handler.NewErrorResponse(http.StatusBadRequest, err.Error())
+	}
+
+	if c.notificationService != nil {
+		confID := conferenceID
+		subID := assignment.SubmissionID
+		revID := assignment.ReviewerID
+		revStorage := c.reviewerStorage
+		subStorage := c.submissionStorage
+		notifSvc := c.notificationService
+		go func() {
+			bgCtx := context.Background()
+			reviewer, revErr := revStorage.GetByID(bgCtx, revID)
+			if revErr != nil {
+				return
+			}
+			submission, subErr := subStorage.GetByID(bgCtx, subID)
+			if subErr != nil {
+				return
+			}
+			_ = notifSvc.NotifyReviewAssigned(bgCtx, reviewer.Email, submission.Title, confID, subID, assignmentID)
+		}()
+	}
+
+	return &dto.ReinviteAssignmentResponse{
+		Assignment: updated,
+		Message:    "Reviewer reinvited successfully",
 	}, nil
 }
 
