@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/dcao/conferencespace/internal/clients/ai_service"
 	"github.com/dcao/conferencespace/internal/clients/gemini"
@@ -23,7 +24,8 @@ type Clients struct {
 func NewClients(cfg *config.Config) (*Clients, error) {
 	clients := &Clients{}
 
-	// Initialize Neo4j client if enabled
+	// Initialize Neo4j client if enabled. A connectivity failure must not prevent
+	// other clients (notably ai-service) from being wired into the API.
 	if cfg.Neo4j.Enabled {
 		neo4jClient, err := neo4j.NewClient(neo4j.Config{
 			URI:      cfg.Neo4j.URI,
@@ -31,10 +33,11 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 			Password: cfg.Neo4j.Password,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to create Neo4j client: %w", err)
+			log.Printf("Warning: failed to create Neo4j client: %v", err)
+			log.Printf("Continuing without graph-based COI detection")
+		} else {
+			clients.Neo4j = neo4jClient
 		}
-
-		clients.Neo4j = neo4jClient
 	}
 
 	// Initialize Gemini client if enabled

@@ -24,10 +24,7 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register chair user: %v", err)
 	}
-	authorToken, author, err := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
-	if err != nil {
-		t.Fatalf("Failed to register author user: %v", err)
-	}
+	_ = chairToken
 
 	// Create conference (default status is "open")
 	conf := &dto.Conference{
@@ -46,10 +43,20 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	testutils.DecodeResponse(t, confResp, &confData)
 	conferenceID := confData.Data.ID
 
+	registerAuthor := func(t *testing.T, label string) (string, string) {
+		t.Helper()
+		token, user, err := ctx.RegisterUniqueUser("cover-"+label, "password123", "Author", label, []string{"AI"})
+		if err != nil {
+			t.Fatalf("Failed to register author %s: %v", label, err)
+		}
+		return token, user.Email
+	}
+
 	t.Run("CreateSubmissionWithPDFCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "pdf")
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper with PDF Cover Letter",
 			Abstract:     "This paper has a PDF cover letter",
 			Domain:       []string{"AI"},
@@ -96,9 +103,10 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("CreateSubmissionWithDOCXCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "docx")
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper with DOCX Cover Letter",
 			Abstract:     "This paper has a DOCX cover letter",
 			Domain:       []string{"AI"},
@@ -130,9 +138,10 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("CreateSubmissionWithTXTCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "txt")
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper with TXT Cover Letter",
 			Abstract:     "This paper has a TXT cover letter",
 			Domain:       []string{"AI"},
@@ -175,9 +184,10 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("CreateSubmissionWithoutCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "none")
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper without Cover Letter",
 			Abstract:     "This paper has no cover letter",
 			Domain:       []string{"AI"},
@@ -203,9 +213,10 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("CreateSubmissionWithInvalidCoverLetterFormat", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "invalid")
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper with Invalid Cover Letter",
 			Abstract:     "This paper has an invalid cover letter format",
 			Domain:       []string{"AI"},
@@ -225,10 +236,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("GetSubmissionCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "download")
 		// Create submission with cover letter
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper for Cover Letter Retrieval",
 			Abstract:     "Testing cover letter download",
 			Domain:       []string{"AI"},
@@ -282,10 +294,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("GetCoverLetterNotFound", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "no-cover-download")
 		// Create submission without cover letter
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper without Cover Letter for Download Test",
 			Abstract:     "Testing cover letter download when none exists",
 			Domain:       []string{"AI"},
@@ -314,10 +327,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("UpdateSubmissionAddCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "add-cover")
 		// Create submission without cover letter
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper to Add Cover Letter",
 			Abstract:     "Testing adding cover letter via update",
 			Domain:       []string{"AI"},
@@ -365,10 +379,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("UpdateSubmissionReplaceCoverLetter", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "replace-cover")
 		// Create submission with cover letter
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper to Replace Cover Letter",
 			Abstract:     "Testing replacing cover letter",
 			Domain:       []string{"AI"},
@@ -433,10 +448,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("CreateRequiresPaperFile", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "published-no-file")
 		// Try to create submission with status="published" but no file (should fail)
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Published Paper - No File",
 			Abstract:     "Testing that creating published submission requires paper file",
 			Domain:       []string{"AI"},
@@ -465,10 +481,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("UpdateWithoutPaperFileIsAllowed", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "update-meta")
 		// Create submission WITH paper file using the regular Create (which includes a default valid PDF)
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper With File",
 			Abstract:     "Testing update without changing file",
 			Domain:       []string{"AI"},
@@ -536,10 +553,11 @@ func TestSubmissionCoverLetter(t *testing.T) {
 	})
 
 	t.Run("GetSubmissionIncludesCoverLetterMetadata", func(t *testing.T) {
+		authorToken, authorEmail := registerAuthor(t, "get-meta")
 		// Create submission with cover letter
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       authorEmail,
 			Title:        "Paper to Test GET Includes Cover Letter",
 			Abstract:     "Testing that GET returns cover letter metadata",
 			Domain:       []string{"AI"},

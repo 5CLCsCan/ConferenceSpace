@@ -88,27 +88,38 @@ func TestSubmissionTracks(t *testing.T) {
 		{"ML Paper 2", "Machine Learning"},
 	}
 
-	for _, sub := range submissions {
+	for i, sub := range submissions {
+		trackAuthorToken, trackAuthor, err := ctx.RegisterUniqueUser(
+			testutils.UniqueString("track-author"),
+			"password123",
+			"Track",
+			"Author",
+			[]string{"AI"},
+		)
+		if err != nil {
+			t.Fatalf("Failed to register author for %s: %v", sub.title, err)
+		}
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       trackAuthor.Email,
 			Title:        sub.title,
 			Abstract:     "Test abstract",
 			Domain:       []string{"AI"},
 			Track:        sub.track,
 			Status:       dto.StatusDraft,
 		}
-		_, err := submissionClient.Create(conferenceID, submission, authorToken)
+		_, err = submissionClient.Create(conferenceID, submission, trackAuthorToken)
 		if err != nil {
 			t.Fatalf("Failed to create submission %s: %v", sub.title, err)
 		}
+		_ = i
 	}
 
 	t.Run("filter submissions by track - Computer Vision", func(t *testing.T) {
 		// Filter by Computer Vision track
 		resp, err := submissionClient.List(conferenceID, &dto.SubmissionListRequest{
 			Track: "Computer Vision",
-		}, authorToken)
+		}, chairToken)
 		if err != nil {
 			t.Fatalf("Failed to list submissions: %v", err)
 		}
@@ -139,7 +150,7 @@ func TestSubmissionTracks(t *testing.T) {
 	t.Run("filter submissions by track - NLP", func(t *testing.T) {
 		resp, err := submissionClient.List(conferenceID, &dto.SubmissionListRequest{
 			Track: "Natural Language Processing",
-		}, authorToken)
+		}, chairToken)
 		if err != nil {
 			t.Fatalf("Failed to list submissions: %v", err)
 		}
@@ -165,7 +176,7 @@ func TestSubmissionTracks(t *testing.T) {
 	})
 
 	t.Run("list all submissions without track filter", func(t *testing.T) {
-		resp, err := submissionClient.List(conferenceID, &dto.SubmissionListRequest{}, authorToken)
+		resp, err := submissionClient.List(conferenceID, &dto.SubmissionListRequest{}, chairToken)
 		if err != nil {
 			t.Fatalf("Failed to list submissions: %v", err)
 		}

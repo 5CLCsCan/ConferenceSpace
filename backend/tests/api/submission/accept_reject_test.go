@@ -18,8 +18,14 @@ func setupAcceptRejectScenario(t *testing.T, ctx *testutils.TestContext) (
 ) {
 	t.Helper()
 
-	chairToken, chair, _ := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
-	authorToken, author, _ := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair", "password123", "Chair", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair: %v", err)
+	}
+	authorToken, author, err := ctx.RegisterUniqueUser("author", "password123", "Author", "User", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author: %v", err)
+	}
 
 	conferenceClient := conferenceTestClient.NewClient(ctx)
 	conf := &dto.Conference{
