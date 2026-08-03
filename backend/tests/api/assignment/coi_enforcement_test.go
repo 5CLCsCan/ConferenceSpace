@@ -276,7 +276,7 @@ func TestConfirmSuggestionsBlocksReciprocalCOI(t *testing.T) {
 	testutils.AssertStatusCode(t, addAliceOnBob, http.StatusConflict)
 }
 
-func TestReinviteDeclinedAssignment(t *testing.T) {
+func TestReinviteDeclinedAssignmentViaAddSuggestion(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
 	if err := ctx.WaitForServer(); err != nil {
@@ -348,25 +348,66 @@ func TestReinviteDeclinedAssignment(t *testing.T) {
 	}
 	testutils.AssertStatusCode(t, declineResp, http.StatusOK)
 
-	reinviteResp, err := ctx.MakeRequest(
+	addAgainResp, err := ctx.MakeRequest(
 		"POST",
-		fmt.Sprintf("/api/v1/conferences/%d/assignments/%d/reinvite", conferenceID, assignmentID),
-		nil,
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions", conferenceID),
+		&dto.AddSuggestionRequest{SubmissionID: submissionID, ReviewerID: reviewers[0].recordID},
 		chairToken,
 	)
 	if err != nil {
-		t.Fatalf("reinvite assignment: %v", err)
+		t.Fatalf("re-add suggestion after decline: %v", err)
 	}
-	testutils.AssertStatusCode(t, reinviteResp, http.StatusOK)
+	testutils.AssertStatusCode(t, addAgainResp, http.StatusCreated)
 
-	var reinviteData struct {
-		Data *dto.ReinviteAssignmentResponse `json:"data"`
+	var addAgainData struct {
+		Data *dto.AddSuggestionResponse `json:"data"`
 	}
-	testutils.DecodeResponse(t, reinviteResp, &reinviteData)
-	if reinviteData.Data == nil || reinviteData.Data.Assignment == nil {
-		t.Fatal("expected reinvite response assignment")
+	testutils.DecodeResponse(t, addAgainResp, &addAgainData)
+	if addAgainData.Data == nil || addAgainData.Data.Assignment == nil {
+		t.Fatal("expected assignment in re-add suggestion response")
 	}
-	if reinviteData.Data.Assignment.Status != "pending" {
-		t.Fatalf("expected pending status after reinvite, got %s", reinviteData.Data.Assignment.Status)
+	if addAgainData.Data.Assignment.Status != "suggested" {
+		t.Fatalf("expected suggested status after re-add, got %s", addAgainData.Data.Assignment.Status)
+	}
+	if addAgainData.Data.Assignment.ID != assignmentID {
+		t.Fatalf("expected same assignment id %d, got %d", assignmentID, addAgainData.Data.Assignment.ID)
+	}
+
+	confirmAgainResp, err := ctx.MakeRequest(
+		"POST",
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID),
+		&dto.ConfirmSuggestionsRequest{AssignmentIDs: []int64{assignmentID}},
+		chairToken,
+	)
+	if err != nil {
+		t.Fatalf("confirm re-added suggestion: %v", err)
+	}
+	testutils.AssertStatusCode(t, confirmAgainResp, http.StatusOK)
+
+	papersAfterResp, err := ctx.MakeRequest(
+		"GET",
+		fmt.Sprintf("/api/v1/reviewer/%s/conferences/%d/papers", reviewers[0].email, conferenceID),
+		nil,
+		reviewers[0].token,
+	)
+	if err != nil {
+		t.Fatalf("list reviewer papers after reinvite: %v", err)
+	}
+	testutils.AssertStatusCode(t, papersAfterResp, http.StatusOK)
+
+	var papersAfterData struct {
+		Data struct {
+			Papers []struct {
+				AssignmentID int64  `json:"assignment_id"`
+				Status       string `json:"status"`
+			} `json:"papers"`
+		} `json:"data"`
+	}
+	testutils.DecodeResponse(t, papersAfterResp, &papersAfterData)
+	if len(papersAfterData.Data.Papers) == 0 {
+		t.Fatal("expected pending assignment for reviewer after reinvite flow")
+	}
+	if papersAfterData.Data.Papers[0].Status != "pending" {
+		t.Fatalf("expected pending status after confirm, got %s", papersAfterData.Data.Papers[0].Status)
 	}
 }

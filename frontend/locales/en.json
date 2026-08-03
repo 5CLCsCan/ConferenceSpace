@@ -2109,8 +2109,11 @@
             "text_understood": "Understood",
             "text_confirming": "Confirming...",
             "text_removing": "Removing...",
-            "text_remove_success": "Reviewer removed from this submission.",
-            "text_remove_failed": "Failed to remove reviewer."
+              "text_remove_success": "Reviewer removed from this submission.",
+            "text_remove_failed": "Failed to remove reviewer.",
+            "text_reinvite": "Re-invite",
+            "text_reinviting": "Re-inviting...",
+            "text_reinvite_failed": "Failed to re-invite reviewer."
           },
           "conference-cfp": {
             "prop_description_docx_format": ".docx format",
@@ -2560,7 +2563,13 @@
               "text_confirm_invites_success_title": "Invitations confirmed",
               "text_confirm_invites_success_description": "Reviewers have been notified and can now see invitations.",
               "text_confirm_invites_failed_title": "Failed to confirm invitations",
-              "text_confirm_invites_failed_description": "Could not confirm invitations for this paper."
+              "text_confirm_invites_failed_description": "Could not confirm invitations for this paper.",
+              "text_reinvite": "Re-invite",
+              "text_reinviting": "Re-inviting...",
+              "text_reinvite_success_title": "Reviewer re-invited",
+              "text_reinvite_success_description": "The reviewer has been notified and can respond again.",
+              "text_reinvite_failed_title": "Re-invite failed",
+              "text_reinvite_failed_description": "Could not re-invite this reviewer."
             },
             "components": {
               "prop_label_accept": "Accept",

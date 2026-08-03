@@ -305,6 +305,7 @@ function ReviewerAssignmentsPanel({
   const [inviteError, setInviteError] = useState<string | null>(null)
   const [availableReviewers, setAvailableReviewers] = useState<Reviewer[]>([])
   const [invitingReviewerId, setInvitingReviewerId] = useState<number | null>(null)
+  const [reinvitingReviewerId, setReinvitingReviewerId] = useState<number | null>(null)
   const [confirmingSuggestionId, setConfirmingSuggestionId] = useState<number | null>(null)
   const [deletingSuggestionId, setDeletingSuggestionId] = useState<number | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -423,12 +424,14 @@ function ReviewerAssignmentsPanel({
         )
         setAvailableReviewers([])
       } else {
-        const assignedReviewerIds = new Set(
-          assignedReviewers.map((reviewer) => reviewer.reviewerId),
+        const blockedReviewerIds = new Set(
+          assignedReviewers
+            .filter((reviewer) => reviewer.status !== "declined")
+            .map((reviewer) => reviewer.reviewerId),
         )
         setAvailableReviewers(
           response.data.reviewers.filter(
-            (reviewer) => reviewer.id && !assignedReviewerIds.has(reviewer.id),
+            (reviewer) => reviewer.id && !blockedReviewerIds.has(reviewer.id),
           ),
         )
       }
@@ -484,6 +487,56 @@ function ReviewerAssignmentsPanel({
 
     setInviteOpen(false)
     setInvitingReviewerId(null)
+  }
+
+  const handleReinviteReviewer = async (reviewerId: number, assignmentId: number) => {
+    setReinvitingReviewerId(reviewerId)
+
+    const addResponse = await addSuggestion(conferenceId, Number(submissionId), reviewerId)
+    if (addResponse.error || !addResponse.data?.assignment) {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_failed_title",
+        ),
+        description:
+          addResponse.error ||
+          t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_failed_description",
+          ),
+        variant: "destructive",
+      })
+      setReinvitingReviewerId(null)
+      return
+    }
+
+    const confirmAssignmentId = addResponse.data.assignment.id || assignmentId
+    const confirmResponse = await confirmSuggestions(conferenceId, [confirmAssignmentId])
+    if (confirmResponse.error || !confirmResponse.data) {
+      toast({
+        title: t(
+          "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_failed_title",
+        ),
+        description:
+          confirmResponse.error ||
+          t(
+            "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_failed_description",
+          ),
+        variant: "destructive",
+      })
+      setReinvitingReviewerId(null)
+      return
+    }
+
+    toast({
+      title: t(
+        "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_success_title",
+      ),
+      description: t(
+        "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite_success_description",
+      ),
+    })
+    await loadAssignments()
+    setReinvitingReviewerId(null)
   }
 
   const handleConfirmSingle = async (assignmentId: number) => {
@@ -777,9 +830,36 @@ function ReviewerAssignmentsPanel({
                         </Button>
                       </div>
                     ) : (
-                      <AssignmentStatusBadge
-                        status={reviewer.status as ConfirmedAssignmentStatus}
-                      />
+                      <>
+                        <AssignmentStatusBadge
+                          status={reviewer.status as ConfirmedAssignmentStatus}
+                        />
+                        {reviewer.status === "declined" && reviewer.assignmentId != null && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={reinvitingReviewerId === reviewer.reviewerId}
+                            onClick={() =>
+                              void handleReinviteReviewer(
+                                reviewer.reviewerId,
+                                reviewer.assignmentId!,
+                              )
+                            }
+                            className="h-7 px-2.5 text-[9px] font-bold uppercase tracking-wider text-[#1B3C53] hover:bg-slate-100"
+                          >
+                            <span className="material-symbols-outlined mr-1" style={{ fontSize: "14px" }}>
+                              replay
+                            </span>
+                            {reinvitingReviewerId === reviewer.reviewerId
+                              ? t(
+                                  "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinviting",
+                                )
+                              : t(
+                                  "runtime.components.chair.conference-detail.submission-detail.chair-reviews-tab.text_reinvite",
+                                )}
+                          </Button>
+                        )}
+                      </>
                     )}
                     <ReviewProgressBadge status={reviewer.reviewStatus} />
                   </div>

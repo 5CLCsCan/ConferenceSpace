@@ -835,6 +835,29 @@ func (c *Controller) AddSuggestion(ginCtx *gin.Context, req *dto.AddSuggestionRe
 		return nil, fmt.Errorf("failed to marshal suggestion metadata: %w", err)
 	}
 
+	existing, _, err := c.assignmentStorage.List(ctx, conferenceID, &assignmentStorage.ListParams{
+		SubmissionID: req.SubmissionID,
+		ReviewerID:   req.ReviewerID,
+		Limit:        1,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to check existing assignment: %w", err)
+	}
+	if len(existing) > 0 {
+		switch existing[0].Status {
+		case model.AssignmentStatusDeclined:
+			updated, resetErr := c.assignmentStorage.ResetDeclinedToSuggested(ctx, existing[0].ID, metaJSON)
+			if resetErr != nil {
+				return nil, handler.NewErrorResponse(http.StatusBadRequest, resetErr.Error())
+			}
+			return &dto.AddSuggestionResponse{Assignment: updated}, nil
+		case model.AssignmentStatusSuggested:
+			return &dto.AddSuggestionResponse{Assignment: existing[0]}, nil
+		default:
+			return nil, handler.NewErrorResponse(http.StatusConflict, "reviewer is already assigned to this submission")
+		}
+	}
+
 	// Create assignment with suggested status
 	assignmentDTO := &dto.Assignment{
 		SubmissionID: req.SubmissionID,

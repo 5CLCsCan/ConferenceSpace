@@ -39,6 +39,7 @@ type StorageInterface interface {
 	GetInvitationData(ctx context.Context, assignmentID int64) (*dto.InvitationResponse, error)
 	RespondToAssignment(ctx context.Context, assignmentID int64, status string, declineCategory *string, declineReason *string) error
 	ReinviteAssignment(ctx context.Context, assignmentID int64) (*dto.Assignment, error)
+	ResetDeclinedToSuggested(ctx context.Context, assignmentID int64, metadata json.RawMessage) (*dto.Assignment, error)
 }
 
 type ListParams struct {
@@ -1120,21 +1121,25 @@ func (s *Storage) RespondToAssignment(ctx context.Context, assignmentID int64, s
 	return nil
 }
 
-// ReinviteAssignment resets a declined assignment to pending and clears decline metadata.
-func (s *Storage) ReinviteAssignment(ctx context.Context, assignmentID int64) (*dto.Assignment, error) {
-	query, args, err := s.qb.
+func (s *Storage) resetDeclinedAssignment(ctx context.Context, assignmentID int64, status string, metadata json.RawMessage) (*dto.Assignment, error) {
+	builder := s.qb.
 		Update(model.AssignmentTableName).
-		Set(model.ColStatus, model.AssignmentStatusPending).
+		Set(model.ColStatus, status).
 		Set("decline_category", nil).
 		Set("decline_reason", nil).
 		Set("responded_at", nil).
 		Set(model.ColUpdatedAt, sq.Expr("NOW()")).
 		Where(sq.Eq{"id": assignmentID}).
-		Where(sq.Eq{model.ColStatus: model.AssignmentStatusDeclined}).
+		Where(sq.Eq{model.ColStatus: model.AssignmentStatusDeclined})
+	if metadata != nil {
+		builder = builder.Set("metadata", metadata)
+	}
+
+	query, args, err := builder.
 		Suffix("RETURNING id, conference_id, submission_id, reviewer_id, score, status, assigned_at, completed_at, metadata, created_at, updated_at").
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build reinvite query: %w", err)
+		return nil, fmt.Errorf("failed to build reset declined assignment query: %w", err)
 	}
 
 	var result model.Assignment
@@ -1155,8 +1160,18 @@ func (s *Storage) ReinviteAssignment(ctx context.Context, assignmentID int64) (*
 		return nil, fmt.Errorf("assignment not found or not declined")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to reinvite assignment: %w", err)
+		return nil, fmt.Errorf("failed to reset declined assignment: %w", err)
 	}
 
 	return result.ToDTO(), nil
+}
+
+// ReinviteAssignment resets a declined assignment to pending and clears decline metadata.
+func (s *Storage) ReinviteAssignment(ctx context.Context, assignmentID int64) (*dto.Assignment, error) {
+	return s.resetDeclinedAssignment(ctx, assignmentID, model.AssignmentStatusPending, nil)
+}
+
+// ResetDeclinedToSuggested reactivates a declined assignment as a new manual suggestion.
+func (s *Storage) ResetDeclinedToSuggested(ctx context.Context, assignmentID int64, metadata json.RawMessage) (*dto.Assignment, error) {
+	return s.resetDeclinedAssignment(ctx, assignmentID, model.AssignmentStatusSuggested, metadata)
 }
