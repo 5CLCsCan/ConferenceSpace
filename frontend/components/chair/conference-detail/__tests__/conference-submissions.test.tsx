@@ -142,9 +142,14 @@ describe("ConferenceSubmissions", () => {
     expect(rowScope.getByText("5")).toBeInTheDocument()
     expect(rowScope.getByText(/Accepted/i)).toBeInTheDocument()
     expect(rowScope.getByText("3")).toBeInTheDocument()
+    const declinedRow = rowScope.getByText(/^Declined$/i).parentElement
+    expect(declinedRow).not.toBeNull()
+    expect(within(declinedRow as HTMLElement).getByText("1")).toBeInTheDocument()
     expect(rowScope.getByText(/Completed/i)).toBeInTheDocument()
     expect(rowScope.getByText("2")).toBeInTheDocument()
     expect(rowScope.getByText(/Incomplete/i)).toBeInTheDocument()
-    expect(rowScope.getByText("1")).toBeInTheDocument()
+    const incompleteRow = rowScope.getByText(/^Incomplete$/i).parentElement
+    expect(incompleteRow).not.toBeNull()
+    expect(within(incompleteRow as HTMLElement).getByText("1")).toBeInTheDocument()
   })
 })
