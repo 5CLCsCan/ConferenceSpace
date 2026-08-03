@@ -398,8 +398,8 @@ func TestReinviteDeclinedAssignmentViaAddSuggestion(t *testing.T) {
 	var papersAfterData struct {
 		Data struct {
 			Papers []struct {
-				AssignmentID int64  `json:"assignment_id"`
-				Status       string `json:"status"`
+				AssignmentID     int64  `json:"assignment_id"`
+				AssignmentStatus string `json:"assignment_status"`
 			} `json:"papers"`
 		} `json:"data"`
 	}
@@ -407,7 +407,7 @@ func TestReinviteDeclinedAssignmentViaAddSuggestion(t *testing.T) {
 	if len(papersAfterData.Data.Papers) == 0 {
 		t.Fatal("expected pending assignment for reviewer after reinvite flow")
 	}
-	if papersAfterData.Data.Papers[0].Status != "pending" {
-		t.Fatalf("expected pending status after confirm, got %s", papersAfterData.Data.Papers[0].Status)
+	if papersAfterData.Data.Papers[0].AssignmentStatus != "pending" {
+		t.Fatalf("expected pending assignment status after confirm, got %s", papersAfterData.Data.Papers[0].AssignmentStatus)
 	}
 }

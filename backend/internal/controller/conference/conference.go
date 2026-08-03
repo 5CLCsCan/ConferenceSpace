@@ -429,11 +429,6 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		return nil, handler.NewErrorResponse(http.StatusForbidden, "only the chair or co-chairs can update this conference")
 	}
 
-	// Preserve the main chair if not being explicitly changed
-	if req.Conference.Chair == "" {
-		req.Conference.Chair = existing.Chair
-	}
-
 	// Sync PC member roles if PCMembers is provided in the update request
 	if req.Conference.PCMembers != nil {
 		currentPC, err := c.roleStorage.GetEmailsByRole(ctx, req.ConferenceID, model.RolePC)
@@ -510,6 +505,8 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 		}
 	}
 
+	mergeConferenceForUpdate(existing, req.Conference)
+
 	result, err := c.conferenceStorage.Update(ctx, req.ConferenceID, req.Conference)
 	if err != nil {
 		return nil, err
@@ -517,6 +514,38 @@ func (c *Controller) Update(ginCtx *gin.Context, req *dto.ConferenceUpdateReques
 	c.enrichWithPCMembers(ctx, result)
 	c.enrichWithReviewers(ctx, result)
 	return result, nil
+}
+
+// mergeConferenceForUpdate fills omitted/zero fields from the existing conference so
+// partial PUT bodies (e.g. only pc_members or co_chairs) do not wipe metadata.
+func mergeConferenceForUpdate(existing *dto.ConferenceResponse, update *dto.Conference) {
+	if update.Title == "" {
+		update.Title = existing.Title
+	}
+	if update.Acronym == "" {
+		update.Acronym = existing.Acronym
+	}
+	if update.Description == "" {
+		update.Description = existing.Description
+	}
+	if update.Chair == "" {
+		update.Chair = existing.Chair
+	}
+	if update.Venue == "" {
+		update.Venue = existing.Venue
+	}
+	if update.CoChairs == nil {
+		update.CoChairs = existing.CoChairs
+	}
+	if update.Domain == nil {
+		update.Domain = existing.Domain
+	}
+	if update.Tracks == nil {
+		update.Tracks = existing.Tracks
+	}
+	if update.Configurations == nil {
+		update.Configurations = existing.Configurations
+	}
 }
 
 // Delete godoc

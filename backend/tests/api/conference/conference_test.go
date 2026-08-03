@@ -395,6 +395,65 @@ func TestUpdateConference(t *testing.T) {
 	}
 }
 
+func TestUpdateConferencePartialPreservesMetadata(t *testing.T) {
+	ctx := testutils.NewTestContext(t)
+	defer ctx.Close()
+
+	client := NewClient(ctx)
+
+	chairToken, chair, err := ctx.RegisterUniqueUser("chair", "password123", "Conference", "Chair", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register chair user: %v", err)
+	}
+
+	confReq := &dto.Conference{
+		Title:       "Committee Test Conference",
+		Acronym:     testutils.UniqueString("CTC2025"),
+		Description: "Original conference description",
+		Chair:       chair.Email,
+		Domain:      []string{"AI"},
+		Tracks:      []string{"Main"},
+	}
+	createResp, err := client.Create(confReq, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to create conference: %v", err)
+	}
+	var createData struct {
+		Data *dto.ConferenceResponse `json:"data"`
+	}
+	testutils.DecodeResponse(t, createResp, &createData)
+	conferenceID := createData.Data.ID
+
+	// Simulate committee tab removing a PC member: only pc_members in the body.
+	resp, err := client.Update(conferenceID, &dto.Conference{
+		PCMembers: []string{},
+	}, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to make partial update request: %v", err)
+	}
+	testutils.AssertStatusCode(t, resp, http.StatusOK)
+
+	got, err := client.GetSuccess(conferenceID, chairToken)
+	if err != nil {
+		t.Fatalf("Failed to get conference after partial update: %v", err)
+	}
+	if got.Title != confReq.Title {
+		t.Errorf("title = %q, want %q", got.Title, confReq.Title)
+	}
+	if got.Acronym != confReq.Acronym {
+		t.Errorf("acronym = %q, want %q", got.Acronym, confReq.Acronym)
+	}
+	if got.Description != confReq.Description {
+		t.Errorf("description = %q, want %q", got.Description, confReq.Description)
+	}
+	if len(got.Domain) != 1 || got.Domain[0] != "AI" {
+		t.Errorf("domain = %v, want [AI]", got.Domain)
+	}
+	if len(got.Tracks) != 1 || got.Tracks[0] != "Main" {
+		t.Errorf("tracks = %v, want [Main]", got.Tracks)
+	}
+}
+
 func TestDeleteConference(t *testing.T) {
 	ctx := testutils.NewTestContext(t)
 	defer ctx.Close()
