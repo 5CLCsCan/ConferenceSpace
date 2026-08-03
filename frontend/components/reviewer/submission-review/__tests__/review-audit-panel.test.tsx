@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 import { ReviewAuditPanel } from "../review-audit-panel"
 
 describe("ReviewAuditPanel", () => {
-  it("renders priority signals, suggestions, and dismissed findings with the right actions", () => {
+  it("escalates block status and critical findings above suggestions", () => {
     const onDismiss = vi.fn()
     const onUndismiss = vi.fn()
 
@@ -52,16 +52,40 @@ describe("ReviewAuditPanel", () => {
       />,
     )
 
-    expect(screen.getByText("Priority findings")).toBeInTheDocument()
+    expect(screen.getByText("Critical")).toBeInTheDocument()
+    expect(screen.getByText("Critical attention required")).toBeInTheDocument()
+    expect(screen.getByText("Critical findings")).toBeInTheDocument()
     expect(screen.getByText("Suggestions")).toBeInTheDocument()
     expect(screen.getByText("Dismissed findings")).toBeInTheDocument()
-    expect(screen.getByText("Priority signals: 1")).toBeInTheDocument()
+    expect(screen.getByText("Critical signals: 1")).toBeInTheDocument()
     expect(screen.getByText("Suggestions: 1")).toBeInTheDocument()
+    expect(screen.getByText("critical")).toBeInTheDocument()
+    expect(screen.getAllByText("suggestion")).toHaveLength(2)
 
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }))
     fireEvent.click(screen.getByRole("button", { name: "Reopen" }))
 
     expect(onDismiss).toHaveBeenCalledTimes(1)
     expect(onUndismiss).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows a clear status badge when audit passes", () => {
+    render(
+      <ReviewAuditPanel
+        audit={{
+          status: "pass",
+          active_findings: [],
+          dismissed_findings: [],
+        }}
+        auditing={false}
+        updatingDismissal={false}
+        error={null}
+        onDismiss={vi.fn()}
+        onUndismiss={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText("Clear")).toBeInTheDocument()
+    expect(screen.queryByText("Critical attention required")).not.toBeInTheDocument()
   })
 })

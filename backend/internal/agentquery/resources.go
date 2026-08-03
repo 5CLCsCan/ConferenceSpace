@@ -252,7 +252,14 @@ func buildSubmissionsResource() *resourceDefinition {
 			return sqlFragment{
 				sql: `(EXISTS (SELECT 1 FROM conference_user_roles cur WHERE cur.conference_id = s.conference_id AND cur.user_email = ? AND cur.status = ? AND cur.role IN (?, ?))
 					OR s.author = ?
-					OR EXISTS (SELECT 1 FROM paper_assignments a_actor WHERE a_actor.submission_id = s.submission_id AND a_actor.reviewer_email = ?))`,
+					OR EXISTS (
+						SELECT 1
+						FROM paper_assignments a_actor
+						JOIN conference_reviewers cr_actor ON cr_actor.id = a_actor.reviewer_id
+						JOIN users u_actor ON u_actor.user_id = cr_actor.user_id
+						WHERE a_actor.submission_id = s.submission_id
+						  AND u_actor.email = ?
+					))`,
 				args: []interface{}{actor.UserEmail, model.RoleStatusActive, model.RoleChair, model.RoleCoChair, actor.UserEmail, actor.UserEmail},
 			}
 		},

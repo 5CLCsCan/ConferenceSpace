@@ -20,11 +20,12 @@ vi.mock("@/lib/api/suggestions", () => ({
 }))
 
 vi.mock("../submission-review/review-header", () => ({
-  PaperHeader: ({ submission, actions }: any) => (
+  PaperHeader: ({ submission, actions, showDownloadPdf = true }: any) => (
     <div>
       <h1>{submission.title}</h1>
       <p>Track {submission.track}</p>
       <div>{actions}</div>
+      {showDownloadPdf && <button>Download PDF</button>}
     </div>
   ),
 }))
@@ -119,6 +120,7 @@ describe("PaperInvitation", () => {
     ).toBeInTheDocument()
     expect(screen.getByText("Accept")).toBeInTheDocument()
     expect(screen.getByText("Deny")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Download PDF" })).not.toBeInTheDocument()
   })
 
   it("does not mount AI analysis controls when invitation IDs are missing", async () => {

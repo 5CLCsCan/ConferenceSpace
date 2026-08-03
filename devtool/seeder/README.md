@@ -10,18 +10,6 @@ Python scripts that populate a running ConferenceSpace instance with demo data.
 
 ## Seeders
 
-### `seed_showcase_overview.py` - Clip 1 Flagship Overview
-
-Creates a dense, story-driven dataset for the first showcase clip: one flagship conference plus twelve supporting conferences, full CFP/deadlines/tracks/committee, meaningful submissions, accepted reviewers, assignments, reviews, rebuttal, discussion, final decision, and camera-ready upload where supported by the API.
-
-```bash
-python3 devtool/seeder/seed_showcase_overview.py --base-url http://localhost:8080
-```
-
-All accounts use password `Demo@123`. Each run creates dedicated `showcase_*_{timestamp}@demo.com` accounts, a `TAIH{timestamp}` flagship conference, and supporting conferences for list/dashboard/schedule density.
-
----
-
 ### `seed_two_conferences.py` — Two-Conference Demo (Recommended)
 
 Creates two conferences for live demos. Each run generates **fresh data** with a unique timestamp suffix on all emails and acronyms — no collisions with previous runs.
@@ -133,7 +121,6 @@ python3 devtool/seeder/seed_rebuttal_demo.py --base-url http://localhost:8080 --
 
 | Script                              | What it demos                | Fresh each run? | Idempotent? |
 |-------------------------------------|------------------------------|-----------------|-------------|
-| `seed_showcase_overview.py`         | Clip 1 flagship overview     | Yes             | No          |
 | `seed_two_conferences.py`           | Suggestion + Auto-assign     | Yes             | —           |
 | `seed_demo.py`                      | All AI features              | No              | No          |
 | `seed_test_data.py`                 | Suggestions workflow         | No              | No          |

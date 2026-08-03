@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { ReviewerInvitations } from "@/components/reviewer/reviewer-invitations"
+import { useTranslation } from "@/lib/i18n/translation-context"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useReviewerDashboard } from "@/hooks/use-reviewer-dashboard"
 import { useAuth } from "@/lib/auth-context"
@@ -12,6 +13,7 @@ import { getSidebarMenuItems } from "@/lib/navigation"
 const PAGE_SIZE = 5
 
 export default function ReviewerInvitationsPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const { unreadCount } = useNotifications({ limit: 1 })
   const reviewerEmail = user?.email || ""
@@ -19,7 +21,7 @@ export default function ReviewerInvitationsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState("")
 
-  const { dashboard, isLoading, isValidating, refresh } = useReviewerDashboard(reviewerEmail, {
+  const { dashboard, isLoading, isValidating, error, refresh } = useReviewerDashboard(reviewerEmail, {
     invitationStatus: statusFilter,
     invitationLimit: PAGE_SIZE,
     invitationOffset: (currentPage - 1) * PAGE_SIZE,
@@ -90,6 +92,11 @@ export default function ReviewerInvitationsPage() {
         <div className="flex-1 overflow-y-auto py-8 px-12 w-full">
           {isLoading && !dashboard ? (
             <InvitationsSkeleton />
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-2">
+              <p className="text-sm font-bold text-red-600">{t("dashboard.reviewer.dashboard.loadError")}</p>
+              <p className="text-xs text-slate-500">{error}</p>
+            </div>
           ) : (
             <ReviewerInvitations
               invitations={invitations}

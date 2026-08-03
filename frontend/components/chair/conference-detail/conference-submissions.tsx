@@ -230,7 +230,7 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
       })
 
       if (response.error || !response.data) {
-        setError(response.error || "Failed to load submissions")
+        setError(response.error || t("common.errors.failedToLoadSubmissions"))
         setRows([])
         setTotalEntries(0)
         setLoading(false)

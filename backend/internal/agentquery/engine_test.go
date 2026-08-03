@@ -1,6 +1,7 @@
 package agentquery
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -154,11 +155,45 @@ func TestPlanQueryScopesSubmissionQueriesToCurrentActor(t *testing.T) {
 	if !strings.Contains(plan.SQL, "paper_assignments a_actor") {
 		t.Fatalf("expected reviewer assignment scope in SQL, got %s", plan.SQL)
 	}
+	if strings.Contains(plan.SQL, "a_actor.reviewer_email") {
+		t.Fatalf("submissions query should not reference nonexistent a_actor.reviewer_email column, got %s", plan.SQL)
+	}
 	if !strings.Contains(plan.SQL, "conference_user_roles cur") {
 		t.Fatalf("expected chair/co-chair role scope in SQL, got %s", plan.SQL)
 	}
 	if got := len(plan.Args); got < 4 {
 		t.Fatalf("expected actor scoping/filter args, got %d", got)
+	}
+}
+
+func TestFilterNodeUnmarshalsFieldOperatorShorthandAsAndLeaves(t *testing.T) {
+	t.Parallel()
+
+	var request Request
+	err := json.Unmarshal([]byte(`{
+		"op": "query",
+		"resource": "submissions",
+		"select": [{"field": "title"}],
+		"filter": {
+			"conference.acronym": {"eq": "CB406671"},
+			"title": {"ilike": "%Grounded Chatbot Systems%"}
+		}
+	}`), &request)
+	if err != nil {
+		t.Fatalf("unmarshal request: %v", err)
+	}
+
+	if request.Filter == nil {
+		t.Fatalf("expected filter")
+	}
+	if len(request.Filter.And) != 2 {
+		t.Fatalf("expected shorthand filter to become two AND leaves, got %#v", request.Filter)
+	}
+
+	engine := NewEngine(nil)
+	_, err = engine.planQuery(Actor{UserID: 7, UserEmail: "author@example.com"}, &request)
+	if err != nil {
+		t.Fatalf("planQuery should accept shorthand filter: %v", err)
 	}
 }
 

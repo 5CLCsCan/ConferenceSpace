@@ -131,6 +131,11 @@
   color: #ffffff;
 }
 
+.landing-nav-link--active {
+  color: #ffffff;
+  font-weight: 700;
+}
+
 .landing-nav-actions {
   display: flex;
   align-items: center;
@@ -191,6 +196,10 @@
   height: calc(34px * var(--ui-scale));
   padding: 0 calc(16px * var(--ui-scale));
   white-space: nowrap;
+}
+
+.landing-btn .material-symbols-outlined {
+  font-size: calc(15px * var(--ui-scale)) !important;
 }
 
 .landing-btn--lg {
@@ -474,7 +483,8 @@
 }
 
 /* ================================================================
-   PUBLIC GUIDE PREVIEW
+   GUIDE TEASER
+   Preview cards that link to the full walkthrough on /guide.
 ================================================================ */
 .landing-section--guide {
   background: #ffffff;
@@ -500,49 +510,6 @@
   flex-shrink: 0;
 }
 
-.landing-guide-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: calc(10px * var(--ui-scale));
-  margin-bottom: calc(20px * var(--ui-scale));
-  padding: calc(6px * var(--ui-scale));
-  border: 1px solid #e3e7ed;
-  border-radius: calc(10px * var(--ui-scale));
-  background: #f8fafc;
-}
-
-.landing-guide-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(8px * var(--ui-scale));
-  min-height: calc(46px * var(--ui-scale));
-  border: 1px solid transparent;
-  border-radius: calc(8px * var(--ui-scale));
-  background: transparent;
-  color: #475569;
-  cursor: pointer;
-  font-size: calc(12px * var(--ui-scale));
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.landing-guide-tab--active {
-  border-color: #d8e3ec;
-  background: #ffffff;
-  color: #141414;
-  box-shadow: 0 calc(4px * var(--ui-scale)) calc(14px * var(--ui-scale)) rgba(15, 23, 42, 0.07);
-}
-
-.landing-guide-tab:hover {
-  color: #1b3c53;
-}
-
 .landing-guide-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -551,6 +518,8 @@
 
 .landing-guide-card {
   display: flex;
+  color: inherit;
+  text-decoration: none;
   min-height: calc(520px * var(--ui-scale));
   flex-direction: column;
   overflow: hidden;
@@ -673,210 +642,12 @@
   background: #f8fafc;
 }
 
-.landing-guide-screen-bar {
-  display: flex;
-  align-items: center;
-  gap: calc(7px * var(--ui-scale));
-  height: calc(30px * var(--ui-scale));
-  padding: 0 calc(12px * var(--ui-scale));
-  border-bottom: 1px solid #e8ecef;
-  background: #ffffff;
-}
-
-.landing-guide-screen-bar span {
-  width: calc(8px * var(--ui-scale));
-  height: calc(8px * var(--ui-scale));
-  border-radius: 999px;
-}
-
-.landing-guide-screen-bar span:nth-child(1) {
-  background: #fda4af;
-}
-
-.landing-guide-screen-bar span:nth-child(2) {
-  background: #fbbf24;
-}
-
-.landing-guide-screen-bar span:nth-child(3) {
-  background: #34d399;
-}
-
-.landing-guide-screen-bar strong {
-  margin-left: calc(6px * var(--ui-scale));
-  color: #94a3b8;
-  font-size: calc(9px * var(--ui-scale));
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .landing-guide-image {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   object-position: top;
-}
-
-.landing-guide-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(8px * var(--ui-scale));
-  max-width: calc(700px * var(--ui-scale));
-  margin: calc(26px * var(--ui-scale)) auto 0;
-  color: #64748b;
-  font-size: calc(12px * var(--ui-scale));
-  line-height: 1.6;
-  text-align: center;
-}
-
-.landing-guide-note .material-symbols-outlined {
-  color: #456882;
-  font-size: calc(17px * var(--ui-scale)) !important;
-  flex-shrink: 0;
-}
-
-.landing-guide-full {
-  overflow: hidden;
-  border: 1px solid #e3e7ed;
-  border-radius: calc(12px * var(--ui-scale));
-  background: #ffffff;
-  box-shadow: 0 calc(12px * var(--ui-scale)) calc(44px * var(--ui-scale)) rgba(15, 23, 42, 0.06);
-}
-
-.landing-guide-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: calc(10px * var(--ui-scale));
-  padding: calc(26px * var(--ui-scale)) calc(28px * var(--ui-scale));
-  border-bottom: 1px solid #e8ecef;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
-    linear-gradient(135deg, #e8f0f5, #ffffff);
-}
-
-.landing-guide-summary h3 {
-  margin: 0;
-  color: #141414;
-  font-size: calc(24px * var(--ui-scale));
-  font-weight: 850;
-  line-height: 1.18;
-  letter-spacing: -0.025em;
-}
-
-.landing-guide-summary p {
-  max-width: calc(720px * var(--ui-scale));
-  margin: 0;
-  color: #64748b;
-  font-size: calc(13px * var(--ui-scale));
-  font-weight: 300;
-  line-height: 1.7;
-}
-
-.landing-guide-steps {
-  display: flex;
-  flex-direction: column;
-}
-
-.landing-guide-step {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.78fr) minmax(420px, 1.22fr);
-  border-bottom: 1px solid #e8ecef;
-}
-
-.landing-guide-step:last-child {
-  border-bottom: 0;
-}
-
-.landing-guide-step-copy {
-  display: grid;
-  grid-template-columns: calc(44px * var(--ui-scale)) minmax(0, 1fr);
-  gap: calc(14px * var(--ui-scale));
-  padding: calc(24px * var(--ui-scale));
-  border-right: 1px solid #e8ecef;
-}
-
-.landing-guide-step-index {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(38px * var(--ui-scale));
-  height: calc(38px * var(--ui-scale));
-  border-radius: 999px;
-  background: #1b3c53;
-  color: #ffffff;
-  font-size: calc(13px * var(--ui-scale));
-  font-weight: 900;
-  box-shadow: 0 calc(8px * var(--ui-scale)) calc(18px * var(--ui-scale)) rgba(27, 60, 83, 0.18);
-}
-
-.landing-guide-full--author .landing-guide-step-index {
-  background: #0f766e;
-}
-
-.landing-guide-full--reviewer .landing-guide-step-index {
-  background: #b45309;
-}
-
-.landing-guide-step-label {
-  margin-bottom: calc(5px * var(--ui-scale));
-  color: #94a3b8;
-  font-size: calc(9px * var(--ui-scale));
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.landing-guide-step h4 {
-  margin: 0 0 calc(14px * var(--ui-scale));
-  color: #141414;
-  font-size: calc(18px * var(--ui-scale));
-  font-weight: 850;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.landing-guide-step ul {
-  display: flex;
-  flex-direction: column;
-  gap: calc(9px * var(--ui-scale));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.landing-guide-step li {
-  display: flex;
-  align-items: flex-start;
-  gap: calc(8px * var(--ui-scale));
-  color: #475569;
-  font-size: calc(12px * var(--ui-scale));
-  line-height: 1.6;
-}
-
-.landing-guide-step li .material-symbols-outlined {
-  margin-top: calc(2px * var(--ui-scale));
-  color: #1b3c53;
-  font-size: calc(14px * var(--ui-scale)) !important;
-  flex-shrink: 0;
-}
-
-.landing-guide-full--author .landing-guide-step li .material-symbols-outlined {
-  color: #0f766e;
-}
-
-.landing-guide-full--reviewer .landing-guide-step li .material-symbols-outlined {
-  color: #b45309;
-}
-
-.landing-guide-step .landing-guide-screen {
-  margin-top: 0;
-  border-top: 0;
-}
-
-.landing-guide-step .landing-guide-image {
-  aspect-ratio: 16 / 9;
 }
 
 /* ================================================================
@@ -1560,19 +1331,6 @@
     grid-template-columns: 1fr;
   }
 
-  .landing-guide-tabs {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-guide-step {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-guide-step-copy {
-    border-right: 0;
-    border-bottom: 1px solid #e8ecef;
-  }
-
   .landing-guide-card {
     min-height: auto;
   }
@@ -1616,25 +1374,6 @@
 
   .landing-guide-card-copy {
     padding: calc(18px * var(--ui-scale));
-  }
-
-  .landing-guide-summary {
-    padding: calc(20px * var(--ui-scale));
-  }
-
-  .landing-guide-summary h3 {
-    font-size: calc(22px * var(--ui-scale));
-  }
-
-  .landing-guide-step-copy {
-    grid-template-columns: calc(36px * var(--ui-scale)) minmax(0, 1fr);
-    gap: calc(12px * var(--ui-scale));
-    padding: calc(18px * var(--ui-scale));
-  }
-
-  .landing-guide-step-index {
-    width: calc(32px * var(--ui-scale));
-    height: calc(32px * var(--ui-scale));
   }
 
   .landing-features {

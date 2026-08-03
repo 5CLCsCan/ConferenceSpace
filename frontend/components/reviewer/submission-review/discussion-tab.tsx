@@ -69,7 +69,7 @@ export function DiscussionTab({
   const loadThreads = useCallback(async (showLoading = true) => {
     if (!conferenceNumericId || !submissionNumericId) {
       setLoading(false)
-      setError("Invalid discussion context")
+      setError(t("common.errors.invalidDiscussionContext"))
       return
     }
 
@@ -95,7 +95,7 @@ export function DiscussionTab({
       setThreads(nextThreads)
       onThreadCountChange?.(nextThreads.length)
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load discussions")
+      setError(loadError instanceof Error ? loadError.message : t("common.errors.failedToLoadDiscussions"))
     } finally {
       if (showLoading) {
         setLoading(false)
@@ -155,7 +155,7 @@ export function DiscussionTab({
           thread.id === threadId
             ? {
                 ...thread,
-                lastActivity: "Just now",
+                lastActivity: t("common.time.justNow"),
                 messageCount: thread.messageCount + 1,
                 messages: [
                   ...thread.messages,
@@ -164,7 +164,7 @@ export function DiscussionTab({
                     author: currentUser,
                     content: message.content,
                     timestamp: message.created_at,
-                    relativeTime: "Just now",
+                    relativeTime: t("common.time.justNow"),
                   },
                 ],
               }

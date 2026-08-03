@@ -1,0 +1,297 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage[top=3cm,bottom=3.5cm,left=3.5cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{xurl}
+\usepackage{array}
+\usepackage{longtable}
+
+\renewcommand{\familydefault}{\rmdefault}
+\renewcommand{\rmdefault}{ptm}
+
+\setstretch{1.5}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35\baselineskip}
+
+\titleformat{\section}{\bfseries\fontsize{13pt}{19.5pt}\selectfont}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\bfseries\fontsize{13pt}{19.5pt}\selectfont}{\thesubsection}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{0.6\baselineskip}{0.4\baselineskip}
+\titlespacing*{\subsection}{0pt}{0.5\baselineskip}{0.2\baselineskip}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\AtBeginDocument{\fontsize{13pt}{19.5pt}\selectfont}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[t]{0.42\textwidth}
+  \IfFileExists{logo_hcmus.png}{\includegraphics[width=0.8\linewidth]{logo_hcmus.png}}{}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.54\textwidth}
+  \centering
+  \textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN}\\
+  \textbf{KHOA CÔNG NGHỆ THÔNG TIN}
+\end{minipage}
+
+\vspace{1.2\baselineskip}
+
+\begin{center}
+  \textbf{\large ĐỀ CƯƠNG THỰC TẬP DỰ ÁN TỐT NGHIỆP}
+
+  \vspace{0.9\baselineskip}
+  \textbf{\Large HỆ THỐNG HỖ TRỢ XÉT DUYỆT BÀI BÁO KHOA HỌC}
+
+  \vspace{0.5\baselineskip}
+  \textbf{\textit{ConferenceSpace -- Scientific Paper Review Support System}}
+\end{center}
+
+\section{THÔNG TIN CHUNG}
+
+\textbf{Người hướng dẫn:}
+\begin{itemize}[label=--,leftmargin=2.2em,itemsep=0.15\baselineskip,topsep=0.2\baselineskip]
+  \item ThS. Hồ Thị Hoàng Vy (Khoa Công Nghệ Thông Tin)
+  \item PGS.TS. Lê Nguyễn Hoài Nam (Khoa Công Nghệ Thông Tin)
+\end{itemize}
+
+\textbf{Nhóm sinh viên thực hiện:}
+\begin{enumerate}[label=\arabic*.,leftmargin=2.2em,itemsep=0.15\baselineskip,topsep=0.2\baselineskip]
+  \item Cao Hữu Khương Duy (MSSV: 22127083)
+  \item Nhâm Đức Huy (MSSV: 22127158)
+  \item Võ Minh Khôi (MSSV: 22127213)
+  \item Từ Chí Tiến (MSSV: 22127414)
+  \item Nguyễn Ngọc Anh Tú (MSSV: 22127433)
+\end{enumerate}
+
+\textbf{Loại đề tài: Ứng dụng}
+
+\textbf{Thời gian thực hiện: Từ 10/2025 đến 07/2026}
+
+\section{NỘI DUNG THỰC HIỆN}
+
+\subsection{Giới thiệu về đề tài}
+\justifying
+
+Quy trình xét duyệt bài báo tại các hội nghị khoa học bao gồm nhiều công đoạn phụ thuộc lẫn nhau: cấu hình hội nghị, tiếp nhận bản thảo, kiểm tra điều kiện nộp bài, phân công phản biện viên, thu thập đánh giá, phản hồi của tác giả, thảo luận và ra quyết định. Khi số lượng bài nộp tăng, khối lượng thao tác thủ công của ban tổ chức và phản biện viên cũng tăng theo. Các nền tảng phổ biến như EasyChair~[1], HotCRP~[2] và Microsoft CMT~[3] đã hỗ trợ nhiều nghiệp vụ cốt lõi, nhưng qua tài liệu và giao diện công khai, nhóm nhận thấy vẫn còn khoảng trống về khả năng kết hợp reviewer matching có thể giải thích, phát hiện xung đột lợi ích dựa trên quan hệ học thuật và các công cụ AI hỗ trợ có kiểm soát trong cùng một nền tảng.
+
+Từ bối cảnh đó, nhóm xây dựng \textbf{ConferenceSpace} như một nền tảng thực nghiệm hỗ trợ quy trình xét duyệt bài báo cho ba vai trò chính: \textit{Tác giả}, \textit{Phản biện viên} và \textit{Chủ tọa/Đồng chủ tọa}. Hệ thống được thiết kế theo mô hình ba lớp trách nhiệm: lớp nghiệp vụ cốt lõi quản lý trạng thái và quyền hạn; lớp thuật toán xác định xử lý các tác vụ cần kết quả có thể kiểm chứng như gợi ý phản biện viên và phát hiện xung đột lợi ích; lớp AI hỗ trợ tạo bản nháp, cảnh báo hoặc bản tổng hợp để người dùng có thẩm quyền xem xét.
+
+Điểm quan trọng của đề tài là AI không thay thế quyết định học thuật. Reviewer matching, kiểm tra xung đột lợi ích, phân quyền và trạng thái nghiệp vụ được triển khai bằng cơ chế xác định hoặc có thể truy vết. Các luồng AI chỉ tham gia vào những tác vụ hỗ trợ như tự động điền thông tin bài nộp, kiểm tra sơ bộ bản thảo, định hướng đọc, rà soát bản nháp phản biện, tổng hợp bằng chứng cho Chủ tọa và trả lời câu hỏi trong phạm vi quyền truy cập.
+
+\subsection{Mục tiêu đề tài}
+\justifying
+
+Mục tiêu tổng quát của đề tài là xây dựng và đánh giá ConferenceSpace như một nền tảng thực nghiệm cho quy trình xét duyệt bài báo tại hội nghị khoa học. Các mục tiêu cụ thể gồm:
+
+\begin{itemize}[label=--,leftmargin=2.2em,itemsep=0.15\baselineskip,topsep=0.2\baselineskip]
+  \item Xây dựng quy trình nghiệp vụ cốt lõi cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, phân công phản biện viên và thu thập đánh giá đến phản hồi của tác giả, thảo luận và ra quyết định.
+  \item Triển khai mô hình ba lớp trách nhiệm gồm nghiệp vụ cốt lõi, thuật toán xác định có thể kiểm chứng và AI hỗ trợ có kiểm soát, qua đó làm rõ loại đầu ra và chủ thể chịu trách nhiệm ở từng công đoạn.
+  \item Xây dựng cơ chế gợi ý phản biện viên dựa trên độ tương đồng chuyên môn và ràng buộc tải công việc; đồng thời triển khai phát hiện xung đột lợi ích từ quan hệ trực tiếp, khai báo thủ công và quan hệ đồng tác giả trên Neo4j~[5].
+  \item Tích hợp sáu luồng AI hỗ trợ gồm Submission Autofill, Submission Gating, Reviewer Initial Analysis, Review Quality Auditor, Chair Decision Copilot và Chatbot Agent.
+  \item Đánh giá hệ thống bằng nhiều nhóm bằng chứng: hiệu năng backend, chi phí thuật toán, chỉ số xếp hạng/gợi ý, độ bám nguồn và tính hợp lệ của workflow AI, kiểm tra quyền truy cập của Chatbot Agent và kiểm thử chấp nhận người dùng.
+\end{itemize}
+
+\subsection{Phạm vi của đề tài}
+\justifying
+
+Đề tài tập trung vào quy trình xét duyệt bài báo trong hội nghị khoa học, phục vụ ba nhóm người dùng chính gồm Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa. Phạm vi thực hiện bao gồm quản lý hội nghị, bài nộp, phản biện viên, lời mời phản biện, đánh giá, phản hồi của tác giả, thảo luận, ra quyết định, camera-ready, thông báo thời gian thực và quản lý quyền theo vai trò trong từng hội nghị.
+
+Về thuật toán xác định, hệ thống triển khai reviewer matching bằng Domain Jaccard Similarity kết hợp thuật toán gán tham lam có xét ràng buộc tải và xung đột lợi ích. Kết quả phân công tự động chỉ là danh sách đề xuất để Chủ tọa kiểm tra và xác nhận. Cơ chế xung đột lợi ích gồm kiểm tra tự phản biện, xung đột khai báo thủ công và quan hệ đồng tác giả nhiều bậc được truy vấn từ Neo4j khi có dữ liệu phù hợp.
+
+Về AI, đề tài triển khai sáu workflow hỗ trợ. Submission Autofill tạo bản nháp siêu dữ liệu bài nộp và gợi ý track; Submission Gating kiểm tra điều kiện nộp bài bằng nhánh luật xác định và cảnh báo nội dung không chặn; Reviewer Initial Analysis hỗ trợ phản biện viên định hướng đọc; Review Quality Auditor rà soát bản nháp phản biện; Chair Decision Copilot tổng hợp bằng chứng trước khi Chủ tọa quyết định; Chatbot Agent truy vấn dữ liệu hệ thống theo quyền của người dùng.
+
+Phạm vi không bao gồm quản lý sự kiện hội nghị theo nghĩa rộng như bán vé, đăng ký tham dự, xếp lịch phòng, tổ chức chương trình và xuất bản kỷ yếu. Hệ thống không tự động đưa ra quyết định chấp nhận hoặc từ chối bài báo. Đề tài cũng không bảo đảm phát hiện đầy đủ mọi xung đột lợi ích, không kiểm toán toàn bộ vòng đời dữ liệu tại nhà cung cấp AI bên ngoài và không khẳng định các kết quả AI duy trì cùng chất lượng khi mô hình hoặc dịch vụ thay đổi.
+
+\subsection{Cách tiếp cận thực hiện}
+\justifying
+
+Nhóm tiếp cận đề tài theo bốn hướng chính: khảo sát nhu cầu và hệ thống tương tự, thiết kế kiến trúc phần mềm, xây dựng cơ chế thuật toán xác định và đánh giá thực nghiệm theo từng lớp trách nhiệm.
+
+Về khảo sát, nhóm phân tích nhu cầu của các vai trò Tác giả, Phản biện viên và Chủ tọa, đồng thời đối chiếu với các nền tảng EasyChair, HotCRP và Microsoft CMT. Kết quả khảo sát được dùng để xác định các yêu cầu về nộp bài, cảnh báo lỗi sớm, gợi ý phản biện viên, phát hiện xung đột lợi ích, hỗ trợ phản biện và hỗ trợ Chủ tọa tổng hợp bằng chứng.
+
+Về kiến trúc, frontend được xây dựng bằng Next.js 15, React, TypeScript, Tailwind CSS và shadcn/ui; backend sử dụng Go/Gin theo hướng tách lớp Controller -- Service -- Storage; AI service dùng FastAPI/Pydantic; dữ liệu nghiệp vụ lưu ở PostgreSQL, cache/runtime state ở Redis và quan hệ đồng tác giả ở Neo4j. Môi trường triển khai production đóng gói bằng Docker Compose, có Caddy làm reverse proxy/HTTPS gateway và GitHub Actions xây dựng image, đẩy lên registry và triển khai theo định danh commit.
+
+Về thuật toán, reviewer matching tính điểm tương đồng chuyên môn bằng Domain Jaccard Similarity, sau đó dùng thuật toán Greedy để tạo danh sách phân công đề xuất theo ràng buộc tải. Cơ chế COI kết hợp kiểm tra quan hệ trực tiếp trong hệ thống, khai báo thủ công và truy vấn đường đi đồng tác giả trên Neo4j. Các cơ chế này không sử dụng LLM, nhằm giữ kết quả có thể giải thích và tái kiểm tra.
+
+Về AI, các workflow được thiết kế theo nguyên tắc đầu ra có cấu trúc, lưu artifact, kiểm tra schema, ghi log và giới hạn quyền truy cập. AI tạo bản nháp hoặc cảnh báo để người dùng xem lại, không thay đổi trạng thái học thuật cuối cùng. Đánh giá workflow AI được thực hiện bằng các chỉ số phù hợp từng tác vụ như F1/Exact Match/ROUGE, TCA gồm Truthfulness, Coverage và Additionality, cùng kiểm tra thủ công đối với Chatbot Agent.
+
+\subsection{Kết quả đạt được}
+\justifying
+
+Đề tài đã xây dựng hệ thống web ConferenceSpace với các luồng nghiệp vụ chính phục vụ Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa. Hệ thống hỗ trợ cấu hình hội nghị, nộp bài, kiểm tra bài nộp, quản lý phản biện viên, gợi ý phân công, phát hiện xung đột lợi ích, viết và cập nhật phản biện, phản hồi của tác giả, thảo luận, ra quyết định, nộp camera-ready, thông báo thời gian thực và Chatbot Agent theo quyền truy cập.
+
+Kết quả đánh giá trong báo cáo cuối cho thấy các endpoint backend được chọn đạt tỷ lệ lỗi 0\% và độ trễ p95 dưới 120 ms trong ba kịch bản k6. Microbenchmark thuật toán cho thấy chi phí đối sánh tăng từ 131 micro giây đến 56 ms theo quy mô đầu vào, trong khi hai kiểm tra COI xác định tăng từ 14,9 micro giây đến 653 micro giây. Trên phép thử xếp hạng chủ đề, Jaccard đạt MRR 0,392 và vượt đường cơ sở ngẫu nhiên, nhưng kết quả chỉ phù hợp để hỗ trợ danh sách ứng viên cho Chủ tọa, không dùng làm phân công tự động.
+
+Ở nhóm AI, Submission Autofill đạt F1 theo token của tiêu đề 98,20\%, F1 từ khóa 92,77\% và tỷ lệ hoàn tất trường bắt buộc 86,93\% trên 1.127 bài. Submission Gating xử lý đúng 8/8 trường hợp kiểm tra luật và giữ cảnh báo AI ở mức không chặn. Reviewer Initial Analysis đạt tỷ lệ trích dẫn bám nguồn 96,22\%, nhưng Truthfulness của các điểm cần lưu ý đạt 69,86\%, vì vậy phản biện viên vẫn phải kiểm tra bài gốc. Review Quality Auditor có tỷ lệ phát hiện vừa bám nguồn vừa hợp lệ 46,99\%, phù hợp với vai trò cảnh báo cần xem lại hơn là điều kiện chặn cứng. Chair Decision Copilot đạt Truthfulness khoảng 87\% cho cơ sở bằng chứng và tổng hợp bất đồng, nhưng chưa đo chất lượng quyết định học thuật. Chatbot Agent hoàn tất 40 hội thoại kiểm thử, không ghi nhận rò rỉ dữ liệu trong các kịch bản quyền và có 37/40 hội thoại đạt hoặc đạt một phần.
+
+Về triển khai, hệ thống đã có cấu trúc production gồm Caddy, frontend, backend, AI service, PostgreSQL, Redis, Neo4j, migration job, volume và network tách biệt. Quy trình GitHub Actions hỗ trợ xây dựng image frontend/backend/AI service, cập nhật file triển khai, chạy migration và thay container trên máy chủ. Các kết quả trên cho thấy đề tài đã hoàn thành nguyên mẫu trong phạm vi ứng dụng, đồng thời xác định rõ các giới hạn cần tiếp tục kiểm chứng trước khi vận hành ở quy mô lớn.
+
+\subsection{Danh sách công việc và kế hoạch thực hiện}
+\justifying
+
+Bảng~1 trình bày phân công vai trò và trách nhiệm chính của từng thành viên theo trạng thái đã cập nhật từ báo cáo cuối.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4cm}|>{\raggedright\arraybackslash}p{9.5cm}|}
+\caption{Phân công vai trò thành viên cập nhật theo phạm vi công việc và bằng chứng commit} \\
+\hline
+\textbf{Thành viên} & \textbf{Vai trò và trách nhiệm chính} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thành viên} & \textbf{Vai trò và trách nhiệm chính} \\
+\hline
+\endhead
+Võ Minh Khôi (Hyperion) & Trưởng nhóm Frontend và phụ trách các phần AI workflow/evaluation. Thiết kế kiến trúc giao diện, layout, routing và dashboard; phát triển luồng Tác giả, giao diện nộp bài, tích hợp Chatbot Agent, hoàn thiện UI/UX và đa ngôn ngữ; xây dựng, tổng hợp và diễn giải benchmark AI workflow, TCA và phương pháp đánh giá AI trong báo cáo. \\
+\hline
+Cao Hữu Khương Duy (dcao) & Trưởng nhóm Backend và phụ trách benchmark kỹ thuật. Thiết kế kiến trúc backend Go/Gin, API và dữ liệu nghiệp vụ; phát triển quản lý hội nghị, bài nộp, người dùng, phân quyền, reviewer matching, thông báo, phản hồi tác giả và thảo luận; xây dựng k6 stress/load testing, Go microbenchmark, resource monitoring và benchmark chất lượng reviewer matching/assignment. \\
+\hline
+Nguyễn Ngọc Anh Tú & Full-stack module Phản biện và phụ trách kiểm thử trải nghiệm người dùng. Xây dựng luồng lời mời phản biện, quản lý phản biện viên, form đánh giá, lịch trình, cập nhật bản phản biện, tích hợp các hỗ trợ AI cho phản biện; tổ chức kiểm thử trải nghiệm người dùng, ghi nhận phản hồi UAT và rà soát các luồng thao tác của reviewer/user. \\
+\hline
+Nhâm Đức Huy & Phụ trách khảo sát nhu cầu, trải nghiệm nền tảng và các phần COI/hồ sơ học thuật. Xây dựng dashboard COI, giao diện hồ sơ người dùng, tích hợp Semantic Scholar, phối hợp dữ liệu Neo4j; tham gia thiết kế khảo sát nhu cầu, thu thập phản hồi về trải nghiệm sử dụng ConferenceSpace và tổng hợp các vấn đề người dùng gặp trên nền tảng. \\
+\hline
+Từ Chí Tiến & Phụ trách khảo sát nhu cầu, trải nghiệm nền tảng, wizard tạo hội nghị và kiểm thử quy trình. Xây dựng wizard tạo hội nghị, lưu nháp, RBAC, kịch bản Playwright và kiểm thử phân quyền; phối hợp thu thập dữ liệu khảo sát nhu cầu, đồng bộ số liệu UAT/trải nghiệm người dùng và hỗ trợ tài liệu nghiệm thu triển khai. \\
+\hline
+\end{longtable}
+
+Dự án được điều chỉnh thành bảy giai đoạn để phản ánh tiến độ thực tế đến lúc hoàn thiện báo cáo cuối, như trình bày trong Bảng~2.
+
+\begin{longtable}{|>{\centering\arraybackslash}p{1cm}|>{\raggedright\arraybackslash}p{3.5cm}|>{\centering\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{6cm}|}
+\caption{Timeline thực hiện cập nhật theo đầu việc và người phụ trách chính} \\
+\hline
+\textbf{GĐ} & \textbf{Giai đoạn} & \textbf{Thời gian} & \textbf{Nội dung chính} \\
+\hline
+\endfirsthead
+\hline
+\textbf{GĐ} & \textbf{Giai đoạn} & \textbf{Thời gian} & \textbf{Nội dung chính} \\
+\hline
+\endhead
+1 & Khảo sát và xác định yêu cầu & 10/2025 -- 11/2025 & Tiến và Huy phụ trách khảo sát nhu cầu, trải nghiệm mong muốn và phản hồi nền tảng; Tú khảo sát reviewer flow; Duy khảo sát nghiệp vụ backend; Khôi khảo sát UI/UX và vai trò người dùng. \\
+\hline
+2 & Thiết kế kiến trúc và nền tảng cốt lõi & 11/2025 -- 01/2026 & Duy phụ trách kiến trúc backend, dữ liệu và API; Khôi phụ trách kiến trúc frontend; Tú phụ trách reviewer foundation; Huy phụ trách hồ sơ học thuật/COI; Tiến phụ trách wizard hội nghị, RBAC và đặc tả yêu cầu. \\
+\hline
+3 & Phát triển nghiệp vụ xét duyệt & 01/2026 -- 03/2026 & Duy triển khai assignment, notification, rebuttal và discussion backend; Tú triển khai reviewer workflow; Khôi hoàn thiện dashboard/author flow; Huy triển khai COI UI và profile; Tiến triển khai wizard, lưu nháp, RBAC và E2E flow. \\
+\hline
+4 & Thuật toán xác định và dữ liệu học thuật & 02/2026 -- 04/2026 & Duy phụ trách Domain Jaccard Similarity, Greedy Matching, COI service và benchmark thuật toán; Huy phụ trách Semantic Scholar, graph/profile data và trải nghiệm COI; Khôi tích hợp frontend; Tú kiểm thử assignment từ góc reviewer; Tiến chuẩn bị test data/RBAC. \\
+\hline
+5 & Tích hợp AI service và workflow hỗ trợ & 03/2026 -- 05/2026 & Khôi phụ trách AI workflow, TCA/report AI eval và Chatbot Agent; Duy phụ trách API bridge, artifact/logging và benchmark backend; Tú kiểm thử UX cho Reviewer Initial Analysis/Review Quality Auditor; Huy kiểm thử trải nghiệm Submission Autofill/Gating và COI; Tiến chuẩn bị chatbot scenario, Playwright và UAT data. \\
+\hline
+6 & Kiểm thử, đánh giá và triển khai & 05/2026 -- 06/2026 & Duy chạy k6 stress/load testing, Go microbenchmark, resource monitoring và matching quality benchmark; Khôi chạy/tổng hợp AI workflow benchmark và TCA methodology; Tú phụ trách user experience testing và Reviewer UAT; Tiến và Huy đồng bộ khảo sát nhu cầu, trải nghiệm nền tảng và UAT; Tiến hỗ trợ Docker/Caddy/GitHub Actions/E2E. \\
+\hline
+7 & Hoàn thiện báo cáo và chuẩn bị bảo vệ & 06/2026 -- 07/2026 & Khôi viết phần frontend và AI evaluation; Duy viết backend, benchmark và architecture; Tú viết reviewer module và UX testing; Huy viết COI, khảo sát nhu cầu và trải nghiệm nền tảng; Tiến viết UAT, testing/deployment và đồng bộ số liệu khảo sát. \\
+\hline
+\end{longtable}
+
+Bảng~3 trình bày danh sách công việc theo từng giai đoạn và người phụ trách chính.
+
+\begin{longtable}{|>{\centering\arraybackslash}p{1cm}|>{\centering\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{2.2cm}|>{\centering\arraybackslash}p{2.2cm}|}
+\caption{Danh sách công việc theo giai đoạn cập nhật theo người phụ trách} \\
+\hline
+\textbf{GĐ} & \textbf{Khôi} & \textbf{Kh. Duy} & \textbf{Anh Tú} & \textbf{Đức Huy} & \textbf{Chí Tiến} \\
+\hline
+\endfirsthead
+\hline
+\textbf{GĐ} & \textbf{Khôi} & \textbf{Kh. Duy} & \textbf{Anh Tú} & \textbf{Đức Huy} & \textbf{Chí Tiến} \\
+\hline
+\endhead
+1 & Khảo sát UI/UX, phân tích vai trò & Khảo sát nghiệp vụ backend & Khảo sát reviewer flow & Khảo sát nhu cầu và trải nghiệm nền tảng; COI & Khảo sát nhu cầu và trải nghiệm nền tảng; đặc tả yêu cầu \\
+\hline
+2 & Layout, routing, auth FE & Auth, user, conference, submission API & Reviewer storage/API nền tảng & User profile, submission UI, COI entry points & Wizard hội nghị, lưu nháp, RBAC foundation \\
+\hline
+3 & Dashboard, author workflow, chatbot UI & Assignment, notification, rebuttal, discussion & Review invitation, review form, schedule & COI dashboard, phân tích COI FE, phản hồi trải nghiệm & RBAC, CFP step, E2E flow, phản hồi trải nghiệm \\
+\hline
+4 & Tích hợp FE với matching/COI; chuẩn bị AI eval & Greedy matching, COI service, Neo4j query, benchmark thuật toán & Kiểm thử reviewer assignment và UX reviewer & Semantic Scholar, graph/profile data, phản hồi trải nghiệm nền tảng & Tổng hợp khảo sát, test data, RBAC và trải nghiệm nền tảng \\
+\hline
+5 & FE cho AI workflow; TCA/report AI eval & API bridge với AI service, artifact/logging, benchmark backend & Reviewer Initial Analysis, Review Quality Auditor, UX testing & Submission Autofill/Gating UI, COI data, khảo sát trải nghiệm & Chatbot scenario, Playwright, RBAC test, UAT data \\
+\hline
+6 & UI polish, workflow benchmark và AI methodology & k6 stress testing, Go microbenchmark, matching quality, resource monitoring & User experience testing, Reviewer UAT và fix lỗi & COI/UAT, phân tích trải nghiệm nền tảng & Đồng bộ UAT, Docker, Caddy, GitHub Actions, E2E \\
+\hline
+7 & Báo cáo frontend và AI evaluation & Báo cáo backend, benchmark và architecture & Báo cáo reviewer module và UX testing & Báo cáo COI, nhu cầu và trải nghiệm nền tảng & Báo cáo khảo sát, UAT, testing/deployment \\
+\hline
+\end{longtable}
+
+Nhóm xác định các rủi ro và giới hạn cần tiếp tục quản lý như Bảng~4.
+
+\begin{longtable}{|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{8cm}|}
+\caption{Rủi ro, giới hạn, người theo dõi và phương án dự phòng cập nhật} \\
+\hline
+\textbf{Rủi ro hoặc giới hạn} & \textbf{Phương án xử lý} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Rủi ro hoặc giới hạn} & \textbf{Phương án xử lý} \\
+\hline
+\endhead
+Chất lượng đầu ra AI không đồng đều, một số workflow thiếu nhãn chuyên gia để kết luận độ chính xác chuyên môn & Khôi theo dõi phần AI eval/TCA. Giữ AI ở vai trò tạo bản nháp/cảnh báo/tổng hợp; yêu cầu người dùng kiểm tra; tiếp tục xây dựng tập nhãn chuyên gia và benchmark hậu kiểm trước khi dùng cho quyết định quan trọng. \\
+\hline
+Dữ liệu Semantic Scholar và quan hệ đồng tác giả không đủ độ phủ & Huy theo dõi COI, hồ sơ học thuật và phản hồi trải nghiệm. Cho phép khai báo thủ công, nhập chuyên môn bổ sung và hiển thị bằng chứng COI để Chủ tọa kiểm tra; ghi rõ giới hạn dữ liệu trong báo cáo. \\
+\hline
+Reviewer matching chưa có tập phân công tối ưu do Chủ tọa gán nhãn & Duy theo dõi benchmark thuật toán/matching quality. Chỉ sử dụng kết quả như danh sách ứng viên; bổ sung đánh giá bằng dữ liệu thật và phản hồi Chủ tọa trong hướng phát triển. \\
+\hline
+Dịch vụ AI bên ngoài thay đổi API, độ trễ hoặc chính sách dữ liệu & Khôi và Duy cùng theo dõi ranh giới AI service/backend. Dùng lớp adapter/model router, timeout, logging và fallback thủ công; không gửi dữ liệu mật khi chưa kiểm toán chính sách nhà cung cấp. \\
+\hline
+Kết quả hiệu năng mới phản ánh tải ngắn hạn trên endpoint được chọn & Duy theo dõi stress/load benchmark; Tú và Tiến theo dõi kiểm thử trải nghiệm và E2E. Cần bổ sung kiểm thử đầu cuối, kiểm thử chạy bền, kiểm thử tải phân tán và quan sát production trước khi kết luận về khả năng vận hành quy mô lớn. \\
+\hline
+\end{longtable}
+
+\section*{Tài liệu tham khảo}
+\begin{enumerate}[label={[\arabic*]},leftmargin=2.2em,itemsep=0.15\baselineskip,topsep=0.2\baselineskip]
+  \item EasyChair, ``EasyChair -- Smart CFP: Conference management system.'' \url{https://easychair.org/}.
+  \item E. Kohler, ``HotCRP: Paper review software.'' \url{https://hotcrp.com/}.
+  \item Microsoft, ``Microsoft CMT: Conference management toolkit.'' \url{https://cmt3.research.microsoft.com/}.
+  \item Semantic Scholar, ``Semantic Scholar -- AI-powered research tool.'' \url{https://www.semanticscholar.org/}.
+  \item Neo4j, Inc., ``Neo4j graph database platform.'' \url{https://neo4j.com/}.
+  \item L. Charlin and R. S. Zemel, ``The Toronto Paper Matching System: An automated paper-reviewer assignment system,'' in \textit{Proc. ICML Workshop on Peer Reviewing and Publishing Models}, 2013.
+  \item N. B. Shah, ``An overview of challenges, algorithms, and empirical studies in peer review,'' \textit{arXiv preprint arXiv:2112.09604}, 2021.
+  \item I. Stelmakh, N. B. Shah, and A. Singh, ``PeerReview4All: Fair and accurate reviewer assignment in peer review,'' in \textit{Proc. 30th International Conference on Algorithmic Learning Theory (ALT)}, 2019, pp. 828--856.
+  \item Next.js, ``Next.js by Vercel -- The React framework for the web.'' \url{https://nextjs.org/}.
+  \item Gin-Gonic, ``Gin Web Framework.'' \url{https://gin-gonic.com/}.
+  \item T. Brown et al., ``Language models are few-shot learners,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, vol. 33, 2020, pp. 1877--1901.
+  \item J. Wei et al., ``Chain-of-thought prompting elicits reasoning in large language models,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, vol. 35, 2022.
+  \item S. Yao et al., ``ReAct: Synergizing reasoning and acting in language models,'' in \textit{Proc. 11th International Conference on Learning Representations (ICLR)}, 2023.
+\end{enumerate}
+
+\vspace{1.5\baselineskip}
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \textbf{XÁC NHẬN}\\
+  \textbf{CỦA NGƯỜI HƯỚNG DẪN}\\
+  \textbf{(Ký và ghi rõ Họ tên)}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \textbf{TP. Hồ Chí Minh, ngày\hspace{1cm}tháng\hspace{1cm}năm}\\
+  \textbf{NHÓM SINH VIÊN THỰC HIỆN}\\
+  \textbf{(Ký và ghi rõ họ tên)}
+\end{minipage}
+
+\vspace{7\baselineskip}
+
+\newpage
+
+\begin{center}
+  \textbf{YÊU CẦU VỀ HÌNH THỨC TRÌNH BÀY}
+\end{center}
+
+\begin{itemize}[label=\textbullet,leftmargin=2em,itemsep=0.2\baselineskip,topsep=0.2\baselineskip]
+  \item Nội dung phải được trình bày ngắn gọn, rõ ràng, mạch lạc, sạch sẽ, không được tẩy xóa, có đánh số trang, đánh số bảng biểu, hình vẽ, đồ thị.
+  \item Font chữ Unicode: Times New Roman, kích thước (size) 13pt.
+  \item Dãn dòng (line spacing) đặt ở chế độ 1.5 lines.
+  \item Lề trên 3cm, dưới 3.5cm, trái 3.5cm, phải 2cm. Đánh số trang ở giữa bên dưới.
+  \item Các bảng biểu trình bày theo chiều ngang khổ giấy thì đầu bảng là lề trái của trang.
+\end{itemize}
+
+\end{document}

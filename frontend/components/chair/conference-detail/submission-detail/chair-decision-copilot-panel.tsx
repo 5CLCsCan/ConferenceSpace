@@ -291,7 +291,9 @@ export function ChairDecisionCopilotPanel({
                       : "bg-[#1B3C53] text-white hover:bg-[#234C6A]",
                   )}
                 >
-                  {generating ? "Generating..." : "Generate"}
+                  {generating
+                    ? t("dashboard.copilot.generating")
+                    : t("dashboard.copilot.generate")}
                 </button>
               ) : (
                 <button
@@ -305,7 +307,9 @@ export function ChairDecisionCopilotPanel({
                       : "border-slate-200 bg-white text-[#1B3C53] hover:bg-slate-50",
                   )}
                 >
-                  {regenerating ? "Generating..." : "Regenerate"}
+                  {regenerating
+                    ? t("dashboard.copilot.generating")
+                    : t("dashboard.copilot.regenerate")}
                 </button>
               )}
             </div>

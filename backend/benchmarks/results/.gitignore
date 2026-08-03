@@ -2,3 +2,5 @@
 *
 !.gitignore
 !.gitkeep
+!latest/
+!latest/**
