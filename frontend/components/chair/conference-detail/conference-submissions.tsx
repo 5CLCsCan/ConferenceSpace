@@ -27,6 +27,7 @@ interface SubmissionReviewProgress {
 interface ReviewerStats {
   invited: number
   accepted: number
+  declined: number
   completed: number
   incomplete: number
 }
@@ -68,6 +69,7 @@ function buildReviewerStats(reviewers: ConfirmedReviewer[] = []): ReviewerStats 
   const accepted = reviewers.filter(
     (reviewer) => reviewer.status === "accepted" || reviewer.status === "completed",
   ).length
+  const declined = reviewers.filter((reviewer) => reviewer.status === "declined").length
   const completed = reviewers.filter(
     (reviewer) => reviewer.review_status === "submitted" || reviewer.status === "completed",
   ).length
@@ -75,39 +77,67 @@ function buildReviewerStats(reviewers: ConfirmedReviewer[] = []): ReviewerStats 
   return {
     invited: reviewers.length,
     accepted,
+    declined,
     completed,
     incomplete: Math.max(accepted - completed, 0),
   }
+}
+
+function StatRow({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: number
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-[1fr_auto] items-center gap-x-2 text-[10px] leading-tight",
+        className,
+      )}
+    >
+      <span className="truncate">{label}</span>
+      <span className="font-semibold tabular-nums text-right">{value}</span>
+    </div>
+  )
 }
 
 function ReviewerStatsBlock({ stats }: { stats: ReviewerStats }) {
   const { t } = useTranslation()
 
   return (
-    <div className="grid w-[150px] grid-cols-2 gap-x-3 gap-y-1 text-[10px] leading-tight">
-      <div className="flex items-center justify-between gap-2 text-slate-500">
-        <span>
-          {t("runtime.components.chair.conference-detail.conference-submissions.text_invited")}
-        </span>
-        <span className="font-semibold text-slate-700">{stats.invited}</span>
+    <div className="w-[min(100%,9.5rem)] text-[10px] leading-tight">
+      <div className="space-y-1">
+        <StatRow
+          label={t("runtime.components.chair.conference-detail.conference-submissions.text_invited")}
+          value={stats.invited}
+          className="text-slate-500 [&>span:last-child]:text-slate-700"
+        />
+        <StatRow
+          label={t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}
+          value={stats.accepted}
+          className="text-emerald-700"
+        />
+        <StatRow
+          label={t("runtime.components.chair.conference-detail.conference-submissions.text_declined")}
+          value={stats.declined}
+          className="text-red-600 [&>span:last-child]:text-red-700"
+        />
       </div>
-      <div className="flex items-center justify-between gap-2 text-slate-500">
-        <span>
-          {t("runtime.components.chair.conference-detail.conference-submissions.text_accepted")}
-        </span>
-        <span className="font-semibold text-slate-700">{stats.accepted}</span>
-      </div>
-      <div className="flex items-center justify-between gap-2 text-emerald-700">
-        <span>
-          {t("runtime.components.chair.conference-detail.conference-submissions.text_completed")}
-        </span>
-        <span className="font-semibold">{stats.completed}</span>
-      </div>
-      <div className="flex items-center justify-between gap-2 text-amber-700">
-        <span>
-          {t("runtime.components.chair.conference-detail.conference-submissions.text_incomplete")}
-        </span>
-        <span className="font-semibold">{stats.incomplete}</span>
+      <div className="space-y-1 border-t border-slate-100 pt-2 mt-2 dark:border-slate-800">
+        <StatRow
+          label={t("runtime.components.chair.conference-detail.conference-submissions.text_completed")}
+          value={stats.completed}
+          className="text-emerald-700"
+        />
+        <StatRow
+          label={t("runtime.components.chair.conference-detail.conference-submissions.text_incomplete")}
+          value={stats.incomplete}
+          className="text-amber-700"
+        />
       </div>
     </div>
   )
