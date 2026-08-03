@@ -128,7 +128,7 @@ describe("ConferenceSubmissions", () => {
     render(<ConferenceSubmissions conferenceId="1" />)
 
     expect(await screen.findByText(/Paper Details/i)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Assign Reviewers/i })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /Assign Reviewers/i })).not.toBeInTheDocument()
   })
 
   it("renders per-paper reviewer assignment stats", async () => {

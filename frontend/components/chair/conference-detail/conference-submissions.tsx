@@ -342,35 +342,6 @@ export function ConferenceSubmissions({ conferenceId, className }: ConferenceSub
             )}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
-          >
-            <span className="material-symbols-outlined text-[14px]">download</span>
-            {t(
-              "runtime.components.chair.conference-detail.conference-submissions.text_export_csv",
-            )}{" "}
-          </button>
-          <button
-            type="button"
-            className="h-8 px-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-medium rounded-md hover:bg-slate-50 transition-colors flex items-center gap-1.5"
-          >
-            <span className="material-symbols-outlined text-[14px]">send</span>
-            {t(
-              "runtime.components.chair.conference-detail.conference-submissions.text_notifications",
-            )}{" "}
-          </button>
-          <button
-            type="button"
-            className="h-8 px-3 bg-[#1B3C53] text-white text-[11px] font-medium rounded-md hover:bg-[#234C6A] transition-colors flex items-center gap-1.5 shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[14px]">group_add</span>
-            {t(
-              "runtime.components.chair.conference-detail.conference-submissions.text_assign_reviewers",
-            )}{" "}
-          </button>
-        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
