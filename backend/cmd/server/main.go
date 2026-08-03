@@ -130,8 +130,6 @@ func initializeApp(cfg *config.Config) (*AppContext, func(), error) {
 	clients, err := clients.NewClients(cfg)
 	if err != nil {
 		log.Printf("Warning: Failed to initialize clients: %v", err)
-		log.Printf("Continuing without graph-based COI detection")
-		clients = nil
 	}
 
 	// Initialize file storage service

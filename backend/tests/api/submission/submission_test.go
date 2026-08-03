@@ -27,6 +27,10 @@ func TestListSubmissions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register author user: %v", err)
 	}
+	author2Token, author2, err := ctx.RegisterUniqueUser("author2", "password123", "Author", "Two", []string{"ML"})
+	if err != nil {
+		t.Fatalf("Failed to register author2 user: %v", err)
+	}
 
 	// Create conference via API
 	conf := &dto.Conference{
@@ -61,13 +65,13 @@ func TestListSubmissions(t *testing.T) {
 
 	sub2 := &dto.Submission{
 		ConferenceID: conferenceID,
-		Author:       author.Email,
+		Author:       author2.Email,
 		Title:        "Paper 2",
 		Abstract:     "Abstract 2",
 		Domain:       []string{"ML"},
 		Status:       dto.StatusPublished,
 	}
-	_, err = submissionClient.Create(conferenceID, sub2, authorToken)
+	_, err = submissionClient.Create(conferenceID, sub2, author2Token)
 	if err != nil {
 		t.Fatalf("Failed to create submission 2: %v", err)
 	}
@@ -102,7 +106,7 @@ func TestListSubmissions(t *testing.T) {
 				Author: author.Email,
 			},
 			expectedStatus: http.StatusOK,
-			minCount:       2,
+			minCount:       1,
 		},
 	}
 
@@ -225,6 +229,10 @@ func TestCreateSubmission(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register author user: %v", err)
 	}
+	author2Token, author2, err := ctx.RegisterUniqueUser("author2", "password123", "Author", "Two", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register author2 user: %v", err)
+	}
 
 	// Create conference via API
 	conf := &dto.Conference{
@@ -286,10 +294,10 @@ func TestCreateSubmission(t *testing.T) {
 		{
 			name:         "create with missing required fields",
 			conferenceID: conferenceID,
-			token:        authorToken,
+			token:        author2Token,
 			submission: &dto.Submission{
 				ConferenceID: conferenceID,
-				Author:       author.Email,
+				Author:       author2.Email,
 				Abstract:     "Missing title",
 				Status:       dto.StatusDraft, // Drafts allow incomplete data
 			},
@@ -551,7 +559,7 @@ func TestDeleteSubmission(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to register author user: %v", err)
 	}
-	otherToken, _, err := ctx.RegisterUniqueUser("other", "password123", "Other", "Author", []string{"AI"})
+	otherToken, other, err := ctx.RegisterUniqueUser("other", "password123", "Other", "Author", []string{"AI"})
 	if err != nil {
 		t.Fatalf("Failed to register other user: %v", err)
 	}
@@ -590,13 +598,17 @@ func TestDeleteSubmission(t *testing.T) {
 
 	sub2 := &dto.Submission{
 		ConferenceID: conferenceID,
-		Author:       author.Email,
+		Author:       other.Email,
 		Title:        "Paper 2",
 		Abstract:     "Abstract 2",
 		Domain:       []string{"AI"},
 		Status:       dto.StatusDraft,
 	}
-	resp2, _ := submissionClient.Create(conferenceID, sub2, authorToken)
+	resp2, err := submissionClient.Create(conferenceID, sub2, otherToken)
+	if err != nil {
+		t.Fatalf("Failed to create submission 2: %v", err)
+	}
+	testutils.AssertStatusCode(t, resp2, http.StatusCreated)
 	var data2 struct {
 		Data *dto.Submission `json:"data"`
 	}
@@ -613,7 +625,7 @@ func TestDeleteSubmission(t *testing.T) {
 		{
 			name:           "other author cannot delete submission",
 			conferenceID:   conferenceID,
-			submissionID:   data2.Data.ID,
+			submissionID:   data1.Data.ID,
 			token:          otherToken,
 			expectedStatus: http.StatusForbidden,
 			expectError:    true,

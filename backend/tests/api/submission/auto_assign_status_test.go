@@ -98,6 +98,11 @@ func TestAutoAssignUpdatesSubmissionStatus(t *testing.T) {
 		}
 	}
 
+	author3Token, author3, err := ctx.RegisterUniqueUser("author3", "password123", "Author", "Three", []string{"NLP"})
+	if err != nil {
+		t.Fatalf("Failed to register author3: %v", err)
+	}
+
 	// Create submissions with different initial statuses
 	submission1 := &dto.Submission{
 		ConferenceID: conferenceID,
@@ -133,7 +138,7 @@ func TestAutoAssignUpdatesSubmissionStatus(t *testing.T) {
 
 	submission3 := &dto.Submission{
 		ConferenceID: conferenceID,
-		Author:       author1.Email,
+		Author:       author3.Email,
 		Title:        "NLP Research Paper",
 		Abstract:     "This is a paper about NLP",
 		Status:       dto.StatusDraft,
@@ -142,7 +147,7 @@ func TestAutoAssignUpdatesSubmissionStatus(t *testing.T) {
 			Keywords: []string{"NLP", "Natural Language"},
 		},
 	}
-	created3, err := submissionClient.CreateSuccess(conferenceID, submission3, author1Token)
+	created3, err := submissionClient.CreateSuccess(conferenceID, submission3, author3Token)
 	if err != nil {
 		t.Fatalf("Failed to create submission 3: %v", err)
 	}
@@ -430,6 +435,11 @@ func TestListSubmissionsByReviewingStatus(t *testing.T) {
 		t.Fatalf("Failed to register author: %v", err)
 	}
 
+	author2Token, author2, err := ctx.RegisterUniqueUser("filterauthor2", "password123", "Author", "Two", []string{"AI"})
+	if err != nil {
+		t.Fatalf("Failed to register second author: %v", err)
+	}
+
 	// Create test conference
 	conf := &dto.Conference{
 		Title:   "Filter Status Test Conference",
@@ -459,13 +469,13 @@ func TestListSubmissionsByReviewingStatus(t *testing.T) {
 
 	sub2 := &dto.Submission{
 		ConferenceID: conferenceID,
-		Author:       author.Email,
+		Author:       author2.Email,
 		Title:        "Published Paper",
 		Abstract:     "Published",
 		Status:       dto.StatusPublished,
 		Domain:       []string{"AI"},
 	}
-	_, err = submissionClient.CreateSuccess(conferenceID, sub2, authorToken)
+	_, err = submissionClient.CreateSuccess(conferenceID, sub2, author2Token)
 	if err != nil {
 		t.Fatalf("Failed to create published submission: %v", err)
 	}

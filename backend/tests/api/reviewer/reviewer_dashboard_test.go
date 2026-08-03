@@ -341,17 +341,33 @@ func TestGetConferencePapers(t *testing.T) {
 		testutils.AssertStatusCode(t, acceptResp, http.StatusOK)
 	}
 
-	// Create multiple submissions
-	for i := 1; i <= 3; i++ {
+	// Create multiple submissions (one per author — only one submission allowed per author per conference)
+	authors := []struct {
+		token string
+		email string
+	}{
+		{authorToken, author.Email},
+	}
+	for i := 2; i <= 3; i++ {
+		token, user, err := ctx.RegisterUniqueUser(fmt.Sprintf("author%d", i), "password123", "Author", fmt.Sprintf("User%d", i), []string{"AI"})
+		if err != nil {
+			t.Fatalf("Failed to register author %d: %v", i, err)
+		}
+		authors = append(authors, struct {
+			token string
+			email string
+		}{token, user.Email})
+	}
+	for i, authorInfo := range authors {
 		sub := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
-			Title:        fmt.Sprintf("AI Paper %d", i),
-			Abstract:     fmt.Sprintf("Abstract for paper %d", i),
+			Author:       authorInfo.email,
+			Title:        fmt.Sprintf("AI Paper %d", i+1),
+			Abstract:     fmt.Sprintf("Abstract for paper %d", i+1),
 			Domain:       []string{"AI"},
 			Status:       dto.StatusPublished,
 		}
-		subResp, err := submissionClient.Create(conferenceID, sub, authorToken)
+		subResp, err := submissionClient.Create(conferenceID, sub, authorInfo.token)
 		if err != nil {
 			t.Fatalf("Failed to create submission %d: %v", i, err)
 		}

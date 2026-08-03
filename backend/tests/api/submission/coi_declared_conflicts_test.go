@@ -272,6 +272,11 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 	})
 
 	t.Run("replace existing declared_conflicts", func(t *testing.T) {
+		replaceAuthorToken, replaceAuthor, err := ctx.RegisterUniqueUser("author2", "password123", "Author", "Two", []string{"AI"})
+		if err != nil {
+			t.Fatalf("Failed to register second author user: %v", err)
+		}
+
 		// Create submission with initial conflicts
 		initialConflicts := []dto.ConflictDeclaration{
 			{Email: "old1@example.com", Reason: "Old conflict 1"},
@@ -280,7 +285,7 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 
 		initialSubmission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       replaceAuthor.Email,
 			Title:        "Paper With Initial COI",
 			Abstract:     "Has some initial conflicts",
 			Domain:       []string{"AI"},
@@ -290,15 +295,19 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 			},
 		}
 
-		createResp, err := submissionClient.Create(conferenceID, initialSubmission, authorToken)
+		createResp, err := submissionClient.Create(conferenceID, initialSubmission, replaceAuthorToken)
 		if err != nil {
 			t.Fatalf("Failed to create submission: %v", err)
 		}
+		testutils.AssertStatusCode(t, createResp, http.StatusCreated)
 
 		var createData struct {
 			Data *dto.Submission `json:"data"`
 		}
 		testutils.DecodeResponse(t, createResp, &createData)
+		if createData.Data == nil {
+			t.Fatal("Expected submission data in create response")
+		}
 		submissionID := createData.Data.ID
 
 		// Update with completely different conflicts
@@ -310,7 +319,7 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 
 		updateSubmission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       replaceAuthor.Email,
 			Title:        "Paper With Replaced COI",
 			Abstract:     "Has replaced conflicts",
 			Domain:       []string{"AI"},
@@ -320,7 +329,7 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 			},
 		}
 
-		updateResp, err := submissionClient.Update(conferenceID, submissionID, updateSubmission, authorToken)
+		updateResp, err := submissionClient.Update(conferenceID, submissionID, updateSubmission, replaceAuthorToken)
 		if err != nil {
 			t.Fatalf("Failed to update submission: %v", err)
 		}
@@ -328,7 +337,7 @@ func TestUpdateSubmissionWithDeclaredConflicts(t *testing.T) {
 		testutils.AssertStatusCode(t, updateResp, http.StatusOK)
 
 		// Retrieve and verify
-		getResp, err := submissionClient.Get(conferenceID, submissionID, authorToken)
+		getResp, err := submissionClient.Get(conferenceID, submissionID, replaceAuthorToken)
 		if err != nil {
 			t.Fatalf("Failed to get updated submission: %v", err)
 		}
@@ -456,9 +465,14 @@ func TestEmptyDeclaredConflicts(t *testing.T) {
 	})
 
 	t.Run("create submission without Information field", func(t *testing.T) {
+		minimalAuthorToken, minimalAuthor, err := ctx.RegisterUniqueUser("minimalauthor", "password123", "Minimal", "Author", []string{"AI"})
+		if err != nil {
+			t.Fatalf("Failed to register minimal author: %v", err)
+		}
+
 		submission := &dto.Submission{
 			ConferenceID: conferenceID,
-			Author:       author.Email,
+			Author:       minimalAuthor.Email,
 			Title:        "Minimal Paper",
 			Abstract:     "Minimal submission",
 			Domain:       []string{"AI"},
@@ -466,7 +480,7 @@ func TestEmptyDeclaredConflicts(t *testing.T) {
 			Information:  nil, // No information at all
 		}
 
-		createResp, err := submissionClient.Create(conferenceID, submission, authorToken)
+		createResp, err := submissionClient.Create(conferenceID, submission, minimalAuthorToken)
 		if err != nil {
 			t.Fatalf("Failed to create submission: %v", err)
 		}

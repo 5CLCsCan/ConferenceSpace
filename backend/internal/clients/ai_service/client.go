@@ -231,7 +231,7 @@ type ReviewerInitialAnnotationSection struct {
 type ReviewerInitialAnnotations struct {
 	OverallImpression string                             `json:"overall_impression"`
 	DomainContext     *string                            `json:"domain_context,omitempty"`
-	Sections          []ReviewerInitialAnnotationSection `json:"sections,omitempty"`
+	Sections          []ReviewerInitialAnnotationSection `json:"sections"`
 }
 
 type ReviewerInitialAnalysisArtifact struct {
