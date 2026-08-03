@@ -21,7 +21,7 @@ type MatchInput struct {
 	Submissions []Submission
 	Reviewers   []Reviewer
 	Scores      scoring.ScoreMatrix
-	Conflicts   commons.ConflictMap
+	Conflicts   commons.ConflictChecker
 	Config      MatchConfig
 }
 

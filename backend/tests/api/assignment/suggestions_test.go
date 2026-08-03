@@ -469,8 +469,8 @@ func TestAddSuggestionWithCOI(t *testing.T) {
 	testutils.DecodeResponse(t, subResp, &subData)
 	submissionID := subData.Data.ID
 
-	// Test: Chair tries to manually add the author as a reviewer for their own paper
-	t.Run("add suggestion returns COI warning", func(t *testing.T) {
+	// Test: Chair cannot manually add the author as a reviewer for their own paper
+	t.Run("add suggestion blocked by COI", func(t *testing.T) {
 		addSuggestionReq := &dto.AddSuggestionRequest{
 			SubmissionID: submissionID,
 			ReviewerID:   reviewerRecordID,
@@ -479,21 +479,7 @@ func TestAddSuggestionWithCOI(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to add suggestion: %v", err)
 		}
-		// Should succeed but with COI warning (chair can override)
-		testutils.AssertStatusCode(t, addResp, http.StatusCreated)
-
-		var addData struct {
-			Data *dto.AddSuggestionResponse `json:"data"`
-		}
-		testutils.DecodeResponse(t, addResp, &addData)
-
-		if addData.Data.COIWarning == nil {
-			t.Error("Expected COI warning but got none")
-		} else if !addData.Data.COIWarning.HasConflict {
-			t.Error("Expected COI warning to indicate conflict")
-		} else {
-			t.Logf("COI warning returned: %v", addData.Data.COIWarning.Reasons)
-		}
+		testutils.AssertStatusCode(t, addResp, http.StatusConflict)
 	})
 }
 

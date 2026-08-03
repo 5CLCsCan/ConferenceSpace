@@ -316,6 +316,12 @@ type AddSuggestionResponse struct {
 	COIWarning *COIWarning `json:"coi_warning,omitempty"`
 }
 
+// ReinviteAssignmentResponse is the response for reinviting a declined reviewer.
+type ReinviteAssignmentResponse struct {
+	Assignment *Assignment `json:"assignment"`
+	Message    string      `json:"message"`
+}
+
 // COIWarning represents a conflict of interest warning
 type COIWarning struct {
 	HasConflict bool     `json:"has_conflict"`

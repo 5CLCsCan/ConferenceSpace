@@ -475,6 +475,7 @@ func setupRouter(appCtx *AppContext, cfg *config.Config) *gin.Engine {
 
 			// Confirmed assignments route (chair and PC for reads)
 			assignments.GET("/confirmed", requireChairOrPC, handler.HandleNoRequest(ctrl.Assignment.GetConfirmedAssignments))
+			assignments.POST("/:assignment_id/reinvite", requireChair, handler.HandleNoRequest(ctrl.Assignment.ReinviteAssignment))
 		}
 
 		// COI (Conflict of Interest) routes (authentication required)

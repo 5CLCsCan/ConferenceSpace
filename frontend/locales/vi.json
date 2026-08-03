@@ -2110,7 +2110,10 @@
             "text_confirming": "Đang xác nhận...",
             "text_removing": "Đang gỡ...",
             "text_remove_success": "Đã gỡ phản biện khỏi bài nộp này.",
-            "text_remove_failed": "Không thể gỡ phản biện."
+            "text_remove_failed": "Không thể gỡ phản biện.",
+            "text_reinvite": "Mời lại",
+            "text_reinviting": "Đang mời lại...",
+            "text_reinvite_failed": "Không thể mời lại phản biện."
           },
           "conference-cfp": {
             "prop_description_docx_format": "định dạng .docx",
@@ -2560,7 +2563,13 @@
               "text_confirm_invites_success_title": "Đã xác nhận lời mời",
               "text_confirm_invites_success_description": "Phản biện đã được thông báo và có thể thấy lời mời.",
               "text_confirm_invites_failed_title": "Xác nhận lời mời thất bại",
-              "text_confirm_invites_failed_description": "Không thể xác nhận lời mời cho bài nộp này."
+              "text_confirm_invites_failed_description": "Không thể xác nhận lời mời cho bài nộp này.",
+              "text_reinvite": "Mời lại",
+              "text_reinviting": "Đang mời lại...",
+              "text_reinvite_success_title": "Đã mời lại phản biện",
+              "text_reinvite_success_description": "Phản biện đã được thông báo và có thể phản hồi lại.",
+              "text_reinvite_failed_title": "Mời lại thất bại",
+              "text_reinvite_failed_description": "Không thể mời lại phản biện này."
             },
             "components": {
               "prop_label_accept": "Chấp nhận",

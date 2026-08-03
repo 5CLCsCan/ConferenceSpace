@@ -2,6 +2,7 @@ package submission
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -240,6 +241,14 @@ func (m *decisionCopilotAssignmentStorageMock) GetInvitationData(_ context.Conte
 }
 
 func (m *decisionCopilotAssignmentStorageMock) RespondToAssignment(_ context.Context, _ int64, _ string, _ *string, _ *string) error {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotAssignmentStorageMock) ReinviteAssignment(_ context.Context, _ int64) (*dto.Assignment, error) {
+	panic("unexpected call")
+}
+
+func (m *decisionCopilotAssignmentStorageMock) ResetDeclinedToSuggested(_ context.Context, _ int64, _ json.RawMessage) (*dto.Assignment, error) {
 	panic("unexpected call")
 }
 

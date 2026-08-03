@@ -208,6 +208,7 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
   const [availableReviewers, setAvailableReviewers] = useState<Reviewer[]>([])
   const [loadingReviewers, setLoadingReviewers] = useState(false)
   const [addingReviewer, setAddingReviewer] = useState(false)
+  const [reinvitingKey, setReinvitingKey] = useState<string | null>(null)
   const [coiWarning, setCoiWarning] = useState<{
     show: boolean
     reasons: string[]
@@ -340,6 +341,45 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
     setAddingReviewer(false)
     setShowAddDialog(false)
     setSelectedSubmission(null)
+  }
+
+  const handleReinviteReviewer = async (
+    submissionId: number,
+    reviewerId: number,
+    assignmentId: number,
+  ) => {
+    const key = `${submissionId}-${assignmentId}`
+    setReinvitingKey(key)
+    setError(null)
+
+    const addResponse = await addSuggestion(conferenceId, submissionId, reviewerId)
+    if (addResponse.error || !addResponse.data?.assignment) {
+      setError(
+        addResponse.error ||
+          t(
+            "runtime.components.chair.conference-detail.conference-assignments.text_reinvite_failed",
+          ),
+      )
+      setReinvitingKey(null)
+      return
+    }
+
+    const confirmAssignmentId = addResponse.data.assignment.id || assignmentId
+    const confirmResponse = await confirmSuggestions(conferenceId, [confirmAssignmentId])
+    if (confirmResponse.error || !confirmResponse.data) {
+      setError(
+        confirmResponse.error ||
+          t(
+            "runtime.components.chair.conference-detail.conference-assignments.text_reinvite_failed",
+          ),
+      )
+      setReinvitingKey(null)
+      return
+    }
+
+    await loadSuggestions()
+    await loadConfirmedAssignments()
+    setReinvitingKey(null)
   }
 
   const suggestionsEmpty = suggestions.length === 0
@@ -641,13 +681,42 @@ export function ConferenceAssignments({ conferenceId, className }: ConferenceAss
                         <StatusBadge status={reviewer.status} />
                         <ReviewStatusBadge status={reviewer.review_status} />
                         {reviewer.status === "declined" && (
-                          <span className="text-[10px] text-slate-400 italic">
-                            {reviewer.decline_category
-                              ? reviewer.decline_category.replace(/_/g, " ")
-                              : reviewer.decline_reason
-                                ? reviewer.decline_reason
-                                : "No reason given"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-slate-400 italic">
+                              {reviewer.decline_category
+                                ? reviewer.decline_category.replace(/_/g, " ")
+                                : reviewer.decline_reason
+                                  ? reviewer.decline_reason
+                                  : "No reason given"}
+                            </span>
+                            {!readOnly && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={
+                                  reinvitingKey ===
+                                  `${group.submission_id}-${reviewer.assignment_id}`
+                                }
+                                onClick={() =>
+                                  void handleReinviteReviewer(
+                                    group.submission_id,
+                                    reviewer.reviewer_id,
+                                    reviewer.assignment_id,
+                                  )
+                                }
+                                className="h-7 px-2 text-[9px] font-bold uppercase tracking-wider text-[#1B3C53] hover:bg-slate-100"
+                              >
+                                {reinvitingKey ===
+                                `${group.submission_id}-${reviewer.assignment_id}`
+                                  ? t(
+                                      "runtime.components.chair.conference-detail.conference-assignments.text_reinviting",
+                                    )
+                                  : t(
+                                      "runtime.components.chair.conference-detail.conference-assignments.text_reinvite",
+                                    )}
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
