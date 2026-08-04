@@ -3,9 +3,14 @@ package detectors
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
 )
+
+func normalizeReviewerEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}
 
 // SelfAuthorDetector prevents authors from reviewing their own papers
 type SelfAuthorDetector struct{}
@@ -28,10 +33,9 @@ func (d *SelfAuthorDetector) DetectConflicts(
 ) (commons.ConflictMap, error) {
 	conflicts := make(commons.ConflictMap)
 
-	// Build reviewer email map for O(1) lookup
-	reviewerByEmail := make(map[string]int64)
+	reviewerByEmail := make(map[string]int64, len(reviewers))
 	for _, r := range reviewers {
-		reviewerByEmail[r.UserEmail] = r.ID
+		reviewerByEmail[normalizeReviewerEmail(r.UserEmail)] = r.ID
 	}
 
 	// Check each submission
@@ -62,10 +66,9 @@ func (d *SelfAuthorDetector) DetectConflictsWithDetails(
 ) ([]commons.ConflictDetail, error) {
 	var details []commons.ConflictDetail
 
-	// Build reviewer email map for O(1) lookup
-	reviewerByEmail := make(map[string]int64)
+	reviewerByEmail := make(map[string]int64, len(reviewers))
 	for _, r := range reviewers {
-		reviewerByEmail[r.UserEmail] = r.ID
+		reviewerByEmail[normalizeReviewerEmail(r.UserEmail)] = r.ID
 	}
 
 	// Check each submission

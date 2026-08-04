@@ -15,18 +15,8 @@ import (
 	"github.com/dcao/conferencespace/internal/storage/submission"
 )
 
-func submissionAuthorEmails(sub *dto.Submission) []string {
-	return reciprocal.AuthorEmails(sub)
-}
-
 func reviewerIsSubmissionAuthor(sub *dto.Submission, reviewerEmail string) bool {
-	normalizedReviewer := strings.ToLower(strings.TrimSpace(reviewerEmail))
-	for _, authorEmail := range submissionAuthorEmails(sub) {
-		if authorEmail == normalizedReviewer {
-			return true
-		}
-	}
-	return false
+	return reciprocal.ReviewerIsAuthor(sub, reviewerEmail)
 }
 
 func (c *Controller) evaluateAssignmentCOI(
@@ -187,8 +177,31 @@ func (c *Controller) validateSuggestionsForConfirm(
 		Reciprocal: tracker,
 	}
 
+	subByID := make(map[int64]*dto.Submission, len(submissions))
+	for _, sub := range submissions {
+		if sub != nil {
+			subByID[sub.ID] = sub
+		}
+	}
+	revByID := make(map[int64]*dto.Reviewer, len(reviewers))
+	for _, rev := range reviewers {
+		if rev != nil {
+			revByID[rev.ID] = rev
+		}
+	}
+
 	var blocked []string
 	for _, edge := range proposed {
+		sub := subByID[edge.SubmissionID]
+		rev := revByID[edge.ReviewerID]
+		if sub != nil && rev != nil && reciprocal.ReviewerIsAuthor(sub, rev.Email) {
+			blocked = append(blocked, fmt.Sprintf(
+				"assignment submission_id=%d reviewer_id=%d has a self-author conflict",
+				edge.SubmissionID,
+				edge.ReviewerID,
+			))
+			continue
+		}
 		if checker.HasConflict(edge.SubmissionID, edge.ReviewerID) {
 			blocked = append(blocked, fmt.Sprintf("assignment submission_id=%d reviewer_id=%d has a COI conflict", edge.SubmissionID, edge.ReviewerID))
 			continue

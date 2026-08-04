@@ -81,6 +81,26 @@ Password for all users: `Demo@123`. Each run creates a fresh conference (timesta
 
 ---
 
+### `seed_reinvite_coi_demo.py` — Re-invite + COI
+
+Two scenarios on one conference: clean re-invite (success) and reciprocal cross-review COI (blocked).
+
+```bash
+python3 devtool/seeder/seed_reinvite_coi_demo.py
+```
+
+| Role  | Email |
+|-------|-------|
+| Chair | `reinvite-chair@demo.com` |
+| Alice | `reinvite-alice@demo.com` (declined on Bob's paper; re-invite blocked) |
+| Bob   | `reinvite-bob@demo.com` (accepted on Alice's paper) |
+| Author | `reinvite-author@demo.com` |
+| Reviewer | `reinvite-clean@demo.com` (declined; re-invite should work) |
+
+Conference acronym: `REINVCOI`.
+
+---
+
 ### `seed_ai003_reviewer_briefing.py` — Reviewer Briefing (AI-003)
 
 Minimal scenario for smoke-testing the reviewer briefing feature: 1 conference, 1 reviewer, 1 submission with a real PDF, and a confirmed assignment.

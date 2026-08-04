@@ -19,8 +19,40 @@ type Tracker struct {
 	reviewerEmailByID     map[int64]string
 }
 
-func normalizeEmail(email string) string {
+// NormalizeEmail lowercases and trims an email for consistent COI comparisons.
+func NormalizeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
+}
+
+func normalizeEmail(email string) string {
+	return NormalizeEmail(email)
+}
+
+func emailsFromMetadata(info *dto.SubmissionInformation) []string {
+	if info == nil || info.Metadata == nil {
+		return nil
+	}
+	authorsRaw, ok := info.Metadata["authors"]
+	if !ok {
+		return nil
+	}
+	authorsList, ok := authorsRaw.([]interface{})
+	if !ok {
+		return nil
+	}
+	emails := make([]string, 0, len(authorsList))
+	for _, item := range authorsList {
+		authorMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		email, ok := authorMap["email"].(string)
+		if !ok || email == "" {
+			continue
+		}
+		emails = append(emails, email)
+	}
+	return emails
 }
 
 // AuthorEmails returns normalized author emails for a submission.
@@ -41,12 +73,29 @@ func AuthorEmails(sub *dto.Submission) []string {
 		for _, coAuthor := range sub.Information.CoAuthors {
 			add(coAuthor)
 		}
+		for _, email := range emailsFromMetadata(sub.Information) {
+			add(email)
+		}
 	}
 	emails := make([]string, 0, len(seen))
 	for email := range seen {
 		emails = append(emails, email)
 	}
 	return emails
+}
+
+// ReviewerIsAuthor reports whether reviewerEmail belongs to the submission's author set.
+func ReviewerIsAuthor(sub *dto.Submission, reviewerEmail string) bool {
+	normalizedReviewer := normalizeEmail(reviewerEmail)
+	if normalizedReviewer == "" {
+		return false
+	}
+	for _, authorEmail := range AuthorEmails(sub) {
+		if authorEmail == normalizedReviewer {
+			return true
+		}
+	}
+	return false
 }
 
 // NewTracker builds reciprocal constraints from conference submissions, reviewers, and assignments.
