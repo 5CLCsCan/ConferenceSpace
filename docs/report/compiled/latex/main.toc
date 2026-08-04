@@ -5,208 +5,207 @@
 \contentsline {chapter}{Lời cảm ơn}{v}{chapter*.5}%
 \contentsline {chapter}{Đề cương}{vi}{chapter*.6}%
 \contentsline {chapter}{Mục lục}{vii}{chapter*.7}%
-\contentsline {chapter}{Danh sách hình}{xv}{chapter*.8}%
-\contentsline {chapter}{Danh sách bảng}{xix}{chapter*.9}%
-\contentsline {chapter}{Tóm tắt}{xxii}{section*.11}%
+\contentsline {chapter}{Danh sách hình}{xiii}{chapter*.8}%
+\contentsline {chapter}{Danh sách bảng}{xvi}{chapter*.9}%
+\contentsline {chapter}{Tóm tắt}{xix}{section*.11}%
 \contentsline {chapter}{\numberline {1}Mở đầu}{1}{chapter.13}%
 \contentsline {section}{\numberline {1.1}Đặt vấn đề}{1}{section.14}%
-\contentsline {section}{\numberline {1.2}Mục tiêu đề tài}{3}{section.15}%
-\contentsline {section}{\numberline {1.3}Phạm vi đề tài}{4}{section.16}%
-\contentsline {section}{\numberline {1.4}Cấu trúc luận văn}{5}{section.17}%
-\contentsline {chapter}{\numberline {2}Khảo sát nhu cầu, hiện trạng và định hướng thiết kế}{6}{chapter.18}%
-\contentsline {section}{\numberline {2.1}Khảo sát nhu cầu người dùng}{6}{section.19}%
-\contentsline {subsection}{\numberline {2.1.1}Mục tiêu khảo sát}{6}{subsection.20}%
-\contentsline {subsection}{\numberline {2.1.2}Đối tượng và đặc điểm mẫu khảo sát}{7}{subsection.21}%
-\contentsline {subsection}{\numberline {2.1.3}Phương pháp khảo sát}{7}{subsection.23}%
-\contentsline {subsection}{\numberline {2.1.4}Kết quả khảo sát theo các vấn đề nổi bật}{8}{subsection.24}%
-\contentsline {subsection}{\numberline {2.1.5}Kết quả theo vai trò}{9}{subsection.26}%
-\contentsline {subsubsection}{a) Nhóm Chủ tọa/Ban tổ chức}{9}{subsection.26}%
-\contentsline {subsubsection}{b) Nhóm Tác giả}{9}{table.caption.27}%
-\contentsline {subsubsection}{c) Nhóm Phản biện viên}{10}{table.caption.28}%
-\contentsline {subsection}{\numberline {2.1.6}Diễn giải kết quả và giới hạn khảo sát}{11}{subsection.30}%
-\contentsline {section}{\numberline {2.2}Khảo sát hiện trạng các hệ thống quản lý hội nghị}{11}{section.31}%
-\contentsline {subsection}{\numberline {2.2.1}Đối tượng, tiêu chí và giới hạn khảo sát}{11}{subsection.32}%
-\contentsline {subsection}{\numberline {2.2.2}Tổng quan các hệ thống hiện có}{12}{subsection.33}%
-\contentsline {subsubsection}{a) EasyChair}{12}{subsection.33}%
-\contentsline {subsubsection}{b) HotCRP}{12}{subsection.33}%
-\contentsline {subsubsection}{c) OpenReview}{12}{subsection.33}%
-\contentsline {subsubsection}{d) Microsoft CMT}{12}{subsection.33}%
-\contentsline {subsubsection}{e) PeerSubmit: nền tảng lấy AI làm trọng tâm}{13}{subsection.33}%
-\contentsline {subsubsection}{f) Morressier: tham khảo về liêm chính và phân công có xác nhận}{13}{subsection.33}%
-\contentsline {subsection}{\numberline {2.2.3}So sánh phạm vi nghiệp vụ}{13}{subsection.34}%
-\contentsline {subsection}{\numberline {2.2.4}So sánh chiến lược AI và quy ước trách nhiệm}{16}{subsection.35}%
-\contentsline {subsection}{\numberline {2.2.5}Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}{18}{subsection.36}%
-\contentsline {section}{\numberline {2.3}Vấn đề thực tiễn và nguyên tắc giải pháp}{18}{section.37}%
-\contentsline {subsection}{\numberline {2.3.1}Các vấn đề thiết kế rút ra từ khảo sát và đối chiếu hiện trạng}{18}{subsection.38}%
-\contentsline {subsection}{\numberline {2.3.2}Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}{19}{subsection.44}%
-\contentsline {subsection}{\numberline {2.3.3}Nguyên tắc thiết kế từ các vấn đề đã xác định}{21}{subsection.45}%
-\contentsline {section}{\numberline {2.4}Tổng hợp yêu cầu hệ thống}{21}{section.46}%
-\contentsline {subsection}{\numberline {2.4.1}Yêu cầu chức năng theo vai trò}{22}{subsection.47}%
-\contentsline {subsubsection}{a) Yêu cầu cho Tác giả}{22}{subsection.47}%
-\contentsline {subsubsection}{b) Yêu cầu cho Phản biện viên}{23}{table.2.7}%
-\contentsline {subsubsection}{c) Yêu cầu cho Chủ tọa/Ban tổ chức}{24}{table.2.8}%
-\contentsline {subsubsection}{d) Yêu cầu chung}{25}{table.2.9}%
-\contentsline {subsection}{\numberline {2.4.2}Yêu cầu phi chức năng}{25}{subsection.48}%
-\contentsline {subsection}{\numberline {2.4.3}Nguyên tắc sử dụng AI có trách nhiệm}{26}{subsection.49}%
-\contentsline {subsection}{\numberline {2.4.4}Quy ước trách nhiệm của các chức năng hỗ trợ}{27}{subsection.50}%
-\contentsline {chapter}{\numberline {3}Xây dựng hệ thống}{29}{chapter.51}%
-\contentsline {section}{\numberline {3.1}Tổng quan hệ thống}{29}{section.52}%
-\contentsline {subsection}{\numberline {3.1.1}Mô hình trách nhiệm}{29}{subsection.53}%
-\contentsline {subsection}{\numberline {3.1.2}Các thành phần chính}{31}{subsection.55}%
-\contentsline {section}{\numberline {3.2}Use case}{31}{section.56}%
-\contentsline {subsection}{\numberline {3.2.1}Tác nhân hệ thống}{31}{subsection.57}%
-\contentsline {subsection}{\numberline {3.2.2}Bản đồ use case}{31}{subsection.58}%
-\contentsline {subsection}{\numberline {3.2.3}Vòng đời nghiệp vụ}{34}{subsection.60}%
-\contentsline {subsection}{\numberline {3.2.4}Mô tả và giao diện các use case}{35}{subsection.62}%
-\contentsline {subsubsection}{UC-01. Khám phá và theo dõi hội nghị}{36}{subsection.62}%
-\contentsline {subsubsection}{UC-02. Hoàn tất và kiểm tra bài nộp}{36}{figure.caption.65}%
-\contentsline {subsubsection}{UC-03. Quản lý vòng đời bài nộp}{39}{figure.caption.68}%
-\contentsline {subsubsection}{UC-04. Tiếp nhận lời mời và xem bài được phân công}{39}{figure.caption.71}%
-\contentsline {subsubsection}{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}{42}{figure.caption.73}%
-\contentsline {subsubsection}{UC-06. Phân công phản biện có kiểm tra xung đột lợi ích}{44}{figure.caption.76}%
-\contentsline {subsubsection}{UC-07. Quản lý hội nghị và theo dõi tiến độ}{44}{figure.caption.79}%
-\contentsline {subsubsection}{UC-08. Trao đổi theo bài nộp}{48}{figure.caption.82}%
-\contentsline {subsubsection}{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}{48}{figure.caption.84}%
-\contentsline {subsubsection}{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}{50}{figure.caption.85}%
-\contentsline {section}{\numberline {3.3}Thiết kế kỹ thuật}{51}{section.87}%
-\contentsline {subsection}{\numberline {3.3.1}Kiến trúc tổng thể}{51}{subsection.88}%
-\contentsline {subsection}{\numberline {3.3.2}Thiết kế giao diện, backend và phân quyền}{52}{subsection.90}%
-\contentsline {subsection}{\numberline {3.3.3}Thiết kế dữ liệu}{52}{subsection.91}%
-\contentsline {section}{\numberline {3.4}Cơ chế nghiệp vụ và thuật toán xác định}{53}{section.92}%
-\contentsline {subsection}{\numberline {3.4.1}Đối sánh Phản biện viên}{53}{subsection.93}%
-\contentsline {subsection}{\numberline {3.4.2}Phát hiện xung đột lợi ích}{55}{subsection.95}%
-\contentsline {section}{\numberline {3.5}Giải pháp AI}{56}{section.96}%
-\contentsline {section}{\numberline {3.6}Môi trường triển khai và vận hành}{58}{section.97}%
-\contentsline {subsection}{\numberline {3.6.1}Môi trường phát triển cục bộ}{58}{subsection.98}%
-\contentsline {subsection}{\numberline {3.6.2}Môi trường triển khai chính thức}{58}{subsection.99}%
-\contentsline {section}{\numberline {3.7}Tổng kết chương}{59}{section.101}%
-\contentsline {chapter}{\numberline {4}Thiết lập thực nghiệm và đánh giá hệ thống}{60}{chapter.102}%
-\contentsline {section}{\numberline {4.1}Mục tiêu và phạm vi đánh giá}{60}{section.103}%
-\contentsline {subsection}{\numberline {4.1.1}Chuỗi thực nghiệm và ranh giới với Phụ lục C}{62}{subsection.104}%
-\contentsline {section}{\numberline {4.2}Thiết lập thực nghiệm}{62}{section.106}%
-\contentsline {subsection}{\numberline {4.2.1}Dữ liệu và nhóm thực nghiệm}{62}{subsection.107}%
-\contentsline {subsection}{\numberline {4.2.2}Kịch bản và quy tắc đánh giá}{63}{subsection.109}%
-\contentsline {subsection}{\numberline {4.2.3}Môi trường và tư liệu thực nghiệm}{66}{subsection.111}%
-\contentsline {subsection}{\numberline {4.2.4}Phương pháp đánh giá theo nhóm}{68}{subsection.112}%
-\contentsline {subsection}{\numberline {4.2.5}Hậu kiểm mệnh đề--nguồn}{68}{subsection.113}%
-\contentsline {section}{\numberline {4.3}Đánh giá lớp nghiệp vụ cốt lõi}{70}{section.115}%
-\contentsline {subsection}{\numberline {4.3.1}Hiệu năng backend}{70}{subsection.116}%
-\contentsline {subsection}{\numberline {4.3.2}Tài nguyên tiêu thụ}{71}{subsection.118}%
-\contentsline {section}{\numberline {4.4}Đánh giá lớp thuật toán có thể kiểm chứng}{72}{section.121}%
-\contentsline {subsection}{\numberline {4.4.1}Chi phí xử lý}{72}{subsection.122}%
-\contentsline {subsection}{\numberline {4.4.2}Hành vi xếp hạng và phân công}{73}{subsection.124}%
-\contentsline {section}{\numberline {4.5}Đánh giá các luồng công việc AI hỗ trợ}{74}{section.126}%
-\contentsline {subsection}{\numberline {4.5.1}Submission Autofill và Submission Gating}{74}{subsection.127}%
-\contentsline {subsection}{\numberline {4.5.2}Reviewer Initial Analysis}{76}{subsection.129}%
-\contentsline {subsection}{\numberline {4.5.3}Review Quality Auditor}{77}{subsection.131}%
-\contentsline {subsection}{\numberline {4.5.4}Chair Decision Copilot}{78}{subsection.133}%
-\contentsline {subsection}{\numberline {4.5.5}Chatbot Agent}{80}{subsection.135}%
-\contentsline {section}{\numberline {4.6}Tính khả thi vận hành}{81}{section.138}%
-\contentsline {section}{\numberline {4.7}Khảo sát người dùng}{83}{section.142}%
-\contentsline {section}{\numberline {4.8}Tổng hợp kết quả và giới hạn}{85}{section.143}%
-\contentsline {chapter}{\numberline {5}Kết luận}{88}{chapter.144}%
-\contentsline {section}{\numberline {5.1}Kết quả và mức độ hoàn thành}{88}{section.145}%
-\contentsline {subsection}{\numberline {5.1.1}Kết quả tổng quát}{88}{subsection.146}%
-\contentsline {subsection}{\numberline {5.1.2}Mức độ hoàn thành mục tiêu}{89}{subsection.147}%
-\contentsline {section}{\numberline {5.2}Các hạn chế}{91}{section.148}%
-\contentsline {subsection}{\numberline {5.2.1}Giới hạn của bằng chứng đánh giá AI}{91}{subsection.149}%
-\contentsline {subsection}{\numberline {5.2.2}Giới hạn của dữ liệu và khả năng khái quát}{91}{subsection.150}%
-\contentsline {subsection}{\numberline {5.2.3}Giới hạn vận hành và quản trị dữ liệu}{92}{subsection.151}%
-\contentsline {section}{\numberline {5.3}Khó khăn trong quá trình thực hiện}{92}{section.152}%
-\contentsline {subsection}{\numberline {5.3.1}Xây dựng phương pháp đánh giá các luồng công việc AI}{92}{subsection.153}%
-\contentsline {subsection}{\numberline {5.3.2}Thu thập dữ liệu học thuật và dữ liệu xung đột lợi ích}{93}{subsection.154}%
-\contentsline {subsection}{\numberline {5.3.3}Thiết kế giao diện cho hệ thống nhiều vai trò}{93}{subsection.155}%
-\contentsline {section}{\numberline {5.4}Bài học kinh nghiệm}{94}{section.156}%
-\contentsline {subsection}{\numberline {5.4.1}Chuẩn hóa quy trình triển khai theo phiên bản}{94}{subsection.157}%
-\contentsline {subsection}{\numberline {5.4.2}Phối hợp phát triển các chức năng có phụ thuộc}{94}{subsection.158}%
-\contentsline {subsection}{\numberline {5.4.3}Tổ chức phép thử AI bằng GPU serverless}{94}{subsection.159}%
-\contentsline {subsection}{\numberline {5.4.4}Thiết kế ranh giới quyền hạn cho chức năng AI}{94}{subsection.160}%
-\contentsline {section}{\numberline {5.5}Hướng phát triển}{95}{section.161}%
-\contentsline {subsection}{\numberline {5.5.1}Hoàn thiện bằng chứng đánh giá}{95}{subsection.162}%
-\contentsline {subsection}{\numberline {5.5.2}Hoàn thiện vận hành và trải nghiệm}{95}{subsection.163}%
-\contentsline {subsection}{\numberline {5.5.3}Mở rộng dữ liệu và các chức năng AI}{95}{subsection.164}%
-\contentsline {section}{\numberline {5.6}Kết luận chương}{96}{section.165}%
-\contentsline {chapter}{Tài liệu tham khảo}{97}{section.165}%
-\contentsline {chapter}{Danh mục thuật ngữ và từ viết tắt}{103}{section*.167}%
-\contentsline {chapter}{\numberline {A}Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng công việc AI}{118}{appendix.169}%
-\contentsline {section}{\numberline {A.1}Đặc tả các use case}{118}{section.170}%
-\contentsline {subsection}{\numberline {A.1.1}UC-01. Khám phá và theo dõi hội nghị}{119}{subsection.171}%
-\contentsline {subsection}{\numberline {A.1.2}UC-02. Hoàn tất và kiểm tra bài nộp}{120}{subsection.173}%
-\contentsline {subsection}{\numberline {A.1.3}UC-03. Quản lý vòng đời bài nộp}{123}{subsection.176}%
-\contentsline {subsection}{\numberline {A.1.4}UC-04. Tiếp nhận lời mời và xem bài được phân công}{125}{subsection.178}%
-\contentsline {subsection}{\numberline {A.1.5}UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}{127}{subsection.180}%
-\contentsline {subsection}{\numberline {A.1.6}UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}{130}{subsection.182}%
-\contentsline {subsection}{\numberline {A.1.7}UC-07. Quản lý hội nghị và theo dõi tiến độ}{132}{subsection.184}%
-\contentsline {subsection}{\numberline {A.1.8}UC-08. Trao đổi theo bài nộp}{135}{subsection.187}%
-\contentsline {subsection}{\numberline {A.1.9}UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}{137}{subsection.189}%
-\contentsline {subsection}{\numberline {A.1.10}UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}{139}{subsection.191}%
-\contentsline {section}{\numberline {A.2}Truy vết yêu cầu, dữ liệu và phân quyền}{142}{section.193}%
-\contentsline {subsection}{\numberline {A.2.1}Truy vết yêu cầu}{142}{subsection.194}%
-\contentsline {subsection}{\numberline {A.2.2}Nhóm dữ liệu chính}{143}{subsection.195}%
-\contentsline {subsection}{\numberline {A.2.3}Ma trận quyền trong chức năng thảo luận}{147}{subsection.200}%
-\contentsline {section}{\numberline {A.3}Thuật toán đối sánh và xung đột lợi ích}{148}{section.202}%
-\contentsline {subsection}{\numberline {A.3.1}Đầu vào và điểm phù hợp}{148}{subsection.203}%
-\contentsline {subsection}{\numberline {A.3.2}Thủ tục tạo đề xuất}{149}{subsection.205}%
-\contentsline {subsection}{\numberline {A.3.3}Ba nguồn phát hiện xung đột lợi ích}{150}{subsection.213}%
-\contentsline {section}{\numberline {A.4}Đặc tả các luồng công việc AI}{151}{section.215}%
-\contentsline {subsection}{\numberline {A.4.1}Tổng quan}{151}{subsection.216}%
-\contentsline {subsection}{\numberline {A.4.2}Submission Autofill}{152}{subsection.217}%
-\contentsline {subsection}{\numberline {A.4.3}Submission Gating}{153}{subsection.218}%
-\contentsline {subsection}{\numberline {A.4.4}Reviewer Initial Analysis}{155}{subsection.220}%
-\contentsline {subsection}{\numberline {A.4.5}Review Quality Auditor}{156}{subsection.221}%
-\contentsline {subsection}{\numberline {A.4.6}Chair Decision Copilot}{158}{subsection.223}%
-\contentsline {subsection}{\numberline {A.4.7}Chatbot Agent}{161}{subsection.225}%
-\contentsline {subsection}{\numberline {A.4.8}Kiểm soát dùng chung}{162}{subsection.227}%
-\contentsline {chapter}{\numberline {B}Môi trường và triển khai}{163}{appendix.228}%
-\contentsline {section}{\numberline {B.1}Phạm vi và nguyên tắc triển khai}{163}{section.229}%
-\contentsline {section}{\numberline {B.2}Môi trường phát triển cục bộ}{164}{section.231}%
-\contentsline {subsection}{\numberline {B.2.1}Yêu cầu công cụ}{164}{subsection.232}%
-\contentsline {subsection}{\numberline {B.2.2}Quy trình khởi động môi trường}{164}{subsection.233}%
-\contentsline {subsection}{\numberline {B.2.3}Điểm truy cập và tiêu chí kiểm tra}{165}{subsection.251}%
-\contentsline {subsection}{\numberline {B.2.4}Trình tự xác nhận môi trường cục bộ}{166}{subsection.252}%
-\contentsline {section}{\numberline {B.3}Cấu hình môi trường}{167}{section.253}%
-\contentsline {subsection}{\numberline {B.3.1}Cấu hình backend}{167}{subsection.254}%
-\contentsline {subsection}{\numberline {B.3.2}Cấu hình dịch vụ AI}{169}{subsection.255}%
-\contentsline {subsection}{\numberline {B.3.3}Cấu hình frontend}{170}{subsection.256}%
-\contentsline {section}{\numberline {B.4}Kiến trúc triển khai chính thức}{171}{section.257}%
-\contentsline {section}{\numberline {B.5}Docker Compose chính}{174}{section.259}%
-\contentsline {subsection}{\numberline {B.5.1}Cấu trúc dịch vụ}{174}{subsection.260}%
-\contentsline {subsection}{\numberline {B.5.2}Cổng, mạng và quan hệ phụ thuộc}{175}{subsection.261}%
-\contentsline {subsection}{\numberline {B.5.3}Volume và dữ liệu cần duy trì}{175}{subsection.262}%
-\contentsline {section}{\numberline {B.6}Đóng gói frontend, backend và dịch vụ AI}{176}{section.263}%
-\contentsline {subsection}{\numberline {B.6.1}Frontend}{176}{subsection.264}%
-\contentsline {subsection}{\numberline {B.6.2}Backend}{177}{subsection.265}%
-\contentsline {subsection}{\numberline {B.6.3}Dịch vụ AI}{178}{subsection.266}%
-\contentsline {subsection}{\numberline {B.6.4}Kiểm tra image trước khi phát hành}{178}{subsection.269}%
-\contentsline {section}{\numberline {B.7}Caddy, TLS và định tuyến}{178}{section.270}%
-\contentsline {section}{\numberline {B.8}CI/CD và GitHub Container Registry}{180}{section.278}%
-\contentsline {subsection}{\numberline {B.8.1}Phạm vi luồng công việc CI/CD}{180}{subsection.279}%
-\contentsline {subsection}{\numberline {B.8.2}Tên và phiên bản image}{181}{subsection.280}%
-\contentsline {subsection}{\numberline {B.8.3}Cập nhật hệ thống chính thức}{182}{subsection.288}%
-\contentsline {subsection}{\numberline {B.8.4}Quay lại phiên bản ổn định}{182}{subsection.300}%
-\contentsline {section}{\numberline {B.9}Bảo vệ cấu hình và bí mật}{183}{section.301}%
-\contentsline {section}{\numberline {B.10}Danh sách kiểm tra tái lập và nghiệm thu triển khai}{184}{section.302}%
-\contentsline {chapter}{\numberline {C}Đặc tả thực nghiệm và tài liệu tái lập}{186}{appendix.303}%
-\contentsline {section}{\numberline {C.1}Chỉ mục bằng chứng}{186}{section.304}%
-\contentsline {section}{\numberline {C.2}Thiết lập backend và kiểm thử k6}{188}{section.305}%
-\contentsline {subsection}{\numberline {C.2.1}Dữ liệu seed và môi trường}{188}{subsection.306}%
-\contentsline {subsection}{\numberline {C.2.2}Phạm vi kịch bản}{188}{subsection.307}%
-\contentsline {section}{\numberline {C.3}Microbenchmark và dữ liệu đối sánh}{189}{section.311}%
-\contentsline {subsection}{\numberline {C.3.1}Go microbenchmark}{189}{subsection.312}%
-\contentsline {subsection}{\numberline {C.3.2}Bản dữ liệu xếp hạng cố định}{189}{subsection.313}%
-\contentsline {subsection}{\numberline {C.3.3}Đánh giá phân công}{190}{subsection.314}%
-\contentsline {section}{\numberline {C.4}Bộ dữ liệu kiểm thử đối chiếu trực tiếp}{190}{section.315}%
-\contentsline {subsection}{\numberline {C.4.1}Submission Autofill}{190}{subsection.316}%
-\contentsline {subsection}{\numberline {C.4.2}Submission Gating}{191}{subsection.317}%
-\contentsline {section}{\numberline {C.5}Bộ thực thi luồng công việc AI và đặc tả hậu kiểm mệnh đề--nguồn}{191}{section.318}%
-\contentsline {subsection}{\numberline {C.5.1}Ranh giới giữa tạo đầu ra và chấm hậu kiểm}{191}{subsection.319}%
-\contentsline {subsection}{\numberline {C.5.2}Gói đầu vào và nguồn đối chiếu}{193}{subsection.320}%
-\contentsline {subsection}{\numberline {C.5.3}Các giai đoạn xử lý và cấu hình}{194}{subsection.321}%
-\contentsline {subsection}{\numberline {C.5.4}Đặc tả bốn nhánh đánh giá}{196}{subsection.323}%
-\contentsline {subsection}{\numberline {C.5.5}Cấu trúc bản ghi JSONL và khả năng truy vết}{197}{subsection.324}%
-\contentsline {subsection}{\numberline {C.5.6}Quy tắc chỉ số và phép tổng hợp}{198}{subsection.325}%
-\contentsline {subsection}{\numberline {C.5.7}Tái lập số liệu và giới hạn}{200}{subsection.328}%
-\contentsline {section}{\numberline {C.6}Ma trận kịch bản Chatbot Agent}{200}{section.329}%
-\contentsline {subsection}{\numberline {C.6.1}Thiết lập vai trò và hội nghị giả lập}{200}{subsection.330}%
-\contentsline {section}{\numberline {C.7}Nguồn gốc và giới hạn của UAT}{202}{section.331}%
-\contentsline {section}{\numberline {C.8}Độ trễ, token và giới hạn tái lập}{203}{section.332}%
+\contentsline {section}{\numberline {1.2}Mục tiêu đề tài}{2}{section.15}%
+\contentsline {section}{\numberline {1.3}Phạm vi đề tài}{3}{section.16}%
+\contentsline {section}{\numberline {1.4}Cấu trúc luận văn}{4}{section.17}%
+\contentsline {chapter}{\numberline {2}Khảo sát nhu cầu, hiện trạng và định hướng thiết kế}{5}{chapter.18}%
+\contentsline {section}{\numberline {2.1}Khảo sát nhu cầu người dùng}{5}{section.19}%
+\contentsline {subsection}{\numberline {2.1.1}Mục tiêu khảo sát}{5}{subsection.20}%
+\contentsline {subsection}{\numberline {2.1.2}Đối tượng và đặc điểm mẫu khảo sát}{5}{subsection.21}%
+\contentsline {subsection}{\numberline {2.1.3}Phương pháp khảo sát}{6}{subsection.23}%
+\contentsline {subsection}{\numberline {2.1.4}Kết quả khảo sát theo các vấn đề nổi bật}{6}{subsection.24}%
+\contentsline {subsection}{\numberline {2.1.5}Kết quả theo vai trò}{6}{subsection.26}%
+\contentsline {subsubsection}{a) Nhóm Chủ tọa/Ban tổ chức}{6}{subsection.26}%
+\contentsline {subsubsection}{b) Nhóm Tác giả}{7}{table.caption.27}%
+\contentsline {subsubsection}{c) Nhóm Phản biện viên}{8}{table.caption.28}%
+\contentsline {subsection}{\numberline {2.1.6}Diễn giải kết quả và giới hạn khảo sát}{8}{subsection.30}%
+\contentsline {section}{\numberline {2.2}Khảo sát hiện trạng các hệ thống quản lý hội nghị}{8}{section.31}%
+\contentsline {subsection}{\numberline {2.2.1}Đối tượng, tiêu chí và giới hạn khảo sát}{8}{subsection.32}%
+\contentsline {subsection}{\numberline {2.2.2}Tổng quan các hệ thống hiện có}{9}{subsection.33}%
+\contentsline {subsubsection}{a) EasyChair}{9}{subsection.33}%
+\contentsline {subsubsection}{b) HotCRP}{9}{subsection.33}%
+\contentsline {subsubsection}{c) OpenReview}{9}{subsection.33}%
+\contentsline {subsubsection}{d) Microsoft CMT}{9}{subsection.33}%
+\contentsline {subsubsection}{e) PeerSubmit: nền tảng lấy AI làm trọng tâm}{9}{subsection.33}%
+\contentsline {subsubsection}{f) Morressier: tham khảo về liêm chính và phân công có xác nhận}{10}{subsection.33}%
+\contentsline {subsection}{\numberline {2.2.3}So sánh phạm vi nghiệp vụ}{10}{subsection.34}%
+\contentsline {subsection}{\numberline {2.2.4}So sánh chiến lược AI và quy ước trách nhiệm}{11}{subsection.35}%
+\contentsline {subsection}{\numberline {2.2.5}Đối chiếu yêu cầu về phân công và sử dụng AI với bằng chứng bên ngoài}{12}{subsection.36}%
+\contentsline {section}{\numberline {2.3}Vấn đề thực tiễn và nguyên tắc giải pháp}{13}{section.37}%
+\contentsline {subsection}{\numberline {2.3.1}Các vấn đề thiết kế rút ra từ khảo sát và đối chiếu hiện trạng}{13}{subsection.38}%
+\contentsline {subsection}{\numberline {2.3.2}Liên kết nhu cầu và vấn đề thực tiễn với định hướng giải pháp}{13}{subsection.44}%
+\contentsline {subsection}{\numberline {2.3.3}Nguyên tắc thiết kế từ các vấn đề đã xác định}{14}{subsection.45}%
+\contentsline {section}{\numberline {2.4}Tổng hợp yêu cầu hệ thống}{14}{section.46}%
+\contentsline {subsection}{\numberline {2.4.1}Yêu cầu chức năng theo vai trò}{14}{subsection.47}%
+\contentsline {subsubsection}{a) Yêu cầu cho Tác giả}{14}{subsection.47}%
+\contentsline {subsubsection}{b) Yêu cầu cho Phản biện viên}{15}{table.2.7}%
+\contentsline {subsubsection}{c) Yêu cầu cho Chủ tọa/Ban tổ chức}{16}{table.2.8}%
+\contentsline {subsubsection}{d) Yêu cầu chung}{16}{table.2.9}%
+\contentsline {subsection}{\numberline {2.4.2}Yêu cầu phi chức năng}{18}{subsection.48}%
+\contentsline {subsection}{\numberline {2.4.3}Nguyên tắc sử dụng AI có trách nhiệm}{18}{subsection.49}%
+\contentsline {subsection}{\numberline {2.4.4}Quy ước trách nhiệm của các chức năng hỗ trợ}{19}{subsection.50}%
+\contentsline {chapter}{\numberline {3}Xây dựng hệ thống}{20}{chapter.51}%
+\contentsline {section}{\numberline {3.1}Tổng quan hệ thống}{20}{section.52}%
+\contentsline {subsection}{\numberline {3.1.1}Mô hình trách nhiệm}{20}{subsection.53}%
+\contentsline {subsection}{\numberline {3.1.2}Các thành phần chính}{21}{subsection.55}%
+\contentsline {section}{\numberline {3.2}Use case}{21}{section.56}%
+\contentsline {subsection}{\numberline {3.2.1}Tác nhân hệ thống}{21}{subsection.57}%
+\contentsline {subsection}{\numberline {3.2.2}Bản đồ use case}{21}{subsection.58}%
+\contentsline {subsection}{\numberline {3.2.3}Vòng đời nghiệp vụ}{24}{subsection.60}%
+\contentsline {subsection}{\numberline {3.2.4}Mô tả và giao diện các use case}{25}{subsection.62}%
+\contentsline {subsubsection}{UC-01. Khám phá và theo dõi hội nghị}{25}{subsection.62}%
+\contentsline {subsubsection}{UC-02. Hoàn tất và kiểm tra bài nộp}{25}{figure.caption.65}%
+\contentsline {subsubsection}{UC-03. Quản lý vòng đời bài nộp}{28}{figure.caption.68}%
+\contentsline {subsubsection}{UC-04. Tiếp nhận lời mời và xem bài được phân công}{30}{figure.caption.71}%
+\contentsline {subsubsection}{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}{31}{figure.caption.73}%
+\contentsline {subsubsection}{UC-06. Phân công phản biện có kiểm tra xung đột lợi ích}{32}{figure.caption.76}%
+\contentsline {subsubsection}{UC-07. Quản lý hội nghị và theo dõi tiến độ}{32}{figure.caption.79}%
+\contentsline {subsubsection}{UC-08. Trao đổi theo bài nộp}{37}{figure.caption.82}%
+\contentsline {subsubsection}{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}{37}{figure.caption.84}%
+\contentsline {subsubsection}{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}{37}{figure.caption.85}%
+\contentsline {section}{\numberline {3.3}Thiết kế kỹ thuật}{39}{section.87}%
+\contentsline {subsection}{\numberline {3.3.1}Kiến trúc tổng thể}{39}{subsection.88}%
+\contentsline {subsection}{\numberline {3.3.2}Thiết kế giao diện, backend và phân quyền}{40}{subsection.90}%
+\contentsline {subsection}{\numberline {3.3.3}Thiết kế dữ liệu}{41}{subsection.91}%
+\contentsline {section}{\numberline {3.4}Cơ chế nghiệp vụ và thuật toán xác định}{41}{section.92}%
+\contentsline {subsection}{\numberline {3.4.1}Đối sánh Phản biện viên}{41}{subsection.93}%
+\contentsline {subsection}{\numberline {3.4.2}Phát hiện xung đột lợi ích}{42}{subsection.95}%
+\contentsline {section}{\numberline {3.5}Giải pháp AI}{43}{section.96}%
+\contentsline {section}{\numberline {3.6}Môi trường triển khai và vận hành}{44}{section.97}%
+\contentsline {subsection}{\numberline {3.6.1}Môi trường phát triển cục bộ}{44}{subsection.98}%
+\contentsline {subsection}{\numberline {3.6.2}Môi trường triển khai chính thức}{44}{subsection.99}%
+\contentsline {section}{\numberline {3.7}Tổng kết chương}{44}{section.101}%
+\contentsline {chapter}{\numberline {4}Thiết lập thực nghiệm và đánh giá hệ thống}{46}{chapter.102}%
+\contentsline {section}{\numberline {4.1}Mục tiêu và phạm vi đánh giá}{46}{section.103}%
+\contentsline {subsection}{\numberline {4.1.1}Chuỗi thực nghiệm và ranh giới với Phụ lục C}{47}{subsection.104}%
+\contentsline {section}{\numberline {4.2}Thiết lập thực nghiệm}{47}{section.106}%
+\contentsline {subsection}{\numberline {4.2.1}Dữ liệu và nhóm thực nghiệm}{47}{subsection.107}%
+\contentsline {subsection}{\numberline {4.2.2}Kịch bản và quy tắc đánh giá}{48}{subsection.109}%
+\contentsline {subsection}{\numberline {4.2.3}Môi trường và tư liệu thực nghiệm}{50}{subsection.110}%
+\contentsline {subsection}{\numberline {4.2.4}Phương pháp đánh giá theo nhóm}{51}{subsection.111}%
+\contentsline {subsection}{\numberline {4.2.5}Hậu kiểm mệnh đề--nguồn}{51}{subsection.112}%
+\contentsline {section}{\numberline {4.3}Đánh giá lớp nghiệp vụ cốt lõi}{53}{section.114}%
+\contentsline {subsection}{\numberline {4.3.1}Hiệu năng backend}{53}{subsection.115}%
+\contentsline {subsection}{\numberline {4.3.2}Tài nguyên tiêu thụ}{53}{subsection.117}%
+\contentsline {section}{\numberline {4.4}Đánh giá lớp thuật toán có thể kiểm chứng}{54}{section.120}%
+\contentsline {subsection}{\numberline {4.4.1}Chi phí xử lý}{54}{subsection.121}%
+\contentsline {subsection}{\numberline {4.4.2}Hành vi xếp hạng và phân công}{55}{subsection.123}%
+\contentsline {section}{\numberline {4.5}Đánh giá các luồng công việc AI hỗ trợ}{56}{section.125}%
+\contentsline {subsection}{\numberline {4.5.1}Submission Autofill và Submission Gating}{56}{subsection.126}%
+\contentsline {subsection}{\numberline {4.5.2}Reviewer Initial Analysis}{57}{subsection.128}%
+\contentsline {subsection}{\numberline {4.5.3}Review Quality Auditor}{58}{subsection.130}%
+\contentsline {subsection}{\numberline {4.5.4}Chair Decision Copilot}{59}{subsection.132}%
+\contentsline {subsection}{\numberline {4.5.5}Chatbot Agent}{60}{subsection.134}%
+\contentsline {section}{\numberline {4.6}Tính khả thi vận hành}{62}{section.137}%
+\contentsline {section}{\numberline {4.7}Khảo sát người dùng}{63}{section.141}%
+\contentsline {section}{\numberline {4.8}Tổng hợp kết quả và giới hạn}{64}{section.142}%
+\contentsline {chapter}{\numberline {5}Kết luận}{66}{chapter.143}%
+\contentsline {section}{\numberline {5.1}Kết quả và mức độ hoàn thành}{66}{section.144}%
+\contentsline {subsection}{\numberline {5.1.1}Kết quả tổng quát}{66}{subsection.145}%
+\contentsline {subsection}{\numberline {5.1.2}Mức độ hoàn thành mục tiêu}{67}{subsection.146}%
+\contentsline {section}{\numberline {5.2}Các hạn chế}{68}{section.147}%
+\contentsline {subsection}{\numberline {5.2.1}Giới hạn của bằng chứng đánh giá AI}{68}{subsection.148}%
+\contentsline {subsection}{\numberline {5.2.2}Giới hạn của dữ liệu và khả năng khái quát}{68}{subsection.149}%
+\contentsline {subsection}{\numberline {5.2.3}Giới hạn vận hành và quản trị dữ liệu}{68}{subsection.150}%
+\contentsline {section}{\numberline {5.3}Khó khăn trong quá trình thực hiện}{69}{section.151}%
+\contentsline {subsection}{\numberline {5.3.1}Xây dựng phương pháp đánh giá các luồng công việc AI}{69}{subsection.152}%
+\contentsline {subsection}{\numberline {5.3.2}Thu thập dữ liệu học thuật và dữ liệu xung đột lợi ích}{69}{subsection.153}%
+\contentsline {subsection}{\numberline {5.3.3}Thiết kế giao diện cho hệ thống nhiều vai trò}{69}{subsection.154}%
+\contentsline {section}{\numberline {5.4}Bài học kinh nghiệm}{70}{section.155}%
+\contentsline {subsection}{\numberline {5.4.1}Chuẩn hóa quy trình triển khai theo phiên bản}{70}{subsection.156}%
+\contentsline {subsection}{\numberline {5.4.2}Phối hợp phát triển các chức năng có phụ thuộc}{70}{subsection.157}%
+\contentsline {subsection}{\numberline {5.4.3}Tổ chức phép thử AI bằng GPU serverless}{70}{subsection.158}%
+\contentsline {subsection}{\numberline {5.4.4}Thiết kế ranh giới quyền hạn cho chức năng AI}{70}{subsection.159}%
+\contentsline {section}{\numberline {5.5}Hướng phát triển}{70}{section.160}%
+\contentsline {subsection}{\numberline {5.5.1}Hoàn thiện bằng chứng đánh giá}{70}{subsection.161}%
+\contentsline {subsection}{\numberline {5.5.2}Hoàn thiện vận hành và trải nghiệm}{71}{subsection.162}%
+\contentsline {subsection}{\numberline {5.5.3}Mở rộng dữ liệu và các chức năng AI}{71}{subsection.163}%
+\contentsline {section}{\numberline {5.6}Kết luận chương}{71}{section.164}%
+\contentsline {chapter}{Tài liệu tham khảo}{72}{section.164}%
+\contentsline {chapter}{Danh mục thuật ngữ và từ viết tắt}{76}{section*.166}%
+\contentsline {chapter}{\numberline {A}Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng công việc AI}{87}{appendix.168}%
+\contentsline {section}{\numberline {A.1}Đặc tả các use case}{87}{section.169}%
+\contentsline {subsection}{\numberline {A.1.1}UC-01. Khám phá và theo dõi hội nghị}{88}{subsection.170}%
+\contentsline {subsection}{\numberline {A.1.2}UC-02. Hoàn tất và kiểm tra bài nộp}{90}{subsection.172}%
+\contentsline {subsection}{\numberline {A.1.3}UC-03. Quản lý vòng đời bài nộp}{93}{subsection.175}%
+\contentsline {subsection}{\numberline {A.1.4}UC-04. Tiếp nhận lời mời và xem bài được phân công}{94}{subsection.177}%
+\contentsline {subsection}{\numberline {A.1.5}UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}{96}{subsection.179}%
+\contentsline {subsection}{\numberline {A.1.6}UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}{98}{subsection.181}%
+\contentsline {subsection}{\numberline {A.1.7}UC-07. Quản lý hội nghị và theo dõi tiến độ}{100}{subsection.183}%
+\contentsline {subsection}{\numberline {A.1.8}UC-08. Trao đổi theo bài nộp}{104}{subsection.186}%
+\contentsline {subsection}{\numberline {A.1.9}UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}{105}{subsection.188}%
+\contentsline {subsection}{\numberline {A.1.10}UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}{107}{subsection.190}%
+\contentsline {section}{\numberline {A.2}Truy vết yêu cầu, dữ liệu và phân quyền}{109}{section.192}%
+\contentsline {subsection}{\numberline {A.2.1}Truy vết yêu cầu}{109}{subsection.193}%
+\contentsline {subsection}{\numberline {A.2.2}Nhóm dữ liệu chính}{110}{subsection.194}%
+\contentsline {subsection}{\numberline {A.2.3}Ma trận quyền trong chức năng thảo luận}{115}{subsection.199}%
+\contentsline {section}{\numberline {A.3}Thuật toán đối sánh và xung đột lợi ích}{116}{section.201}%
+\contentsline {subsection}{\numberline {A.3.1}Đầu vào và điểm phù hợp}{116}{subsection.202}%
+\contentsline {subsection}{\numberline {A.3.2}Thủ tục tạo đề xuất}{116}{subsection.204}%
+\contentsline {subsection}{\numberline {A.3.3}Ba nguồn phát hiện xung đột lợi ích}{117}{subsection.212}%
+\contentsline {section}{\numberline {A.4}Đặc tả các luồng công việc AI}{119}{section.214}%
+\contentsline {subsection}{\numberline {A.4.1}Tổng quan}{119}{subsection.215}%
+\contentsline {subsection}{\numberline {A.4.2}Submission Autofill}{119}{subsection.216}%
+\contentsline {subsection}{\numberline {A.4.3}Submission Gating}{120}{subsection.217}%
+\contentsline {subsection}{\numberline {A.4.4}Reviewer Initial Analysis}{121}{subsection.219}%
+\contentsline {subsection}{\numberline {A.4.5}Review Quality Auditor}{122}{subsection.220}%
+\contentsline {subsection}{\numberline {A.4.6}Chair Decision Copilot}{123}{subsection.222}%
+\contentsline {subsection}{\numberline {A.4.7}Chatbot Agent}{124}{subsection.224}%
+\contentsline {subsection}{\numberline {A.4.8}Kiểm soát dùng chung}{125}{subsection.226}%
+\contentsline {chapter}{\numberline {B}Môi trường và triển khai}{126}{appendix.227}%
+\contentsline {section}{\numberline {B.1}Phạm vi và nguyên tắc triển khai}{126}{section.228}%
+\contentsline {section}{\numberline {B.2}Môi trường phát triển cục bộ}{127}{section.230}%
+\contentsline {subsection}{\numberline {B.2.1}Yêu cầu công cụ}{127}{subsection.231}%
+\contentsline {subsection}{\numberline {B.2.2}Quy trình khởi động môi trường}{127}{subsection.232}%
+\contentsline {subsection}{\numberline {B.2.3}Điểm truy cập và tiêu chí kiểm tra}{128}{subsection.250}%
+\contentsline {subsection}{\numberline {B.2.4}Trình tự xác nhận môi trường cục bộ}{128}{subsection.251}%
+\contentsline {section}{\numberline {B.3}Cấu hình môi trường}{129}{section.252}%
+\contentsline {subsection}{\numberline {B.3.1}Cấu hình backend}{129}{subsection.253}%
+\contentsline {subsection}{\numberline {B.3.2}Cấu hình dịch vụ AI}{130}{subsection.254}%
+\contentsline {subsection}{\numberline {B.3.3}Cấu hình frontend}{131}{subsection.255}%
+\contentsline {section}{\numberline {B.4}Kiến trúc triển khai chính thức}{131}{section.256}%
+\contentsline {section}{\numberline {B.5}Docker Compose chính}{133}{section.258}%
+\contentsline {subsection}{\numberline {B.5.1}Cấu trúc dịch vụ}{133}{subsection.259}%
+\contentsline {subsection}{\numberline {B.5.2}Cổng, mạng và quan hệ phụ thuộc}{133}{subsection.260}%
+\contentsline {subsection}{\numberline {B.5.3}Volume và dữ liệu cần duy trì}{134}{subsection.261}%
+\contentsline {section}{\numberline {B.6}Đóng gói frontend, backend và dịch vụ AI}{134}{section.262}%
+\contentsline {subsection}{\numberline {B.6.1}Frontend}{134}{subsection.263}%
+\contentsline {subsection}{\numberline {B.6.2}Backend}{135}{subsection.264}%
+\contentsline {subsection}{\numberline {B.6.3}Dịch vụ AI}{135}{subsection.265}%
+\contentsline {subsection}{\numberline {B.6.4}Kiểm tra image trước khi phát hành}{136}{subsection.268}%
+\contentsline {section}{\numberline {B.7}Caddy, TLS và định tuyến}{136}{section.269}%
+\contentsline {section}{\numberline {B.8}CI/CD và GitHub Container Registry}{137}{section.277}%
+\contentsline {subsection}{\numberline {B.8.1}Phạm vi luồng công việc CI/CD}{137}{subsection.278}%
+\contentsline {subsection}{\numberline {B.8.2}Tên và phiên bản image}{138}{subsection.279}%
+\contentsline {subsection}{\numberline {B.8.3}Cập nhật hệ thống chính thức}{138}{subsection.287}%
+\contentsline {subsection}{\numberline {B.8.4}Quay lại phiên bản ổn định}{138}{subsection.299}%
+\contentsline {section}{\numberline {B.9}Bảo vệ cấu hình và bí mật}{139}{section.300}%
+\contentsline {section}{\numberline {B.10}Danh sách kiểm tra tái lập và nghiệm thu triển khai}{139}{section.301}%
+\contentsline {chapter}{\numberline {C}Đặc tả thực nghiệm và tài liệu tái lập}{141}{appendix.302}%
+\contentsline {section}{\numberline {C.1}Chỉ mục bằng chứng}{141}{section.303}%
+\contentsline {section}{\numberline {C.2}Thiết lập backend và kiểm thử k6}{142}{section.304}%
+\contentsline {subsection}{\numberline {C.2.1}Dữ liệu seed và môi trường}{142}{subsection.305}%
+\contentsline {subsection}{\numberline {C.2.2}Phạm vi kịch bản}{143}{subsection.306}%
+\contentsline {section}{\numberline {C.3}Microbenchmark và dữ liệu đối sánh}{143}{section.310}%
+\contentsline {subsection}{\numberline {C.3.1}Go microbenchmark}{143}{subsection.311}%
+\contentsline {subsection}{\numberline {C.3.2}Bản dữ liệu xếp hạng cố định}{143}{subsection.312}%
+\contentsline {subsection}{\numberline {C.3.3}Đánh giá phân công}{143}{subsection.313}%
+\contentsline {section}{\numberline {C.4}Bộ dữ liệu kiểm thử đối chiếu trực tiếp}{144}{section.314}%
+\contentsline {subsection}{\numberline {C.4.1}Submission Autofill}{144}{subsection.315}%
+\contentsline {subsection}{\numberline {C.4.2}Submission Gating}{144}{subsection.316}%
+\contentsline {section}{\numberline {C.5}Bộ thực thi luồng công việc AI và đặc tả hậu kiểm mệnh đề--nguồn}{144}{section.317}%
+\contentsline {subsection}{\numberline {C.5.1}Ranh giới giữa tạo đầu ra và chấm hậu kiểm}{144}{subsection.318}%
+\contentsline {subsection}{\numberline {C.5.2}Gói đầu vào và nguồn đối chiếu}{146}{subsection.319}%
+\contentsline {subsection}{\numberline {C.5.3}Các giai đoạn xử lý và cấu hình}{146}{subsection.320}%
+\contentsline {subsection}{\numberline {C.5.4}Đặc tả bốn nhánh đánh giá}{147}{subsection.322}%
+\contentsline {subsection}{\numberline {C.5.5}Cấu trúc bản ghi JSONL và khả năng truy vết}{148}{subsection.323}%
+\contentsline {subsection}{\numberline {C.5.6}Quy tắc chỉ số và phép tổng hợp}{148}{subsection.324}%
+\contentsline {section}{\numberline {C.6}Ma trận kịch bản Chatbot Agent}{149}{section.327}%
+\contentsline {subsection}{\numberline {C.6.1}Thiết lập vai trò và hội nghị giả lập}{149}{subsection.328}%
+\contentsline {section}{\numberline {C.7}Nguồn gốc và giới hạn của UAT}{150}{section.329}%
+\contentsline {section}{\numberline {C.8}Độ trễ, token và giới hạn tái lập}{151}{section.330}%

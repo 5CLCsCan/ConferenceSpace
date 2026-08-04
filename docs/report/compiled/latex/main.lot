@@ -1,81 +1,81 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Kết quả khảo sát các vấn đề nổi bật}}{8}{table.caption.25}%
-\contentsline {table}{\numberline {2.2}{\ignorespaces Kết quả khảo sát nhóm Chủ tọa}}{9}{table.caption.27}%
-\contentsline {table}{\numberline {2.3}{\ignorespaces Kết quả khảo sát nhóm Tác giả}}{10}{table.caption.28}%
-\contentsline {table}{\numberline {2.4}{\ignorespaces So sánh phạm vi nghiệp vụ của các nhóm nền tảng}}{14}{table.2.4}%
-\contentsline {table}{\numberline {2.5}{\ignorespaces So sánh chiến lược AI và quy ước trách nhiệm}}{16}{table.2.5}%
-\contentsline {table}{\numberline {2.6}{\ignorespaces Liên kết nhu cầu và vấn đề thực tiễn với chức năng ConferenceSpace}}{20}{table.2.6}%
-\contentsline {table}{\numberline {2.7}{\ignorespaces Yêu cầu chức năng dành cho Tác giả}}{22}{table.2.7}%
-\contentsline {table}{\numberline {2.8}{\ignorespaces Yêu cầu chức năng dành cho Phản biện viên}}{23}{table.2.8}%
-\contentsline {table}{\numberline {2.9}{\ignorespaces Yêu cầu chức năng dành cho Chủ tọa và Ban tổ chức}}{24}{table.2.9}%
-\contentsline {table}{\numberline {2.10}{\ignorespaces Yêu cầu chức năng chung}}{25}{table.2.10}%
-\contentsline {table}{\numberline {2.11}{\ignorespaces Yêu cầu phi chức năng của ConferenceSpace}}{25}{table.2.11}%
-\contentsline {table}{\numberline {2.12}{\ignorespaces Quy ước trách nhiệm của các chức năng hỗ trợ}}{27}{table.2.12}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Kết quả khảo sát các vấn đề nổi bật}}{7}{table.caption.25}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Kết quả khảo sát nhóm Chủ tọa}}{7}{table.caption.27}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Kết quả khảo sát nhóm Tác giả}}{7}{table.caption.28}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces So sánh phạm vi nghiệp vụ của các nhóm nền tảng}}{10}{table.2.4}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces So sánh chiến lược AI và quy ước trách nhiệm}}{11}{table.2.5}%
+\contentsline {table}{\numberline {2.6}{\ignorespaces Liên kết nhu cầu và vấn đề thực tiễn với chức năng ConferenceSpace}}{14}{table.2.6}%
+\contentsline {table}{\numberline {2.7}{\ignorespaces Yêu cầu chức năng dành cho Tác giả}}{15}{table.2.7}%
+\contentsline {table}{\numberline {2.8}{\ignorespaces Yêu cầu chức năng dành cho Phản biện viên}}{15}{table.2.8}%
+\contentsline {table}{\numberline {2.9}{\ignorespaces Yêu cầu chức năng dành cho Chủ tọa và Ban tổ chức}}{16}{table.2.9}%
+\contentsline {table}{\numberline {2.10}{\ignorespaces Yêu cầu chức năng chung}}{17}{table.2.10}%
+\contentsline {table}{\numberline {2.11}{\ignorespaces Yêu cầu phi chức năng của ConferenceSpace}}{18}{table.2.11}%
+\contentsline {table}{\numberline {2.12}{\ignorespaces Quy ước trách nhiệm của các chức năng hỗ trợ}}{19}{table.2.12}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Trách nhiệm và thẩm quyền trong ba lớp của ConferenceSpace}}{30}{table.caption.54}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Tổng quan các use case của ConferenceSpace}}{32}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Truy vết yêu cầu đến use case và thành phần thiết kế}}{34}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Nhóm dữ liệu chính trong thiết kế hệ thống}}{53}{table.3.4}%
-\contentsline {table}{\numberline {3.5}{\ignorespaces Đầu ra và điểm kiểm soát của các luồng công việc AI}}{56}{table.3.5}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Trách nhiệm và thẩm quyền trong ba lớp của ConferenceSpace}}{21}{table.caption.54}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Tổng quan các use case của ConferenceSpace}}{22}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Truy vết yêu cầu đến use case và thành phần thiết kế}}{23}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Nhóm dữ liệu chính trong thiết kế hệ thống}}{41}{table.3.4}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Đầu ra và điểm kiểm soát của các luồng công việc AI}}{43}{table.3.5}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Câu hỏi đánh giá và phạm vi bằng chứng}}{61}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Đầu vào, đầu ra và cách đánh giá các luồng công việc AI hỗ trợ}}{64}{table.4.2}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Môi trường và tư liệu thực nghiệm}}{66}{table.4.3}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Kết quả tải HTTP theo kịch bản k6}}{70}{table.4.4}%
-\contentsline {table}{\numberline {4.5}{\ignorespaces Kết quả xếp hạng hồ sơ tác giả}}{73}{table.4.5}%
-\contentsline {table}{\numberline {4.6}{\ignorespaces Tổng hợp kết quả khảo sát theo vai trò}}{84}{table.4.6}%
-\contentsline {table}{\numberline {4.7}{\ignorespaces Mức kết luận theo trách nhiệm và bằng chứng}}{85}{table.4.7}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Câu hỏi đánh giá và phạm vi bằng chứng}}{46}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Đầu vào, đầu ra và cách đánh giá các luồng công việc AI hỗ trợ}}{49}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Môi trường và tư liệu thực nghiệm}}{50}{table.4.3}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Kết quả tải HTTP theo kịch bản k6}}{53}{table.4.4}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Kết quả xếp hạng hồ sơ tác giả}}{55}{table.4.5}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Tổng hợp kết quả khảo sát theo vai trò}}{63}{table.4.6}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Mức kết luận theo trách nhiệm và bằng chứng}}{64}{table.4.7}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Mức độ hoàn thành các mục tiêu của đề tài}}{89}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 1}}{103}{table.5.2}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 2}}{105}{table.5.3}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 3}}{109}{table.5.4}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 4}}{110}{table.5.5}%
-\contentsline {table}{\numberline {5.6}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 5}}{112}{table.5.6}%
-\contentsline {table}{\numberline {5.7}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 6}}{117}{table.5.7}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Mức độ hoàn thành các mục tiêu của đề tài}}{67}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 1}}{76}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 2}}{77}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 3}}{81}{table.5.4}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 4}}{81}{table.5.5}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 5}}{83}{table.5.6}%
+\contentsline {table}{\numberline {5.7}{\ignorespaces Danh mục thuật ngữ và từ viết tắt, phần 6}}{86}{table.5.7}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Đặc tả UC-01: Khám phá và theo dõi hội nghị}}{119}{table.A.1}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Đặc tả UC-02: Hoàn tất và kiểm tra bài nộp}}{121}{table.A.2}%
-\contentsline {table}{\numberline {A.3}{\ignorespaces Đặc tả UC-03: Quản lý vòng đời bài nộp}}{124}{table.A.3}%
-\contentsline {table}{\numberline {A.4}{\ignorespaces Đặc tả UC-04: Tiếp nhận lời mời và xem bài được phân công}}{126}{table.A.4}%
-\contentsline {table}{\numberline {A.5}{\ignorespaces Đặc tả UC-05: Đọc, soạn và gửi phản biện}}{128}{table.A.5}%
-\contentsline {table}{\numberline {A.6}{\ignorespaces Đặc tả UC-06: Phân công phản biện và kiểm tra xung đột lợi ích}}{131}{table.A.6}%
-\contentsline {table}{\numberline {A.7}{\ignorespaces Đặc tả UC-07: Quản lý hội nghị và theo dõi tiến độ}}{133}{table.A.7}%
-\contentsline {table}{\numberline {A.8}{\ignorespaces Đặc tả UC-08: Trao đổi theo bài nộp}}{136}{table.A.8}%
-\contentsline {table}{\numberline {A.9}{\ignorespaces Đặc tả UC-09: Tổng hợp bằng chứng hỗ trợ quyết định}}{138}{table.A.9}%
-\contentsline {table}{\numberline {A.10}{\ignorespaces Đặc tả UC-10: Truy vấn trạng thái và hướng dẫn}}{140}{table.A.10}%
-\contentsline {table}{\numberline {A.11}{\ignorespaces Ma trận truy vết yêu cầu và đặc tả chi tiết}}{142}{table.A.11}%
-\contentsline {table}{\numberline {A.12}{\ignorespaces Nhóm dữ liệu chính và vai trò trong hệ thống}}{143}{table.A.12}%
-\contentsline {table}{\numberline {A.13}{\ignorespaces Quyền hiện hành trong chức năng thảo luận theo bài nộp}}{148}{table.caption.201}%
-\contentsline {table}{\numberline {A.14}{\ignorespaces Tình huống ngoại lệ trong đối sánh Phản biện viên}}{150}{table.A.14}%
-\contentsline {table}{\numberline {A.15}{\ignorespaces Đầu vào, đầu ra và điểm kiểm soát của sáu luồng công việc AI}}{151}{table.A.15}%
-\contentsline {table}{\numberline {A.16}{\ignorespaces Đặc tả Submission Autofill}}{153}{table.A.16}%
-\contentsline {table}{\numberline {A.17}{\ignorespaces Các giai đoạn khái quát của Submission Gating}}{154}{table.A.17}%
-\contentsline {table}{\numberline {A.18}{\ignorespaces Đặc tả Reviewer Initial Analysis}}{156}{table.A.18}%
-\contentsline {table}{\numberline {A.19}{\ignorespaces Trạng thái và hành vi của Review Quality Auditor}}{157}{table.A.19}%
-\contentsline {table}{\numberline {A.20}{\ignorespaces Đặc tả Chair Decision Copilot}}{159}{table.A.20}%
-\contentsline {table}{\numberline {A.21}{\ignorespaces Các kiểm soát dùng chung của luồng công việc AI}}{162}{table.A.21}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Đặc tả UC-01: Khám phá và theo dõi hội nghị}}{88}{table.A.1}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Đặc tả UC-02: Hoàn tất và kiểm tra bài nộp}}{90}{table.A.2}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Đặc tả UC-03: Quản lý vòng đời bài nộp}}{93}{table.A.3}%
+\contentsline {table}{\numberline {A.4}{\ignorespaces Đặc tả UC-04: Tiếp nhận lời mời và xem bài được phân công}}{95}{table.A.4}%
+\contentsline {table}{\numberline {A.5}{\ignorespaces Đặc tả UC-05: Đọc, soạn và gửi phản biện}}{97}{table.A.5}%
+\contentsline {table}{\numberline {A.6}{\ignorespaces Đặc tả UC-06: Phân công phản biện và kiểm tra xung đột lợi ích}}{99}{table.A.6}%
+\contentsline {table}{\numberline {A.7}{\ignorespaces Đặc tả UC-07: Quản lý hội nghị và theo dõi tiến độ}}{101}{table.A.7}%
+\contentsline {table}{\numberline {A.8}{\ignorespaces Đặc tả UC-08: Trao đổi theo bài nộp}}{104}{table.A.8}%
+\contentsline {table}{\numberline {A.9}{\ignorespaces Đặc tả UC-09: Tổng hợp bằng chứng hỗ trợ quyết định}}{106}{table.A.9}%
+\contentsline {table}{\numberline {A.10}{\ignorespaces Đặc tả UC-10: Truy vấn trạng thái và hướng dẫn}}{108}{table.A.10}%
+\contentsline {table}{\numberline {A.11}{\ignorespaces Ma trận truy vết yêu cầu và đặc tả chi tiết}}{110}{table.A.11}%
+\contentsline {table}{\numberline {A.12}{\ignorespaces Nhóm dữ liệu chính và vai trò trong hệ thống}}{110}{table.A.12}%
+\contentsline {table}{\numberline {A.13}{\ignorespaces Quyền hiện hành trong chức năng thảo luận theo bài nộp}}{116}{table.caption.200}%
+\contentsline {table}{\numberline {A.14}{\ignorespaces Tình huống ngoại lệ trong đối sánh Phản biện viên}}{117}{table.A.14}%
+\contentsline {table}{\numberline {A.15}{\ignorespaces Đầu vào, đầu ra và điểm kiểm soát của sáu luồng công việc AI}}{119}{table.A.15}%
+\contentsline {table}{\numberline {A.16}{\ignorespaces Đặc tả Submission Autofill}}{119}{table.A.16}%
+\contentsline {table}{\numberline {A.17}{\ignorespaces Các giai đoạn khái quát của Submission Gating}}{120}{table.A.17}%
+\contentsline {table}{\numberline {A.18}{\ignorespaces Đặc tả Reviewer Initial Analysis}}{121}{table.A.18}%
+\contentsline {table}{\numberline {A.19}{\ignorespaces Trạng thái và hành vi của Review Quality Auditor}}{122}{table.A.19}%
+\contentsline {table}{\numberline {A.20}{\ignorespaces Đặc tả Chair Decision Copilot}}{123}{table.A.20}%
+\contentsline {table}{\numberline {A.21}{\ignorespaces Các kiểm soát dùng chung của luồng công việc AI}}{125}{table.A.21}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {B.1}{\ignorespaces Phạm vi của hai chế độ vận hành}}{164}{table.caption.230}%
-\contentsline {table}{\numberline {B.2}{\ignorespaces Điểm truy cập trong môi trường phát triển cục bộ}}{166}{table.B.2}%
-\contentsline {table}{\numberline {B.3}{\ignorespaces Biến cấu hình của backend}}{167}{table.B.3}%
-\contentsline {table}{\numberline {B.4}{\ignorespaces Biến cấu hình của dịch vụ AI}}{169}{table.B.4}%
-\contentsline {table}{\numberline {B.5}{\ignorespaces Biến cấu hình của frontend}}{171}{table.B.5}%
-\contentsline {table}{\numberline {B.6}{\ignorespaces Trách nhiệm của các dịch vụ trong môi trường chính thức}}{173}{table.B.6}%
-\contentsline {table}{\numberline {B.7}{\ignorespaces Image và thành phần đóng gói của các dịch vụ}}{174}{table.B.7}%
-\contentsline {table}{\numberline {B.8}{\ignorespaces Dữ liệu cần duy trì ngoài vòng đời container}}{175}{table.B.8}%
-\contentsline {table}{\numberline {B.9}{\ignorespaces Các giai đoạn đóng gói frontend}}{177}{table.B.9}%
-\contentsline {table}{\numberline {B.10}{\ignorespaces Các giai đoạn đóng gói backend}}{177}{table.B.10}%
-\contentsline {table}{\numberline {B.11}{\ignorespaces Ranh giới định tuyến qua Caddy}}{179}{table.caption.271}%
-\contentsline {table}{\numberline {B.12}{\ignorespaces Các giai đoạn của quy trình CI/CD}}{180}{table.B.12}%
-\contentsline {table}{\numberline {B.13}{\ignorespaces Phân loại cấu hình và biện pháp bảo vệ}}{183}{table.B.13}%
-\contentsline {table}{\numberline {B.14}{\ignorespaces Danh sách kiểm tra tái lập môi trường}}{184}{table.B.14}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces Phạm vi của hai chế độ vận hành}}{126}{table.caption.229}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Điểm truy cập trong môi trường phát triển cục bộ}}{128}{table.B.2}%
+\contentsline {table}{\numberline {B.3}{\ignorespaces Biến cấu hình của backend}}{129}{table.B.3}%
+\contentsline {table}{\numberline {B.4}{\ignorespaces Biến cấu hình của dịch vụ AI}}{130}{table.B.4}%
+\contentsline {table}{\numberline {B.5}{\ignorespaces Biến cấu hình của frontend}}{131}{table.B.5}%
+\contentsline {table}{\numberline {B.6}{\ignorespaces Trách nhiệm của các dịch vụ trong môi trường chính thức}}{132}{table.B.6}%
+\contentsline {table}{\numberline {B.7}{\ignorespaces Image và thành phần đóng gói của các dịch vụ}}{133}{table.B.7}%
+\contentsline {table}{\numberline {B.8}{\ignorespaces Dữ liệu cần duy trì ngoài vòng đời container}}{134}{table.B.8}%
+\contentsline {table}{\numberline {B.9}{\ignorespaces Các giai đoạn đóng gói frontend}}{135}{table.B.9}%
+\contentsline {table}{\numberline {B.10}{\ignorespaces Các giai đoạn đóng gói backend}}{135}{table.B.10}%
+\contentsline {table}{\numberline {B.11}{\ignorespaces Ranh giới định tuyến qua Caddy}}{136}{table.caption.270}%
+\contentsline {table}{\numberline {B.12}{\ignorespaces Các giai đoạn của quy trình CI/CD}}{137}{table.B.12}%
+\contentsline {table}{\numberline {B.13}{\ignorespaces Phân loại cấu hình và biện pháp bảo vệ}}{139}{table.B.13}%
+\contentsline {table}{\numberline {B.14}{\ignorespaces Danh sách kiểm tra tái lập môi trường}}{140}{table.B.14}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {C.1}{\ignorespaces Chỉ mục bằng chứng của Chương 4}}{186}{table.C.1}%
-\contentsline {table}{\numberline {C.2}{\ignorespaces Mẫu số và đơn vị của quy trình hậu kiểm}}{192}{table.C.2}%
-\contentsline {table}{\numberline {C.3}{\ignorespaces Ánh xạ đầu vào và nguồn đối chiếu của các nhánh hậu kiểm}}{194}{table.C.3}%
-\contentsline {table}{\numberline {C.4}{\ignorespaces Cấu hình thực thi quy trình hậu kiểm}}{195}{table.caption.322}%
-\contentsline {table}{\numberline {C.5}{\ignorespaces Cơ chế và đầu ra của các nhánh hậu kiểm}}{196}{table.C.5}%
-\contentsline {table}{\numberline {C.6}{\ignorespaces Các trường cấp cao trong bản ghi hậu kiểm}}{197}{table.C.6}%
-\contentsline {table}{\numberline {C.7}{\ignorespaces Ma trận kịch bản kiểm tra Chatbot Agent}}{201}{table.C.7}%
+\contentsline {table}{\numberline {C.1}{\ignorespaces Chỉ mục bằng chứng của Chương 4}}{141}{table.C.1}%
+\contentsline {table}{\numberline {C.2}{\ignorespaces Mẫu số và đơn vị của quy trình hậu kiểm}}{145}{table.C.2}%
+\contentsline {table}{\numberline {C.3}{\ignorespaces Ánh xạ đầu vào và nguồn đối chiếu của các nhánh hậu kiểm}}{146}{table.C.3}%
+\contentsline {table}{\numberline {C.4}{\ignorespaces Cấu hình thực thi quy trình hậu kiểm}}{147}{table.caption.321}%
+\contentsline {table}{\numberline {C.5}{\ignorespaces Cơ chế và đầu ra của các nhánh hậu kiểm}}{147}{table.C.5}%
+\contentsline {table}{\numberline {C.6}{\ignorespaces Các trường cấp cao trong bản ghi hậu kiểm}}{148}{table.C.6}%
+\contentsline {table}{\numberline {C.7}{\ignorespaces Ma trận kịch bản kiểm tra Chatbot Agent}}{149}{table.C.7}%

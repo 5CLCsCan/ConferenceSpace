@@ -1,0 +1,60 @@
+% !TEX root = ../chapter1-cut-review.tex
+\chapter{Mở đầu}
+\label{Chapter1}
+
+\section{Đặt vấn đề}
+
+Quy mô công bố tại các hội nghị khoa học lớn đã tăng nhanh trong thập kỷ qua, kéo theo áp lực đối với quy trình xét duyệt. Một nghiên cứu trên 87.137 công trình tại 11 hội nghị trí tuệ nhân tạo hàng đầu giai đoạn 2014--2023 ghi nhận xu hướng tăng đều về số công trình được công bố và số tác giả~\cite{ch1ref1}. Riêng NeurIPS 2025 ghi nhận 21.575 bài nộp và 21.921 phản biện viên kỹ thuật~\cite{ch1ref2}. Khi khối lượng công việc tăng nhanh hơn nguồn Phản biện viên có kinh nghiệm, thời gian dành cho từng bản thảo có thể giảm và việc duy trì tính nhất quán trong phân công, theo dõi trở nên khó khăn hơn~\cite{ch1ref10,ch1ref11}. Vì vậy, hệ thống quản lý xét duyệt cần hỗ trợ xử lý khối lượng lớn mà vẫn duy trì chất lượng của từng công đoạn.
+
+Mô hình ngôn ngữ lớn có thể hỗ trợ các công đoạn cần đọc, rà soát hoặc tổng hợp nhiều thông tin, nhưng việc sử dụng chúng trong xét duyệt chịu ba ràng buộc về liêm chính học thuật. Thứ nhất, bản thảo chưa công bố phải được bảo mật; Nature Portfolio và Elsevier không cho phép phản biện viên đưa nội dung bản thảo vào công cụ AI tạo sinh bên ngoài nếu chưa có cơ chế bảo vệ phù hợp~\cite{ch2ref41,ch2ref45}. Thứ hai, trách nhiệm học thuật vẫn thuộc về con người; COPE không công nhận công cụ AI là chủ thể chịu trách nhiệm về nội dung, còn ICLR 2026 yêu cầu người tham gia khai báo việc sử dụng mô hình ngôn ngữ lớn và chịu trách nhiệm cuối cùng~\cite{ch2ref15,ch2ref44}. Thứ ba, AI không được thay thế phán đoán chuyên môn; ICML 2025 cấm phản biện viên dùng AI tạo sinh để viết nội dung phản biện hoặc đưa bài nộp vào các công cụ đó~\cite{ch2ref16}.
+
+Các quy định hạn chế hoặc cấm AI trong một số công đoạn không loại bỏ hoàn toàn việc sử dụng công nghệ này trong hoạt động phản biện. Một nghiên cứu bán thực nghiệm tại ICLR 2024 ước lượng ít nhất 15,8\% bản phản biện có dấu hiệu sử dụng mô hình ngôn ngữ lớn và ghi nhận mối liên hệ tiềm tàng giữa dấu hiệu này với điểm số cùng tỷ lệ chấp nhận~\cite{ch1ref14}. Trong thử nghiệm Review Feedback Agent tại ICLR 2025, 26,6\% Phản biện viên thực sự nhận được phản hồi đã cập nhật nhận xét theo gợi ý của hệ thống. Các nhà nghiên cứu học máy đánh giá ẩn danh rằng phản hồi của hệ thống cải thiện chất lượng nhận xét ở 89\% trường hợp được so sánh; thử nghiệm không ghi nhận khác biệt có ý nghĩa thống kê về kết quả chấp nhận bài giữa nhóm được hỗ trợ và nhóm đối chứng~\cite{ch1ref3,ch2ref18}. Các bằng chứng này cho thấy ranh giới sử dụng AI cần được xác định theo tác vụ, dữ liệu được xử lý, loại đầu ra và người kiểm tra kết quả.
+
+EasyChair, HotCRP, Microsoft CMT và OpenReview đã công bố các chức năng bao quát phần lớn vòng đời xét duyệt, từ tiếp nhận bản thảo và phân công Phản biện viên đến thu thập đánh giá và ra quyết định~\cite{ch1ref5,ch1ref6,ch1ref7,ch1ref8,ch2ref1}. PeerSubmit công bố thêm các chức năng đối sánh, sàng lọc, tóm tắt và tổng hợp thông tin bằng AI~\cite{ch2ref48,ch2ref52}. Tài liệu công khai cho biết mỗi nền tảng cung cấp những chức năng nào, nhưng chưa tạo cơ sở để so sánh độc lập chất lượng của các nền tảng trên cùng dữ liệu và phương pháp. Vì vậy, đề tài không xem số lượng chức năng là khoảng trống cần giải quyết. Trọng tâm của đề tài là lựa chọn cơ chế phù hợp và tích hợp cơ chế đó vào từng luồng công việc (workflow) của vòng đời xét duyệt, nơi trạng thái bài nộp, dữ liệu nguồn, vai trò và thẩm quyền đã được xác định.
+
+ConferenceSpace dùng vòng đời xét duyệt làm ngữ cảnh kiểm soát và áp dụng mô hình ba lớp trách nhiệm tại các điểm nghiệp vụ trong vòng đời này. Lớp nghiệp vụ cốt lõi quản lý trạng thái, quyền hạn và dữ liệu chính thức; lớp thuật toán xác định xử lý đối sánh Phản biện viên và phát hiện xung đột lợi ích; lớp AI hỗ trợ nhập liệu, kiểm tra, đọc và tổng hợp thông tin. Mỗi lớp quy định cơ chế tạo kết quả, chủ thể kiểm tra và thẩm quyền áp dụng kết quả. Vì vậy, bản nháp, cảnh báo hoặc đề xuất không tự trở thành dữ liệu nghiệp vụ chính thức; backend chỉ cập nhật dữ liệu sau khi người có thẩm quyền lựa chọn hành động tiếp theo và các điều kiện tương ứng được đáp ứng.
+
+\section{Mục tiêu đề tài}
+
+Mục tiêu tổng quát của đề tài là xây dựng và đánh giá ConferenceSpace như một nền tảng thực nghiệm cho quy trình xét duyệt bài báo tại hội nghị khoa học. Vòng đời xét duyệt vừa là đối tượng được xây dựng, vừa cung cấp ngữ cảnh trạng thái, dữ liệu, vai trò và thẩm quyền để tích hợp các cơ chế hỗ trợ tại đúng công đoạn. Các mục tiêu cụ thể gồm:
+
+\begin{itemize}
+\item Xây dựng quy trình nghiệp vụ cốt lõi cho vòng đời xét duyệt bài báo, từ cấu hình hội nghị, nộp bài, đối sánh phản biện viên và thu thập đánh giá đến phản hồi của tác giả, thảo luận và ra quyết định; đồng thời quản lý trạng thái, dữ liệu và quyền hạn làm ngữ cảnh cho các cơ chế hỗ trợ.
+\item Xây dựng và áp dụng mô hình ba lớp trách nhiệm gồm nghiệp vụ cốt lõi, thuật toán xác định và có thể kiểm chứng, cùng AI hỗ trợ có kiểm soát tại từng điểm nghiệp vụ; qua đó xác định cơ chế xử lý, loại đầu ra, chủ thể kiểm tra và quyền quyết định.
+\item Xây dựng cơ chế đề xuất Phản biện viên và phát hiện xung đột lợi ích có kết quả tái lập, kèm căn cứ để Chủ tọa kiểm tra trước khi phân công.
+\item Tích hợp các luồng công việc AI hỗ trợ nhập liệu, kiểm tra bản thảo, đọc hiểu, rà soát và tổng hợp thông tin trên tập dữ liệu thử nghiệm, theo quyền hạn đã xác định. Mỗi luồng công việc chỉ tạo đầu ra theo chức năng đã thiết kế.
+\item Đánh giá các thành phần bằng chỉ số phù hợp với từng tác vụ, gồm hiệu năng nghiệp vụ, hành vi của thuật toán, chất lượng đầu ra AI, khả năng tuân thủ quyền truy cập của Chatbot Agent và phản hồi từ UAT.
+\end{itemize}
+
+Việc đánh giá bám theo bốn nhóm bằng chứng: hiệu năng và độ ổn định của lớp nghiệp vụ; chi phí cùng hành vi của thuật toán xác định; chất lượng đầu ra của các luồng công việc AI; và khả năng tuân thủ quyền truy cập kết hợp với phản hồi UAT. Chương~\ref{Chapter4} trình bày câu hỏi, chỉ số và giới hạn kết luận của từng nhóm; Chương~\ref{Chapter5} đối chiếu các kết quả này với mục tiêu đề tài.
+
+Đóng góp trung tâm của đề tài là cách tích hợp các cơ chế hỗ trợ vào cùng vòng đời xét duyệt với ranh giới trách nhiệm rõ ràng. Vòng đời cung cấp trạng thái, dữ liệu và quyền hạn; mô hình ba lớp xác định cơ chế tạo kết quả, người kiểm tra và thẩm quyền áp dụng; chuỗi đánh giá sử dụng bằng chứng phù hợp với từng loại đầu ra.
+
+\section{Phạm vi đề tài}
+
+Đề tài tập trung vào quy trình xét duyệt bài báo tại hội nghị khoa học với ba vai trò nghiệp vụ chính: Tác giả, Phản biện viên và Chủ tọa/Đồng chủ tọa.
+
+\textbf{Phạm vi bao gồm:}
+
+\begin{itemize}
+\item Quy trình quản lý liên quan trực tiếp đến xét duyệt bài báo: cấu hình hội nghị, nộp bài, đối sánh phản biện viên, khai báo và kiểm tra xung đột lợi ích, thu thập đánh giá, phản hồi của tác giả, thảo luận và ra quyết định.
+\item Cơ chế đề xuất phản biện viên dựa trên thông tin chuyên môn, khối lượng công việc trong nền tảng và các ràng buộc nghiệp vụ; kết quả là danh sách đề xuất để Chủ tọa xem xét và quyết định phân công.
+\item Cơ chế phát hiện xung đột lợi ích từ quan hệ trực tiếp trong hệ thống, khai báo thủ công và quan hệ đồng tác giả khi có dữ liệu phù hợp.
+\item Sáu luồng công việc AI hỗ trợ: Tự động điền bài nộp (Submission Autofill), Kiểm tra trước khi nộp bài (Submission Gating), Phân tích và tóm tắt bài báo (Reviewer Initial Analysis), Kiểm tra chất lượng nhận xét (Review Quality Auditor), Báo cáo tổng hợp hỗ trợ Chủ tọa (Chair Decision Copilot) và Chatbot Agent. Mỗi luồng công việc phục vụ một công đoạn cụ thể và hiển thị kết quả để người dùng có thẩm quyền xem xét.
+\item Đánh giá hệ thống ở quy mô thử nghiệm thông qua kiểm thử kỹ thuật, đánh giá từng thành phần và UAT.
+\end{itemize}
+
+\textbf{Phạm vi không bao gồm:}
+
+\begin{itemize}
+\item Quản lý sự kiện ngoài quy trình xét duyệt, như bán vé, đăng ký tham dự, xếp lịch phòng, tổ chức chương trình và xuất bản kỷ yếu.
+\item Tự động ra quyết định học thuật; bảo đảm phát hiện đầy đủ mọi xung đột lợi ích; hoặc bảo đảm chất lượng AI không đổi khi mô hình và dịch vụ bên ngoài thay đổi.
+\item Kiểm toán vòng đời dữ liệu tại nhà cung cấp AI. Việc xử lý bản thảo và nội dung phản biện trong triển khai thực tế phụ thuộc vào chính sách hội nghị và thỏa thuận xử lý dữ liệu.
+\item So sánh chất lượng ConferenceSpace với các nền tảng khác trên cùng dữ liệu; hoặc đánh giá tác động dài hạn của AI đối với cộng đồng học thuật.
+\end{itemize}
+
+Các kết quả của đề tài được diễn giải trong phạm vi cấu hình, dữ liệu và thời gian thử nghiệm được trình bày tại Chương~\ref{Chapter4}.
+
+\section{Cấu trúc luận văn}
+
+Báo cáo gồm năm chương. Chương 1 trình bày bối cảnh, mục tiêu và phạm vi đề tài. Chương 2 phân tích nhu cầu, khảo sát các nền tảng liên quan và xác định yêu cầu hệ thống. Chương 3 trình bày use case, kiến trúc, dữ liệu, thuật toán xác định và các luồng công việc AI. Chương 4 mô tả phương pháp và kết quả đánh giá. Chương 5 đối chiếu kết quả với mục tiêu, tổng hợp giới hạn và đề xuất hướng phát triển.
