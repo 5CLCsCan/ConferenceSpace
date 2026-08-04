@@ -46,28 +46,9 @@ func (s *Service) BuildConflictMap(
 	submissions []*dto.Submission,
 	reviewers []*dto.Reviewer,
 ) (commons.ConflictMap, error) {
-	// Convert DTOs to internal submission format
 	coiSubmissions := make([]commons.Submission, len(submissions))
 	for i, sub := range submissions {
-		coiSubmissions[i] = commons.Submission{
-			ID:          sub.ID,
-			AuthorEmail: sub.Author,
-			CoAuthors:   []string{},
-			Declared:    []commons.ConflictDeclaration{},
-		}
-
-		// Extract co-authors and declared conflicts from information JSONB
-		if sub.Information != nil {
-			coiSubmissions[i].CoAuthors = sub.Information.CoAuthors
-
-			// Convert DTO conflict declarations to COI format
-			for _, decl := range sub.Information.DeclaredConflicts {
-				coiSubmissions[i].Declared = append(coiSubmissions[i].Declared, commons.ConflictDeclaration{
-					Email:  decl.Email,
-					Reason: decl.Reason,
-				})
-			}
-		}
+		coiSubmissions[i] = SubmissionFromDTO(sub)
 	}
 
 	// Convert reviewers to internal format

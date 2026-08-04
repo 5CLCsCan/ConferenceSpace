@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	assignmentCOI "github.com/dcao/conferencespace/internal/assignment/coi"
 	"github.com/dcao/conferencespace/internal/assignment/coi/commons"
 	"github.com/dcao/conferencespace/internal/assignment/coi/detectors"
 	"github.com/dcao/conferencespace/internal/dto"
@@ -237,26 +238,7 @@ func (s *Service) buildAndStoreRelationships(ctx context.Context, conferenceID i
 func toDetectorSubmissions(submissions []*dto.Submission) []commons.Submission {
 	detectorSubmissions := make([]commons.Submission, len(submissions))
 	for i, sub := range submissions {
-		detectorSubmission := commons.Submission{
-			ID:          sub.ID,
-			AuthorEmail: sub.Author,
-			CoAuthors:   []string{},
-			Declared:    []commons.ConflictDeclaration{},
-		}
-		if sub.Information != nil {
-			if sub.Information.CoAuthors != nil {
-				detectorSubmission.CoAuthors = sub.Information.CoAuthors
-			}
-			if sub.Information.DeclaredConflicts != nil {
-				for _, dc := range sub.Information.DeclaredConflicts {
-					detectorSubmission.Declared = append(detectorSubmission.Declared, commons.ConflictDeclaration{
-						Email:  dc.Email,
-						Reason: dc.Reason,
-					})
-				}
-			}
-		}
-		detectorSubmissions[i] = detectorSubmission
+		detectorSubmissions[i] = assignmentCOI.SubmissionFromDTO(sub)
 	}
 
 	return detectorSubmissions
