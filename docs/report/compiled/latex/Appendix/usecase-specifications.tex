@@ -1,0 +1,280 @@
+\newcommand{\UseCaseSpec}[8]{%
+\subsubsection{#1. #2}
+\begin{longtable}{|T{0.28\textwidth}|T{0.70\textwidth}|}
+\caption{Đặc tả #1: #2}\label{tab:appendix-a-#1}\\
+\hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
+\endhead
+Tác nhân trực tiếp & #3 \\ \hline
+Mục tiêu & #4 \\ \hline
+Điều kiện tiên quyết & #5 \\ \hline
+Luồng chính & #6 \\ \hline
+Luồng thay thế & #7 \\ \hline
+Kết quả đạt được & #8 \\ \hline
+\end{longtable}
+}
+
+\section{Đặc tả các use case}
+\label{sec:appendix-a-usecases}
+
+Mỗi use case được đặc tả theo mục tiêu người dùng thay vì theo endpoint. Điều kiện xác thực, quyền và trạng thái nghiệp vụ được ghi ở điều kiện tiên quyết hoặc luồng lỗi. Các chức năng hỗ trợ S-01 đến S-07 không phải mục tiêu nghiệp vụ độc lập nên được nêu tại đúng bước của use case chính tương ứng. Chi tiết về S-05, S-06 được trình bày tại Mục~\ref{sec:appendix-a-algorithms}; đầu vào, đầu ra, xử lý lỗi và giới hạn của S-01 đến S-04, S-07 được trình bày tại Mục~\ref{sec:appendix-a-ai}.
+
+\subsection{Xác thực và quản lý hồ sơ}
+
+\UseCaseSpec
+{UC-01}{Đăng ký và kích hoạt tài khoản}
+{Người dùng}
+{Tạo tài khoản với email đã xác minh}
+{Chưa đăng nhập; email chưa tồn tại}
+{Nhập thông tin đăng ký; hệ thống tạo tài khoản chờ xác minh và gửi email chứa liên kết; Người dùng mở liên kết để kích hoạt}
+{Email trùng hoặc dữ liệu sai bị từ chối; token hết hạn/đã dùng không kích hoạt; có thể gửi lại email xác minh}
+{Tài khoản được tạo và xác minh}
+
+\UseCaseSpec
+{UC-02}{Đăng nhập}
+{Người dùng}
+{Thiết lập phiên đã xác thực}
+{Tài khoản đã kích hoạt; chưa có phiên hợp lệ}
+{Nhập thông tin đăng nhập; hệ thống xác thực, tạo phiên; giao diện tải ngữ cảnh Người dùng}
+{Sai thông tin hoặc tài khoản chưa xác minh bị từ chối; áp dụng giới hạn tần suất khi cần}
+{Phiên hợp lệ được thiết lập}
+
+\UseCaseSpec
+{UC-03}{Khôi phục mật khẩu}
+{Người dùng}
+{Đặt lại mật khẩu khi không đăng nhập được}
+{Chưa đăng nhập; có quyền truy cập hộp thư đã đăng ký}
+{Yêu cầu khôi phục; hệ thống gửi liên kết đặt lại; Người dùng đặt mật khẩu mới qua liên kết}
+{Email không tồn tại không lộ trạng thái tài khoản; token sai/hết hạn bị từ chối; mật khẩu không đạt chính sách phải nhập lại}
+{Mật khẩu mới được lưu, token hết hiệu lực}
+
+\UseCaseSpec
+{UC-04}{Đăng xuất}
+{Người dùng}
+{Kết thúc phiên hiện tại}
+{Đang có phiên đăng nhập}
+{Chọn đăng xuất; hệ thống xóa dữ liệu phiên, vô hiệu hóa xác thực; chuyển về khu vực không yêu cầu đăng nhập}
+{Phiên đã hết hạn vẫn xóa trạng thái cục bộ an toàn}
+{Phiên kết thúc; tài nguyên hạn chế không còn truy cập được}
+
+\UseCaseSpec
+{UC-05}{Quản lý hồ sơ cá nhân}
+{Người dùng}
+{Cập nhật thông tin cá nhân, mật khẩu và liên kết hồ sơ học thuật}
+{Đã đăng nhập}
+{Chỉnh sửa hồ sơ hoặc đổi mật khẩu; khi liên kết hồ sơ học thuật, chọn hồ sơ phù hợp để hệ thống lưu và đồng bộ; có thể hủy liên kết}
+{Dữ liệu không hợp lệ, sai mật khẩu hiện tại hoặc dịch vụ ngoài lỗi được báo mà không mất dữ liệu cũ}
+{Hồ sơ hoặc liên kết học thuật được cập nhật}
+
+\UseCaseSpec
+{UC-06}{Quản lý thông báo}
+{Người dùng}
+{Theo dõi sự kiện và điều chỉnh cách nhận thông báo}
+{Đã đăng nhập}
+{Xem, đánh dấu đã đọc hoặc xóa thông báo; bật/tắt loại thông báo và kênh email trong tùy chọn}
+{Thông báo không thuộc Người dùng bị từ chối; lỗi cập nhật giữ trạng thái cũ; mất kết nối realtime không chặn tải lại qua API}
+{Trạng thái thông báo và tùy chọn được lưu}
+
+\UseCaseSpec
+{UC-07}{Xem và xuất lịch hội nghị}
+{Người dùng}
+{Xem mốc hội nghị và xuất vào lịch ngoài}
+{Đã đăng nhập; có hội nghị/mốc được phép xem}
+{Xem lịch tổng hợp từ các hội nghị liên quan; chọn xuất một hoặc toàn bộ thành tệp ICS}
+{Mốc thiếu ngày hợp lệ bị bỏ qua hoặc báo rõ; không có mốc thì hiển thị rỗng; lỗi tạo tệp không đổi dữ liệu gốc}
+{Lịch hiển thị hoặc tệp ICS được tạo}
+
+
+\subsection{Chức năng dùng chung}
+
+\UseCaseSpec
+{UC-08}{Tra cứu và nhận hướng dẫn qua Chatbot Agent}
+{Người dùng}
+{Nhận hướng dẫn hoặc câu trả lời dựa trên dữ liệu được phép truy cập}
+{Chatbot Agent đã cấu hình; cần phiên hợp lệ nếu câu hỏi liên quan dữ liệu hạn chế}
+{Gửi câu hỏi kèm ngữ cảnh; Agent gọi công cụ truy vấn có cấu trúc; backend kiểm tra quyền và trả dữ liệu tối thiểu phù hợp để Agent trả lời}
+{Yêu cầu vượt quyền hoặc ngoài phạm vi bị từ chối; lỗi công cụ/dịch vụ AI được giải thích; Agent không truy cập trực tiếp CSDL}
+{Câu trả lời trong phạm vi quyền hoặc từ chối rõ ràng}
+
+\UseCaseSpec
+{UC-09}{Trao đổi theo bài nộp}
+{Tác giả, Người phản biện, Chủ tọa/Đồng chủ tọa}
+{Lưu trao đổi gắn với bài nộp làm lịch sử giám sát}
+{Bài tồn tại; hội nghị đúng giai đoạn; Người phản biện có phân công hoặc Người dùng là Tác giả/Chủ tọa có quyền}
+{Người phản biện mở chủ đề; Tác giả và Người phản biện trao đổi tin nhắn/tệp; Chủ tọa xem lịch sử chỉ đọc}
+{Người không liên quan, sai giai đoạn hoặc tệp vượt giới hạn bị từ chối; Chủ tọa không tạo chủ đề hoặc gửi tin nhắn}
+{Chuỗi và tin nhắn được lưu gắn với bài}
+
+\UseCaseSpec
+{UC-10}{Khám phá và theo dõi hội nghị}
+{Người dùng}
+{Tìm, xem thông tin và lưu hội nghị quan tâm}
+{Đã đăng nhập; hội nghị nằm trong danh sách hệ thống}
+{Tìm/lọc hội nghị; xem chi tiết CFP, track, hạn chót, ban chương trình; theo dõi/bỏ theo dõi; chuyển sang nộp bài nếu đang mở}
+{Không có kết quả hiển thị rỗng; hội nghị đóng vẫn xem được nhưng không nộp mới; lỗi bookmark không đổi trạng thái đã xác nhận}
+{Hội nghị được xem hoặc trạng thái theo dõi cập nhật}
+
+
+\subsection{Nghiệp vụ Tác giả}
+
+\UseCaseSpec
+{UC-11}{Soạn và chuẩn bị bài nộp}
+{Tác giả}
+{Chuẩn bị thông tin, tệp và khai báo trước khi nộp}
+{Đã đăng nhập; hội nghị còn cho phép chuẩn bị/chỉnh sửa; Tác giả không đồng thời giữ vai trò quản trị hội nghị cho cùng bài}
+{Nhập tiêu đề, tóm tắt, từ khóa, track, danh sách tác giả, tệp và khai báo xung đột; có thể yêu cầu Submission Autofill (S-01) gợi ý dữ liệu để kiểm tra/xác nhận; lưu nháp hoặc chuyển sang nộp bài}
+{Autofill không khả dụng hoặc gợi ý không phù hợp thì nhập thủ công, không ghi đè dữ liệu đã xác nhận; dữ liệu/tệp không hợp lệ được chỉ rõ; thoát khi chưa lưu không tạo nháp}
+{Dữ liệu sẵn sàng cho UC-12 hoặc bản nháp được lưu}
+
+\UseCaseSpec
+{UC-12}{Nộp bài}
+{Tác giả}
+{Chuyển dữ liệu hoàn chỉnh thành bài nộp chính thức sau kiểm tra bắt buộc}
+{Đã đăng nhập; hội nghị đang mở, chưa qua hạn; dữ liệu/tệp bắt buộc đã có}
+{Xác nhận nộp; hệ thống bắt buộc chạy Submission Gating (S-02); nếu cho phép, backend tạo bài chính thức hoặc chuyển nháp sang đã nộp và thông báo}
+{Kết quả \textit{block} dừng và yêu cầu sửa; \textit{warn} chỉ tiếp tục khi chính sách cho phép; lỗi hoặc kết quả không xác định không được tính là đã vượt kiểm tra; thử lại luôn chạy gating trên dữ liệu hiện hành}
+{Bài chính thức được tạo hoặc nháp chuyển sang đã nộp}
+
+\UseCaseSpec
+{UC-13}{Theo dõi trạng thái bài nộp}
+{Tác giả}
+{Biết trạng thái và hành động khả dụng trong vòng đời bài nộp}
+{Đã đăng nhập, là tác giả của ít nhất một bài}
+{Mở danh sách/chi tiết bài; hệ thống hiển thị trạng thái, mốc thời gian và hành động phù hợp (sửa, rút, xem phản biện, phản hồi, nộp bản hoàn thiện)}
+{Bài không thuộc Tác giả bị từ chối; hành động không phù hợp trạng thái bị ẩn hoặc từ chối khi gọi trực tiếp}
+{Trạng thái và hành động hợp lệ được hiển thị}
+
+\UseCaseSpec
+{UC-14}{Rút bài}
+{Tác giả}
+{Dừng bài khỏi quy trình xét duyệt khi chính sách cho phép}
+{Là tác giả của bài; bài chưa có quyết định cuối; hạn/chính sách cho phép rút}
+{Xác nhận rút; backend kiểm tra quyền, trạng thái, hạn; chuyển bài sang withdrawn}
+{Bài đã accepted/rejected, hết hạn hoặc chính sách cấm rút bị từ chối}
+{Bài ở trạng thái đã rút}
+
+\UseCaseSpec
+{UC-15}{Xem nội dung phản biện}
+{Tác giả}
+{Đọc nhận xét đã công bố cho bài của mình}
+{Sở hữu bài; giai đoạn/chính sách cho phép công bố}
+{Mở khu vực phản hồi; hệ thống trả nội dung được phép, ẩn danh Người phản biện nếu cần}
+{Chưa đến giai đoạn công bố thì không trả nội dung; bài không thuộc Tác giả bị từ chối}
+{Nội dung phản biện hiển thị trong phạm vi chính sách}
+
+\UseCaseSpec
+{UC-16}{Gửi phản hồi đối với ý kiến phản biện}
+{Tác giả}
+{Phản hồi tổng quát và theo từng ý kiến trong giai đoạn rebuttal}
+{Sở hữu bài; rebuttal đang mở; nội dung trong giới hạn cấu hình}
+{Soạn phản hồi tổng quát và theo điểm; backend lưu, liên kết với assignment và thông báo Người phản biện}
+{Ngoài giai đoạn, quá giới hạn hoặc dữ liệu điểm sai bị từ chối; lỗi lưu không đổi trạng thái}
+{Phản hồi được lưu, dùng cho UC-21 và UC-26}
+
+\UseCaseSpec
+{UC-17}{Nộp bản thảo hoàn thiện}
+{Tác giả}
+{Tải lên phiên bản hoàn thiện của bài đã chấp nhận}
+{Sở hữu bài; bài ở trạng thái accepted; tệp hợp lệ}
+{Chọn tệp camera-ready; backend kiểm tra quyền/trạng thái và lưu tệp, metadata liên kết với bài}
+{Bài chưa accepted, sai người hoặc tệp không hợp lệ bị từ chối}
+{Bản thảo hoàn thiện được lưu}
+
+
+\subsection{Nghiệp vụ Người phản biện}
+
+\UseCaseSpec
+{UC-18}{Phản hồi lời mời tham gia ban phản biện}
+{Người phản biện}
+{Chấp nhận hoặc từ chối tư cách tham gia ban phản biện}
+{Có lời mời hợp lệ; người nhận có thể chưa có tài khoản}
+{Xem thông tin hội nghị, chọn chấp nhận/từ chối; với lời mời ngoài hệ thống, nhập thông tin tài khoản khi chấp nhận; backend kích hoạt vai trò Reviewer khi chấp nhận}
+{Token hết hạn/đã dùng/sai email hoặc lời mời không còn pending bị từ chối; lỗi tạo tài khoản không đánh dấu đã chấp nhận}
+{Lời mời có trạng thái accepted/rejected; vai trò kích hoạt khi chấp nhận}
+
+\UseCaseSpec
+{UC-19}{Phản hồi đề nghị phân công phản biện}
+{Người phản biện}
+{Chấp nhận hoặc từ chối trách nhiệm phản biện một bài}
+{Có vai trò Reviewer; có assignment pending của chính mình}
+{Xem đề nghị, hạn và căn cứ phù hợp; chọn accept/decline, có thể nêu lý do; backend cập nhật trạng thái}
+{Assignment không thuộc Người dùng, đã phản hồi hoặc không còn hợp lệ bị từ chối}
+{Assignment chuyển accepted/declined; bài chỉ mở đầy đủ sau khi chấp nhận}
+
+\UseCaseSpec
+{UC-20}{Thực hiện phản biện bài được phân công}
+{Người phản biện}
+{Đọc bài, soạn, lưu nháp và gửi bản phản biện chính thức}
+{Assignment thuộc chính mình, đã accepted; giai đoạn cho phép}
+{Mở/tải bài, có thể yêu cầu Reviewer Initial Analysis (S-03) để định hướng đọc; nhập điểm, tiêu chí, nhận xét, khuyến nghị; lưu nháp chạy Review Quality Auditor (S-04) chế độ draft-save; gửi chính thức luôn qua preflight và submit-enforcement}
+{Không dùng S-03 thì đọc thủ công; các phát hiện \textit{warn} hoặc \CodeBreak{status=block} của S-04 chỉ được hiển thị để ưu tiên xem xét, không tự đổi điểm/khuyến nghị và không vô hiệu hóa thao tác gửi; nếu S-04 gặp lỗi thực thi, hệ thống yêu cầu xác nhận tiếp tục và ghi log; assignment pending/declined hoặc đã gửi không sửa được qua luồng này}
+{Bản nháp được lưu hoặc bản chính thức được ghi nhận}
+
+\UseCaseSpec
+{UC-21}{Xem phản hồi tác giả và cập nhật đánh giá}
+{Người phản biện}
+{Đọc rebuttal và ghi nhận thay đổi đánh giá sau phản hồi}
+{Đã gửi phản biện; Tác giả đã phản hồi; giai đoạn cho phép}
+{Xem phản hồi tổng quát/theo điểm, xác nhận đã đọc; có thể nhập điểm/khuyến nghị/nhận xét sau phản hồi, lưu riêng với đánh giá ban đầu}
+{Ngoài giai đoạn, sai chủ sở hữu hoặc giá trị không hợp lệ bị từ chối}
+{Trạng thái đã đọc và đánh giá sau phản hồi được lưu}
+
+
+\subsection{Nghiệp vụ Chủ tọa/Đồng chủ tọa}
+
+\UseCaseSpec
+{UC-22}{Tạo và cấu hình hội nghị}
+{Chủ tọa/Đồng chủ tọa}
+{Khởi tạo hội nghị và thiết lập thông tin điều khiển quy trình}
+{Có quyền tạo hoặc quản trị hội nghị}
+{Tạo hội nghị hoặc dùng mẫu; nhập track, CFP, hạn chót, biểu mẫu, chính sách submission/review/discussion/rebuttal; có thể cập nhật trước khi giai đoạn bị khóa}
+{Dữ liệu/hạn không hợp lệ, thiếu quyền hoặc sửa trường đã khóa bị từ chối}
+{Hội nghị và cấu hình được lưu}
+
+\UseCaseSpec
+{UC-23}{Quản lý ban chương trình và danh sách người phản biện}
+{Chủ tọa/Đồng chủ tọa}
+{Tạo và duy trì nhân sự điều phối/phản biện hội nghị}
+{Có quyền trên hội nghị}
+{Mời người dùng có sẵn hoặc gửi lời mời ngoài hệ thống; theo dõi trạng thái; cập nhật hoặc loại thành viên khi chính sách cho phép}
+{Email trùng, đã có vai trò, lời mời hết hạn hoặc thiếu quyền được xử lý rõ; không loại thành viên nếu ràng buộc chưa cho phép}
+{Danh sách và trạng thái lời mời được cập nhật}
+
+\UseCaseSpec
+{UC-24}{Quản lý giai đoạn và tiến độ hội nghị}
+{Chủ tọa/Đồng chủ tọa}
+{Theo dõi khối lượng công việc và điều khiển giai đoạn hợp lệ}
+{Có quyền; cấu hình giai đoạn tồn tại}
+{Xem dashboard bài, assignment, phản biện, COI, việc cần xử lý; cập nhật trạng thái hội nghị; mở/kết thúc rebuttal/discussion}
+{Chuyển trạng thái không hợp lệ hoặc thiếu quyền bị từ chối; số liệu lỗi không tự đổi giai đoạn}
+{Giai đoạn hoặc tiến độ hiện hành được cập nhật/hiển thị}
+
+\UseCaseSpec
+{UC-25}{Phân công người phản biện}
+{Chủ tọa/Đồng chủ tọa}
+{Tạo và xác nhận phương án phân công có căn cứ, đủ tải, đã kiểm tra xung đột lợi ích}
+{Có quyền; có bài chính thức và Người phản biện accepted}
+{Tự chọn ứng viên hoặc yêu cầu Reviewer Matching (S-05) đề xuất; hệ thống bắt buộc chạy COI Detection (S-06) trước khi xác nhận; xem căn cứ/cảnh báo, điều chỉnh hoặc ghi đè có lý do; backend tạo assignment và thông báo}
+{Không dùng S-05 thì phân công thủ công; thiếu ứng viên được nêu rõ; xung đột loại khỏi đề xuất hoặc cần ghi đè có lý do; chưa hoàn tất COI thì phương án chưa được xác nhận; assignment trùng hoặc vượt tải bị từ chối}
+{Assignment đã kiểm tra được xác nhận, chờ Người phản biện phản hồi}
+
+\UseCaseSpec
+{UC-26}{Xem và đối chiếu bằng chứng đánh giá}
+{Chủ tọa/Đồng chủ tọa}
+{Đối chiếu dữ liệu nguồn trước khi quyết định học thuật}
+{Có quyền; bài có phản biện hoặc xác định được phần thiếu}
+{Xem bài, điểm, phản biện, phản hồi, thay đổi sau rebuttal, thảo luận; có thể yêu cầu Chair Decision Copilot (S-07) tổng hợp đồng thuận/bất đồng kèm fingerprint}
+{Thiếu bằng chứng được nêu rõ; không dùng S-07 thì dùng dữ liệu gốc; fingerprint lệch bị đánh dấu \textit{stale}; Chủ tọa luôn tự đối chiếu và chịu trách nhiệm quyết định}
+{Bộ bằng chứng hiện hành được xem và đối chiếu}
+
+\UseCaseSpec
+{UC-27}{Ghi nhận và công bố quyết định đối với bài nộp}
+{Chủ tọa/Đồng chủ tọa}
+{Lưu và công bố quyết định chấp nhận/từ chối}
+{Có quyền; bài ở giai đoạn cho phép quyết định; bằng chứng đã có hoặc phần thiếu đã xác định}
+{Chủ tọa tự chọn quyết định và xác nhận công bố; backend kiểm tra quyền/trạng thái, cập nhật accepted/rejected và thông báo Tác giả}
+{Thiếu quyền, sai trạng thái hoặc đã có quyết định bị từ chối; trạng thái đổi giữa lúc thao tác phải tải lại trước khi xác nhận lại; lỗi cập nhật không báo thành công giả}
+{Quyết định chính thức được lưu và công bố; bài accepted có thể chuyển sang UC-17}

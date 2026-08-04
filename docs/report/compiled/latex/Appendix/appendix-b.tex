@@ -94,103 +94,6 @@ Neo4j Bolt & localhost & 7687 & Backend thiết lập được kết nối Bolt 
 
 Môi trường cục bộ nên được xem là sẵn sàng sau khi vượt qua bốn bước kiểm tra cơ bản. Thứ nhất, các container PostgreSQL, Redis và Neo4j phải ở trạng thái hoạt động. Thứ hai, backend phải kết nối được cơ sở dữ liệu và hoàn tất migration mà không có lỗi. Thứ ba, các điểm kiểm tra trạng thái phải trả phản hồi thành công. Thứ tư, frontend phải tải được và gửi yêu cầu qua backend. Trình tự này giúp tách lỗi hạ tầng, lỗi migration và lỗi tích hợp giao diện, thay vì xem tất cả như một lỗi khởi động chung.
 
-\section{Cấu hình môi trường}
-\label{sec:appendix-b-configuration}
-
-\subsection{Cấu hình backend}
-
-Backend đọc cấu hình từ tệp \path{backend/.env} trong môi trường phát triển. Bảng~\ref{tab:appendix-b-backend-env} giữ nguyên tên biến cấu hình và mô tả ngắn gọn vai trò của từng nhóm biến.
-
-\begin{longtable}{|T{0.40\textwidth}|T{0.50\textwidth}|}
-\caption{Biến cấu hình của backend}\label{tab:appendix-b-backend-env}\\
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endhead
-\CodeBreak{SERVER\_PORT} & Cổng lắng nghe của backend \\ \hline
-\CodeBreak{GIN\_MODE} & Chế độ chạy của Gin \\ \hline
-\CodeBreak{DB\_HOST}, \CodeBreak{DB\_PORT} & Địa chỉ và cổng PostgreSQL \\ \hline
-\CodeBreak{DB\_USER}, \CodeBreak{DB\_PASSWORD}, \CodeBreak{DB\_NAME} & Thông tin xác thực và tên cơ sở dữ liệu PostgreSQL \\ \hline
-\CodeBreak{DB\_SSL\_MODE} & Chế độ SSL của kết nối PostgreSQL \\ \hline
-\CodeBreak{REDIS\_HOST}, \CodeBreak{REDIS\_PORT} & Địa chỉ và cổng Redis \\ \hline
-\CodeBreak{REDIS\_PASSWORD} & Mật khẩu Redis khi môi trường yêu cầu xác thực \\ \hline
-\CodeBreak{JWT\_SECRET} & Khóa ký JWT; đây là bí mật bắt buộc phải thay đổi theo môi trường \\ \hline
-\CodeBreak{JWT\_EXPIRATION\_HOURS} & Thời hạn truy cập của JWT \\ \hline
-\CodeBreak{JWT\_REFRESH\_EXPIRATION\_HOURS} & Thời hạn làm mới JWT \\ \hline
-\CodeBreak{FRONTEND\_URL} & Nguồn frontend được backend cho phép giao tiếp \\ \hline
-\CodeBreak{NEO4J\_URI} & URI kết nối đến Neo4j \\ \hline
-\CodeBreak{NEO4J\_USERNAME}, \CodeBreak{NEO4J\_PASSWORD} & Thông tin xác thực Neo4j \\ \hline
-\CodeBreak{GEMINI\_API\_KEY} & Khóa truy cập dịch vụ Gemini cho các chức năng AI sử dụng dịch vụ này \\ \hline
-\CodeBreak{GEMINI\_MODEL} & Tên mô hình Gemini được cấu hình \\ \hline
-\CodeBreak{OPENROUTER\_API\_KEY} & Khóa truy cập OpenRouter cho các chức năng AI sử dụng dịch vụ này \\ \hline
-\CodeBreak{OPENROUTER\_MODEL} & Tên mô hình OpenRouter được cấu hình \\ \hline
-\CodeBreak{OPENROUTER\_BASE\_URL} & Địa chỉ cơ sở của OpenRouter \\ \hline
-\CodeBreak{OPENROUTER\_HTTP\_REFERER} & Giá trị HTTP Referer gửi đến OpenRouter \\ \hline
-\CodeBreak{OPENROUTER\_X\_TITLE} & Tên ứng dụng gửi đến OpenRouter \\ \hline
-\CodeBreak{DICEBEAR\_API\_URL} & Địa chỉ dịch vụ tạo ảnh đại diện DiceBear \\ \hline
-\CodeBreak{AI\_SERVICE\_BASE\_URL} & Địa chỉ dịch vụ AI mà frontend sử dụng cho hội thoại \\ \hline
-\CodeBreak{AI\_SERVICE\_ENABLED} & Bật hoặc tắt tích hợp dịch vụ AI tại frontend \\ \hline
-\CodeBreak{JWT\_EXPIRY\_SECONDS} & Thời hạn cookie hoặc phiên xác thực tại frontend \\ \hline
-\CodeBreak{SMTP\_HOST}, \CodeBreak{SMTP\_PORT} & Máy chủ và cổng SMTP \\ \hline
-\CodeBreak{SMTP\_USERNAME}, \CodeBreak{SMTP\_PASSWORD} & Thông tin xác thực SMTP \\ \hline
-\CodeBreak{FROM\_EMAIL} & Địa chỉ người gửi email \\ \hline
-\CodeBreak{EMAIL\_BASE\_URL} & Địa chỉ cơ sở dùng trong các liên kết gửi qua email \\ \hline
-\end{longtable}
-
-Các bí mật như mật khẩu cơ sở dữ liệu, khóa JWT, khóa dịch vụ AI và thông tin gửi email không được ghi trực tiếp vào mã nguồn, Dockerfile hoặc image. Mỗi môi trường cần cung cấp giá trị riêng thông qua tệp cấu hình không được theo dõi bởi Git hoặc thông qua cơ chế quản lý bí mật của nền tảng triển khai.
-
-\subsection{Cấu hình dịch vụ AI}
-
-Dịch vụ AI đọc tệp \path{ai-service/.env} bằng \CodeBreak{pydantic-settings}. Nhóm cấu hình nhà cung cấp mô hình cần thỏa một trong hai cách thiết lập: OpenRouter với \CodeBreak{OPENROUTER\_API\_KEY} và \CodeBreak{AGENT\_MODEL}, hoặc nhà cung cấp tương thích với API của OpenAI với \CodeBreak{OPENAI\_API\_KEY}, \CodeBreak{OPENAI\_BASE\_URL} và \CodeBreak{OPENAI\_MODEL}. Nguồn quy định giá trị mặc định \CodeBreak{AGENT\_MODEL=openrouter/google/gemini-3.1-flash-lite}, \CodeBreak{OPENAI\_MODEL=gemini-3.1-flash-lite} và \CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS=60}; báo cáo chỉ nêu tên biến, không ghi giá trị thật của các khóa truy cập. Bảng~\ref{tab:appendix-b-ai-env} tóm tắt các biến cấu hình chính.
-
-\begin{longtable}{|T{0.38\textwidth}|T{0.52\textwidth}|}
-\caption{Biến cấu hình của dịch vụ AI}\label{tab:appendix-b-ai-env}\\
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endhead
-\CodeBreak{AI\_SERVICE\_PORT} & Cổng lắng nghe của dịch vụ AI \\ \hline
-\CodeBreak{OPENROUTER\_API\_KEY} & Khóa truy cập OpenRouter \\ \hline
-\CodeBreak{AGENT\_MODEL} & Tên mô hình dùng cho luồng Chatbot Agent \\ \hline
-\CodeBreak{OPENAI\_API\_KEY} & Khóa truy cập nhà cung cấp tương thích với API của OpenAI \\ \hline
-\CodeBreak{OPENAI\_BASE\_URL} & Địa chỉ cơ sở của nhà cung cấp tương thích với API của OpenAI \\ \hline
-\CodeBreak{OPENAI\_MODEL} & Tên mô hình của nhà cung cấp tương thích với API của OpenAI \\ \hline
-\CodeBreak{LLM\_REQUEST\_TIMEOUT\_SECONDS} & Thời gian chờ yêu cầu mô hình \\ \hline
-\CodeBreak{REDIS\_URL} & Kết nối Redis phục vụ phiên và trạng thái tạm thời \\ \hline
-\CodeBreak{POSTGRES\_DSN} & Kết nối PostgreSQL phục vụ phiên, tin nhắn và kết quả cần truy vết \\ \hline
-\CodeBreak{POSTGRES\_SCHEMA} & Lược đồ PostgreSQL mà dịch vụ AI sử dụng \\ \hline
-\CodeBreak{BACKEND\_API\_BASE\_URL} & Địa chỉ endpoint của backend được dịch vụ AI gọi \\ \hline
-\CodeBreak{SESSION\_TTL\_MINUTES} & Thời gian tồn tại phiên hội thoại \\ \hline
-\CodeBreak{MAX\_ITERATIONS} & Số vòng xử lý tối đa của luồng hội thoại \\ \hline
-\CodeBreak{MAX\_TURN\_DURATION\_SECONDS} & Thời gian tối đa cho một lượt hội thoại \\ \hline
-\end{longtable}
-
-\subsection{Cấu hình frontend}
-
-Frontend đọc cấu hình từ tệp \path{frontend/.env.local} trong môi trường phát triển. Các biến công khai chỉ được dùng cho giá trị có thể xuất hiện trong trình duyệt; khóa bí mật không được đặt trong biến có tiền tố công khai. Bảng~\ref{tab:appendix-b-frontend-env} mô tả các biến được dùng tại phía trình duyệt và phía máy chủ của frontend.
-
-
-\begin{longtable}{|T{0.40\textwidth}|T{0.50\textwidth}|}
-\caption{Biến cấu hình của frontend}\label{tab:appendix-b-frontend-env}\\
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Biến cấu hình} & \TableHeader{Mục đích} \\ \hline
-\endhead
-\CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL} & Địa chỉ API mà mã chạy trong trình duyệt sử dụng \\ \hline
-\CodeBreak{BACKEND\_API\_BASE\_URL} & Địa chỉ backend mà phần chạy phía máy chủ của frontend sử dụng \\ \hline
-\CodeBreak{AI\_SERVICE\_BASE\_URL} & Địa chỉ dịch vụ AI mà frontend sử dụng cho hội thoại \\ \hline
-\CodeBreak{AI\_SERVICE\_ENABLED} & Bật hoặc tắt tích hợp dịch vụ AI \\ \hline
-\CodeBreak{JWT\_EXPIRY\_SECONDS} & Thời hạn cookie hoặc phiên xác thực tại frontend \\ \hline
-\end{longtable}
-
-Sự khác biệt giữa địa chỉ API công khai và địa chỉ backend nội bộ là một ranh giới quan trọng. Trình duyệt gọi địa chỉ có thể truy cập từ bên ngoài, trong khi phần chạy phía máy chủ có thể gọi backend qua tên dịch vụ trong mạng Docker. Việc tách hai địa chỉ tránh đưa tên mạng nội bộ vào mã chạy tại trình duyệt.
-
 \section{Kiến trúc triển khai chính thức}
 \label{sec:appendix-b-production}
 
@@ -308,60 +211,6 @@ Neo4j & Plugin & Duy trì plugin cần thiết cho cấu hình Neo4j \\ \hline
 
 Các volume được khai báo gồm \CodeBreak{caddy\_data}, \CodeBreak{caddy\_config}, \CodeBreak{postgres\_data}, \CodeBreak{redis\_data}, \CodeBreak{neo4j\_data}, \CodeBreak{neo4j\_logs}, \CodeBreak{neo4j\_plugins} và \CodeBreak{uploads\_data}. Xóa hoặc tạo lại container không đồng nghĩa với xóa dữ liệu trong volume. Mọi thao tác ảnh hưởng đến volume cần được xem là thao tác trên dữ liệu thật; do đó cần có sao lưu và xác nhận riêng, không nên gộp vào quy trình cập nhật ứng dụng thông thường.
 
-\section{Đóng gói frontend, backend và dịch vụ AI}
-\label{sec:appendix-b-dockerfiles}
-
-\subsection{Frontend}
-
-Tệp \path{frontend/Dockerfile} dùng quy trình nhiều giai đoạn. Giai đoạn phụ thuộc cài đặt các gói Node.js; giai đoạn xây dựng tạo bản Next.js cho môi trường chính thức; giai đoạn chạy chỉ chứa các tệp cần thiết. Cách chia giai đoạn này giúp giảm kích thước image khi chạy và tránh đưa các công cụ xây dựng vào container phục vụ người dùng. Bảng~\ref{tab:appendix-b-frontend-dockerfile} tóm tắt đầu vào và kết quả của từng giai đoạn.
-
-\begin{longtable}{|T{0.20\textwidth}|T{0.35\textwidth}|T{0.35\textwidth}|}
-\caption{Các giai đoạn đóng gói frontend}\label{tab:appendix-b-frontend-dockerfile}\\
-\hline
-\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
-\endhead
-Dependencies & \path{package.json} và \path{pnpm-lock.yaml} & Cài phụ thuộc bằng \textit{pnpm install --frozen-lockfile} \\ \hline
-Builder & Node 22 Alpine, mã nguồn và \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL} & Chạy \textit{pnpm build} với giới hạn bộ nhớ 4096 MB \\ \hline
-Runner & Kết quả xây dựng và tệp tĩnh cần thiết & Chạy \textit{pnpm start} trên cổng 3000 \\ \hline
-\end{longtable}
-
-Giá trị xây dựng mặc định của \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL} là \path{api/backend}. Image đặt \CodeBreak{NODE\_ENV=production} và tắt Next.js telemetry; không đưa khóa bí mật vào lớp image.
-
-\subsection{Backend}
-
-Tệp \path{backend/Dockerfile} cũng dùng quy trình nhiều giai đoạn. Giai đoạn xây dựng tải module Go và biên dịch tệp thực thi; giai đoạn chạy dùng image nhỏ hơn, chứa tệp thực thi, chứng chỉ cần cho kết nối HTTPS và các tài nguyên cần thiết khi chạy. Bảng~\ref{tab:appendix-b-backend-dockerfile} tóm tắt hai giai đoạn đóng gói này.
-
-\begin{longtable}{|T{0.15\textwidth}|T{0.35\textwidth}|T{0.40\textwidth}|}
-\caption{Các giai đoạn đóng gói backend}\label{tab:appendix-b-backend-dockerfile}\\
-\hline
-\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Giai đoạn} & \TableHeader{Đầu vào chính} & \TableHeader{Kết quả} \\ \hline
-\endhead
-Builder & Go 1.24 Alpine, mã nguồn và module & Tạo Swagger, biên dịch tệp thực thi tĩnh cho Linux và cài công cụ \textit{migrate} \\ \hline
-Runner & Tệp thực thi, migration, công cụ \textit{migrate} và chứng chỉ CA & Container Alpine chạy backend trên cổng 8080 \\ \hline
-\end{longtable}
-
-Image backend không chứa mật khẩu cơ sở dữ liệu, khóa JWT, khóa nhà cung cấp mô hình hoặc thông tin SMTP. Các giá trị này được cung cấp khi container khởi động. Nhờ đó, việc thay đổi bí mật không yêu cầu xây dựng lại image ứng dụng.
-
-\subsection{Dịch vụ AI}
-
-Tệp \path{ai-service/Dockerfile} sử dụng Python 3.12 slim, cài \textit{libmagic1}, \textit{curl} và Poetry 1.8.5, sau đó cài nhóm phụ thuộc chính mà không tạo môi trường ảo trong container. Đoạn mã~\ref{lst:appendix-b-ai-dockerfile} cho thấy lệnh khởi động thực hiện migration Alembic trước khi chạy Uvicorn.
-
-\begin{lstlisting}[language=bash, caption={Lệnh khởi động của image dịch vụ AI}, label={lst:appendix-b-ai-dockerfile}]
-alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8090
-\end{lstlisting}
-
-Việc chạy migration cùng lệnh khởi động bảo đảm lược đồ của dịch vụ AI được cập nhật trước khi nhận yêu cầu. Các điểm kiểm tra \path{/health} và \path{/ready} được dùng để phân biệt tiến trình đã chạy với trạng thái sẵn sàng phục vụ.
-
-\subsection{Kiểm tra image trước khi phát hành}
-
-Mỗi image phải xây dựng từ đúng Dockerfile và mang nhãn định danh commit để có thể truy ngược về mã nguồn. Các điểm kiểm tra trạng thái của backend và dịch vụ AI cung cấp tiêu chí kỹ thuật để kiểm tra container sau khi khởi động. Tuy nhiên, luồng công việc (workflow) CI/CD hiện hành chưa bao gồm đầy đủ bước kiểm tra chất lượng bắt buộc hoặc kiểm tra hoạt động cơ bản sau triển khai; vì vậy, nguồn không đủ để khẳng định các kiểm tra này là cổng bắt buộc trước khi cập nhật nhãn latest.
-
 \section{Caddy, TLS và định tuyến}
 \label{sec:appendix-b-caddy}
 
@@ -381,7 +230,7 @@ Yêu cầu HTTPS & Caddy & Nén bằng zstd hoặc gzip và tự động thiết
 \end{table}
 
 \clearpage
-Cấu hình Caddy hiện tại dùng hai tên miền: \path{conference-space.com} và \path{www.conference-space.com}. Các quy tắc định tuyến được trình bày trong Đoạn mã~\ref{lst:appendix-b-caddyfile}.
+Cấu hình Caddy hiện tại dùng tên miền \path{conference-space.com} và \path{www.conference-space.com}; các quy tắc định tuyến được trình bày trong Đoạn mã~\ref{lst:appendix-b-caddyfile}.
 
 \begin{lstlisting}[language={}, caption={Định tuyến Caddy trong môi trường chính thức}, label={lst:appendix-b-caddyfile}]
 conference-space.com, www.conference-space.com {
@@ -455,35 +304,12 @@ Sau khi cập nhật, các điểm kiểm tra trạng thái của backend và d�
 
 Cấu hình theo commit SHA cho phép người vận hành xác định lại image của một bản phát hành trước. Tuy nhiên, hai nguồn không mô tả quy trình rollback đã được triển khai hoặc kiểm chứng. Việc khôi phục dữ liệu cũng cần quy trình sao lưu riêng; các volume chỉ duy trì dữ liệu ngoài vòng đời container và không phải bản sao lưu. Vì vậy, phụ lục chỉ ghi nhận khả năng truy vết phiên bản, không khẳng định hệ thống đã có cơ chế rollback hoặc khôi phục sau sự cố.
 
-\section{Bảo vệ cấu hình và bí mật}
-\label{sec:appendix-b-secrets}
-
-Bảng~\ref{tab:appendix-b-secret-controls} phân loại các nhóm cấu hình và biện pháp bảo vệ tương ứng.
-
-\begin{longtable}{|T{0.23\textwidth}|T{0.30\textwidth}|T{0.40\textwidth}|}
-\caption{Phân loại cấu hình và biện pháp bảo vệ}\label{tab:appendix-b-secret-controls}\\
-\hline
-\TableHeader{Nhóm cấu hình} & \TableHeader{Ví dụ} & \TableHeader{Biện pháp} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Nhóm cấu hình} & \TableHeader{Ví dụ} & \TableHeader{Biện pháp} \\ \hline
-\endhead
-Bí mật xác thực & \CodeBreak{JWT\_SECRET}, mật khẩu PostgreSQL, Redis và Neo4j & Không commit; không ghi trong Dockerfile; cung cấp khi runtime; thay đổi theo môi trường \\ \hline
-Khóa dịch vụ bên ngoài & \CodeBreak{GEMINI\_API\_KEY}, \CodeBreak{OPENROUTER\_API\_KEY} và nhóm biến nhà cung cấp AI & Lưu trong GitHub Secrets hoặc hệ thống quản lý bí mật của máy chủ; giới hạn phạm vi quyền; thay khóa khi nghi ngờ lộ \\ \hline
-Thông tin email & \CodeBreak{SMTP\_USERNAME}, \CodeBreak{SMTP\_PASSWORD} & Chỉ cung cấp cho backend; không đưa vào frontend hoặc image \\ \hline
-Mã xác thực dịch vụ & Mã dành cho tác vụ quản trị và Chatbot Agent gọi backend & Chỉ cung cấp cho dịch vụ được cấp quyền; vẫn phải kiểm tra RBAC trên tài nguyên \\ \hline
-Cấu hình công khai & \CodeBreak{NEXT\_PUBLIC\_API\_BASE\_URL}, tên miền và CORS origin & Cho phép đưa vào bản frontend khi giá trị không chứa thông tin xác thực \\ \hline
-Định danh image & \CodeBreak{FRONTEND\_IMAGE}, \CodeBreak{BACKEND\_IMAGE}, \CodeBreak{AI\_SERVICE\_IMAGE} & Ghi trong \textit{.env.production} để truy vết và quay lại phiên bản \\ \hline
-\end{longtable}
-
-Tệp \path{.env.production} trên máy chủ được đặt quyền \CodeBreak{600}. Bí mật không được in đầy đủ trong nhật ký CI/CD hoặc nhật ký khởi động. Các lỗi cấu hình phải nêu tên biến bị thiếu nhưng không tiết lộ giá trị. Quyền đọc và cập nhật bí mật chỉ được cấp cho workflow và người vận hành cần thiết. Khi thành viên rời nhóm hoặc có dấu hiệu lộ thông tin, khóa liên quan phải được thay và container phải được khởi động lại với giá trị mới.
-
 \section{Danh sách kiểm tra tái lập và nghiệm thu triển khai}
 \label{sec:appendix-b-checklist}
 
 Bảng~\ref{tab:appendix-b-reproducibility} cung cấp danh sách kiểm tra và bằng chứng cần ghi nhận khi tái lập hoặc nghiệm thu môi trường.
 
-\begin{longtable}{|N{0.08\textwidth}|T{0.47\textwidth}|T{0.38\textwidth}|}
+\begin{longtable}{|N{0.08\textwidth}|T{0.5\textwidth}|T{0.4\textwidth}|}
 \caption{Danh sách kiểm tra tái lập môi trường}\label{tab:appendix-b-reproducibility}\\
 \hline
 \TableHeader{STT} & \TableHeader{Hạng mục kiểm tra} & \TableHeader{Bằng chứng cần ghi nhận} \\ \hline

@@ -3,7 +3,7 @@
 \chapter{Đặc tả chi tiết các use case, dữ liệu, thuật toán và luồng công việc AI}
 \label{AppendixA}
 
-Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm mười use case, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng công việc AI. Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
+Phụ lục này trình bày chi tiết các đặc tả dùng để đối chiếu với thiết kế ở Chương~\ref{Chapter3}. Nội dung gồm 27 use case chính, bảy use case hỗ trợ AI/thuật toán, ma trận truy vết yêu cầu, mô hình dữ liệu, ranh giới phân quyền, thuật toán đối sánh, cơ chế phát hiện xung đột lợi ích và sáu luồng công việc AI (trong đó Chatbot Agent là use case chính dùng chung). Phụ lục tập trung vào điều kiện, trình tự, đầu vào, đầu ra, lỗi và người chịu trách nhiệm; các lập luận tổng hợp được trình bày trong chương chính.
 
 \tikzset{
   appendixProcess/.style={draw=black!65, rounded corners=2pt, align=center, fill=blue!6, font=\footnotesize, inner sep=3pt, minimum height=9mm, text width=32mm},
@@ -19,710 +19,7 @@ Phụ lục này trình bày chi tiết các đặc tả dùng để đối chi�
   appendixLifeline/.style={dashed, draw=black!50}
 }
 
-\section{Đặc tả các use case}
-\label{sec:appendix-a-usecases}
-
-Mỗi use case dùng cùng một cấu trúc gồm mục tiêu, tác nhân, sự kiện kích hoạt, điều kiện tiên quyết, luồng chính, luồng thay thế hoặc lỗi và kết quả đạt được.
-\pagebreak
-\subsection{UC-01. Khám phá và theo dõi hội nghị}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-01: Khám phá và theo dõi hội nghị}\label{tab:appendix-a-uc01}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Giúp Tác giả xác định hội nghị phù hợp, nắm chuyên đề và hạn chót trước khi bắt đầu nộp bài \\ \hline
-Tác nhân & Tác giả \\ \hline
-Sự kiện kích hoạt & Tác giả mở khu vực khám phá hội nghị \\ \hline
-Điều kiện tiên quyết & Hội nghị đã được công bố và có thông tin cho người dùng xem; người dùng phải xác thực trước khi lưu hội nghị quan tâm \\ \hline
-Luồng chính & Tác giả xem hoặc tìm kiếm danh sách hội nghị; hệ thống áp dụng bộ lọc theo từ khóa, lĩnh vực, chuyên đề hoặc trạng thái; Tác giả mở trang chi tiết để xem kêu gọi nộp bài, chuyên đề, hạn chót và hội đồng chương trình; Tác giả lưu hội nghị hoặc chuyển sang quy trình nộp bài \\ \hline
-Luồng thay thế và lỗi & Nếu không có kết quả, hệ thống trả danh sách rỗng cùng bộ lọc hiện tại; nếu hội nghị đã đóng, hệ thống vẫn cho phép xem nhưng không cho phép bắt đầu bài nộp mới; nếu phiên đăng nhập hết hạn, hệ thống yêu cầu xác thực lại trước khi lưu theo dõi \\ \hline
-Kết quả đạt được & Tác giả chọn được hội nghị để nộp bài hoặc lưu hội nghị vào danh sách theo dõi \\ \hline
-\end{longtable}
-
-Hình~\ref{fig:appendix-a-uc01-sequence} biểu diễn trình tự tìm kiếm, xem chi tiết và lưu hội nghị quan tâm trong UC-01.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (author) at (0,0) {Tác giả};
-  \node[appendixParticipant] (backend) at (5.2,0) {Backend};
-  \node[appendixParticipant] (db) at (10.4,0) {PostgreSQL};
-  \foreach \x in {0,5.2,10.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-16.8);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Yêu cầu danh sách và bộ lọc} (5.2,-1.8);
-  \draw[appendixArrow] (5.2,-3.2) -- node[appendixMessage] {Truy vấn hội nghị công khai} (10.4,-3.2);
-  \draw[appendixDashedArrow] (10.4,-4.6) -- node[appendixMessage] {Trả danh sách phù hợp} (5.2,-4.6);
-  \draw[appendixDashedArrow] (5.2,-6.0) -- node[appendixMessage] {Hiển thị kết quả} (0,-6.0);
-
-  \draw[appendixArrow] (0,-7.4) -- node[appendixMessage] {Yêu cầu chi tiết hội nghị} (5.2,-7.4);
-  \draw[appendixArrow] (5.2,-8.8) -- node[appendixMessage] {Đọc thông tin, chuyên đề và hạn chót} (10.4,-8.8);
-  \draw[appendixDashedArrow] (10.4,-10.2) -- node[appendixMessage] {Trả thông tin hội nghị} (5.2,-10.2);
-  \draw[appendixDashedArrow] (5.2,-11.6) -- node[appendixMessage] {Hiển thị trang chi tiết} (0,-11.6);
-
-  \draw[appendixArrow] (0,-13.0) -- node[appendixMessage] {Lưu hội nghị quan tâm} (5.2,-13.0);
-  \draw[appendixArrow] (5.2,-14.0) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra phiên xác thực} (5.2,-15.2);
-  \draw[appendixArrow] (5.2,-16.2) -- node[appendixMessage] {Lưu dấu theo dõi} (10.4,-16.2);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự khám phá và theo dõi hội nghị trong UC-01}
-\label{fig:appendix-a-uc01-sequence}
-\end{figure}
-
-\pagebreak
-\subsection{UC-02. Hoàn tất và kiểm tra bài nộp}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-02: Hoàn tất và kiểm tra bài nộp}\label{tab:appendix-a-uc02}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Giúp Tác giả hoàn thiện bài nộp, giảm thao tác nhập liệu trùng lặp và phát hiện lỗi trước khi gửi chính thức \\ \hline
-Tác nhân & Tác giả là tác nhân chính; dịch vụ AI hỗ trợ Submission Autofill và Submission Gating \\ \hline
-Sự kiện kích hoạt & Tác giả chọn nộp bài vào một hội nghị đang mở \\ \hline
-Điều kiện tiên quyết & Tác giả đã xác thực; hội nghị còn nhận bài; danh sách chuyên đề và chính sách nộp bài đã được cấu hình \\ \hline
-Luồng chính & Tác giả tạo bản nháp và tải bản thảo; Submission Autofill trích xuất siêu dữ liệu nháp khi được yêu cầu; Tác giả kiểm tra, chỉnh sửa tiêu đề, tóm tắt, từ khóa, tác giả và chuyên đề; Tác giả khai báo xung đột lợi ích; Submission Gating kiểm tra tệp, chính sách và điều kiện gửi; backend kiểm tra trạng thái gating trước khi cho phép gửi; Tác giả xử lý lỗi hoặc cảnh báo rồi xác nhận gửi \\ \hline
-Luồng thay thế và lỗi & Nếu Submission Autofill không đọc được tệp hoặc gặp lỗi, Tác giả nhập thủ công; trạng thái cảnh báo cho phép tiếp tục khi chính sách cho phép; trạng thái chặn ngăn gửi cho đến khi lỗi có căn cứ được khắc phục; nếu Submission Gating không trả kết quả hợp lệ, backend chưa cho phép gửi bài \\ \hline
-Kết quả đạt được & Hệ thống lưu bài ở trạng thái bản nháp hoặc chuyển sang trạng thái đã gửi sau khi Tác giả xác nhận \\ \hline
-\end{longtable}
-
-Hình~\ref{fig:appendix-a-uc02-flow} khái quát luồng chính và các nhánh xử lý của UC-02.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=0.9\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex,
-  processNode/.style={draw=black!65, rounded corners=2pt, align=center, text width=4.8cm, minimum height=10mm, fill=blue!7},
-  decision/.style={draw=black!65, diamond, aspect=2.1, align=center, text width=3.2cm, fill=orange!9}]
-  \node[processNode] (draft) at (0,0) {Tạo bản nháp và tải bản thảo};
-  \node[decision] (autofill) at (0,-2.8) {Dùng Submission Autofill?};
-  \node[processNode] (auto) at (-6.4,-5.6) {Trích xuất siêu dữ liệu nháp và gợi ý chuyên đề};
-  \node[processNode] (manual) at (6.4,-5.6) {Nhập siêu dữ liệu thủ công};
-  \node[processNode] (review) at (0,-8.4) {Tác giả kiểm tra và chỉnh sửa};
-  \node[processNode] (coi) at (0,-10.8) {Khai báo xung đột lợi ích};
-  \node[processNode] (gate) at (0,-13.2) {Submission Gating};
-  \node[processNode] (backend) at (0,-15.3) {Backend kiểm tra trạng thái trước khi gửi};
-  \node[decision] (status) at (0,-18.4) {Kết quả kiểm tra};
-  \node[processNode] (send) at (-6.4,-21.4) {\textit{Pass}: cho phép xác nhận gửi};
-  \node[processNode] (warn) at (0,-22.4) {\textit{Warn}: hiển thị cảnh báo; tiếp tục nếu chính sách cho phép};
-  \node[processNode] (block) at (6.4,-21.4) {\textit{Block/Error}: yêu cầu sửa lỗi};
-  \draw[-{Latex},thick] (draft) -- (autofill);
-  \draw[-{Latex},thick] (autofill) -- node[fill=white] {Có} (auto);
-  \draw[-{Latex},thick] (autofill) -- node[fill=white] {Không} (manual);
-  \draw[-{Latex},thick] (auto) -- (review);
-  \draw[-{Latex},thick] (manual) -- (review);
-  \draw[-{Latex},thick,dashed] (auto) to[bend right=18] node[fill=white] {lỗi/thiếu dữ liệu} (manual);
-  \draw[-{Latex},thick] (review) -- (coi);
-  \draw[-{Latex},thick] (coi) -- (gate);
-  \draw[-{Latex},thick] (gate) -- (backend);
-  \draw[-{Latex},thick] (backend) -- (status);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {pass} (send);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {warn} (warn);
-  \draw[-{Latex},thick] (status) -- node[fill=white] {block/error} (block);
-  \draw[-{Latex},thick] (warn) -- (send);
-  \draw[-{Latex},thick] (block.east) -- ++(1.2,0) |- (review.east);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Luồng hoàn tất và kiểm tra bài nộp}
-\label{fig:appendix-a-uc02-flow}
-\end{figure}
-
-Hình~\ref{fig:appendix-a-uc02-sequence} bổ sung góc nhìn tương tác giữa Tác giả, Backend, kho tệp, dịch vụ AI và PostgreSQL trong UC-02.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (author) at (0,0) {Tác giả};
-  \node[appendixParticipant] (backend) at (4.1,0) {Backend};
-  \node[appendixParticipant] (files) at (8.2,0) {Kho tệp};
-  \node[appendixParticipant] (ai) at (12.3,0) {Dịch vụ AI};
-  \node[appendixParticipant] (db) at (16.4,0) {PostgreSQL};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-23.8);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Tạo bản nháp và tải bản thảo} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-3.2) -- node[appendixMessage] {Lưu tệp bản thảo} (8.2,-3.2);
-  \draw[appendixArrow] (4.1,-4.6) -- node[appendixMessage] {Lưu bản nháp và siêu dữ liệu tệp} (16.4,-4.6);
-
-  \draw[appendixArrow] (0,-6.0) -- node[appendixMessage] {Yêu cầu Submission Autofill} (4.1,-6.0);
-  \draw[appendixArrow] (4.1,-7.4) -- node[appendixMessage] {Gửi bản thảo và ngữ cảnh hội nghị} (12.3,-7.4);
-  \draw[appendixDashedArrow] (12.3,-8.8) -- node[appendixMessage] {Trả siêu dữ liệu nháp} (4.1,-8.8);
-  \draw[appendixDashedArrow] (4.1,-10.2) -- node[appendixMessage] {Hiển thị dữ liệu để kiểm tra} (0,-10.2);
-
-  \draw[appendixArrow] (0,-11.6) -- node[appendixMessage] {Lưu nội dung đã chỉnh sửa và khai báo xung đột} (4.1,-11.6);
-  \draw[appendixArrow] (4.1,-13.0) -- node[appendixMessage] {Cập nhật bản nháp} (16.4,-13.0);
-
-  \draw[appendixArrow] (0,-14.4) -- node[appendixMessage] {Xác nhận gửi bài} (4.1,-14.4);
-  \draw[appendixArrow] (4.1,-15.8) -- node[appendixMessage] {Yêu cầu Submission Gating} (12.3,-15.8);
-  \draw[appendixDashedArrow] (12.3,-17.2) -- node[appendixMessage] {Trả trạng thái \textit{pass}, \textit{warn} hoặc \textit{block}} (4.1,-17.2);
-  \draw[appendixArrow] (4.1,-18.2) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra kết quả gating} (4.1,-19.4);
-  \draw[appendixArrow] (4.1,-20.8) -- node[appendixMessage] {Cập nhật trạng thái đã gửi khi hợp lệ} (16.4,-20.8);
-  \draw[appendixDashedArrow] (4.1,-22.2) -- node[appendixMessage] {Trả kết quả gửi hoặc lỗi có căn cứ} (0,-22.2);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự hoàn tất và kiểm tra bài nộp trong UC-02}
-\label{fig:appendix-a-uc02-sequence}
-\end{figure}
-
- \pagebreak
-
-\subsection{UC-03. Quản lý vòng đời bài nộp}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-03: Quản lý vòng đời bài nộp}\label{tab:appendix-a-uc03}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Cho phép Tác giả theo dõi và thực hiện các thao tác hợp lệ từ bản nháp đến kết quả cuối \\ \hline
-Tác nhân & Tác giả là tác nhân chính; Chủ tọa công bố quyết định và mở giai đoạn phản hồi \\ \hline
-Sự kiện kích hoạt & Tác giả mở danh sách bài hoặc nhận thông báo thay đổi trạng thái \\ \hline
-Điều kiện tiên quyết & Tác giả sở hữu bài nộp và đã xác thực \\ \hline
-Luồng chính & Tác giả xem danh sách bài, trạng thái và hạn chót; tiếp tục chỉnh sửa bản nháp; theo dõi bài đã gửi; xem phản biện khi được công bố; gửi phản hồi khi giai đoạn được mở; xem quyết định; tải bản thảo hoàn chỉnh nếu bài được chấp nhận \\ \hline
-Luồng thay thế và lỗi & Backend từ chối sửa, rút bài hoặc gửi phản hồi nếu trạng thái hoặc hạn chót không cho phép; hệ thống chỉ nhận bản thảo hoàn chỉnh khi bài được chấp nhận và tệp hợp lệ; phiên bản hiện tại chưa kiểm tra hạn chót nộp bản thảo hoàn chỉnh tại thời điểm thực thi \\ \hline
-Kết quả đạt được & Hệ thống cập nhật trạng thái hoặc giữ nguyên trạng thái kèm thông báo lỗi có căn cứ \\ \hline
-\end{longtable}
-
-\pagebreak
-
-Hình~\ref{fig:appendix-a-uc03-sequence} biểu diễn các tương tác chính khi Tác giả theo dõi và cập nhật bài nộp qua các giai đoạn trong UC-03.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (author) at (0,0) {Tác giả};
-  \node[appendixParticipant] (backend) at (4.1,0) {Backend};
-  \node[appendixParticipant] (db) at (8.2,0) {PostgreSQL};
-  \node[appendixParticipant] (notify) at (12.3,0) {Thông báo};
-  \node[appendixParticipant] (chair) at (16.4,0) {Chủ tọa};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-23.8);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Yêu cầu danh sách bài và trạng thái} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-3.2) -- node[appendixMessage] {Đọc các bài thuộc Tác giả} (8.2,-3.2);
-  \draw[appendixDashedArrow] (8.2,-4.6) -- node[appendixMessage] {Trả trạng thái và hạn chót} (4.1,-4.6);
-  \draw[appendixDashedArrow] (4.1,-6.0) -- node[appendixMessage] {Hiển thị hành động hợp lệ} (0,-6.0);
-
-  \draw[appendixArrow] (0,-7.4) -- node[appendixMessage] {Yêu cầu cập nhật hoặc gửi phản hồi} (4.1,-7.4);
-  \draw[appendixArrow] (4.1,-8.4) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền, trạng thái và hạn chót} (4.1,-9.6);
-  \draw[appendixArrow] (4.1,-11.0) -- node[appendixMessage] {Lưu nội dung và trạng thái mới} (8.2,-11.0);
-  \draw[appendixDashedArrow] (4.1,-12.4) -- node[appendixMessage] {Xác nhận cập nhật hoặc trả lỗi} (0,-12.4);
-
-  \draw[appendixArrow] (16.4,-13.8) -- node[appendixMessage] {Mở giai đoạn phản hồi hoặc công bố quyết định} (4.1,-13.8);
-  \draw[appendixArrow] (4.1,-15.2) -- node[appendixMessage] {Cập nhật giai đoạn và trạng thái bài} (8.2,-15.2);
-  \draw[appendixArrow] (4.1,-16.6) -- node[appendixMessage] {Phát sự kiện thay đổi trạng thái} (12.3,-16.6);
-  \draw[appendixDashedArrow] (12.3,-18.0) -- node[appendixMessage] {Thông báo trạng thái mới} (0,-18.0);
-
-  \draw[appendixArrow] (0,-19.4) -- node[appendixMessage] {Tải bản thảo hoàn chỉnh khi được chấp nhận} (4.1,-19.4);
-  \draw[appendixArrow] (4.1,-20.4) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra trạng thái chấp nhận và tệp} (4.1,-21.6);
-  \draw[appendixArrow] (4.1,-23.0) -- node[appendixMessage] {Lưu siêu dữ liệu bản thảo hoàn chỉnh} (8.2,-23.0);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự quản lý vòng đời bài nộp trong UC-03}
-\label{fig:appendix-a-uc03-sequence}
-\end{figure}
-
-\subsection{UC-04. Tiếp nhận lời mời và xem bài được phân công}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-04: Tiếp nhận lời mời và xem bài được phân công}\label{tab:appendix-a-uc04}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Tạo luồng chuyển tiếp rõ ràng từ lời mời của Chủ tọa đến không gian làm việc của Phản biện viên \\ \hline
-Tác nhân & Phản biện viên là tác nhân chính; Chủ tọa và hệ thống thư điện tử phối hợp \\ \hline
-Sự kiện kích hoạt & Chủ tọa gửi lời mời tham gia hội nghị hoặc hệ thống ghi nhận phân công mới \\ \hline
-Điều kiện tiên quyết & Hội nghị tồn tại; Chủ tọa có quyền mời; địa chỉ thư điện tử của người nhận hợp lệ \\ \hline
-Luồng chính & Chủ tọa gửi lời mời; hệ thống lưu lời mời và gửi thông báo; Phản biện viên xem thông tin hội nghị rồi chấp nhận hoặc từ chối; sau khi có phân công, Phản biện viên xem bài, hạn chót và trạng thái; Phản biện viên mở bài hợp lệ để chuyển sang UC-05 \\ \hline
-Luồng thay thế và lỗi & Hệ thống từ chối lời mời không hợp lệ hoặc hết hiệu lực; nếu Phản biện viên từ chối, hệ thống ghi trạng thái để Chủ tọa điều chỉnh; backend từ chối truy cập khi người dùng không có quyền đối với bài được phân công \\ \hline
-Kết quả đạt được & Trạng thái lời mời được cập nhật; bài được phân công xuất hiện trong không gian làm việc của đúng Phản biện viên \\ \hline
-\end{longtable}
-
-\pagebreak
-
-Hình~\ref{fig:appendix-a-uc04-sequence} phân biệt trình tự tiếp nhận lời mời hội nghị với trình tự phản hồi một phân công bài cụ thể trong UC-04.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (chair) at (0,0) {Chủ tọa};
-  \node[appendixParticipant] (backend) at (4.1,0) {Backend};
-  \node[appendixParticipant] (db) at (8.2,0) {PostgreSQL};
-  \node[appendixParticipant] (notify) at (12.3,0) {Thư điện tử\\và thông báo};
-  \node[appendixParticipant] (reviewer) at (16.4,0) {Phản biện viên};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-25.0);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Gửi lời mời tham gia hội nghị} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền và dữ liệu người nhận} (4.1,-4.0);
-  \draw[appendixArrow] (4.1,-5.2) -- node[appendixMessage] {Lưu lời mời ở trạng thái chờ} (8.2,-5.2);
-  \draw[appendixArrow] (4.1,-6.6) -- node[appendixMessage] {Phát lời mời} (12.3,-6.6);
-  \draw[appendixDashedArrow] (12.3,-8.0) -- node[appendixMessage] {Thông báo lời mời mới} (16.4,-8.0);
-
-  \draw[appendixArrow] (16.4,-9.4) -- node[appendixMessage] {Chấp nhận hoặc từ chối lời mời} (4.1,-9.4);
-  \draw[appendixArrow] (4.1,-10.8) -- node[appendixMessage] {Cập nhật lời mời và vai trò khi chấp nhận} (8.2,-10.8);
-  \draw[appendixArrow] (4.1,-12.2) -- node[appendixMessage] {Thông báo kết quả phản hồi} (12.3,-12.2);
-  \draw[appendixDashedArrow] (12.3,-13.6) -- node[appendixMessage] {Phản biện viên đã phản hồi} (0,-13.6);
-
-  \draw[appendixArrow] (0,-15.0) -- node[appendixMessage] {Xác nhận đề nghị phân công bài} (4.1,-15.0);
-  \draw[appendixArrow] (4.1,-16.4) -- node[appendixMessage] {Lưu phân công ở trạng thái chờ} (8.2,-16.4);
-  \draw[appendixArrow] (4.1,-17.8) -- node[appendixMessage] {Thông báo phân công mới} (12.3,-17.8);
-  \draw[appendixDashedArrow] (12.3,-19.2) -- node[appendixMessage] {Yêu cầu phản hồi phân công} (16.4,-19.2);
-
-  \draw[appendixArrow] (16.4,-20.6) -- node[appendixMessage] {Đồng ý hoặc từ chối bài được giao} (4.1,-20.6);
-  \draw[appendixArrow] (4.1,-22.0) -- node[appendixMessage] {Cập nhật trạng thái phân công} (8.2,-22.0);
-  \draw[appendixDashedArrow] (4.1,-23.4) -- node[appendixMessage] {Trả không gian làm việc theo quyền} (16.4,-23.4);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự tiếp nhận lời mời và phản hồi phân công trong UC-04}
-\label{fig:appendix-a-uc04-sequence}
-\end{figure}
-
-\subsection{UC-05. Đọc, soạn và gửi phản biện có AI hỗ trợ}
-
-\begingroup
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-05: Đọc, soạn và gửi phản biện}\label{tab:appendix-a-uc05}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Hỗ trợ Phản biện viên quản lý quá trình đọc và hoàn thiện phản biện trong khi giữ trách nhiệm chuyên môn ở Phản biện viên \\ \hline
-Tác nhân & Phản biện viên là tác nhân chính; dịch vụ AI hỗ trợ Reviewer Initial Analysis và Review Quality Auditor \\ \hline
-Sự kiện kích hoạt & Phản biện viên mở một bài được phân công mà mình có quyền truy cập \\ \hline
-Điều kiện tiên quyết & Phân công hợp lệ; Phản biện viên là người phụ trách; bản thảo có thể truy cập \\ \hline
-Luồng chính & Hệ thống tải bài, hạn chót và biểu mẫu; Phản biện viên có thể yêu cầu bản định hướng; Phản biện viên đọc bài và tự hình thành đánh giá; nhập điểm, nhận xét, khuyến nghị và độ tự tin; Review Quality Auditor rà soát bản nháp trước khi gửi; Phản biện viên xem phát hiện (kể cả mức blocking), quyết định chỉnh sửa hoặc tiếp tục gửi; các nhãn severity=blocking và status=block chỉ dùng để ưu tiên hiển thị, không vô hiệu hóa thao tác gửi; sau phản hồi của Tác giả, Phản biện viên có thể cập nhật đánh giá \\ \hline
-Luồng thay thế và lỗi & Nếu Reviewer Initial Analysis không khả dụng, Phản biện viên vẫn đọc và phản biện thủ công; khi lưu nháp hoặc gửi chính thức, phát hiện mức blocking chỉ được ưu tiên hiển thị để Phản biện viên xem xét và quyết định chỉnh sửa hoặc tiếp tục gửi; nếu bước rà soát không thể thực hiện, backend yêu cầu Phản biện viên xác nhận tiếp tục và ghi sự kiện vào nhật ký \\ \hline
-Kết quả đạt được & Hệ thống lưu bản nháp hoặc bản phản biện đã gửi; mọi cập nhật sau phản hồi được gắn với bài tương ứng \\ \hline
-\end{longtable}
-\endgroup
-
-\pagebreak
-
-Hình~\ref{fig:appendix-a-uc05-sequence} biểu diễn ranh giới giữa hoạt động chuyên môn của Phản biện viên và hai chức năng AI hỗ trợ trong UC-05.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (reviewer) at (0,0) {Phản biện viên};
-  \node[appendixParticipant] (backend) at (4.1,0) {Backend};
-  \node[appendixParticipant] (files) at (8.2,0) {Kho tệp};
-  \node[appendixParticipant] (ai) at (12.3,0) {Dịch vụ AI};
-  \node[appendixParticipant] (db) at (16.4,0) {PostgreSQL};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-25.4);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Mở bài được phân công} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền đối với phân công} (4.1,-4.0);
-  \draw[appendixArrow] (4.1,-5.2) -- node[appendixMessage] {Đọc phân công, hạn chót và biểu mẫu} (16.4,-5.2);
-  \draw[appendixArrow] (4.1,-6.6) -- node[appendixMessage] {Đọc bản thảo} (8.2,-6.6);
-  \draw[appendixDashedArrow] (4.1,-8.0) -- node[appendixMessage] {Trả không gian phản biện} (0,-8.0);
-
-  \draw[appendixArrow] (0,-9.4) -- node[appendixMessage] {Yêu cầu Reviewer Initial Analysis} (4.1,-9.4);
-  \draw[appendixArrow] (4.1,-10.8) -- node[appendixMessage] {Gửi bản thảo và ngữ cảnh phân công} (12.3,-10.8);
-  \draw[appendixDashedArrow] (12.3,-12.2) -- node[appendixMessage] {Trả bản định hướng} (4.1,-12.2);
-  \draw[appendixDashedArrow] (4.1,-13.6) -- node[appendixMessage] {Hiển thị nội dung tham khảo} (0,-13.6);
-
-  \draw[appendixArrow] (0,-15.0) -- node[appendixMessage] {Lưu bản phản biện nháp} (4.1,-15.0);
-  \draw[appendixArrow] (4.1,-16.4) -- node[appendixMessage] {Lưu điểm, nhận xét và khuyến nghị} (16.4,-16.4);
-
-  \draw[appendixArrow] (0,-17.8) -- node[appendixMessage] {Yêu cầu Review Quality Auditor} (4.1,-17.8);
-  \draw[appendixArrow] (4.1,-19.2) -- node[appendixMessage] {Gửi bản nháp để rà soát} (12.3,-19.2);
-  \draw[appendixDashedArrow] (12.3,-20.6) -- node[appendixMessage] {Trả các phát hiện cần xem xét} (4.1,-20.6);
-  \draw[appendixDashedArrow] (4.1,-22.0) -- node[appendixMessage] {Hiển thị phát hiện, kể cả mức blocking} (0,-22.0);
-
-  \draw[appendixArrow] (0,-23.4) -- node[appendixMessage] {Chỉnh sửa hoặc xác nhận tiếp tục gửi} (4.1,-23.4);
-  \draw[appendixArrow] (4.1,-24.8) -- node[appendixMessage] {Lưu bản gửi và sự kiện kiểm toán} (16.4,-24.8);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự đọc, soạn và gửi phản biện trong UC-05}
-\label{fig:appendix-a-uc05-sequence}
-\end{figure}
-
-\subsection{UC-06. Phân công phản biện và kiểm tra xung đột lợi ích}
-
-\begingroup
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-06: Phân công phản biện và kiểm tra xung đột lợi ích}\label{tab:appendix-a-uc06}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Cung cấp cho Chủ tọa đề xuất phân công có điểm phù hợp, trạng thái xung đột và bằng chứng để kiểm tra \\ \hline
-Tác nhân & Chủ tọa hoặc Đồng chủ tọa \\ \hline
-Sự kiện kích hoạt & Chủ tọa yêu cầu hệ thống tạo đề xuất phân công \\ \hline
-Điều kiện tiên quyết & Hội nghị có bài hợp lệ, danh sách Phản biện viên và cấu hình phân công \\ \hline
-Luồng chính & Hệ thống chuẩn bị tập bài và Phản biện viên; tính điểm Jaccard; kiểm tra quan hệ tác giả, khai báo và đồng tác giả; loại cặp xung đột; thuật toán tham lam tạo đề xuất; Chủ tọa xem điểm, lý do, tải phát sinh và bài chưa đủ người; Chủ tọa điều chỉnh và xác nhận \\ \hline
-Luồng thay thế và lỗi & Nếu Neo4j không khả dụng, hệ thống dùng các lớp kiểm tra còn lại và ghi trạng thái bỏ qua lớp đồ thị; lượt dự phòng bỏ ngưỡng điểm và giới hạn tải nhưng giữ xung đột lợi ích; nếu vẫn thiếu người, hệ thống giữ bài trong danh sách cần xử lý; đề xuất thủ công trả cảnh báo xung đột nhưng hiện chưa ngăn lưu \\ \hline
-Kết quả đạt được & Hệ thống trả đề xuất để Chủ tọa xem hoặc lưu phân công sau khi Chủ tọa xác nhận \\ \hline
-\end{longtable}
-\endgroup
-
-Hình~\ref{fig:appendix-a-uc06-sequence} tách rõ bước kiểm tra xung đột lợi ích khỏi thuật toán tạo đề xuất phân công trong UC-06.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (chair) at (0,0) {Chủ tọa};
-  \node[appendixParticipant] (backend) at (3.8,0) {Backend};
-  \node[appendixParticipant] (db) at (7.6,0) {PostgreSQL};
-  \node[appendixParticipant] (coi) at (11.4,0) {Bộ kiểm tra\\xung đột};
-  \node[appendixParticipant] (neo4j) at (15.2,0) {Neo4j};
-  \node[appendixParticipant] (matcher) at (19.0,0) {Thuật toán\\phân công};
-  \foreach \x in {0,3.8,7.6,11.4,15.2,19.0} \draw[appendixLifeline] (\x,-0.5) -- (\x,-25.4);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Yêu cầu tạo đề xuất phân công} (3.8,-1.8);
-  \draw[appendixArrow] (3.8,-3.2) -- node[appendixMessage] {Đọc bài, Phản biện viên và cấu hình} (7.6,-3.2);
-  \draw[appendixDashedArrow] (7.6,-4.6) -- node[appendixMessage] {Trả tập dữ liệu phân công} (3.8,-4.6);
-
-  \draw[appendixArrow] (3.8,-6.0) -- node[appendixMessage] {Kiểm tra tự phân công và khai báo} (11.4,-6.0);
-  \draw[appendixArrow] (11.4,-7.4) -- node[appendixMessage] {Kiểm tra quan hệ đồng tác giả} (15.2,-7.4);
-  \draw[appendixDashedArrow] (15.2,-8.8) -- node[appendixMessage] {Trả quan hệ hoặc trạng thái không khả dụng} (11.4,-8.8);
-  \draw[appendixDashedArrow] (11.4,-10.2) -- node[appendixMessage] {Trả bản đồ xung đột và lớp đã kiểm tra} (3.8,-10.2);
-
-  \draw[appendixArrow] (3.8,-11.6) -- node[appendixMessage] {Gửi điểm Jaccard, tải và ràng buộc} (19.0,-11.6);
-  \draw[appendixArrow] (19.0,-12.6) -- ++(1.0,0) |- node[pos=0.25, left, appendixEdgeLabel] {Ghép tham lam; giữ ràng buộc xung đột} (19.0,-13.8);
-  \draw[appendixDashedArrow] (19.0,-15.2) -- node[appendixMessage] {Trả đề xuất và bài chưa đủ người} (3.8,-15.2);
-  \draw[appendixArrow] (3.8,-16.6) -- node[appendixMessage] {Lưu đề xuất ở trạng thái suggested} (7.6,-16.6);
-  \draw[appendixDashedArrow] (3.8,-18.0) -- node[appendixMessage] {Trả điểm, căn cứ và tải phát sinh} (0,-18.0);
-
-  \draw[appendixArrow] (0,-19.4) -- node[appendixMessage] {Điều chỉnh hoặc xác nhận đề xuất} (3.8,-19.4);
-  \draw[appendixArrow] (3.8,-20.4) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Cảnh báo xung đột khi điều chỉnh thủ công} (3.8,-21.6);
-  \draw[appendixArrow] (3.8,-23.0) -- node[appendixMessage] {Lưu trạng thái phân công} (7.6,-23.0);
-  \draw[appendixDashedArrow] (3.8,-24.4) -- node[appendixMessage] {Trả kết quả xác nhận} (0,-24.4);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự tạo và xác nhận đề xuất phân công trong UC-06}
-\label{fig:appendix-a-uc06-sequence}
-\end{figure}
-
-\subsection{UC-07. Quản lý hội nghị và theo dõi tiến độ}
-
-\begingroup
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-07: Quản lý hội nghị và theo dõi tiến độ}\label{tab:appendix-a-uc07}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Cung cấp cho Chủ tọa một luồng quản trị từ cấu hình hội nghị đến theo dõi các điểm nghẽn trước khi ra quyết định \\ \hline
-Tác nhân & Chủ tọa hoặc Đồng chủ tọa \\ \hline
-Sự kiện kích hoạt & Chủ tọa tạo hội nghị hoặc mở bảng điều khiển của hội nghị đang phụ trách \\ \hline
-Điều kiện tiên quyết & Người dùng đã xác thực và có vai trò quản lý trong hội nghị \\ \hline
-Luồng chính & Chủ tọa cấu hình thông tin, chuyên đề, hạn chót, biểu mẫu và chính sách; mời hội đồng chương trình; theo dõi số bài, tiến độ phản biện và xung đột; chuyển sang phân công khi dữ liệu sẵn sàng; mở và kết thúc phản hồi; theo dõi thảo luận cùng thay đổi sau phản hồi trước khi ra quyết định \\ \hline
-Luồng thay thế và lỗi & Backend từ chối cấu hình thiếu trường bắt buộc hoặc có hạn chót không hợp lệ; bảng điều khiển giữ trạng thái cần xử lý khi thiếu Phản biện viên hoặc bản phản biện; hệ thống từ chối thao tác ghi của người dùng không có quyền \\ \hline
-Kết quả đạt được & Hội nghị có cấu hình hợp lệ; trạng thái và danh sách việc cần xử lý của Chủ tọa được cập nhật \\ \hline
-\end{longtable}
-\endgroup
-
-Sơ đồ~\ref{fig:appendix-a-conference-invitation-assignment-flow} biểu diễn trạng thái hội nghị và mối quan hệ giữa lời mời tham gia hội đồng với phân công bài.
-
-\begin{figure}[!htbp]
-\centering
-\begin{adjustbox}{max width=\textwidth}
-\begin{tikzpicture}[
-  >=Latex,
-  appendixProcess/.append style={font=\normalsize},
-  appendixDecision/.append style={font=\normalsize},
-  appendixState/.append style={font=\normalsize},
-  appendixOutcome/.append style={font=\normalsize},
-  appendixEdgeLabel/.append style={font=\normalsize, fill=none, inner sep=0pt},
-  conferenceState/.style={appendixState, text width=24mm, inner sep=2pt, minimum height=10mm},
-  compactState/.style={appendixState, text width=23mm, inner sep=2pt},
-  compactDecision/.style={appendixDecision, aspect=1.8, text width=18mm, inner sep=1pt}
-]
-  \node[conferenceState] (draftConf) at (-6.4,0) {Draft};
-  \node[conferenceState] (openConf) at (-3.2,0) {Open};
-  \node[conferenceState] (reviewingConf) at (0,0) {Reviewing};
-  \node[conferenceState] (completedConf) at (3.2,0) {Completed};
-  \node[conferenceState] (archivedConf) at (6.4,0) {Archived};
-
-  \draw[appendixArrow] (draftConf) -- (openConf);
-  \draw[appendixArrow] (openConf) -- (reviewingConf);
-  \draw[appendixArrow] (reviewingConf) -- (completedConf);
-  \draw[appendixArrow] (completedConf) --
-    node[appendixEdgeLabel, below=16pt] {Lưu trữ} (archivedConf);
-  \draw[appendixArrow] (archivedConf.north)
-    to[out=110,in=70,looseness=1.15]
-    node[appendixEdgeLabel, above=4pt] {Khôi phục} (completedConf.north);
-
-  \node[font=\normalsize\bfseries, anchor=west] at (-7.6,-3.0)
-    {Lời mời tham gia hội đồng trong giai đoạn Open};
-  \node[appendixProcess, text width=26mm] (invite) at (-6.0,-5.4)
-    {Chủ tọa gửi lời mời};
-  \node[compactState] (invitePending) at (-2.0,-5.4) {Pending};
-  \node[compactDecision] (inviteResponse) at (2.8,-5.4)
-    {Phản hồi lời mời?};
-  \node[appendixState, fill=green!9] (reviewerAccepted) at (-0.4,-8.8)
-    {Accepted\\Cấp vai trò Phản biện viên};
-  \node[compactState, fill=red!6] (reviewerRejected) at (5.5,-8.8)
-    {Rejected};
-  \coordinate (inviteSplit) at (2.8,-7.2);
-
-  \draw[appendixArrow] (invite) -- (invitePending);
-  \draw[appendixArrow] (invitePending) -- (inviteResponse);
-  \draw[thick] (inviteResponse.south) -- (inviteSplit);
-  \draw[appendixArrow] (inviteSplit) --
-    node[appendixEdgeLabel, above=5pt] {Chấp nhận}
-    (-0.4,-7.2) -- (reviewerAccepted.north);
-  \draw[appendixArrow] (inviteSplit) --
-    node[appendixEdgeLabel, above=5pt] {Từ chối}
-    (5.5,-7.2) -- (reviewerRejected.north);
-
-  \node[font=\normalsize\bfseries, anchor=west] at (-7.6,-10.8)
-    {Phân công bài khi hội nghị chuyển sang Reviewing};
-  \node[appendixProcess] (suggested) at (-6.0,-13.3)
-    {Hệ thống tạo đề xuất\\Suggested};
-  \node[appendixProcess, text width=34mm] (chairConfirm) at (-1.8,-13.3)
-    {Chủ tọa xác nhận với Phản biện viên đã chấp nhận lời mời\\Pending};
-  \node[compactDecision] (assignmentResponse) at (4.0,-13.3)
-    {Phản hồi phân công?};
-  \node[compactState, fill=green!9] (assignmentAccepted) at (0.5,-16.7)
-    {Accepted};
-  \node[compactState, fill=red!6] (assignmentDeclined) at (8.5,-16.7)
-    {Declined};
-  \node[appendixOutcome] (workspace) at (0.5,-19.2)
-    {Bài xuất hiện trong không gian làm việc};
-  \coordinate (assignmentSplit) at (4.0,-15.2);
-
-  \draw[appendixArrow] (suggested) -- (chairConfirm);
-  \draw[appendixArrow] (chairConfirm) -- (assignmentResponse);
-  \draw[thick] (assignmentResponse.south) -- (assignmentSplit);
-  \draw[appendixArrow] (assignmentSplit) --
-    node[appendixEdgeLabel, above=5pt] {Chấp nhận}
-    (0.5,-15.2) -- (assignmentAccepted.north);
-  \draw[appendixArrow] (assignmentSplit) --
-    node[appendixEdgeLabel, above=5pt] {Từ chối}
-    (8.5,-15.2) -- (assignmentDeclined.north);
-  \draw[appendixArrow] (assignmentAccepted) -- (workspace);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trạng thái hội nghị, lời mời và phân công bài}
-\label{fig:appendix-a-conference-invitation-assignment-flow}
-\end{figure}
-
-Hình~\ref{fig:appendix-a-uc07-sequence} bổ sung trình tự cấu hình, theo dõi và chuyển giai đoạn hội nghị trong UC-07.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (chair) at (0,0) {Chủ tọa};
-  \node[appendixParticipant] (backend) at (4.1,0) {Backend};
-  \node[appendixParticipant] (db) at (8.2,0) {PostgreSQL};
-  \node[appendixParticipant] (notify) at (12.3,0) {Thông báo};
-  \node[appendixParticipant] (participant) at (16.4,0) {Người tham gia\\hội nghị};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-23.8);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Tạo hoặc cập nhật hội nghị} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền, trường bắt buộc và hạn chót} (4.1,-4.0);
-  \draw[appendixArrow] (4.1,-5.2) -- node[appendixMessage] {Lưu cấu hình, chuyên đề và chính sách} (8.2,-5.2);
-  \draw[appendixDashedArrow] (4.1,-6.6) -- node[appendixMessage] {Trả cấu hình hội nghị} (0,-6.6);
-
-  \draw[appendixArrow] (0,-8.0) -- node[appendixMessage] {Mời thành viên hội đồng} (4.1,-8.0);
-  \draw[appendixArrow] (4.1,-9.4) -- node[appendixMessage] {Lưu lời mời} (8.2,-9.4);
-  \draw[appendixArrow] (4.1,-10.8) -- node[appendixMessage] {Phát thông báo lời mời} (12.3,-10.8);
-  \draw[appendixDashedArrow] (12.3,-12.2) -- node[appendixMessage] {Thông báo hội nghị mới} (16.4,-12.2);
-
-  \draw[appendixArrow] (0,-13.6) -- node[appendixMessage] {Yêu cầu bảng điều khiển tiến độ} (4.1,-13.6);
-  \draw[appendixArrow] (4.1,-15.0) -- node[appendixMessage] {Tổng hợp bài, phản biện và xung đột} (8.2,-15.0);
-  \draw[appendixDashedArrow] (8.2,-16.4) -- node[appendixMessage] {Trả số liệu và việc cần xử lý} (4.1,-16.4);
-  \draw[appendixDashedArrow] (4.1,-17.8) -- node[appendixMessage] {Hiển thị bảng điều khiển} (0,-17.8);
-
-  \draw[appendixArrow] (0,-19.2) -- node[appendixMessage] {Chuyển giai đoạn hoặc mở phản hồi} (4.1,-19.2);
-  \draw[appendixArrow] (4.1,-20.2) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra vai trò và trạng thái hiện tại} (4.1,-21.4);
-  \draw[appendixArrow] (4.1,-22.8) -- node[appendixMessage] {Cập nhật trạng thái hội nghị và bài} (8.2,-22.8);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự quản lý hội nghị và theo dõi tiến độ trong UC-07}
-\label{fig:appendix-a-uc07-sequence}
-\end{figure}
-
-\pagebreak
-
-\subsection{UC-08. Trao đổi theo bài nộp}
-
-\begingroup
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-08: Trao đổi theo bài nộp}\label{tab:appendix-a-uc08}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Cho phép Tác giả và Phản biện viên trao đổi có cấu trúc về bài nộp, đồng thời cung cấp lịch sử để Chủ tọa giám sát \\ \hline
-Tác nhân & Phản biện viên được phân công và Tác giả trao đổi; Chủ tọa hoặc Đồng chủ tọa giám sát \\ \hline
-Sự kiện kích hoạt & Phản biện viên được phân công tạo chuỗi thảo luận trong giai đoạn cho phép \\ \hline
-Điều kiện tiên quyết & Bài nộp tồn tại; hội nghị đang ở giai đoạn reviewing; Phản biện viên có phân công hợp lệ \\ \hline
-Luồng chính & Phản biện viên tạo chuỗi và tin nhắn đầu tiên; backend kiểm tra giai đoạn hội nghị và phân công; hệ thống liên kết chuỗi với bài và người tạo; Tác giả nhận thông báo; Tác giả và Phản biện viên trao đổi trong chuỗi sau khi backend kiểm tra quyền tham gia; Chủ tọa xem toàn bộ lịch sử; nội dung trở thành một nguồn bằng chứng cho Chair Decision Copilot \\ \hline
-Luồng thay thế và lỗi & Tác giả và Chủ tọa không được tạo chuỗi; Chủ tọa không gửi tin nhắn trong cách triển khai hiện tại; backend từ chối thao tác khi người dùng không liên quan đến bài hoặc chuỗi, khi giai đoạn không cho phép hoặc khi tệp đính kèm vượt giới hạn \\ \hline
-Kết quả đạt được & Chuỗi, tin nhắn và thông báo được lưu gắn với bài nộp trong phạm vi quyền của từng vai trò \\ \hline
-\end{longtable}
-\endgroup
-
-Trong phiên bản hiện tại, Chủ tọa và Đồng chủ tọa có quyền xem toàn bộ lịch sử thảo luận của bài nhưng không tạo chuỗi hoặc gửi tin nhắn trong chuỗi. Hình~\ref{fig:appendix-a-uc08-sequence} biểu diễn trình tự trao đổi và các bước kiểm tra quyền giữa những thành phần tham gia UC-08.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (reviewer) at (0,0) {Phản biện viên};
-  \node[appendixParticipant] (backend) at (3.8,0) {Backend};
-  \node[appendixParticipant] (db) at (7.6,0) {PostgreSQL};
-  \node[appendixParticipant] (notify) at (11.4,0) {Thông báo};
-  \node[appendixParticipant] (author) at (15.2,0) {Tác giả};
-  \node[appendixParticipant] (chair) at (19.0,0) {Chủ tọa};
-  \foreach \x in {0,3.8,7.6,11.4,15.2,19.0} \draw[appendixLifeline] (\x,-0.5) -- (\x,-25.0);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Tạo chuỗi} (3.8,-1.8);
-  \draw[appendixArrow] (3.8,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra giai đoạn reviewing} (3.8,-4.0);
-  \draw[appendixArrow] (3.8,-5.2) -- node[appendixMessage] {Kiểm tra phân công} (7.6,-5.2);
-  \draw[appendixArrow] (3.8,-6.6) -- node[appendixMessage] {Lưu chuỗi và tin nhắn đầu tiên} (7.6,-6.6);
-  \draw[appendixArrow] (3.8,-8.0) -- node[appendixMessage] {Phát thông báo} (11.4,-8.0);
-  \draw[appendixDashedArrow] (11.4,-9.4) -- node[appendixMessage] {Có thảo luận mới} (15.2,-9.4);
-
-  \draw[appendixArrow] (15.2,-10.8) -- node[appendixMessage] {Gửi phản hồi} (3.8,-10.8);
-  \draw[appendixArrow] (3.8,-12.2) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra người tham gia chuỗi} (3.8,-13.4);
-  \draw[appendixArrow] (3.8,-14.6) -- node[appendixMessage] {Lưu tin nhắn} (7.6,-14.6);
-  \draw[appendixArrow] (3.8,-16.0) -- node[appendixMessage] {Thông báo phản hồi} (11.4,-16.0);
-  \draw[appendixDashedArrow] (11.4,-17.4) -- node[appendixMessage] {Có phản hồi mới} (0,-17.4);
-
-  \draw[appendixArrow] (19.0,-18.8) -- node[appendixMessage] {Yêu cầu lịch sử} (3.8,-18.8);
-  \draw[appendixArrow] (3.8,-20.2) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền Chủ tọa} (3.8,-21.4);
-  \draw[appendixArrow] (3.8,-22.8) -- node[appendixMessage] {Đọc chuỗi và tin nhắn} (7.6,-22.8);
-  \draw[appendixDashedArrow] (3.8,-24.2) -- node[appendixMessage] {Trả lịch sử ở chế độ chỉ đọc} (19.0,-24.2);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự trao đổi giữa các vai trò trong UC-08}
-\label{fig:appendix-a-uc08-sequence}
-\end{figure}
-
-\subsection{UC-09. Tổng hợp bằng chứng hỗ trợ Chủ tọa ra quyết định}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-09: Tổng hợp bằng chứng hỗ trợ quyết định}\label{tab:appendix-a-uc09}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Giúp Chủ tọa đối chiếu nhiều nguồn bằng chứng mà không chuyển trách nhiệm quyết định sang AI \\ \hline
-Tác nhân & Chủ tọa hoặc Đồng chủ tọa là tác nhân chính; dịch vụ AI tổng hợp bằng chứng theo yêu cầu \\ \hline
-Sự kiện kích hoạt & Chủ tọa mở bài ở giai đoạn chuẩn bị quyết định hoặc yêu cầu tạo lại bản tổng hợp \\ \hline
-Điều kiện tiên quyết & Chủ tọa có quyền đối với hội nghị; bài có dữ liệu phản biện hoặc bằng chứng phù hợp \\ \hline
-Luồng chính & Backend thu thập bản phản biện, điểm, phản hồi và thảo luận; hệ thống tạo mã nhận diện cho bộ bằng chứng; nếu kết quả đã lưu còn hiệu lực, hệ thống trả kết quả đó, nếu không thì Chair Decision Copilot tạo bản mới; Chủ tọa đối chiếu bản tổng hợp với nguồn gốc và tự lưu quyết định \\ \hline
-Luồng thay thế và lỗi & Nếu dữ liệu chưa đủ, hệ thống nêu phần bằng chứng còn thiếu; nếu dịch vụ AI gặp lỗi, Chủ tọa vẫn đọc dữ liệu gốc để tiếp tục; khi bằng chứng thay đổi, hệ thống đánh dấu bản tổng hợp cũ là không còn hiệu lực \\ \hline
-Kết quả đạt được & Hệ thống lưu bản tổng hợp có thể kiểm tra lại; quyết định cuối cùng chỉ do Chủ tọa tạo và xác nhận \\ \hline
-\end{longtable}
-
-\pagebreak
-
-Hình~\ref{fig:appendix-a-uc09-sequence} biểu diễn cách Backend tập hợp bộ bằng chứng, kiểm tra kết quả đã lưu và gọi Chair Decision Copilot trong UC-09.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (chair) at (0,0) {Chủ tọa};
-  \node[appendixParticipant] (backend) at (4.8,0) {Backend};
-  \node[appendixParticipant] (db) at (9.6,0) {PostgreSQL};
-  \node[appendixParticipant] (ai) at (14.4,0) {Chair Decision\\Copilot};
-  \foreach \x in {0,4.8,9.6,14.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-22.6);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Yêu cầu bản tổng hợp bằng chứng} (4.8,-1.8);
-  \draw[appendixArrow] (4.8,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra quyền đối với hội nghị} (4.8,-4.0);
-  \draw[appendixArrow] (4.8,-5.2) -- node[appendixMessage] {Đọc bài, phản biện, phản hồi và thảo luận} (9.6,-5.2);
-  \draw[appendixDashedArrow] (9.6,-6.6) -- node[appendixMessage] {Trả dữ liệu nguồn} (4.8,-6.6);
-  \draw[appendixArrow] (4.8,-7.6) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Tạo mã nhận diện bộ bằng chứng} (4.8,-8.8);
-
-  \draw[appendixArrow] (4.8,-10.2) -- node[appendixMessage] {Kiểm tra bản tổng hợp đã lưu} (9.6,-10.2);
-  \draw[appendixDashedArrow] (9.6,-11.6) -- node[appendixMessage] {Trả kết quả hiện hành hoặc trạng thái hết hiệu lực} (4.8,-11.6);
-
-  \draw[appendixArrow] (4.8,-13.0) -- node[appendixMessage] {Gửi bộ bằng chứng khi cần tạo mới} (14.4,-13.0);
-  \draw[appendixDashedArrow] (14.4,-14.4) -- node[appendixMessage] {Trả bản tổng hợp kèm căn cứ} (4.8,-14.4);
-  \draw[appendixArrow] (4.8,-15.8) -- node[appendixMessage] {Lưu kết quả và mã nhận diện} (9.6,-15.8);
-  \draw[appendixDashedArrow] (4.8,-17.2) -- node[appendixMessage] {Trả bản tổng hợp và dữ liệu nguồn} (0,-17.2);
-
-  \draw[appendixArrow] (0,-18.6) -- node[appendixMessage] {Tự xác nhận và lưu quyết định cuối} (4.8,-18.6);
-  \draw[appendixArrow] (4.8,-20.0) -- node[appendixMessage] {Lưu quyết định của Chủ tọa} (9.6,-20.0);
-  \draw[appendixDashedArrow] (4.8,-21.4) -- node[appendixMessage] {Xác nhận quyết định đã được lưu} (0,-21.4);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự tổng hợp bằng chứng hỗ trợ quyết định trong UC-09}
-\label{fig:appendix-a-uc09-sequence}
-\end{figure}
-
-\subsection[UC-10. Truy vấn trạng thái và hướng dẫn]{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
-
-\begin{longtable}{|T{0.22\textwidth}|T{0.68\textwidth}|}
-\caption{Đặc tả UC-10: Truy vấn trạng thái và hướng dẫn}\label{tab:appendix-a-uc10}\\
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endfirsthead
-\hline
-\TableHeader{Thuộc tính} & \TableHeader{Đặc tả} \\ \hline
-\endhead
-Mục tiêu & Giúp Tác giả, Phản biện viên và Chủ tọa tra cứu trạng thái, dữ liệu hoặc hướng dẫn trong phạm vi quyền \\ \hline
-Tác nhân & Tác giả, Phản biện viên và Chủ tọa; dịch vụ AI cùng bộ máy truy vấn của backend xử lý yêu cầu \\ \hline
-Sự kiện kích hoạt & Người dùng gửi câu hỏi cho Chatbot Agent \\ \hline
-Điều kiện tiên quyết & Người dùng đã xác thực khi truy vấn dữ liệu hạn chế; dịch vụ AI và endpoint truy vấn của backend đã được cấu hình \\ \hline
-Luồng chính & Chatbot Agent nhận câu hỏi, lịch sử và ngữ cảnh trang; xác định có cần dữ liệu hệ thống; nếu cần, gửi yêu cầu gồm tài nguyên, trường và điều kiện đến backend; backend kiểm tra mã xác thực người dùng, mã xác thực dịch vụ, danh mục tài nguyên, trường được phép và quyền của người dùng hiện tại; backend trả phần dữ liệu tối thiểu được phép; Chatbot Agent tạo câu trả lời phù hợp với vai trò \\ \hline
-Luồng thay thế và lỗi & Backend từ chối tài nguyên, trường hoặc bộ lọc ngoài danh mục, cũng như dữ liệu người dùng không có quyền xem; nếu công cụ hoặc dịch vụ AI gặp lỗi, hệ thống trả lỗi rõ ràng; yêu cầu nghiên cứu hoặc báo cáo ngoài phạm vi nền tảng bị từ chối \\ \hline
-Kết quả đạt được & Người dùng nhận câu trả lời dựa trên dữ liệu được phép hoặc thông báo lỗi có giải thích; Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu \\ \hline
-\end{longtable}
-
-Hình~\ref{fig:appendix-a-uc10-sequence} biểu diễn ranh giới truy vấn dữ liệu giữa Chatbot Agent, Backend và PostgreSQL trong UC-10.
-
-\begin{figure}[H]
-\centering
-\begin{adjustbox}{max width=\textwidth, max height=0.78\textheight, keepaspectratio}
-\begin{tikzpicture}[>=Latex]
-  \node[appendixParticipant] (user) at (0,0) {Người dùng};
-  \node[appendixParticipant] (agent) at (4.1,0) {Chatbot Agent};
-  \node[appendixParticipant] (backend) at (8.2,0) {Backend};
-  \node[appendixParticipant] (engine) at (12.3,0) {Bộ máy\\truy vấn};
-  \node[appendixParticipant] (db) at (16.4,0) {PostgreSQL};
-  \foreach \x in {0,4.1,8.2,12.3,16.4} \draw[appendixLifeline] (\x,-0.5) -- (\x,-19);
-
-  \draw[appendixArrow] (0,-1.8) -- node[appendixMessage] {Gửi câu hỏi, lịch sử và ngữ cảnh trang} (4.1,-1.8);
-  \draw[appendixArrow] (4.1,-2.8) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Xác định có cần dữ liệu hệ thống} (4.1,-4.0);
-
-  \draw[appendixArrow] (4.1,-5.4) -- node[appendixMessage] {Yêu cầu tài nguyên, trường và điều kiện} (8.2,-5.4);
-  \draw[appendixArrow] (8.2,-6.4) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Kiểm tra hai lớp xác thực và quyền người dùng} (8.2,-7.6);
-  \draw[appendixArrow] (8.2,-9.0) -- node[appendixMessage] {Chuyển kế hoạch truy vấn đã cho phép} (12.3,-9.0);
-  \draw[appendixArrow] (12.3,-10.4) -- node[appendixMessage] {Thực thi truy vấn có giới hạn} (16.4,-10.4);
-  \draw[appendixDashedArrow] (16.4,-11.8) -- node[appendixMessage] {Trả các hàng dữ liệu phù hợp} (12.3,-11.8);
-  \draw[appendixDashedArrow] (12.3,-13.2) -- node[appendixMessage] {Trả kết quả đã chuẩn hóa} (8.2,-13.2);
-  \draw[appendixDashedArrow] (8.2,-14.6) -- node[appendixMessage] {Trả phần dữ liệu tối thiểu được phép} (4.1,-14.6);
-
-  \draw[appendixArrow] (4.1,-15.6) -- ++(1.3,0) |- node[pos=0.25, right, appendixEdgeLabel] {Tạo câu trả lời phù hợp với vai trò} (4.1,-16.8);
-  \draw[appendixDashedArrow] (4.1,-18.2) -- node[appendixMessage] {Trả câu trả lời hoặc lỗi có giải thích} (0,-18.2);
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Trình tự truy vấn trạng thái và hướng dẫn trong UC-10}
-\label{fig:appendix-a-uc10-sequence}
-\end{figure}
+\input{Appendix/usecase-specifications}
 
 \section{Truy vết yêu cầu, dữ liệu và phân quyền}
 \label{sec:appendix-a-data}
@@ -731,23 +28,34 @@ Hình~\ref{fig:appendix-a-uc10-sequence} biểu diễn ranh giới truy vấn d�
 
 Bảng~\ref{tab:appendix-a-traceability} đối chiếu từng nhóm yêu cầu với use case và bằng chứng thiết kế tương ứng.
 
-\begin{longtable}{|T{0.26\textwidth}|N{0.16\textwidth}|T{0.46\textwidth}|}
+\begin{longtable}{|T{0.26\textwidth}|N{0.15\textwidth}|T{0.51\textwidth}|}
 \caption{Ma trận truy vết yêu cầu và đặc tả chi tiết}\label{tab:appendix-a-traceability}\\
 \hline
-\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng thiết kế trong phụ lục} \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng trong phụ lục} \\ \hline
 \endfirsthead
 \hline
-\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng thiết kế trong phụ lục} \\ \hline
+\TableHeader{Mã yêu cầu} & \TableHeader{Use case} & \TableHeader{Bằng chứng trong phụ lục} \\ \hline
 \endhead
-F-AUTHOR-01 & UC-01 & Bảng~\ref{tab:appendix-a-uc01}; dữ liệu hội nghị và quyền công khai \\ \hline
-F-AUTHOR-02 đến F-AUTHOR-06 & UC-02, UC-03, UC-08 & Bảng~\ref{tab:appendix-a-uc02}, \ref{tab:appendix-a-uc03}, \ref{tab:appendix-a-uc08}; Submission Autofill và Submission Gating \\ \hline
-F-REVIEWER-01 đến F-REVIEWER-03 & UC-04, UC-05 & Bảng~\ref{tab:appendix-a-uc04}, \ref{tab:appendix-a-uc05}; ma trận quyền \\ \hline
-F-REVIEWER-04 đến F-REVIEWER-06 & UC-05 & Reviewer Initial Analysis và Review Quality Auditor tại Mục~\ref{sec:appendix-a-ai} \\ \hline
-F-CHAIR-01, F-CHAIR-02 & UC-07, UC-08 & Bảng~\ref{tab:appendix-a-uc07}, \ref{tab:appendix-a-uc08}; phân quyền theo hội nghị \\ \hline
-F-CHAIR-03 đến F-CHAIR-05 & UC-06 & Mục~\ref{sec:appendix-a-algorithms} \\ \hline
-F-CHAIR-06 & UC-09 & Bảng~\ref{tab:appendix-a-uc09}; Chair Decision Copilot \\ \hline
-F-COMMON-01 & UC-10 & Bảng~\ref{tab:appendix-a-uc10}; ranh giới truy vấn của Chatbot Agent \\ \hline
-F-COMMON-02, F-COMMON-03 & Xuyên suốt & Ma trận quyền, mã xác thực liên dịch vụ và nhật ký kiểm toán \\ \hline
+F-COMMON-04 & UC-01 & Bảng~\ref{tab:appendix-a-UC-01}; đăng ký và xác minh thư điện tử \\ \hline
+F-COMMON-05 & UC-02, UC-03, UC-04 & Bảng~\ref{tab:appendix-a-UC-02} đến \ref{tab:appendix-a-UC-04}; xác thực và phiên \\ \hline
+F-COMMON-06 & UC-05 & Bảng~\ref{tab:appendix-a-UC-05}; hồ sơ và liên kết học thuật \\ \hline
+F-COMMON-02 & UC-06 & Bảng~\ref{tab:appendix-a-UC-06}; thông báo và tùy chọn \\ \hline
+F-COMMON-07 & UC-07 & Bảng~\ref{tab:appendix-a-UC-07}; lịch và xuất ICS \\ \hline
+F-COMMON-01 & UC-08 & Bảng~\ref{tab:appendix-a-UC-08}; ranh giới truy vấn Chatbot Agent \\ \hline
+F-AUTHOR-07, F-REVIEWER-08, F-CHAIR-08 & UC-09 & Bảng~\ref{tab:appendix-a-UC-09}; phân quyền trao đổi \\ \hline
+F-COMMON-08, F-AUTHOR-01 & UC-10 & Bảng~\ref{tab:appendix-a-UC-10}; khám phá và theo dõi hội nghị \\ \hline
+F-AUTHOR-02 đến F-AUTHOR-04 & UC-11 & Bảng~\ref{tab:appendix-a-UC-11}; Submission Autofill \\ \hline
+F-AUTHOR-02, F-AUTHOR-05 & UC-12 & Bảng~\ref{tab:appendix-a-UC-12}; Submission Gating \\ \hline
+F-AUTHOR-06 & UC-13 đến UC-17 & Bảng~\ref{tab:appendix-a-UC-13} đến \ref{tab:appendix-a-UC-17}; vòng đời bài \\ \hline
+F-REVIEWER-01 & UC-18, UC-19, UC-20 & Bảng~\ref{tab:appendix-a-UC-18} đến \ref{tab:appendix-a-UC-20}; lời mời, assignment và quyền xem bài \\ \hline
+F-REVIEWER-02 đến F-REVIEWER-06 & UC-20 & Bảng~\ref{tab:appendix-a-UC-20}; hai hỗ trợ AI cho phản biện \\ \hline
+F-REVIEWER-07 & UC-21 & Bảng~\ref{tab:appendix-a-UC-21}; đánh giá sau rebuttal \\ \hline
+F-CHAIR-01 & UC-22, UC-23 & Bảng~\ref{tab:appendix-a-UC-22}, \ref{tab:appendix-a-UC-23}; cấu hình và ban chương trình \\ \hline
+F-CHAIR-02, F-CHAIR-05 & UC-24 & Bảng~\ref{tab:appendix-a-UC-24}; giai đoạn và dashboard \\ \hline
+F-CHAIR-03 đến F-CHAIR-05 & UC-25 & Bảng~\ref{tab:appendix-a-UC-25}; Mục~\ref{sec:appendix-a-algorithms} \\ \hline
+F-CHAIR-06 & UC-26 & Bảng~\ref{tab:appendix-a-UC-26}; Chair Decision Copilot \\ \hline
+F-CHAIR-07 & UC-27 & Bảng~\ref{tab:appendix-a-UC-27}; cập nhật trạng thái và thông báo quyết định \\ \hline
+F-COMMON-03 & Xuyên suốt & Ma trận quyền, mã xác thực liên dịch vụ và nhật ký kiểm toán \\ \hline
 \end{longtable}
 
 \subsection{Nhóm dữ liệu chính}
@@ -774,7 +82,7 @@ Trạng thái ngắn hạn & Phiên, kết quả công cụ đang chờ và bộ
 \endgroup
 
 
-Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và \ref{fig:appendix-a-core-erd-c} trình bày ERD logic của dữ liệu nghiệp vụ chính. Đường liền biểu diễn quan hệ có khóa ngoại trong migration; đường đứt biểu diễn liên kết nghiệp vụ hoặc liên kết được kiểm soát ở tầng ứng dụng nhưng không nhất thiết được ràng buộc bằng khóa ngoại vật lý.
+Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và \ref{fig:appendix-a-core-erd-c} trình bày lược đồ quan hệ (mức lôgic) của dữ liệu nghiệp vụ chính. Đường liền biểu diễn quan hệ có khóa ngoại trong migration; đường đứt biểu diễn liên kết nghiệp vụ hoặc liên kết được kiểm soát ở tầng ứng dụng nhưng không nhất thiết được ràng buộc bằng khóa ngoại vật lý.
 
 % ===================== Figure A.3a - Conference & review core =====================
 \begin{figure}[H]
@@ -830,7 +138,7 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD cho dữ liệu hội nghị và luồng phản biện}
+\caption{Lược đồ quan hệ của dữ liệu hội nghị và luồng phản biện}
 \label{fig:appendix-a-core-erd-a}
 \end{figure}
 
@@ -892,7 +200,7 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD cho dữ liệu thảo luận, xung đột lợi ích và thông báo}
+\caption{Lược đồ quan hệ của dữ liệu thảo luận, xung đột lợi ích và thông báo}
 \label{fig:appendix-a-core-erd-b}
 \end{figure}
 
@@ -920,7 +228,7 @@ Các hình~\ref{fig:appendix-a-core-erd-a}, \ref{fig:appendix-a-core-erd-b} và 
 
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD cho dữ liệu hồ sơ học giả và bài báo}
+\caption{Lược đồ quan hệ của dữ liệu hồ sơ học giả và bài báo}
 \label{fig:appendix-a-core-erd-c}
 \end{figure}
 
@@ -956,9 +264,11 @@ Reviewer Initial Analysis và Chair Decision Copilot dùng mã nhận diện đ�
   \draw[fk] (riaRuns)    -- node[note,pos=0.55] {1--N} (riaStages);
 \end{tikzpicture}
 \end{adjustbox}
-\caption{ERD của các bảng lưu vết trong lược đồ \textit{ai}}
+\caption{Lược đồ quan hệ của các bảng lưu vết thuộc lược đồ \textit{ai}}
 \label{fig:appendix-a-ai-erd}
 \end{figure}
+
+\input{Appendix/tu-dien-du-lieu}
 
 \subsection{Ma trận quyền trong chức năng thảo luận}
 

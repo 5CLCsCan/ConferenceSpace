@@ -1,0 +1,1454 @@
+% !TEX root = ../main.tex
+% ==========================================================================
+% Từ điển dữ liệu — sinh tự động từ information_schema của CSDL triển khai
+% (PostgreSQL: lược đồ public và ai) và lược đồ Neo4j/Redis.
+% Được \input từ Appendix/appendix-a.tex.
+% ==========================================================================
+\subsection{Từ điển dữ liệu}
+\label{sec:appendix-a-datadict}
+
+% viết tắt cục bộ: tên cột/kiểu dữ liệu cho phép xuống dòng tại dấu gạch dưới
+\newcommand{\cn}[1]{\texttt{#1}}
+\begingroup
+\renewcommand{\_}{\textunderscore\allowbreak}
+\sloppy % định danh dài trong \texttt cần khoảng co giãn rộng hơn khi canh đều
+
+Mục này liệt kê cấu trúc chi tiết của toàn bộ bảng dữ liệu, trích xuất từ
+\texttt{information\_schema} của cơ sở dữ liệu đang triển khai: 24 bảng thuộc
+lược đồ \texttt{public} và 17 bảng thuộc lược đồ \texttt{ai}. Cột \textbf{NN}
+đánh dấu ràng buộc \texttt{NOT NULL}. Nhãn \textbf{PK} là khóa chính,
+\textbf{FK} là khóa ngoại được thực thi ở tầng cơ sở dữ liệu; nhãn \textbf{ref}
+là tham chiếu lôgic (theo email hoặc id) được bảo đảm ở tầng ứng dụng, tương ứng
+với đường đứt trong các lược đồ quan hệ ở trên.
+
+\subsubsection{Định danh và tài khoản}
+
+Tài khoản người dùng; \cn{email} là định danh dùng chung giữa PostgreSQL và Neo4j.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{users}}\label{tab:appendix-a-dd-users}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{user\_id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{email} & \cn{varchar(255)} & x &  & UNIQUE \\ \hline
+3 & \cn{first\_name} & \cn{varchar(255)} & x &  &  \\ \hline
+4 & \cn{last\_name} & \cn{varchar(255)} & x &  &  \\ \hline
+5 & \cn{domain} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+7 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+8 & \cn{hashed\_password} & \cn{varchar(255)} & x & \cn{\seqsplit{''}} &  \\ \hline
+9 & \cn{semantic\_scholar\_id} & \cn{varchar(50)} &  &  & ref $\rightarrow$ \cn{scholar\_profiles.\allowbreak{}semantic\_scholar\_id} \\ \hline
+10 & \cn{profile\_sync\_status} & \cn{varchar(20)} &  & \cn{\seqsplit{NULL}} &  \\ \hline
+11 & \cn{email\_verified} & \cn{boolean} & x & \cn{\seqsplit{false}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Token dùng một lần cho xác minh thư điện tử và đặt lại mật khẩu.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{auth\_tokens}}\label{tab:appendix-a-dd-auth-tokens}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{user\_email} & \cn{text} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+3 & \cn{token} & \cn{text} & x &  & UNIQUE \\ \hline
+4 & \cn{token\_type} & \cn{text} & x &  &  \\ \hline
+5 & \cn{expires\_at} & \cn{timestamptz} & x &  &  \\ \hline
+6 & \cn{used\_at} & \cn{timestamptz} &  &  &  \\ \hline
+7 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Tùy chọn nhận thông báo theo người dùng (1--1 theo email).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{notification\_preferences}}\label{tab:appendix-a-dd-notification-preferences}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{user\_email} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email}, UNIQUE \\ \hline
+3 & \cn{submission\_received} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+4 & \cn{review\_assigned} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+5 & \cn{review\_submitted} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+6 & \cn{paper\_accepted} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+7 & \cn{paper\_rejected} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+8 & \cn{deadline\_reminder} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+9 & \cn{status\_change} & \cn{boolean} &  & \cn{\seqsplit{true}} &  \\ \hline
+10 & \cn{email\_notifications} & \cn{boolean} &  & \cn{\seqsplit{false}} &  \\ \hline
+11 & \cn{created\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\ \hline
+12 & \cn{updated\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Thông báo trong ứng dụng.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{notifications}}\label{tab:appendix-a-dd-notifications}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{user\_email} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+3 & \cn{type} & \cn{varchar(50)} & x &  &  \\ \hline
+4 & \cn{title} & \cn{varchar(255)} & x &  &  \\ \hline
+5 & \cn{message} & \cn{text} & x &  &  \\ \hline
+6 & \cn{metadata} & \cn{jsonb} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+7 & \cn{read} & \cn{boolean} &  & \cn{\seqsplit{false}} &  \\ \hline
+8 & \cn{action\_url} & \cn{text} &  &  &  \\ \hline
+9 & \cn{conference\_id} & \cn{integer} &  &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Sự kiện đo lường sử dụng phục vụ đánh giá UAT.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{usage\_events}}\label{tab:appendix-a-dd-usage-events}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{session\_id} & \cn{text} & x &  &  \\ \hline
+3 & \cn{user\_id} & \cn{bigint} &  &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+4 & \cn{role} & \cn{varchar(32)} &  &  &  \\ \hline
+5 & \cn{event\_name} & \cn{varchar(160)} & x &  &  \\ \hline
+6 & \cn{page\_path} & \cn{text} &  &  &  \\ \hline
+7 & \cn{entity\_type} & \cn{varchar(64)} &  &  &  \\ \hline
+8 & \cn{entity\_id} & \cn{text} &  &  &  \\ \hline
+9 & \cn{success} & \cn{boolean} & x & \cn{\seqsplit{true}} &  \\ \hline
+10 & \cn{metadata} & \cn{jsonb} & x & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+11 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Hội nghị được người dùng đánh dấu theo dõi.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conference\_bookmarks}}\label{tab:appendix-a-dd-conference-bookmarks}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{conference\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+4 & \cn{user\_email} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\subsubsection{Hội nghị và ban chương trình}
+
+Hội nghị; \cn{configurations} (JSONB) chứa cấu hình như \cn{coi\_window\_years}, hạn nộp và biểu mẫu phản biện.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conferences}}\label{tab:appendix-a-dd-conferences}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{conference\_id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{chair} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+3 & \cn{configurations} & \cn{jsonb} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+4 & \cn{domain} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+5 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+6 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+7 & \cn{title} & \cn{varchar(255)} &  &  &  \\ \hline
+8 & \cn{acronym} & \cn{varchar(50)} &  &  & UNIQUE \\ \hline
+9 & \cn{description} & \cn{text} &  &  &  \\ \hline
+10 & \cn{primary\_contact} & \cn{integer} &  &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+11 & \cn{area\_chair} & \cn{integer} &  &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+12 & \cn{co\_chairs} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+13 & \cn{tracks} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+14 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'open'}} &  \\ \hline
+15 & \cn{venue} & \cn{varchar(500)} &  & \cn{\seqsplit{''}} &  \\ \hline
+16 & \cn{rebuttal\_enabled} & \cn{boolean} & x & \cn{\seqsplit{false}} &  \\ \hline
+17 & \cn{rebuttal\_phase} & \cn{varchar(20)} & x & \cn{\seqsplit{'not\_started'}} &  \\ \hline
+18 & \cn{rebuttal\_start\_at} & \cn{timestamptz} &  &  &  \\ \hline
+19 & \cn{rebuttal\_deadline} & \cn{timestamptz} &  &  &  \\ \hline
+20 & \cn{char\_limit\_general} & \cn{integer} & x & \cn{\seqsplit{3000}} &  \\ \hline
+21 & \cn{char\_limit\_per\_point} & \cn{integer} & x & \cn{\seqsplit{1000}} &  \\ \hline
+22 & \cn{allow\_discussion} & \cn{boolean} & x & \cn{\seqsplit{false}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Vai trò của người dùng trong từng hội nghị (chair, co-chair, thành viên PC).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conference\_user\_roles}}\label{tab:appendix-a-dd-conference-user-roles}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{conference\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{user\_id} & \cn{integer} &  &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+4 & \cn{user\_email} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+5 & \cn{role} & \cn{varchar(50)} & x &  &  \\ \hline
+6 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'active'}} &  \\ \hline
+7 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+8 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Phản biện viên của hội nghị cùng trạng thái lời mời và lĩnh vực; \cn{paper\_assignments.reviewer\_id} tham chiếu bảng này.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conference\_reviewers}}\label{tab:appendix-a-dd-conference-reviewers}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{user\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+3 & \cn{conference\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{domain} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+5 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+6 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+7 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'pending'}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lời mời học giả chưa có tài khoản, tìm qua Semantic Scholar; token chấp nhận liên kết với tài khoản được tạo.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{external\_invitations}}\label{tab:appendix-a-dd-external-invitations}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{conference\_id} & \cn{integer} & x &  & FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id}, UNIQUE \\ \hline
+3 & \cn{role} & \cn{varchar(20)} & x &  &  \\ \hline
+4 & \cn{scholar\_id} & \cn{varchar(50)} &  &  & UNIQUE \\ \hline
+5 & \cn{name} & \cn{varchar(255)} & x &  &  \\ \hline
+6 & \cn{email} & \cn{varchar(255)} &  &  &  \\ \hline
+7 & \cn{affiliation} & \cn{varchar(500)} &  &  &  \\ \hline
+8 & \cn{profile\_url} & \cn{varchar(500)} &  &  &  \\ \hline
+9 & \cn{status} & \cn{varchar(20)} & x & \cn{\seqsplit{'pending'}} &  \\ \hline
+10 & \cn{invited\_by} & \cn{integer} & x &  & FK $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+11 & \cn{created\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+12 & \cn{updated\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+13 & \cn{fields\_of\_study} & \cn{text[]} & x & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+14 & \cn{invitation\_token} & \cn{varchar(64)} &  &  &  \\ \hline
+15 & \cn{invitation\_token\_expires\_at} & \cn{timestamp} &  &  &  \\ \hline
+16 & \cn{invitation\_token\_used\_at} & \cn{timestamp} &  &  &  \\ \hline
+17 & \cn{accepted\_user\_id} & \cn{integer} &  &  & FK $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Mẫu cấu hình hội nghị tái sử dụng, thuộc sở hữu của một người dùng.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conference\_config\_templates}}\label{tab:appendix-a-dd-conference-config-templates}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{template\_id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{owner\_email} & \cn{text} & x &  & FK $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+3 & \cn{name} & \cn{text} & x &  &  \\ \hline
+4 & \cn{description} & \cn{text} & x & \cn{\seqsplit{''}} &  \\ \hline
+5 & \cn{payload} & \cn{jsonb} & x & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+7 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\subsubsection{Bài nộp, phản biện và phúc đáp}
+
+Bài nộp; \cn{author} và \cn{information.co\_authors} là các định danh tác giả dùng cho phát hiện xung đột lợi ích.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{conference\_submissions}}\label{tab:appendix-a-dd-conference-submissions}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{submission\_id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{author} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+3 & \cn{domain} & \cn{text[]} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+4 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'draft'}} &  \\ \hline
+5 & \cn{link} & \cn{text} &  &  &  \\ \hline
+6 & \cn{information} & \cn{jsonb} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+7 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+8 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+9 & \cn{conference\_id} & \cn{integer} & x & \cn{\seqsplit{0}} & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+10 & \cn{title} & \cn{varchar(500)} & x & \cn{\seqsplit{''}} &  \\ \hline
+11 & \cn{abstract} & \cn{text} & x & \cn{\seqsplit{''}} &  \\ \hline
+12 & \cn{file\_path} & \cn{text} &  &  &  \\ \hline
+13 & \cn{file\_original\_name} & \cn{text} &  &  &  \\ \hline
+14 & \cn{file\_size} & \cn{bigint} &  &  &  \\ \hline
+15 & \cn{file\_mime\_type} & \cn{text} &  &  &  \\ \hline
+16 & \cn{file\_uploaded\_at} & \cn{timestamptz} &  &  &  \\ \hline
+17 & \cn{track} & \cn{text} &  &  &  \\ \hline
+18 & \cn{cover\_letter\_path} & \cn{text} &  &  &  \\ \hline
+19 & \cn{cover\_letter\_original\_name} & \cn{text} &  &  &  \\ \hline
+20 & \cn{cover\_letter\_size} & \cn{bigint} &  &  &  \\ \hline
+21 & \cn{cover\_letter\_mime\_type} & \cn{text} &  &  &  \\ \hline
+22 & \cn{cover\_letter\_uploaded\_at} & \cn{timestamptz} &  &  &  \\ \hline
+23 & \cn{rebuttal\_phase} & \cn{varchar(50)} & x & \cn{\seqsplit{'awaiting'}} &  \\ \hline
+24 & \cn{rebuttal\_general\_response} & \cn{text} &  &  &  \\ \hline
+25 & \cn{camera\_ready\_path} & \cn{varchar(500)} &  &  &  \\ \hline
+26 & \cn{camera\_ready\_original\_name} & \cn{varchar(255)} &  &  &  \\ \hline
+27 & \cn{camera\_ready\_size} & \cn{bigint} &  &  &  \\ \hline
+28 & \cn{camera\_ready\_mime\_type} & \cn{varchar(100)} &  &  &  \\ \hline
+29 & \cn{camera\_ready\_uploaded\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Phân công phản biện và vòng đời đánh giá: điểm đối sánh, nội dung phản biện (\cn{review\_data}), kết quả sau phúc đáp.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{paper\_assignments}}\label{tab:appendix-a-dd-paper-assignments}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{submission\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+4 & \cn{reviewer\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conference\_reviewers.\allowbreak{}id} \\ \hline
+5 & \cn{score} & \cn{numeric} &  & \cn{\seqsplit{0.0}} &  \\ \hline
+6 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'pending'}} &  \\ \hline
+7 & \cn{assigned\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+8 & \cn{completed\_at} & \cn{timestamp} &  &  &  \\ \hline
+9 & \cn{created\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+10 & \cn{updated\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{review\_status} & \cn{varchar(50)} &  &  &  \\ \hline
+12 & \cn{review\_score} & \cn{numeric} &  &  &  \\ \hline
+13 & \cn{review\_data} & \cn{jsonb} &  & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+14 & \cn{review\_submitted\_at} & \cn{timestamp} &  &  &  \\ \hline
+15 & \cn{rebuttal\_status} & \cn{varchar(50)} & x & \cn{\seqsplit{'none'}} &  \\ \hline
+16 & \cn{rebuttal\_submitted\_at} & \cn{timestamptz} &  &  &  \\ \hline
+17 & \cn{rebuttal\_acknowledged\_at} & \cn{timestamptz} &  &  &  \\ \hline
+18 & \cn{post\_rebuttal\_score} & \cn{integer} &  &  &  \\ \hline
+19 & \cn{post\_rebuttal\_recommendation} & \cn{varchar(20)} &  &  &  \\ \hline
+20 & \cn{post\_rebuttal\_comment} & \cn{text} &  &  &  \\ \hline
+21 & \cn{post\_rebuttal\_updated\_at} & \cn{timestamptz} &  &  &  \\ \hline
+22 & \cn{review\_audit\_state} & \cn{jsonb} & x & \cn{\seqsplit{'\{"dismiss...}} &  \\ \hline
+23 & \cn{metadata} & \cn{jsonb} &  &  &  \\ \hline
+24 & \cn{decline\_reason} & \cn{text} &  &  &  \\ \hline
+25 & \cn{decline\_category} & \cn{varchar(50)} &  & \cn{\seqsplit{NULL}} &  \\ \hline
+26 & \cn{responded\_at} & \cn{timestamp} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Nhật ký chỉ ghi thêm (append-only) các thao tác liên quan đến phản biện.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{review\_audit\_events}}\label{tab:appendix-a-dd-review-audit-events}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{assignment\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+3 & \cn{conference\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{actor\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+5 & \cn{actor\_email} & \cn{text} & x &  &  \\ \hline
+6 & \cn{event\_type} & \cn{varchar(64)} & x &  &  \\ \hline
+7 & \cn{payload} & \cn{jsonb} & x & \cn{\seqsplit{'\{\}'}} &  \\ \hline
+8 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Phúc đáp theo từng điểm: ý kiến phản biện, phản hồi của tác giả và xác nhận của phản biện viên.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{rebuttal\_points}}\label{tab:appendix-a-dd-rebuttal-points}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id}, UNIQUE \\ \hline
+3 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+5 & \cn{point\_id} & \cn{varchar(100)} & x &  & UNIQUE \\ \hline
+6 & \cn{category} & \cn{varchar(50)} &  &  &  \\ \hline
+7 & \cn{section} & \cn{varchar(100)} &  &  &  \\ \hline
+8 & \cn{original\_comment} & \cn{text} &  &  &  \\ \hline
+9 & \cn{author\_response} & \cn{text} &  &  &  \\ \hline
+10 & \cn{status} & \cn{varchar(50)} & x & \cn{\seqsplit{'pending\_r...}} &  \\ \hline
+11 & \cn{reviewer\_acknowledged} & \cn{boolean} & x & \cn{\seqsplit{false}} &  \\ \hline
+12 & \cn{reviewer\_note} & \cn{text} &  &  &  \\ \hline
+13 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+14 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Chủ đề thảo luận của PC gắn với bài nộp, có kiểm soát phạm vi hiển thị.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{discussion\_threads}}\label{tab:appendix-a-dd-discussion-threads}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{submission\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+3 & \cn{reviewer\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+4 & \cn{conference\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+5 & \cn{title} & \cn{varchar(255)} & x &  &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+7 & \cn{visibility} & \cn{varchar(20)} & x & \cn{\seqsplit{'reviewers'}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Tin nhắn trong chủ đề thảo luận.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{discussion\_messages}}\label{tab:appendix-a-dd-discussion-messages}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{bigint} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{thread\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{discussion\_threads.\allowbreak{}id} \\ \hline
+3 & \cn{author\_id} & \cn{bigint} & x &  & FK $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+4 & \cn{content} & \cn{text} & x &  &  \\ \hline
+5 & \cn{created\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\subsubsection{Xung đột lợi ích và dữ liệu học thuật}
+
+Xung đột lợi ích đã phát hiện (loại, mức độ, bằng chứng) — materialize từ khai báo, tự tác giả và đồ thị Neo4j.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{coi\_relationships}}\label{tab:appendix-a-dd-coi-relationships}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{conference\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{reviewer\_id} & \cn{integer} & x &  & ref $\rightarrow$ \cn{conference\_reviewers.\allowbreak{}id} \\ \hline
+4 & \cn{author\_email} & \cn{varchar(255)} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+5 & \cn{submission\_id} & \cn{integer} &  &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+6 & \cn{relationship\_type} & \cn{varchar(50)} & x &  &  \\ \hline
+7 & \cn{severity} & \cn{varchar(20)} & x &  &  \\ \hline
+8 & \cn{description} & \cn{text} & x &  &  \\ \hline
+9 & \cn{evidence} & \cn{jsonb} &  & \cn{\seqsplit{'[]'}} &  \\ \hline
+10 & \cn{start\_date} & \cn{date} &  &  &  \\ \hline
+11 & \cn{end\_date} & \cn{date} &  &  &  \\ \hline
+12 & \cn{detected\_by} & \cn{varchar(50)} & x &  &  \\ \hline
+13 & \cn{created\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\ \hline
+14 & \cn{updated\_at} & \cn{timestamp} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Hàng đợi tính lại xung đột tăng dần; khóa chính tổ hợp khử trùng lặp phạm vi cần làm mới.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{coi\_dirty\_scopes}}\label{tab:appendix-a-dd-coi-dirty-scopes}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{conference\_id} & \cn{bigint} & x &  & PK, FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+2 & \cn{scope\_type} & \cn{varchar(20)} & x &  & PK \\ \hline
+3 & \cn{scope\_key} & \cn{varchar(64)} & x &  & PK \\ \hline
+4 & \cn{submission\_id} & \cn{bigint} &  &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+5 & \cn{reviewer\_id} & \cn{bigint} &  &  & ref $\rightarrow$ \cn{conference\_reviewers.\allowbreak{}id} \\ \hline
+6 & \cn{reason} & \cn{text} & x & \cn{\seqsplit{''}} &  \\ \hline
+7 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+8 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Thời điểm tái tính toàn phần gần nhất theo hội nghị (quan hệ 1--1 với \cn{conferences}).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{coi\_refresh\_state}}\label{tab:appendix-a-dd-coi-refresh-state}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{conference\_id} & \cn{bigint} & x &  & PK, FK $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+2 & \cn{last\_rebuild\_at} & \cn{timestamptz} & x &  &  \\ \hline
+3 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Hồ sơ Semantic Scholar được lưu đệm, liên kết 1--1 với người dùng.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{scholar\_profiles}}\label{tab:appendix-a-dd-scholar-profiles}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{user\_id} & \cn{integer} & x &  & FK $\rightarrow$ \cn{users.\allowbreak{}user\_id}, UNIQUE \\ \hline
+3 & \cn{semantic\_scholar\_id} & \cn{varchar(100)} & x &  & UNIQUE \\ \hline
+4 & \cn{name} & \cn{varchar(255)} & x &  &  \\ \hline
+5 & \cn{affiliations} & \cn{text[]} &  &  &  \\ \hline
+6 & \cn{paper\_count} & \cn{integer} &  & \cn{\seqsplit{0}} &  \\ \hline
+7 & \cn{citation\_count} & \cn{integer} &  & \cn{\seqsplit{0}} &  \\ \hline
+8 & \cn{h\_index} & \cn{integer} &  & \cn{\seqsplit{0}} &  \\ \hline
+9 & \cn{url} & \cn{text} &  &  &  \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{updated\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bài báo Semantic Scholar được lưu đệm, khử trùng lặp theo \cn{semantic\_scholar\_id}.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{scholar\_papers}}\label{tab:appendix-a-dd-scholar-papers}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{semantic\_scholar\_id} & \cn{varchar(100)} & x &  & UNIQUE \\ \hline
+3 & \cn{title} & \cn{text} & x &  &  \\ \hline
+4 & \cn{abstract} & \cn{text} &  &  &  \\ \hline
+5 & \cn{venue} & \cn{text} &  &  &  \\ \hline
+6 & \cn{year} & \cn{integer} &  &  &  \\ \hline
+7 & \cn{citation\_count} & \cn{integer} &  & \cn{\seqsplit{0}} &  \\ \hline
+8 & \cn{url} & \cn{text} &  &  &  \\ \hline
+9 & \cn{authors} & \cn{jsonb} &  &  &  \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{updated\_at} & \cn{timestamptz} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bảng nối N--N giữa hồ sơ và bài báo.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{scholar\_profile\_papers}}\label{tab:appendix-a-dd-scholar-profile-papers}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{profile\_id} & \cn{integer} & x &  & PK, FK $\rightarrow$ \cn{scholar\_profiles.\allowbreak{}id} \\ \hline
+2 & \cn{paper\_id} & \cn{integer} & x &  & PK, FK $\rightarrow$ \cn{scholar\_papers.\allowbreak{}id} \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lưu đệm phản hồi thô của Semantic Scholar API theo khóa yêu cầu.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{semantic\_scholar\_cache}}\label{tab:appendix-a-dd-semantic-scholar-cache}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{cache\_key} & \cn{varchar(255)} & x &  & UNIQUE \\ \hline
+3 & \cn{cache\_type} & \cn{varchar(50)} & x &  &  \\ \hline
+4 & \cn{data} & \cn{jsonb} & x &  &  \\ \hline
+5 & \cn{created\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\ \hline
+6 & \cn{updated\_at} & \cn{timestamp} &  & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\subsubsection{Lược đồ \textit{ai}: hội thoại và lưu vết các luồng công việc AI}
+
+Phiên hội thoại Chatbot Agent (khóa \cn{thread\_id}); lưu tóm tắt cuộn và tool-call đang chờ.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.ai\_sessions}}\label{tab:appendix-a-dd-ai-ai-sessions}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{thread\_id} & \cn{text} & x &  & PK \\ \hline
+2 & \cn{user\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+3 & \cn{user\_email} & \cn{text} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+4 & \cn{model} & \cn{varchar(128)} & x &  &  \\ \hline
+5 & \cn{trace\_id} & \cn{uuid} & x &  &  \\ \hline
+6 & \cn{rolling\_summary} & \cn{text} &  &  &  \\ \hline
+7 & \cn{status} & \cn{varchar(16)} & x & \cn{\seqsplit{'active'}} &  \\ \hline
+8 & \cn{pending\_tool\_call} & \cn{jsonb} &  &  &  \\ \hline
+9 & \cn{started\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+10 & \cn{last\_activity\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{turn\_count} & \cn{integer} & x & \cn{\seqsplit{0}} &  \\ \hline
+12 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+13 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+14 & \cn{title} & \cn{text} & x & \cn{\seqsplit{'New Conve...}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Tin nhắn trong phiên theo \cn{sequence\_no}; \cn{parts} (JSONB) chứa nội dung nhiều phần.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.ai\_messages}}\label{tab:appendix-a-dd-ai-ai-messages}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{thread\_id} & \cn{text} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}ai\_sessions.\allowbreak{}thread\_id}, UNIQUE \\ \hline
+3 & \cn{sequence\_no} & \cn{integer} & x &  & UNIQUE \\ \hline
+4 & \cn{message\_id} & \cn{text} & x &  & UNIQUE \\ \hline
+5 & \cn{role} & \cn{varchar(16)} & x &  &  \\ \hline
+6 & \cn{parts} & \cn{jsonb} & x &  &  \\ \hline
+7 & \cn{token\_count} & \cn{integer} &  &  &  \\ \hline
+8 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Nhật ký gọi công cụ của agent: đầu vào, kết quả, lỗi và thời gian xử lý.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.ai\_tool\_audit}}\label{tab:appendix-a-dd-ai-ai-tool-audit}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{integer} & x & \textit{tự tăng} & PK \\ \hline
+2 & \cn{thread\_id} & \cn{text} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}ai\_sessions.\allowbreak{}thread\_id}, UNIQUE \\ \hline
+3 & \cn{tool\_call\_id} & \cn{text} & x &  & UNIQUE \\ \hline
+4 & \cn{tool\_name} & \cn{text} & x &  &  \\ \hline
+5 & \cn{tool\_input} & \cn{jsonb} & x &  &  \\ \hline
+6 & \cn{status} & \cn{varchar(32)} & x &  &  \\ \hline
+7 & \cn{output} & \cn{jsonb} &  &  &  \\ \hline
+8 & \cn{error\_text} & \cn{text} &  &  &  \\ \hline
+9 & \cn{user\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}user\_id} \\ \hline
+10 & \cn{user\_email} & \cn{text} & x &  & ref $\rightarrow$ \cn{users.\allowbreak{}email} \\ \hline
+11 & \cn{requested\_at} & \cn{timestamptz} & x &  &  \\ \hline
+12 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\ \hline
+13 & \cn{trace\_id} & \cn{uuid} & x &  &  \\ \hline
+14 & \cn{source} & \cn{varchar(16)} & x & \cn{\seqsplit{'client'}} &  \\ \hline
+15 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt chạy Submission Gating; \cn{policy\_hash} và \cn{input\_fingerprint} bảo đảm tái lập kết quả.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.gating\_runs}}\label{tab:appendix-a-dd-ai-gating-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{submission\_id} & \cn{bigint} &  &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+4 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+5 & \cn{mode} & \cn{varchar(16)} & x &  &  \\ \hline
+6 & \cn{source} & \cn{text} & x &  &  \\ \hline
+7 & \cn{verdict} & \cn{varchar(16)} & x &  &  \\ \hline
+8 & \cn{decision} & \cn{text} &  &  &  \\ \hline
+9 & \cn{score} & \cn{double} &  &  &  \\ \hline
+10 & \cn{policy\_hash} & \cn{text} & x &  &  \\ \hline
+11 & \cn{input\_fingerprint} & \cn{text} & x &  &  \\ \hline
+12 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+13 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+14 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bản ghi từng giai đoạn của lượt gating (băm đầu vào/đầu ra, thời lượng).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.gating\_stage\_records}}\label{tab:appendix-a-dd-ai-gating-stage-records}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}gating\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{stage\_name} & \cn{text} & x &  &  \\ \hline
+4 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+5 & \cn{input\_hash} & \cn{text} &  &  &  \\ \hline
+6 & \cn{output\_hash} & \cn{text} &  &  &  \\ \hline
+7 & \cn{duration\_ms} & \cn{integer} &  &  &  \\ \hline
+8 & \cn{detail} & \cn{jsonb} &  &  &  \\ \hline
+9 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt chạy chú giải bài báo cho phản biện viên.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.paper\_annotation\_runs}}\label{tab:appendix-a-dd-ai-paper-annotation-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+4 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+5 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+6 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+7 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+8 & \cn{request\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bản ghi theo giai đoạn của lượt chú giải.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.paper\_annotation\_stage\_records}}\label{tab:appendix-a-dd-ai-paper-annotation-stage-records}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}paper\_annotation\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{stage\_name} & \cn{text} & x &  &  \\ \hline
+4 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+5 & \cn{detail} & \cn{jsonb} &  &  &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Kết quả chú giải hiện hành theo phân công; \cn{submission\_state\_fingerprint} phát hiện bài đã đổi.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.paper\_annotation\_artifacts}}\label{tab:appendix-a-dd-ai-paper-annotation-artifacts}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}paper\_annotation\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+5 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+6 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+7 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+8 & \cn{artifact\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{generated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt chạy bản định hướng phản biện (reviewer briefing).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_briefing\_runs}}\label{tab:appendix-a-dd-ai-reviewer-briefing-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+4 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+5 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+6 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+7 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+8 & \cn{request\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bản ghi theo giai đoạn của lượt định hướng.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_briefing\_stage\_records}}\label{tab:appendix-a-dd-ai-reviewer-briefing-stage-records}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}reviewer\_briefing\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{stage\_name} & \cn{text} & x &  &  \\ \hline
+4 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+5 & \cn{detail} & \cn{jsonb} &  &  &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Kết quả định hướng hiện hành theo phân công.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_briefing\_artifacts}}\label{tab:appendix-a-dd-ai-reviewer-briefing-artifacts}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}reviewer\_briefing\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+5 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+6 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+7 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+8 & \cn{artifact\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{generated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt chạy phân tích ban đầu cho phản biện viên.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_initial\_analysis\_runs}}\label{tab:appendix-a-dd-ai-reviewer-initial-analysis-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+4 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+5 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+6 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+7 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+8 & \cn{request\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+10 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+11 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Bản ghi theo giai đoạn của lượt phân tích ban đầu.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_initial\_analysis\_stage\_records}}\label{tab:appendix-a-dd-ai-reviewer-initial-analysis-stage-records}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}reviewer\_initial\_analysis\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{stage\_name} & \cn{text} & x &  &  \\ \hline
+4 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+5 & \cn{detail} & \cn{jsonb} &  &  &  \\ \hline
+6 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Kết quả phân tích ban đầu hiện hành theo phân công.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.reviewer\_initial\_analysis\_artifacts}}\label{tab:appendix-a-dd-ai-reviewer-initial-analysis-artifacts}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}reviewer\_initial\_analysis\_runs.\allowbreak{}id} \\ \hline
+3 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+4 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+5 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+6 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+7 & \cn{submission\_state\_fingerprint} & \cn{text} & x &  &  \\ \hline
+8 & \cn{artifact\_json} & \cn{jsonb} & x &  &  \\ \hline
+9 & \cn{generated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt kiểm tra chất lượng phản biện (Review Quality Audit).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.review\_quality\_audit\_runs}}\label{tab:appendix-a-dd-ai-review-quality-audit-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{assignment\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{paper\_assignments.\allowbreak{}id} \\ \hline
+4 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+5 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+6 & \cn{mode} & \cn{varchar(32)} & x &  &  \\ \hline
+7 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+8 & \cn{result\_status} & \cn{varchar(16)} &  &  &  \\ \hline
+9 & \cn{request\_json} & \cn{jsonb} & x &  &  \\ \hline
+10 & \cn{response\_json} & \cn{jsonb} &  &  &  \\ \hline
+11 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+12 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+13 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Lượt chạy Chair Decision Copilot; \cn{evidence\_fingerprint} phát hiện bằng chứng lỗi thời.
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.decision\_copilot\_runs}}\label{tab:appendix-a-dd-ai-decision-copilot-runs}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id} \\ \hline
+3 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id} \\ \hline
+4 & \cn{actor\_id} & \cn{text} & x &  &  \\ \hline
+5 & \cn{action} & \cn{varchar(16)} & x &  &  \\ \hline
+6 & \cn{evidence\_fingerprint} & \cn{text} & x &  &  \\ \hline
+7 & \cn{component\_fingerprints} & \cn{jsonb} & x &  &  \\ \hline
+8 & \cn{status} & \cn{varchar(16)} & x &  &  \\ \hline
+9 & \cn{request\_json} & \cn{jsonb} & x &  &  \\ \hline
+10 & \cn{artifact\_json} & \cn{jsonb} &  &  &  \\ \hline
+11 & \cn{error\_detail} & \cn{jsonb} &  &  &  \\ \hline
+12 & \cn{created\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+13 & \cn{completed\_at} & \cn{timestamptz} &  &  &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+Artifact hiện hành của Decision Copilot theo cặp (hội nghị, bài nộp).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|N{0.035\textwidth}|T{0.22\textwidth}|T{0.16\textwidth}|N{0.035\textwidth}|T{0.12\textwidth}|T{0.265\textwidth}|}
+\caption{Cấu trúc bảng \textit{ai.decision\_copilot\_current\_artifacts}}\label{tab:appendix-a-dd-ai-decision-copilot-current-artifacts}\\
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{\#} & \TableHeader{Tên cột} & \TableHeader{Kiểu dữ liệu} & \TableHeader{NN} & \TableHeader{Mặc định} & \TableHeader{Khóa / Tham chiếu} \\ \hline
+\endhead
+\hline
+\multicolumn{6}{|r|}{\textit{(Tiếp tục ở trang sau...)}} \\ \hline
+\endfoot
+\hline
+\endlastfoot
+1 & \cn{id} & \cn{uuid} & x &  & PK \\ \hline
+2 & \cn{conference\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conferences.\allowbreak{}conference\_id}, UNIQUE \\ \hline
+3 & \cn{submission\_id} & \cn{bigint} & x &  & ref $\rightarrow$ \cn{conference\_submissions.\allowbreak{}submission\_id}, UNIQUE \\ \hline
+4 & \cn{run\_id} & \cn{uuid} & x &  & FK $\rightarrow$ \cn{ai.\allowbreak{}decision\_copilot\_runs.\allowbreak{}id} \\ \hline
+5 & \cn{evidence\_fingerprint} & \cn{text} & x &  &  \\ \hline
+6 & \cn{component\_fingerprints} & \cn{jsonb} & x &  &  \\ \hline
+7 & \cn{artifact\_json} & \cn{jsonb} & x &  &  \\ \hline
+8 & \cn{generated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\ \hline
+9 & \cn{updated\_at} & \cn{timestamptz} & x & \cn{\seqsplit{now()}} &  \\
+\end{longtable}
+\end{small}
+\endgroup
+
+
+\subsubsection{Mô hình đồ thị Neo4j và các khóa Redis}
+
+Đồ thị đồng tác giả trong Neo4j gồm một nhãn nút và một loại quan hệ
+(Bảng~\ref{tab:appendix-a-dd-neo4j}); truy vấn phát hiện xung đột được trình bày
+tại Mục~\ref{sec:appendix-a-algorithms}. Redis chỉ được dịch vụ AI sử dụng làm
+kho tạm thời; mọi khóa đều có thời hạn sống (TTL) nên không cần migration hay
+sao lưu (Bảng~\ref{tab:appendix-a-dd-redis}).
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|T{0.20\textwidth}|T{0.20\textwidth}|T{0.10\textwidth}|T{0.38\textwidth}|}
+\caption{Lược đồ đồ thị đồng tác giả trong Neo4j}\label{tab:appendix-a-dd-neo4j}\\
+\hline
+\TableHeader{Thành phần} & \TableHeader{Thuộc tính} & \TableHeader{Kiểu} & \TableHeader{Ghi chú} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Thành phần} & \TableHeader{Thuộc tính} & \TableHeader{Kiểu} & \TableHeader{Ghi chú} \\ \hline
+\endhead
+\hline
+\endlastfoot
+\cn{(:Author)} & \cn{email} & string & Khóa định danh (ràng buộc UNIQUE); trùng \cn{users.email} \\ \hline
+\cn{(:Author)} & \cn{name} & string & Tên hiển thị; có chỉ mục \\ \hline
+\cn{[:COAUTHORED]} & \cn{established\_date} & integer & Năm công bố chung; thuộc tính duy nhất được lọc khi truy vấn xung đột \\ \hline
+\cn{[:COAUTHORED]} & \cn{paper\_link} & string & DOI/URL minh chứng \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\begingroup
+\setlength{\tabcolsep}{3.5pt}
+\begin{small}
+\begin{longtable}{|T{0.34\textwidth}|T{0.12\textwidth}|T{0.10\textwidth}|T{0.32\textwidth}|}
+\caption{Các họ khóa Redis của dịch vụ AI}\label{tab:appendix-a-dd-redis}\\
+\hline
+\TableHeader{Mẫu khóa} & \TableHeader{Giá trị} & \TableHeader{TTL} & \TableHeader{Mục đích} \\ \hline
+\endfirsthead
+\hline
+\TableHeader{Mẫu khóa} & \TableHeader{Giá trị} & \TableHeader{TTL} & \TableHeader{Mục đích} \\ \hline
+\endhead
+\hline
+\endlastfoot
+\cn{ai:\allowbreak{}v1:\allowbreak{}tool\_result:\allowbreak{}\{thread\}:\allowbreak{}\{call\}} & JSON & 90 giây & Chuyển giao kết quả tool-call giữa backend và vòng lặp agent; đọc bằng GET+DEL nguyên tử \\ \hline
+\cn{ai:\allowbreak{}v1:\allowbreak{}ratelimit:\allowbreak{}\{scope\}:\allowbreak{}\{id\}:\allowbreak{}\{phút\}} & bộ đếm & 65 giây & Giới hạn tần suất theo phút (chat: 60/phút; tool-result: 120/phút) \\
+\end{longtable}
+\end{small}
+\endgroup
+
+\endgroup % kết thúc \renewcommand{\_}
