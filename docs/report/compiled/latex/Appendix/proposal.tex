@@ -1,4 +1,218 @@
 \chapter*{Đề cương chi tiết}
 \label{appendix:proposal}
 
-Bản \href{https://www.overleaf.com/read/jwrxbcrmkgfh}{đề cương} đã thực hiện và nộp cho giáo vụ trước đó \textit{(phải có chữ ký của giảng viên hướng dẫn)}.
+\begin{center}
+  \begin{minipage}[c]{0.27\textwidth}
+    \centering
+    \includegraphics[width=0.95\linewidth]{logo.png}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c]{0.68\textwidth}
+    \centering
+    \textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN}\\[0.4\baselineskip]
+    \textbf{KHOA CÔNG NGHỆ THÔNG TIN}
+  \end{minipage}
+
+  \vspace{1.5\baselineskip}
+  {\Large\textbf{ĐỀ CƯƠNG THỰC TẬP DỰ ÁN TỐT NGHIỆP}}\\[1.2\baselineskip]
+  {\Large\textbf{HỆ THỐNG HỖ TRỢ XÉT DUYỆT BÀI BÁO KHOA HỌC}}\\[0.5\baselineskip]
+  \textit{(Scientific Paper Review Support System)}
+\end{center}
+
+\section*{1. THÔNG TIN CHUNG}
+
+\noindent\textbf{Người hướng dẫn:}
+\begin{itemize}
+  \item ThS. Hồ Thị Hoàng Vy (Khoa Công Nghệ Thông Tin)
+  \item PGS.TS. Lê Nguyễn Hoài Nam (Khoa Công Nghệ Thông Tin)
+\end{itemize}
+
+\noindent\textbf{Nhóm sinh viên thực hiện:}
+\begin{enumerate}
+  \item Cao Hữu Khương Duy (MSSV: 22127083)
+  \item Nhâm Đức Huy (MSSV: 22127158)
+  \item Võ Minh Khôi (MSSV: 22127213)
+  \item Từ Chí Tiến (MSSV: 22127414)
+  \item Nguyễn Ngọc Anh Tú (MSSV: 22127433)
+\end{enumerate}
+
+\noindent\textbf{Loại đề tài:} Ứng dụng
+
+\noindent\textbf{Thời gian thực hiện:} Từ 10/2025 đến 06/2026
+
+\section*{2. NỘI DUNG THỰC HIỆN}
+
+\subsection*{2.1 Giới thiệu về đề tài}
+
+Trong bối cảnh nghiên cứu khoa học ngày càng phát triển, số lượng bài báo được nộp tại các hội nghị quốc tế tăng trưởng nhanh chóng qua từng năm. Việc quản lý quy trình xét duyệt - từ tiếp nhận bản thảo, phân công phản biện, thu thập đánh giá cho đến ra quyết định chấp nhận hay từ chối - đặt ra nhiều thách thức cho ban tổ chức hội nghị. Các nền tảng quản lý hội nghị hiện có như EasyChair~[1], HotCRP~[2] hay Microsoft CMT~[3] tuy đã được sử dụng rộng rãi nhưng phần lớn được phát triển từ nhiều năm trước. Dựa trên những tính năng có thể quan sát qua tài liệu và giao diện công khai, các nền tảng này nhìn chung chưa tích hợp các cơ chế tự động hóa, tổng hợp thông tin, hỗ trợ ra quyết định trong quy trình phân công và kiểm tra bản thảo.
+
+Từ đó, nhóm đề xuất xây dựng ConferenceSpace - một hệ thống hỗ trợ xét duyệt bài báo khoa học với các chức năng cốt lõi phục vụ ba vai trò chính: Tác giả (Author), Phản biện (Reviewer) và Chủ tịch hội nghị (Chair). Hệ thống được thiết kế theo kiến trúc hiện đại, kết hợp giữa thuật toán đối sánh phản biện dựa trên độ tương đồng chuyên môn, cơ chế phát hiện xung đột lợi ích và phân tích đồ thị đồng tác giả, cùng một số mô-đun ứng dụng mô hình ngôn ngữ lớn (LLM) hỗ trợ người dùng trong các khâu tổng hợp và đối chiếu thông tin, bao gồm trợ lý hội thoại (Conference Agent), kiểm tra tuân thủ bản thảo, tóm lược hỗ trợ phản biện viên, hỗ trợ tổng hợp thông tin cho Chair, và rà soát chất lượng phản biện của Reviewer.
+
+Ý nghĩa thực tiễn của đề tài nằm ở việc xây dựng một hệ thống có quy trình tự động hóa rõ ràng và giao diện hiện đại hơn so với các nền tảng truyền thống, đồng thời khảo sát khả năng ứng dụng LLM vào một số khâu trong quy trình xét duyệt ở quy mô hội nghị vừa và nhỏ.
+
+\subsection*{2.2 Mục tiêu đề tài}
+
+Trong quá trình khảo sát, nhóm nhận thấy quy trình xét duyệt bài báo tại các hội nghị khoa học hiện nay đối mặt với một số hạn chế cụ thể. Việc phân công phản biện vẫn chủ yếu thực hiện thủ công, tốn thời gian và dễ xảy ra không phù hợp về chuyên môn. Phát hiện xung đột lợi ích phụ thuộc nhiều vào khai báo chủ quan của người dùng, thiếu cơ chế kiểm chứng có hệ thống dựa trên dữ liệu quan hệ giữa các tác giả. Bên cạnh đó, các nền tảng hiện có chưa cung cấp công cụ hỗ trợ người dùng trong quá trình thao tác, đặc biệt đối với các vai trò ít kinh nghiệm như phản biện lần đầu hay tác giả mới nộp bài.
+
+Đề tài đặt mục tiêu xây dựng nền tảng web ConferenceSpace với các chức năng cốt lõi phục vụ toàn bộ vòng đời xét duyệt bài báo, bao gồm nộp bài, phân công phản biện, thu thập đánh giá và ra quyết định. Ở khía cạnh tự động hóa, mục tiêu cụ thể là xây dựng thuật toán đối sánh phản biện dựa trên Domain Jaccard Similarity kết hợp ràng buộc cân bằng tải, tạo ra đề xuất phân công để chair xem xét và xác nhận - thay vì thực hiện phân công hoàn toàn tự động. Hệ thống cũng hướng tới cơ chế phát hiện xung đột lợi ích đa tầng, kết hợp khai báo thủ công, kiểm tra phản biện và phân tích đồ thị đồng tác giả trên Neo4j. Đối với lớp hỗ trợ bằng AI, đề tài tích hợp năm mô-đun phục vụ các nhu cầu cụ thể trong quy trình: trợ lý hội thoại (Conference Agent) hỗ trợ tra cứu và điều hướng thao tác; pipeline kiểm tra tuân thủ bản thảo (Desk Rejection) giúp rà soát bài nộp trước khi nộp; mô-đun tóm lược hỗ trợ reviewer tiếp cận nhanh nội dung bài nộp; mô-đun hỗ trợ chủ trì tổng hợp thông tin đánh giá phục vụ ra quyết định; và mô-đun hỗ trợ rà soát chất lượng đánh giá của reviewer trước khi nộp.
+
+Đề tài cung cấp bằng chứng thực nghiệm về tính khả thi của các kỹ thuật tự động hóa, hỗ trợ tổng hợp thông tin và hỗ trợ ra quyết định bằng LLM trong bối cảnh quản lý hội nghị khoa học, đồng thời tạo ra một hệ thống có thể được mở rộng và áp dụng cho các hội nghị trong nước. Xa hơn, đề tài đặt ra câu hỏi nghiên cứu: trong quy trình xét duyệt, lớp nào trong ba lớp hỗ trợ - tổ chức nghiệp vụ, thuật toán và AI - thực sự mang lại giá trị gia tăng rõ ràng? Việc quan sát và đánh giá mức hữu ích thực tế của từng lớp giúp xác định ranh giới phù hợp giữa tự động hóa, tính toán và hỗ trợ bằng AI trong một quy trình đầy đủ tính trách nhiệm học thuật.
+
+\subsection*{2.3 Phạm vi của đề tài}
+
+Đề tài tập trung vào quy trình xét duyệt bài báo (peer review process) tại các hội nghị khoa học, phục vụ ba vai trò chính gồm Tác giả, Phản biện và Chủ tịch hội nghị. Về phía dữ liệu, hệ thống khai thác mạng lưới đồng tác giả và hồ sơ học thuật từ Semantic Scholar~[4] để làm giàu thông tin người dùng và hỗ trợ phát hiện xung đột lợi ích.
+
+Nội dung xây dựng bao gồm hệ thống quản lý hội nghị trực tuyến với các module quản lý hội nghị, nộp bài, phân công phản biện, đánh giá, thảo luận, phản hồi tác giả và ra quyết định; thuật toán đối sánh phản biện - bài báo dựa trên độ tương đồng chuyên môn; cơ chế phát hiện xung đột lợi ích sử dụng cơ sở dữ liệu đồ thị Neo4j; cùng với các mô-đun hỗ trợ bằng AI đã mô tả ở trên.
+
+Hệ thống không bao gồm quản lý sự kiện hội nghị theo nghĩa rộng như đăng ký tham dự hay xây dựng chương trình hội nghị chi tiết. Kết quả phân công phản biện mang tính chất đề xuất và yêu cầu chair xác nhận trước khi áp dụng. Độ phủ của dữ liệu đồ thị đồng tác giả phụ thuộc vào nguồn Semantic Scholar và có thể bị giới hạn ở một số lĩnh vực chuyên biệt. Các mô-đun hỗ trợ bằng AI phụ thuộc vào dịch vụ mô hình ngôn ngữ bên ngoài, trong khi thuật toán đối sánh và phát hiện COI hoạt động độc lập không phụ thuộc vào các dịch vụ này.
+
+\subsection*{2.4 Cách tiếp cận dự kiến}
+
+Nhóm lựa chọn cách tổ chức theo ba lớp rõ ràng. Lớp thứ nhất là lớp nghiệp vụ cốt lõi, bao gồm các luồng xử lý chính như nộp bài, quản lý phản biện, theo dõi trạng thái và ra quyết định; lớp này cần có hành vi ổn định, kiểm tra được và không phụ thuộc trực tiếp vào các mô-đun hỗ trợ. Lớp thứ hai là lớp thuật toán, xử lý các bài toán có thể giải thích được như phân công phản biện dựa trên độ tương đồng chuyên môn và phát hiện xung đột lợi ích dựa trên dữ liệu quan hệ; các cơ chế này dựa trên tính toán xác định, không sử dụng LLM và có thể kiểm chứng rõ ràng. Lớp thứ ba là lớp hỗ trợ bằng AI, chỉ được đưa vào những khâu cụ thể mà người dùng cần tổng hợp, đọc hiểu hoặc đối chiếu nhiều thông tin; các mô-đun AI không thay thế các quyết định nghiệp vụ quan trọng - các quyết định như xác nhận phân công, chấp nhận hay từ chối bài báo vẫn thuộc thẩm quyền của người dùng có quyền.
+
+EasyChair~[1] là một trong những nền tảng quản lý hội nghị được sử dụng rộng rãi nhất, cung cấp các chức năng cơ bản về nộp bài, phân công phản biện và quản lý quyết định. HotCRP~[2] được phát triển bởi Eddie Kohler, nổi bật với tính năng tìm kiếm linh hoạt và giao diện tùy biến cao. Microsoft CMT~[3] hỗ trợ các hội nghị lớn với cơ chế phân công phản biện bán tự động. Nhóm tiếp cận các nền tảng này chủ yếu qua giao diện công khai và tài liệu được công bố, đây là giới hạn cần lưu ý khi đối chiếu tính năng. Về mặt nghiên cứu, Charlin và Zemel~[6] đề xuất hệ thống TPMS sử dụng mô hình chủ đề để đối sánh phản biện dựa trên lịch sử xuất bản; Shah~[7] phân tích các thách thức cốt lõi trong peer review và đề xuất cải tiến thuật toán; Stelmakh et al.~[8] nghiên cứu tính công bằng và nhất quán trong phân công phản biện tại các hội nghị AI lớn.
+
+Về kiến trúc hệ thống, backend được xây dựng bằng ngôn ngữ Go với framework Gin~[10], tổ chức theo Clean Architecture với các tầng Controller - Service - Storage tách biệt rõ ràng. Hệ thống sử dụng đồng thời hai cơ sở dữ liệu: PostgreSQL cho dữ liệu quan hệ (người dùng, hội nghị, bài nộp, đánh giá) và Neo4j~[5] cho dữ liệu đồ thị (mạng đồng tác giả, phát hiện COI). Frontend được xây dựng bằng Next.js 15~[9] với App Router, React 18, Tailwind CSS v4 và shadcn/ui, kết hợp WebSocket cho thông báo thời gian thực và hỗ trợ đa ngôn ngữ.
+
+Đối với lớp hỗ trợ bằng AI, hệ thống triển khai năm mô-đun riêng biệt, mỗi mô-đun chỉ can thiệp vào một loại nhu cầu cụ thể: (1) Trợ lý hội thoại (Conference Agent) hỗ trợ người dùng tra cứu ngữ cảnh và điều hướng thao tác trong hệ thống; (2) Kiểm tra tuân thủ bản thảo (Desk Rejection) rà soát sơ bộ bài nộp trước khi đi sâu vào quy trình phản biện chính thức; (3) Tóm lược hỗ trợ phản biện viên rút ngắn thời gian tiếp cận ban đầu đối với bài nộp, giúp phản biện nắm nhanh cấu trúc và luận điểm chính trước khi đọc chi tiết; (4) Hỗ trợ chủ trì hội nghị tổng hợp thông tin liên quan đến bài nộp, đánh giá và trao đổi thành một bức tranh cô đọng hơn để hỗ trợ xem xét quyết định; (5) Rà soát chất lượng phản biện phát hiện những dấu hiệu cho thấy nội dung phản biện chưa nhất quán, chưa căn cứ hoặc chưa bao quát các khía cạnh cơ bản của bài nộp trước khi nộp.
+
+Về thuật toán đối sánh phản biện, hệ thống tính điểm tương đồng chuyên môn giữa mỗi cặp (phản biện, bài báo) bằng Domain Jaccard Similarity dựa trên lĩnh vực nghiên cứu, sau đó áp dụng thuật toán gán tham lam (Greedy Matching) có xét ràng buộc số bài tối thiểu và tối đa cho mỗi phản biện. Đây là phương pháp tính toán xác định, không sử dụng mô hình ngôn ngữ; cách tiếp cận này nhẹ hơn so với TPMS~[6] nhưng phù hợp với quy mô hội nghị vừa và nhỏ, đồng thời cho phép tích hợp trực tiếp với cơ chế phát hiện COI trong cùng một quy trình phân công. Về phát hiện xung đột lợi ích, hệ thống triển khai ba lớp kiểm tra: tự phản biện (self-author), khai báo thủ công (declared conflict), và phân tích quan hệ đồng tác giả trên đồ thị Neo4j với cửa sổ thời gian cấu hình được.
+
+Một điểm khác biệt của ConferenceSpace so với các hệ thống hiện có nằm ở việc kết hợp trong một nền tảng thống nhất: phân tích đồ thị đồng tác giả cho COI, thuật toán đối sánh phản biện có xét ràng buộc, trợ lý hội thoại LLM và kiểm tra bản thảo tự động - đây là tổ hợp tính năng mà nhóm chưa quan sát thấy trong các nền tảng trên qua tài liệu công khai hiện có.
+
+\subsection*{2.5 Kết quả dự kiến của đề tài}
+
+Sản phẩm chính của đề tài là nền tảng web ConferenceSpace với các chức năng cốt lõi phục vụ quy trình xét duyệt bài báo cho ba vai trò Tác giả, Phản biện và Chủ tịch hội nghị. Nền tảng bao gồm module đối sánh phản biện tự động dựa trên Domain Jaccard Similarity và thuật toán gán tham lam có xét ràng buộc, tạo ra đề xuất phân công để chair xem xét; cơ chế phát hiện xung đột lợi ích đa tầng trên Neo4j; nền tảng trợ lý hội thoại Conference Agent đang được phát triển theo hướng hỗ trợ nhiều vai trò; pipeline kiểm tra tuân thủ bản thảo Desk Rejection ở mức nguyên mẫu có chức năng; nền tảng thông báo thời gian thực; và tích hợp Semantic Scholar để làm giàu hồ sơ học thuật.
+
+Về đánh giá, nhóm dự kiến đo lường hệ thống trên các tiêu chí sau. Thứ nhất, thời gian thực thi thuật toán phân công phản biện tự động sẽ được so sánh với ước tính thời gian phân công thủ công trên cùng tập dữ liệu kiểm thử. Thứ hai, độ phủ của cơ chế phát hiện COI sẽ được đánh giá so với phương pháp chỉ dựa vào khai báo thủ công, sử dụng tập dữ liệu có nhãn. Ngoài ra, thời gian phản hồi giao diện và khả năng chịu tải của hệ thống sẽ được đo trong giai đoạn kiểm thử hiệu năng; ngưỡng mục tiêu sẽ được xác định sau khi có kết quả baseline từ môi trường kiểm thử.
+
+Ngoài sản phẩm phần mềm, đề tài còn hướng tới các đầu ra mang tính phân tích và đánh giá. Cụ thể, báo cáo sẽ bao gồm: mô tả kiến trúc hệ thống theo khung ba lớp và lý giải cách mỗi lớp được tổ chức; mô tả cơ chế giải phân công phản biện và phân tích các ràng buộc được xử lý; mô tả cơ chế phát hiện xung đột lợi ích và các lớp kiểm tra được triển khai; và quan sát thực nghiệm với từng mô-đun hỗ trợ bằng AI trong các tình huống sử dụng cụ thể. Những đầu ra phân tích này không chỉ bổ sung cho sản phẩm phần mềm, mà còn giúp trả lời câu hỏi nghiên cứu cốt lõi của đề tài: trong quy trình xét duyệt, chức năng nào nên được giải quyết bằng tổ chức nghiệp vụ, chức năng nào nên giải quyết bằng thuật toán có thể giải thích, và chức năng nào mới thực sự phù hợp đưa AI vào hỗ trợ.
+
+\subsection*{2.6 Kế hoạch thực hiện}
+
+Bảng~1 trình bày phân công vai trò và trách nhiệm chính của từng thành viên trong nhóm.
+
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{|T{0.22\textwidth}|T{0.70\textwidth}|}
+  \caption{Phân công vai trò thành viên}\label{tab:proposal-roles}\\[0.5\baselineskip]
+  \hline
+  \TableHeader{Thành viên} & \TableHeader{Vai trò và trách nhiệm chính} \\ \hline
+  \endfirsthead
+  \hline
+  \TableHeader{Thành viên} & \TableHeader{Vai trò và trách nhiệm chính} \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  Võ Minh Khôi & Trưởng nhóm Frontend. Thiết kế kiến trúc giao diện, xây dựng hạ tầng frontend (layout, routing, dashboard), tích hợp chatbot, module tác giả nộp bài, xác thực người dùng, hệ thống đa ngôn ngữ. Phụ trách toàn bộ lớp hỗ trợ bằng AI, bao gồm: Conference Agent (trợ lý hội thoại), Desk Rejection (kiểm tra bản thảo), tóm lược hỗ trợ phản biện viên, hỗ trợ chủ trì tổng hợp thông tin, và rà soát chất lượng phản biện. \\ \hline
+  Cao Hữu Khương Duy & Trưởng nhóm Backend. Thiết kế kiến trúc Clean Architecture, xây dựng API hội nghị, bài nộp, phân công phản biện, quản lý người dùng. Phát triển module thông báo, thảo luận, phản hồi tác giả và liên kết hồ sơ học thuật trên frontend. \\ \hline
+  Nguyễn Ngọc Anh Tú & Full-stack module Phản biện. Xây dựng giao diện và API cho quy trình đánh giá bài báo, quản lý phản biện, lịch trình, tính năng kéo thả và phân trang. \\ \hline
+  Nhâm Đức Huy & Frontend module Xung đột lợi ích (COI). Xây dựng dashboard COI, phân tích COI, giao diện hồ sơ người dùng, tích hợp Semantic Scholar, hoàn thiện UI/UX và styling. \\ \hline
+  Từ Chí Tiến & Frontend wizard tạo hội nghị, kiểm thử E2E (Playwright), sửa lỗi bảo mật RBAC, tính năng lưu nháp, cập nhật đa ngôn ngữ. \\ \hline
+\end{longtable}
+\endgroup
+
+Dự án được chia thành sáu giai đoạn như trình bày trong Bảng~2. Giai đoạn 1 (tháng 10--11/2025) tập trung vào khảo sát, phân tích yêu cầu và thiết kế kiến trúc tổng thể. Giai đoạn 2 (tháng 11/2025--01/2026) xây dựng nền tảng cốt lõi gồm xác thực, quản lý người dùng và các module hội nghị, nộp bài. Giai đoạn 3 (tháng 01--03/2026) triển khai thuật toán đối sánh, cơ chế COI, module đánh giá và thông báo thời gian thực. Giai đoạn 4 (tháng 03--04/2026) tích hợp các tính năng AI (trợ lý hội thoại, kiểm tra tuân thủ bản thảo, tóm lược hỗ trợ phản biện viên, hỗ trợ chủ trì hội nghị, rà soát chất lượng phản biện), và Semantic Scholar. Giai đoạn 5 (tháng 04--05/2026) dành cho kiểm thử tích hợp, kiểm thử hiệu năng, bảo mật và triển khai nền tảng lên môi trường production. Giai đoạn 6 (tháng 05--06/2026) viết tài liệu kỹ thuật và chuẩn bị bảo vệ.
+
+\begingroup
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|N{0.06\textwidth}|T{0.18\textwidth}|N{0.15\textwidth}|T{0.52\textwidth}|}
+  \caption{Kế hoạch theo giai đoạn}\label{tab:proposal-phases}\\[0.5\baselineskip]
+  \hline
+  \TableHeader{GĐ} & \TableHeader{Giai đoạn} & \TableHeader{Thời gian} & \TableHeader{Nội dung chính} \\ \hline
+  \endfirsthead
+  \hline
+  \TableHeader{GĐ} & \TableHeader{Giai đoạn} & \TableHeader{Thời gian} & \TableHeader{Nội dung chính} \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  1 & Khảo sát và thiết kế & 10/2025 -- 11/2025 & Phân tích yêu cầu, khảo sát các hệ thống tương tự. Thiết kế kiến trúc hệ thống, lược đồ cơ sở dữ liệu, thiết kế API. Lựa chọn công nghệ và thiết lập môi trường phát triển. \\ \hline
+  2 & Phát triển nền tảng cốt lõi & 11/2025 -- 01/2026 & Xây dựng hệ thống xác thực (JWT), quản lý người dùng và vai trò. Phát triển module quản lý hội nghị, nộp bài và quản lý phản biện. Thiết kế giao diện dashboard cho ba vai trò. \\ \hline
+  3 & Phát triển tính năng nâng cao & 01/2026 -- 03/2026 & Triển khai thuật toán đối sánh phản biện. Xây dựng cơ chế COI trên Neo4j. Phát triển module đánh giá, thảo luận, phản hồi tác giả. Tích hợp thông báo thời gian thực. \\ \hline
+  4 & Tích hợp tính năng LLM & 03/2026 -- 04/2026 & Phát triển Conference Agent. Xây dựng Desk Rejection pipeline. Tích hợp Semantic Scholar. Tối ưu thuật toán đối sánh. \\ \hline
+  5 & Kiểm thử và hoàn thiện & 04/2026 -- 05/2026 & Kiểm thử tích hợp và E2E (Playwright). Kiểm thử hiệu năng và bảo mật. Sửa lỗi và tối ưu trải nghiệm người dùng. Triển khai lên môi trường production. Hoàn thiện đa ngôn ngữ. \\ \hline
+  6 & Triển khai và báo cáo & 05/2026 -- 06/2026 & Viết tài liệu kỹ thuật và báo cáo tốt nghiệp. Chuẩn bị và bảo vệ đề tài. \\ \hline
+\end{longtable}
+\endgroup
+
+Bảng~3 trình bày phân công công việc cụ thể của từng thành viên theo từng giai đoạn.
+
+\begingroup
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{|N{0.05\textwidth}|T{0.16\textwidth}|T{0.16\textwidth}|T{0.16\textwidth}|T{0.16\textwidth}|T{0.16\textwidth}|}
+  \caption{Phân công công việc theo giai đoạn}\label{tab:proposal-member-phases}\\[0.5\baselineskip]
+  \hline
+  \TableHeader{GĐ} & \TableHeader{Minh Khôi} & \TableHeader{Kh. Duy} & \TableHeader{Anh Tú} & \TableHeader{Đức Huy} & \TableHeader{Chí Tiến} \\ \hline
+  \endfirsthead
+  \hline
+  \TableHeader{GĐ} & \TableHeader{Minh Khôi} & \TableHeader{Kh. Duy} & \TableHeader{Anh Tú} & \TableHeader{Đức Huy} & \TableHeader{Chí Tiến} \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  1 & Thiết kế UI/UX, kiến trúc FE & Thiết kế kiến trúc BE, DB schema & Khảo sát hệ thống tương tự & Khảo sát hệ thống tương tự & Thiết kế API, đặc tả yêu cầu \\ \hline
+  2 & Layout, routing, auth FE & Auth API, conference API, user API & Reviewer API, assignment storage & Giao diện nộp bài, tác giả & Wizard tạo hội nghị \\ \hline
+  3 & Chatbot UI, author submission FE & Assignment service, notification BE & Review form FE \& BE, schedules & COI dashboard, COI analysis FE & CFP step, lưu nháp, sửa lỗi \\ \hline
+  4 & Conference Agent, Desk Rejection, tóm lược phản biện viên, hỗ trợ chủ trì, rà soát chất lượng phản biện, tích hợp FE & Notification BE, rebuttal, academic profile & Reviewer invitation, pagination & Semantic Scholar, user profile & E2E testing, Production deployment \\ \hline
+  5 & Đa ngôn ngữ, hoàn thiện UI & API testing, tối ưu backend & Kiểm thử reviewer flow & Kiểm thử COI, UI polish & Playwright E2E, RBAC test \\ \hline
+  6 & Báo cáo FE & Báo cáo BE & Báo cáo reviewer module & Báo cáo COI module & Báo cáo testing \\ \hline
+\end{longtable}
+\endgroup
+
+\enlargethispage{\baselineskip}
+Trong quá trình triển khai, nhóm xác định bốn rủi ro chính cần quản lý trong suốt quá trình thực hiện, được trình bày trong Bảng~4. Nếu dịch vụ LLM bên ngoài không ổn định hoặc thay đổi API, nhóm sẽ sử dụng lớp trừu tượng (adapter) để chuyển đổi giữa các nhà cung cấp; các tính năng không phụ thuộc LLM vẫn hoạt động độc lập. Nếu dữ liệu Semantic Scholar không đủ độ phủ, hệ thống cho phép nhập thông tin chuyên môn thủ công và ghi nhận giới hạn này vào báo cáo. Nếu một số tính năng nâng cao không hoàn thiện đúng tiến độ, nhóm ưu tiên hoàn thiện luồng cốt lõi và đánh dấu rõ trạng thái các tính năng trong báo cáo. Nếu hiệu năng không đạt yêu cầu ở quy mô lớn, ngưỡng cụ thể sẽ được xác định qua kiểm thử tải và ghi nhận vào báo cáo kết quả.
+
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{|T{0.35\textwidth}|T{0.57\textwidth}|}
+  \caption{Rủi ro và phương án dự phòng}\label{tab:proposal-risks}\\[0.5\baselineskip]
+  \hline
+  \TableHeader{Rủi ro} & \TableHeader{Phương án dự phòng} \\ \hline
+  \endfirsthead
+  \hline
+  \TableHeader{Rủi ro} & \TableHeader{Phương án dự phòng} \\ \hline
+  \endhead
+  \hline
+  \endfoot
+  Dịch vụ LLM bên ngoài không ổn định hoặc thay đổi API & Thiết kế lớp trừu tượng (adapter) để chuyển đổi giữa các nhà cung cấp; các tính năng không phụ thuộc LLM vẫn hoạt động độc lập. \\ \hline
+  Dữ liệu Semantic Scholar không đủ độ phủ cho một số lĩnh vực & Cho phép nhập thông tin chuyên môn thủ công; giới hạn độ phủ COI được ghi nhận trong báo cáo. \\ \hline
+  Một số tính năng nâng cao không hoàn thiện đúng tiến độ & Ưu tiên hoàn thiện luồng cốt lõi; trạng thái các tính năng được ghi nhận rõ trong báo cáo. \\ \hline
+  Hiệu năng không đạt yêu cầu ở quy mô lớn & Xác định ngưỡng qua kiểm thử tải; ghi nhận giới hạn vào báo cáo nếu chưa đạt mục tiêu. \\ \hline
+\end{longtable}
+\endgroup
+
+\section*{Tài liệu tham khảo}
+
+\begin{enumerate}
+  \renewcommand{\labelenumi}{[\arabic{enumi}]}
+  \item EasyChair, ``EasyChair - Smart CFP: Conference management system.'' \url{https://easychair.org/}.
+  \item E. Kohler, ``HotCRP: Paper review software.'' \url{https://hotcrp.com/}.
+  \item Microsoft, ``Microsoft CMT: Conference management toolkit.'' \url{https://cmt3.research.microsoft.com/}.
+  \item Semantic Scholar, ``Semantic Scholar - AI-powered research tool.'' \url{https://www.semanticscholar.org/}.
+  \item Neo4j, Inc., ``Neo4j graph database platform.'' \url{https://neo4j.com/}.
+  \item L. Charlin and R. S. Zemel, ``The Toronto Paper Matching System: An automated paper-reviewer assignment system,'' in \textit{Proc. ICML Workshop on Peer Reviewing and Publishing Models}, 2013.
+  \item N. B. Shah, ``An overview of challenges, algorithms, and empirical studies in peer review,'' \textit{arXiv preprint arXiv:2112.09604}, 2021.
+  \item I. Stelmakh, N. B. Shah, and A. Singh, ``PeerReview4All: Fair and accurate reviewer assignment in peer review,'' in \textit{Proc. 30th International Conference on Algorithmic Learning Theory (ALT)}, 2019, pp. 828--856.
+  \item Next.js, ``Next.js by Vercel - The React framework for the web.'' \url{https://nextjs.org/}.
+  \item Gin-Gonic, ``Gin Web Framework.'' \url{https://gin-gonic.com/}.
+  \item T. Brown et al., ``Language models are few-shot learners,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, vol. 33, 2020, pp. 1877--1901.
+  \item J. Wei et al., ``Chain-of-thought prompting elicits reasoning in large language models,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, vol. 35, 2022.
+  \item S. Yao et al., ``ReAct: Synergizing reasoning and acting in language models,'' in \textit{Proc. 11th International Conference on Learning Representations (ICLR)}, 2023.
+\end{enumerate}
+
+\vspace{2\baselineskip}
+\noindent
+\begin{minipage}[t]{0.46\textwidth}
+  \centering
+  \textbf{XÁC NHẬN}\\
+  \textbf{CỦA NGƯỜI HƯỚNG DẪN}\\
+  \textit{(Ký và ghi rõ Họ tên)}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.46\textwidth}
+  \centering
+  \textbf{TP. Hồ Chí Minh, ngày \hspace{1em} tháng \hspace{1em} năm}\\
+  \textbf{NHÓM SINH VIÊN THỰC HIỆN}\\
+  \textit{(Ký và ghi rõ họ tên)}
+\end{minipage}
+
+\vspace{5\baselineskip}
