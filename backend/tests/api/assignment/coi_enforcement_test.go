@@ -345,10 +345,8 @@ func TestConfirmBlocksCoAuthorCOI(t *testing.T) {
 	// Confirm clean assignment should succeed; co-author block is enforced on add path already.
 	confirmResp, err := ctx.MakeRequest(
 		"POST",
-		fmt.Sprintf("/api/v1/conferences/%d/assignments/confirm", conferenceID),
-		map[string]interface{}{
-			"assignment_ids": []int64{cleanAssignmentID},
-		},
+		fmt.Sprintf("/api/v1/conferences/%d/assignments/suggestions/confirm", conferenceID),
+		&dto.ConfirmSuggestionsRequest{AssignmentIDs: []int64{cleanAssignmentID}},
 		chairToken,
 	)
 	if err != nil {
