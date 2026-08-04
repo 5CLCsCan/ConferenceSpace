@@ -20,7 +20,7 @@ Bảng~\ref{tab:ch3-demo-responsibility} tóm tắt tác vụ, kết quả và c
 \label{tab:ch3-demo-responsibility}
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabular}{|T{0.10\textwidth}|T{0.33\textwidth}|T{0.25\textwidth}|T{0.3\textwidth}|}
+\begin{tabular}{|T{0.10\textwidth}|T{0.31\textwidth}|T{0.23\textwidth}|T{0.28\textwidth}|}
 \hline
 \TableHeader{Lớp} & \TableHeader{Tác vụ chính} & \TableHeader{Kết quả} & \TableHeader{Chủ thể chịu trách nhiệm} \\ \hline
 Nghiệp vụ cốt lõi & Kiểm tra quyền và quản lý trạng thái hội nghị, bài nộp, phân công, phản biện, phản hồi và quyết định & Dữ liệu nghiệp vụ chính thức và lịch sử thay đổi trạng thái & Người dùng được phân quyền thực hiện thao tác; backend kiểm tra điều kiện trước khi cập nhật \\ \hline
@@ -422,7 +422,7 @@ Hình~\ref{fig:ch3-demo-uc07-config} minh họa giao diện cấu hình thông t
 
 Chủ tọa hoặc Đồng chủ tọa mở giai đoạn phản hồi. Phản biện viên được phân công có thể tạo chuỗi thảo luận; Tác giả của bài và Phản biện viên trao đổi trong chuỗi tương ứng, còn Chủ tọa xem toàn bộ lịch sử ở chế độ giám sát. Backend kiểm tra quan hệ giữa người dùng, bài nộp và chuỗi thảo luận trước mỗi thao tác.
 
-Mỗi chuỗi thảo luận gắn với một bài nộp để giữ nguyên bối cảnh trao đổi. Hình~\ref{fig:ch3-demo-uc08-create} minh họa giao diện khởi tạo chủ đề mới, còn Hình~\ref{fig:ch3-demo-uc08-chat} trình bày danh sách chủ đề và nội dung trao đổi. Trong phiên bản hiện tại, Chủ tọa chỉ có quyền xem, không tạo chủ đề hoặc gửi tin nhắn.
+Mỗi chuỗi thảo luận gắn với một bài nộp để giữ nguyên bối cảnh trao đổi. Giao diện khởi tạo chủ đề mới được minh họa trong Hình~\ref{fig:ch3-demo-uc08-create}; Hình~\ref{fig:ch3-demo-uc08-chat} trình bày danh sách chủ đề và nội dung trao đổi. Trong phiên bản hiện tại, Chủ tọa chỉ có quyền xem, không tạo chủ đề hoặc gửi tin nhắn.
 
 \begin{figure}[!htbp]
 \centering
@@ -449,7 +449,7 @@ Backend tập hợp điểm số, bản phản biện, phản hồi của Tác g
 \label{fig:ch3-demo-uc09}
 \end{figure}
 
-\subsubsection{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
+\subsubsection[UC-10. Truy vấn trạng thái và hướng dẫn]{UC-10. Truy vấn trạng thái và hướng dẫn bằng Chatbot Agent}
 
 Chatbot Agent nhận câu hỏi, lịch sử hội thoại và ngữ cảnh trang hiện tại. Nếu câu hỏi cần dữ liệu nghiệp vụ, Chatbot Agent gọi công cụ truy vấn để gửi yêu cầu có cấu trúc đến backend. Backend kiểm tra mã xác thực, tài nguyên, trường dữ liệu, bộ lọc và quyền của người dùng trước khi trả phần dữ liệu tối thiểu được phép. Chatbot Agent không truy cập trực tiếp cơ sở dữ liệu.
 
@@ -682,4 +682,3 @@ Cấu hình và quy trình triển khai chi tiết được trình bày tại Ph
 \label{sec:ch3-demo-conclusion}
 
 Chương này đã trình bày cách ConferenceSpace dùng vòng đời xét duyệt làm ngữ cảnh kiểm soát và áp dụng mô hình ba lớp trách nhiệm tại từng điểm nghiệp vụ. Các luồng công việc tích hợp nghiệp vụ cốt lõi, thuật toán xác định và AI hỗ trợ theo loại đầu ra cùng thẩm quyền đã quy định; thao tác làm thay đổi dữ liệu chính thức hoặc quyết định học thuật vẫn do người dùng có thẩm quyền thực hiện. Chương~\ref{Chapter4} đánh giá cách tiếp cận này bằng nguồn bằng chứng tương ứng với từng điểm nghiệp vụ và từng loại đầu ra.
-

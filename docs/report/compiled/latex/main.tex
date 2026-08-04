@@ -1,5 +1,5 @@
 % !TEX root = main.tex
-% !TEX program = pdflatex
+% !TEX program = xelatex
 % !BIB program = biber
 % Template KLTN cho SV trường ĐHKHTN
 % Liên hệ: bhthong@fit.hcmus.edu.vn
@@ -9,19 +9,18 @@
 % Trước khi build, xóa hết các file được tạo ra trong quá trình build trước đó, và build theo thứ tự: BIB > PDF > PDF.
 % Nếu cập nhật tài liệu tham khảo, cũng cần build lại theo cách trên.
 
-\documentclass[oneside,a4paper,14pt]{extreport}
+\documentclass[oneside,a4paper,12pt]{extreport}
 
 % \documentclass[oneside,a4paper,14pt,draft]{extreport}
 
-% Font tiếng Việt
+% Font và cỡ chữ theo quy định khóa luận
 \usepackage{iftex}
-\ifPDFTeX
-  \usepackage[T5]{fontenc}
-  \usepackage[utf8]{inputenc}
-  \DeclareTextSymbolDefault{\DH}{T1}
-\else
+\ifXeTeX
+  \usepackage[fontsize=13pt]{fontsize}
   \usepackage{fontspec}
-  \setmainfont{Latin Modern Roman}
+  \setmainfont{Times New Roman}
+\else
+  \PackageError{ConferenceSpace}{XeLaTeX is required}{Compile main.tex with XeLaTeX.}
 \fi
 
 % Tài liệu tham khảo
@@ -30,7 +29,8 @@
 %	backend=biber,
 %    style=ieee
 %	defernumbers=true]{biblatex}
-\usepackage[style=ieee]{biblatex}
+\usepackage[style=ieee,sorting=nyt]{biblatex}
+\usepackage{xurl}
 \usepackage[unicode,hypertexnames=false,hidelinks]{hyperref} % Bookmark tiếng Việt
 \addbibresource{References/references.bib}
 %\bibliographystyle{IEEEtran}
@@ -40,6 +40,7 @@
 
 \makeatletter
 \def\blx@maxline{77}
+\renewcommand{\@pnumwidth}{3em}
 \makeatother
 
 % Chèn hình, các hình trong luận văn được để trong thư mục Images/
@@ -92,6 +93,7 @@
 \usepackage{etoolbox}
 \usepackage{seqsplit}
 \usepackage{ragged2e}
+\setlength{\tabcolsep}{2pt}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}m{#1}}
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
@@ -103,9 +105,8 @@
 \newcommand{\TableHeader}[1]{\centering\arraybackslash #1}
 % Template bảng dùng lại:
 % - PrismTableCenter: bảng thường dùng với \captionof{table}, \TableCaptionSpace và tabular full border.
-% - PrismLongTable: bảng dài dùng với longtable, \LongTableCaptionSpace, \LongTableHeaderBorder và \LongTableFooterBorder.
+% - PrismLongTable: bảng dài dùng với longtable, \LongTableHeaderBorder và \LongTableFooterBorder.
 \newcommand{\TableCaptionSpace}{\vspace{0.5\baselineskip}}
-\newcommand{\LongTableCaptionSpace}{\\[0.5\baselineskip]}
 \newcommand{\LongTableHeaderBorder}{\hline}
 \newcommand{\LongTableFooterBorder}{\hline}
 \newenvironment{PrismFigure}{%
@@ -130,7 +131,12 @@
   \endgroup%
 }
 \captionsetup[figure]{position=bottom,justification=centering,singlelinecheck=false}
-\captionsetup[table]{justification=centering,singlelinecheck=false}
+\captionsetup[table]{
+  justification=centering,
+  singlelinecheck=false,
+  labelfont=bf,
+  textfont=bf
+}
 
 % Đổi tên mặc định
 \renewcommand{\chaptername}{Chương}
@@ -146,7 +152,7 @@
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
   {\LARGE\bfseries}
-  {\chaptertitlename\ \thechapter}{18pt}{\huge}
+  {\chaptertitlename\ \thechapter}{18pt}{\huge\raggedright}
 
 
 % Dãn dòng 1.5
@@ -159,21 +165,21 @@
 % Canh lề
 \usepackage[
   top=30mm,
-  bottom=25mm,
-  left=30mm,
+  bottom=35mm,
+  left=35mm,
   right=20mm,
   includefoot]{geometry}
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{} % xóa header/footer mặc định
-\fancyfoot[R]{\thepage}
+\fancyfoot[C]{\hspace*{-15mm}\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 % Trang mở đầu chapter cũng dùng cùng style
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[R]{\thepage}%
+  \fancyfoot[C]{\hspace*{-15mm}\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
@@ -317,6 +323,11 @@
 
 \cleardoublepage
 \phantomsection
+\addcontentsline{toc}{chapter}{Danh mục thuật ngữ và từ viết tắt}
+\include{Appendix/danh-muc-thuat-ngu}
+
+\cleardoublepage
+\phantomsection
 \addcontentsline{toc}{chapter}{Tóm tắt}
 \include{Appendix/summary}
 
@@ -334,12 +345,10 @@
 
 % In tài liệu tham khảo
 \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\begingroup
+\setlength{\emergencystretch}{2em}
 \printbibliography[title={Tài liệu tham khảo}]
-
-\cleardoublepage
-\phantomsection
-\addcontentsline{toc}{chapter}{Danh mục thuật ngữ và từ viết tắt}
-\include{Appendix/danh-muc-thuat-ngu}
+\endgroup
 
 % Phụ lục của báo cáo
 \appendix
