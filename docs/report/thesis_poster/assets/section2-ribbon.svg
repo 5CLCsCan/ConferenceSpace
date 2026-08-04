@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1356 488" font-family="Manrope, 'Segoe UI', sans-serif" role="img" aria-label="Section 2 - T&#xED;nh n&#x103;ng v&#xE0; Lu&#x1ED3;ng ng&#x1B0;&#x1EDD;i d&#xF9;ng: Lifecycle Ribbon">
+  <title>T&#xED;nh n&#x103;ng & Lu&#x1ED3;ng ng&#x1B0;&#x1EDD;i d&#xF9;ng &#x2014; ConferenceSpace &#x2014; Lifecycle Ribbon</title>
+  <desc>M&#x1ED9;t v&#xF2;ng &#x111;&#x1EDD;i &#x2014; ba vai tr&#xF2; &#x2014; ba l&#x1EDB;p tr&#xE1;ch nhi&#x1EC7;m.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#16384a"/>
+    </marker>
+    <marker id="arr-thin" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6E93A8"/>
+    </marker>
+    <style>
+      .tt-title { font-size: 14px; font-weight: 800; fill: #16384a; letter-spacing: 0.02em; }
+      .tt-tag   { font-size: 11.5px; font-weight: 600; fill: #16384a; }
+      .stage-name { font-size: 12px; font-weight: 800; fill: #16384a; }
+      .stage-num-text { font-size: 11px; font-weight: 800; fill: #fff; }
+      .stage-uc   { font-size: 9.5px; font-weight: 600; fill: #5b7a91; }
+      .uc-code    { font-size: 10.5px; font-weight: 800; }
+      .uc-name    { font-size: 10.5px; font-weight: 600; fill: #16384a; }
+      .uc-sub     { font-size: 9.5px; font-weight: 500; fill: #5b7a91; }
+      .chip-text  { font-size: 9px; font-weight: 800; }
+      .legend-h   { font-size: 10.5px; font-weight: 800; fill: #3c7a90; letter-spacing: 0.06em; }
+      .legend-name{ font-size: 11px; font-weight: 800; }
+      .legend-desc{ font-size: 9.5px; font-weight: 600; fill: #16384a; }
+      .band-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+      .support-text { font-size: 8.5px; font-weight: 800; }
+      .rel-text   { font-size: 7.5px; font-weight: 700; fill: #6E93A8; font-style: italic; }
+      .rel-text-inc { fill: #c19726; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1356" height="488" fill="#fff"/>
+  <g id="header">
+    <text x="14" y="22" class="tt-title">2. T&#xED;nh n&#x103;ng & Lu&#x1ED3;ng ng&#x1B0;&#x1EDD;i d&#xF9;ng</text>
+    <text x="1342" y="22" class="tt-tag" text-anchor="end">M&#x1ED9;t v&#xF2;ng &#x111;&#x1EDD;i &#x2014; ba vai tr&#xF2; &#x2014; ba l&#x1EDB;p tr&#xE1;ch nhi&#x1EC7;m.</text>
+    <line x1="14" y1="30" x2="1342" y2="30" stroke="#cfdbe1" stroke-width="1"/>
+  </g>
+  <g id="stage-headers" transform="translate(0,40)">
+    <g transform="translate(14,0)">
+      <rect x="0" y="0" width="226" height="40" rx="6" fill="#f8fafb" stroke="#cbd7dc"/>
+      <circle cx="18" cy="20" r="10" fill="#16384a"/>
+      <text x="18" y="24" text-anchor="middle" class="stage-num-text">1</text>
+      <text x="34" y="16" class="stage-name">Chu&#x1EA9;n b&#x1ECB; & n&#x1ED9;p b&#xE0;i</text>
+      <text x="34" y="31" class="stage-uc">UC-10 / UC-11 / UC-12</text>
+    </g>
+    <g transform="translate(246,0)">
+      <rect x="0" y="0" width="226" height="40" rx="6" fill="#f8fafb" stroke="#cbd7dc"/>
+      <circle cx="18" cy="20" r="10" fill="#16384a"/>
+      <text x="18" y="24" text-anchor="middle" class="stage-num-text">2</text>
+      <text x="34" y="16" class="stage-name">Ph&#xE2;n c&#xF4;ng</text>
+      <text x="34" y="31" class="stage-uc">UC-18 / UC-19 / UC-25</text>
+    </g>
+    <g transform="translate(478,0)">
+      <rect x="0" y="0" width="226" height="40" rx="6" fill="#f8fafb" stroke="#cbd7dc"/>
+      <circle cx="18" cy="20" r="10" fill="#16384a"/>
+      <text x="18" y="24" text-anchor="middle" class="stage-num-text">3</text>
+      <text x="34" y="16" class="stage-name">Ph&#x1EA3;n bi&#x1EC7;n</text>
+      <text x="34" y="31" class="stage-uc">UC-20</text>
+    </g>
+    <g transform="translate(710,0)">
+      <rect x="0" y="0" width="226" height="40" rx="6" fill="#f8fafb" stroke="#cbd7dc"/>
+      <circle cx="18" cy="20" r="10" fill="#16384a"/>
+      <text x="18" y="24" text-anchor="middle" class="stage-num-text">4</text>
+      <text x="34" y="16" class="stage-name">Ph&#x1EA3;n h&#x1ED3;i & th&#x1EA3;o lu&#x1EAD;n</text>
+      <text x="34" y="31" class="stage-uc">UC-13 / UC-15 / UC-16 / UC-21 / UC-09</text>
+    </g>
+    <g transform="translate(942,0)">
+      <rect x="0" y="0" width="226" height="40" rx="6" fill="#f8fafb" stroke="#cbd7dc"/>
+      <circle cx="18" cy="20" r="10" fill="#16384a"/>
+      <text x="18" y="24" text-anchor="middle" class="stage-num-text">5</text>
+      <text x="34" y="16" class="stage-name">T&#x1ED5;ng h&#x1EE3;p & quy&#x1EBF;t &#x111;&#x1ECB;nh</text>
+      <text x="34" y="31" class="stage-uc">UC-17 / UC-26 / UC-27</text>
+    </g>
+    <g transform="translate(1180,0)">
+      <rect x="0" y="0" width="178" height="40" rx="6" fill="#f0f6f8" stroke="#bed2da"/>
+      <text x="89.0" y="17" text-anchor="middle" class="band-label" fill="#3c7a90">LI&#xCA;N VAI TR&#xD2;</text>
+      <text x="89.0" y="32" text-anchor="middle" class="stage-uc">UC-08 Chatbot &#xB7; UC-09 Trao &#x111;&#x1ED5;i</text>
+    </g>
+  </g>
+  <g id="band-labels">
+    <g transform="translate(6,96)">
+      <rect x="0" y="0" width="4" height="140" rx="2" fill="#1d4f91"/>
+      <text x="10" y="14" class="band-label" fill="#1d4f91">T&#xC1;C GI&#x1EA2;</text>
+      <text x="10" y="28" class="uc-sub" fill="#1d4f91">Author</text>
+    </g>
+    <g transform="translate(6,252)">
+      <rect x="0" y="0" width="4" height="66" rx="2" fill="#5b3d8a"/>
+      <text x="10" y="14" class="band-label" fill="#5b3d8a">PH&#x1EA2;N BI&#x1EC6;N</text>
+      <text x="10" y="28" class="uc-sub" fill="#5b3d8a">Reviewer</text>
+    </g>
+    <g transform="translate(6,326)">
+      <rect x="0" y="0" width="4" height="96" rx="2" fill="#1f6b5a"/>
+      <text x="10" y="14" class="band-label" fill="#1f6b5a">CH&#x1EE6; T&#x1ECC;A</text>
+      <text x="10" y="28" class="uc-sub" fill="#1f6b5a">Chair</text>
+    </g>
+  </g>
+  <g id="track">
+    <line x1="24" y1="244" x2="1158" y2="244" stroke="#16384a" stroke-width="2" marker-end="url(#arr)"/>
+    <circle cx="127.0" cy="244" r="5" fill="#fff" stroke="#16384a" stroke-width="2"/>
+    <circle cx="359.0" cy="244" r="5" fill="#fff" stroke="#16384a" stroke-width="2"/>
+    <circle cx="591.0" cy="244" r="5" fill="#fff" stroke="#16384a" stroke-width="2"/>
+    <circle cx="823.0" cy="244" r="5" fill="#fff" stroke="#16384a" stroke-width="2"/>
+    <circle cx="1055.0" cy="244" r="5" fill="#fff" stroke="#16384a" stroke-width="2"/>
+  </g>
+  <g id="author-cards">
+    <g transform="translate(14,118.0)">
+      <rect x="0" y="0" width="226" height="24" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="24" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-10</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Kh&#xE1;m ph&#xE1; & theo d&#xF5;i HN</text>
+    </g>
+    <g transform="translate(14,146.0)">
+      <rect x="0" y="0" width="226" height="32" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="32" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-11</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf7f4" stroke="#1f6657" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#1f6657">AI</text></g>
+      <g transform="translate(160,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">So&#x1EA1;n & chu&#x1EA9;n b&#x1ECB; b&#xE0;i</text>
+      <text x="10" y="30" class="uc-sub">B&#x1EA3;n nh&#xE1;p &#xB7; COI</text>
+    </g>
+    <g transform="translate(14,182.0)">
+      <rect x="0" y="0" width="226" height="32" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="32" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-12</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">N&#x1ED9;p b&#xE0;i</text>
+      <text x="10" y="30" class="uc-sub">Qua S-02 gating</text>
+    </g>
+    <g transform="translate(710,104.0)">
+      <rect x="0" y="0" width="226" height="28" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="28" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-13</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Theo d&#xF5;i b&#xE0;i</text>
+    </g>
+    <g transform="translate(710,136.0)">
+      <rect x="0" y="0" width="226" height="28" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="28" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-15</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Xem ph&#x1EA3;n bi&#x1EC7;n</text>
+    </g>
+    <g transform="translate(710,168.0)">
+      <rect x="0" y="0" width="226" height="32" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="32" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-16</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">G&#x1EED;i ph&#x1EA3;n h&#x1ED3;i PB</text>
+      <text x="10" y="30" class="uc-sub">T&#x1ED5;ng qu&#xE1;t & theo &#xFD;</text>
+    </g>
+    <g transform="translate(710,204.0)">
+      <rect x="0" y="0" width="226" height="24" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="24" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-14</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">R&#xFA;t b&#xE0;i</text>
+    </g>
+    <g transform="translate(942,146.0)">
+      <rect x="0" y="0" width="226" height="40" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="40" fill="#1d4f91"/>
+      <text x="10" y="14" class="uc-code" fill="#1d4f91">UC-17</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">B&#x1EA3;n th&#x1EA3;o cu&#x1ED1;i</text>
+      <text x="10" y="40" class="uc-sub">Sau khi &#x111;&#x1B0;&#x1EE3;c ch&#x1EA5;p nh&#x1EAD;n</text>
+    </g>
+  </g>
+  <g id="reviewer-cards">
+    <g transform="translate(246,257.0)">
+      <rect x="0" y="0" width="226" height="26" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="26" fill="#5b3d8a"/>
+      <text x="10" y="14" class="uc-code" fill="#5b3d8a">UC-18</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Ph&#x1EA3;n h&#x1ED3;i l&#x1EDD;i m&#x1EDD;i</text>
+    </g>
+    <g transform="translate(246,287.0)">
+      <rect x="0" y="0" width="226" height="26" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="26" fill="#5b3d8a"/>
+      <text x="10" y="14" class="uc-code" fill="#5b3d8a">UC-19</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Ph&#x1EA3;n h&#x1ED3;i &#x111;&#x1EC1; ngh&#x1ECB;</text>
+    </g>
+    <g transform="translate(478,256.0)">
+      <rect x="0" y="0" width="226" height="58" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="58" fill="#5b3d8a"/>
+      <text x="10" y="14" class="uc-code" fill="#5b3d8a">UC-20</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Th&#x1EF1;c hi&#x1EC7;n ph&#x1EA3;n bi&#x1EC7;n</text>
+      <text x="10" y="40" class="uc-sub">&#x110;i&#x1EC3;m &#xB7; nh&#x1EAD;n x&#xE9;t &#xB7; KN</text>
+    </g>
+    <g transform="translate(710,269.0)">
+      <rect x="0" y="0" width="226" height="32" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="32" fill="#5b3d8a"/>
+      <text x="10" y="14" class="uc-code" fill="#5b3d8a">UC-21</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">C&#x1EAD;p nh&#x1EAD;t &#x111;&#xE1;nh gi&#xE1;</text>
+      <text x="10" y="30" class="uc-sub">Sau khi &#x111;&#x1ECD;c rebuttal</text>
+    </g>
+  </g>
+  <g id="chair-cards">
+    <g transform="translate(14,328)">
+      <rect x="0" y="0" width="226" height="28" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="28" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-22</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">C&#x1EA5;u h&#xEC;nh HN</text>
+    </g>
+    <g transform="translate(14,360)">
+      <rect x="0" y="0" width="226" height="28" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="28" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-23</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Ban CT</text>
+    </g>
+    <g transform="translate(14,392)">
+      <rect x="0" y="0" width="226" height="28" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="28" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-24</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Ti&#x1EBF;n &#x111;&#x1ED9;</text>
+    </g>
+    <g transform="translate(246,351.0)">
+      <rect x="0" y="0" width="226" height="46" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="46" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-25</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#fbf5e5" stroke="#72550c" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#72550c">TT</text></g>
+      <g transform="translate(160,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">Ph&#xE2;n c&#xF4;ng PBV</text>
+      <text x="10" y="40" class="uc-sub">Xem &#xB7; &#x111;i&#x1EC1;u ch&#x1EC9;nh &#xB7; x&#xE1;c nh&#x1EAD;n</text>
+    </g>
+    <g transform="translate(942,330.0)">
+      <rect x="0" y="0" width="226" height="42" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="42" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-26</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf7f4" stroke="#1f6657" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#1f6657">AI</text></g>
+      <g transform="translate(160,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">&#x110;&#x1ED1;i chi&#x1EBF;u BC</text>
+      <text x="10" y="40" class="uc-sub">&#x110;i&#x1EC3;m &#xB7; PB &#xB7; ph&#x1EA3;n h&#x1ED3;i</text>
+    </g>
+    <g transform="translate(942,376.0)">
+      <rect x="0" y="0" width="226" height="42" rx="4" fill="#fff" stroke="#c7d4da" stroke-width="1"/>
+      <rect x="0" y="0" width="3" height="42" fill="#1f6b5a"/>
+      <text x="10" y="14" class="uc-code" fill="#1f6b5a">UC-27</text>
+      <g transform="translate(190,4)"><rect x="0" y="0" width="26" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="13.0" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+      <text x="10" y="28" class="uc-name">C&#xF4;ng b&#x1ED1; Q&#x110;</text>
+      <text x="10" y="40" class="uc-sub">Ch&#x1EA5;p nh&#x1EAD;n / t&#x1EEB; ch&#x1ED1;i</text>
+    </g>
+  </g>
+  <g id="cross-role">
+    <line x1="1269.0" y1="96" x2="1269.0" y2="422" stroke="#b7a5c9" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <circle cx="1269.0" cy="166.0" r="5" fill="#1d4f91" stroke="#fff" stroke-width="1.5"/>
+    <circle cx="1269.0" cy="285.0" r="5" fill="#5b3d8a" stroke="#fff" stroke-width="1.5"/>
+    <circle cx="1269.0" cy="374.0" r="5" fill="#1f6b5a" stroke="#fff" stroke-width="1.5"/>
+    <g transform="translate(1180,100)">
+      <rect x="3" y="0" width="172" height="56" rx="5" fill="#fffdf8" stroke="#d9cba7" stroke-width="1.5"/>
+      <text x="12" y="14" class="uc-code" fill="#846d32">UC-08</text>
+      <text x="166" y="14" text-anchor="end" class="uc-sub" fill="#846d32">Chatbot Agent</text>
+      <text x="12" y="30" class="uc-name">Tra c&#x1EE9;u theo quy&#x1EC1;n</text>
+      <text x="12" y="44" class="uc-sub">Trong ph&#x1EA1;m vi vai tr&#xF2;</text>
+      <g transform="translate(12,48)"><rect x="0" y="0" width="44" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="22" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV+AI</text></g>
+    </g>
+    <g transform="translate(1180,258)">
+      <rect x="3" y="0" width="172" height="56" rx="5" fill="#fffdf8" stroke="#d9cba7" stroke-width="1.5"/>
+      <text x="12" y="14" class="uc-code" fill="#846d32">UC-09</text>
+      <text x="166" y="14" text-anchor="end" class="uc-sub" fill="#846d32">Trao &#x111;&#x1ED5;i</text>
+      <text x="12" y="30" class="uc-name">Th&#x1EA3;o lu&#x1EAD;n theo b&#xE0;i</text>
+      <text x="12" y="44" class="uc-sub">Rebuttal &#xB7; TG &#x2194; PBV</text>
+      <g transform="translate(12,48)"><rect x="0" y="0" width="32" height="14" rx="2" fill="#edf3f6" stroke="#16384a" stroke-width="0.6"/><text x="16" y="10" text-anchor="middle" class="chip-text" fill="#16384a">NV</text></g>
+    </g>
+  </g>
+  <g id="support-markers">
+  <g transform="translate(248,162)"><circle r="11" fill="#edf7f4" stroke="#1f6657" stroke-width="1.4"/><text y="3" text-anchor="middle" class="support-text" fill="#1f6657">S-01</text><text y="22" text-anchor="middle" class="rel-text">extend</text></g>
+  <g transform="translate(248,198)"><circle r="11" fill="#fbf5e5" stroke="#72550c" stroke-width="1.8"/><text y="3" text-anchor="middle" class="support-text" fill="#72550c">S-02</text><text y="22" text-anchor="middle" class="rel-text rel-text-inc">include</text></g>
+  <g transform="translate(708,270)"><circle r="11" fill="#edf7f4" stroke="#1f6657" stroke-width="1.4"/><text y="3" text-anchor="middle" class="support-text" fill="#1f6657">S-03</text><text y="22" text-anchor="middle" class="rel-text">extend</text></g>
+  <g transform="translate(708,298)"><circle r="11" fill="#fbf5e5" stroke="#72550c" stroke-width="1.8"/><text y="3" text-anchor="middle" class="support-text" fill="#72550c">S-04</text><text y="22" text-anchor="middle" class="rel-text rel-text-inc">include</text></g>
+  <g transform="translate(476,362)"><circle r="11" fill="#edf7f4" stroke="#1f6657" stroke-width="1.4"/><text y="3" text-anchor="middle" class="support-text" fill="#1f6657">S-05</text><text y="22" text-anchor="middle" class="rel-text">extend</text></g>
+  <g transform="translate(476,388)"><circle r="11" fill="#fbf5e5" stroke="#72550c" stroke-width="1.8"/><text y="3" text-anchor="middle" class="support-text" fill="#72550c">S-06</text><text y="22" text-anchor="middle" class="rel-text rel-text-inc">include</text></g>
+  <g transform="translate(1166,352)"><circle r="11" fill="#edf7f4" stroke="#1f6657" stroke-width="1.4"/><text y="3" text-anchor="middle" class="support-text" fill="#1f6657">S-07</text><text y="22" text-anchor="middle" class="rel-text">extend</text></g>
+  </g>
+  <g id="footer" transform="translate(14,432)">
+    <rect x="0" y="0" width="540" height="48" rx="6" fill="#fff" stroke="#cfdbe1"/>
+    <text x="12" y="14" class="legend-h">BA L&#x1EDA;P TR&#xC1;CH NHI&#x1EC6;M</text>
+    <g transform="translate(12,20)"><rect x="0" y="0" width="6" height="14" fill="#16384a"/>
+      <text x="12" y="11" class="legend-name" fill="#16384a">NV &#xB7; Nghi&#x1EC7;p v&#x1EE5;</text>
+      <text x="12" y="22" class="legend-desc">Tr&#x1EA1;ng th&#xE1;i &#xB7; quy&#x1EC1;n &#xB7; l&#x1ECB;ch s&#x1EED;</text></g>
+    <g transform="translate(186,20)"><rect x="0" y="0" width="6" height="14" fill="#c19726"/>
+      <text x="12" y="11" class="legend-name" fill="#72550c">TT &#xB7; Thu&#x1EAD;t to&#xE1;n</text>
+      <text x="12" y="22" class="legend-desc">S-05 &#x111;&#x1ED1;i s&#xE1;nh &#xB7; S-06 COI</text></g>
+    <g transform="translate(360,20)"><rect x="0" y="0" width="6" height="14" fill="#3c7a90"/>
+      <text x="12" y="11" class="legend-name" fill="#1f6657">AI &#xB7; H&#x1ED7; tr&#x1EE3;</text>
+      <text x="12" y="22" class="legend-desc">S-01..S-04 &#xB7; S-07 &#xB7; UC-08</text></g>
+    <g transform="translate(12,40)">
+      <circle cx="6" cy="0" r="6" fill="#fbf5e5" stroke="#c19726" stroke-width="1.6"/>
+      <text x="6" y="3" text-anchor="middle" class="support-text" fill="#72550c">S</text>
+      <text x="18" y="3" class="legend-desc" font-weight="800">include</text>
+      <text x="78" y="3" class="legend-desc">b&#x1EAF;t bu&#x1ED9;c</text>
+      <circle cx="186" cy="0" r="6" fill="#edf7f4" stroke="#3c7a90" stroke-width="1.2"/>
+      <text x="186" y="3" text-anchor="middle" class="support-text" fill="#1f6657">S</text>
+      <text x="198" y="3" class="legend-desc" font-style="italic">extend</text>
+      <text x="258" y="3" class="legend-desc">t&#xF9;y ch&#x1ECD;n</text>
+    </g>
+  </g>
+  <g id="disclaimer" transform="translate(564,432)">
+    <rect x="0" y="0" width="778" height="48" rx="6" fill="#16384a"/>
+    <text x="14" y="16" font-size="11" font-weight="800" fill="#9fd8df" letter-spacing="0.04em">RANH GI&#x1EDA;I TR&#xC1;CH NHI&#x1EC6;M</text>
+    <text x="14" y="30" font-size="10.5" font-weight="600" fill="#fff">Ba l&#x1EDB;p ph&#x1ED1;i h&#x1EE3;p theo t&#x1EEB;ng &#x111;i&#x1EC3;m nghi&#x1EC7;p v&#x1EE5;; quy&#x1EC1;n ra quy&#x1EBF;t &#x111;&#x1ECB;nh h&#x1ECD;c thu&#x1EAD;t v&#x1EAB;n thu&#x1ED9;c ng&#x1B0;&#x1EDD;i d&#xF9;ng c&#xF3; th&#x1EA9;m quy&#x1EC1;n.</text>
+    <text x="14" y="42" font-size="10.5" font-weight="600" fill="#fff">&#x110;&#x1EA7;u ra NV &#xB7; TT &#xB7; AI kh&#xF4;ng t&#x1EF1; tr&#x1EDF; th&#xE0;nh d&#x1EEF; li&#x1EC7;u nghi&#x1EC7;p v&#x1EE5; ho&#x1EB7;c quy&#x1EBF;t &#x111;&#x1ECB;nh h&#x1ECD;c thu&#x1EAD;t.</text>
+  </g>
