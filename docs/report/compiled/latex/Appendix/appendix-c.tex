@@ -17,10 +17,10 @@ Bảng~\ref{tab:appc-evidence-index} ánh xạ từng nhóm kết luận trong C
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.16\textwidth}|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.23\textwidth}|}
   \caption{Chỉ mục bằng chứng của Chương 4}\label{tab:appc-evidence-index}\\[0.5\baselineskip]
   \hline
-  Nhóm đánh giá & Đầu vào và điều kiện & Tư liệu đầu ra & Chuỗi truy vết \\ \hline
+  \TableHeader{Nhóm đánh giá} & \TableHeader{Đầu vào và điều kiện} & \TableHeader{Tư liệu đầu ra} & \TableHeader{Chuỗi truy vết} \\ \hline
   \endfirsthead
   \hline
-  Nhóm đánh giá & Đầu vào và điều kiện & Tư liệu đầu ra & Chuỗi truy vết \\ \hline
+  \TableHeader{Nhóm đánh giá} & \TableHeader{Đầu vào và điều kiện} & \TableHeader{Tư liệu đầu ra} & \TableHeader{Chuỗi truy vết} \\ \hline
   \endhead
   \hline
   \endfoot
@@ -132,10 +132,10 @@ Mỗi gói đầu vào gồm ba lớp dữ liệu: ngữ cảnh nguồn, đầu 
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.12\textwidth}|>{\RaggedRight\arraybackslash}p{0.25\textwidth}|>{\RaggedRight\arraybackslash}p{0.27\textwidth}|>{\RaggedRight\arraybackslash}p{0.27\textwidth}|}
   \caption{Ánh xạ đầu vào và nguồn đối chiếu của các nhánh hậu kiểm}\label{tab:appc-tca-input-map}\\[0.5\baselineskip]
   \hline
-  Nhánh & Đơn vị cần chấm & Nguồn kiểm tra tính bám nguồn & Nội dung tham chiếu bổ sung \\ \hline
+  \TableHeader{Nhánh} & \TableHeader{Đơn vị cần chấm} & \TableHeader{Nguồn kiểm tra tính bám nguồn} & \TableHeader{Nội dung tham chiếu bổ sung} \\ \hline
   \endfirsthead
   \hline
-  Nhánh & Đơn vị cần chấm & Nguồn kiểm tra tính bám nguồn & Nội dung tham chiếu bổ sung \\ \hline
+  \TableHeader{Nhánh} & \TableHeader{Đơn vị cần chấm} & \TableHeader{Nguồn kiểm tra tính bám nguồn} & \TableHeader{Nội dung tham chiếu bổ sung} \\ \hline
   \endhead
   \hline
   \endfoot
@@ -156,7 +156,7 @@ Quy trình xử lý mỗi bài qua năm giai đoạn. Thứ nhất, quy trình x
   \label{tab:appc-tca-runtime}
   \begin{tabular}{|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|>{\RaggedRight\arraybackslash}p{0.61\textwidth}|}
     \hline
-    Thành phần & Cấu hình và trách nhiệm \\ \hline
+    \TableHeader{Thành phần} & \TableHeader{Cấu hình và trách nhiệm} \\ \hline
     Điều phối & Kiến trúc dispatcher--worker; thời hạn giữ tác vụ 30 phút; tối đa 3 lần thử cho mỗi tác vụ. \\ \hline
     Worker & GPU L4, 2 CPU, 4 GB RAM; thời gian xử lý tối đa 3.600 giây. \\ \hline
     NLI & \CodeBreak{dleemiller/ModernCE-large-nli}; độ dài ngữ cảnh 8.192 token; phân loại quan hệ giữa bằng chứng và mệnh đề~\cite{ch4ref2}. \\ \hline
@@ -171,10 +171,10 @@ Quy trình xử lý mỗi bài qua năm giai đoạn. Thứ nhất, quy trình x
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.10\textwidth}|>{\RaggedRight\arraybackslash}p{0.22\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.28\textwidth}|}
   \caption{Cơ chế và đầu ra của các nhánh hậu kiểm}\label{tab:appc-tca-branches}\\[0.5\baselineskip]
   \hline
-  Nhánh & Câu hỏi kiểm tra & Cơ chế & Trường kết quả chính \\ \hline
+  \TableHeader{Nhánh} & \TableHeader{Câu hỏi kiểm tra} & \TableHeader{Cơ chế} & \TableHeader{Trường kết quả chính} \\ \hline
   \endfirsthead
   \hline
-  Nhánh & Câu hỏi kiểm tra & Cơ chế & Trường kết quả chính \\ \hline
+  \TableHeader{Nhánh} & \TableHeader{Câu hỏi kiểm tra} & \TableHeader{Cơ chế} & \TableHeader{Trường kết quả chính} \\ \hline
   \endhead
   \hline
   \endfoot
@@ -192,10 +192,10 @@ Mỗi dòng trong tệp \CodeBreak{tca\_benchmark\_results (5).jsonl} là một 
 \begin{longtable}{|>{\RaggedRight\arraybackslash}p{0.18\textwidth}|>{\RaggedRight\arraybackslash}p{0.33\textwidth}|>{\RaggedRight\arraybackslash}p{0.39\textwidth}|}
   \caption{Các trường cấp cao trong bản ghi hậu kiểm}\label{tab:appc-tca-jsonl}\\[0.5\baselineskip]
   \hline
-  Trường & Nội dung & Vai trò truy vết \\ \hline
+  \TableHeader{Trường} & \TableHeader{Nội dung} & \TableHeader{Vai trò truy vết} \\ \hline
   \endfirsthead
   \hline
-  Trường & Nội dung & Vai trò truy vết \\ \hline
+  \TableHeader{Trường} & \TableHeader{Nội dung} & \TableHeader{Vai trò truy vết} \\ \hline
   \endhead
   \hline
   \endfoot
@@ -244,10 +244,10 @@ Bộ thử sử dụng một hội nghị giả lập với hai bài nộp, mộ
 \begin{longtable}{|>{\centering\arraybackslash}p{0.08\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.30\textwidth}|>{\RaggedRight\arraybackslash}p{0.24\textwidth}|}
   \caption{Ma trận kịch bản kiểm tra Chatbot Agent}\label{tab:appc-chatbot-scenarios}\\[0.5\baselineskip]
   \hline
-  Mã & Vai trò và yêu cầu & Công cụ hoặc dữ liệu kỳ vọng & Ranh giới cần kiểm tra \\ \hline
+  \TableHeader{Mã} & \TableHeader{Vai trò và yêu cầu} & \TableHeader{Công cụ hoặc dữ liệu kỳ vọng} & \TableHeader{Ranh giới cần kiểm tra} \\ \hline
   \endfirsthead
   \hline
-  Mã & Vai trò và yêu cầu & Công cụ hoặc dữ liệu kỳ vọng & Ranh giới cần kiểm tra \\ \hline
+  \TableHeader{Mã} & \TableHeader{Vai trò và yêu cầu} & \TableHeader{Công cụ hoặc dữ liệu kỳ vọng} & \TableHeader{Ranh giới cần kiểm tra} \\ \hline
   \endhead
   \hline
   \endfoot

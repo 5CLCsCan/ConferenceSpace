@@ -102,7 +102,7 @@
 \newcolumntype{T}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{N}[1]{>{\centering\arraybackslash}p{#1}}
 \newcommand{\CodeBreak}[1]{\textit{\seqsplit{#1}}}
-\newcommand{\TableHeader}[1]{\centering\arraybackslash #1}
+\newcommand{\TableHeader}[1]{\centering\arraybackslash\bfseries #1}
 % Template bảng dùng lại:
 % - PrismTableCenter: bảng thường dùng với \captionof{table}, \TableCaptionSpace và tabular full border.
 % - PrismLongTable: bảng dài dùng với longtable, \LongTableHeaderBorder và \LongTableFooterBorder.
@@ -133,9 +133,7 @@
 \captionsetup[figure]{position=bottom,justification=centering,singlelinecheck=false}
 \captionsetup[table]{
   justification=centering,
-  singlelinecheck=false,
-  labelfont=bf,
-  textfont=bf
+  singlelinecheck=false
 }
 
 % Đổi tên mặc định
